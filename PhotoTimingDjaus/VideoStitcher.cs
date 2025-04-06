@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.RegularExpressions;
 
 namespace PhotoTimingDjaus
 {
@@ -10,6 +11,8 @@ namespace PhotoTimingDjaus
         private string videoPath;
         private string outputPath;
         private int startTimeSeconds;
+        private int Fps = 30;
+        const int OneMinute = 60;
 
         // Constructor to initialize the video stitcher parameters
         public VideoStitcher(string videoPath, string outputPath, int startTimeSeconds)
@@ -32,6 +35,9 @@ namespace PhotoTimingDjaus
 
             // Open the video file
             using var capture = new VideoCapture(videoPath);
+
+            Fps = (int)capture.Fps;
+
             if (!capture.IsOpened())
             {
                 Console.WriteLine("Failed to open the video file.");
@@ -83,17 +89,17 @@ namespace PhotoTimingDjaus
                 var column = verticalLines[i];
                 column.CopyTo(stitchedImage.RowRange(0, stitchedHeight).Col(i)); // Copy column to the corresponding position
 
-                int currentTimeSeconds = startTimeSeconds + i / 30; // Current time (relative to start)
-                int currentMinute = currentTimeSeconds / 60; // Current minute
-                int currentSecond = currentTimeSeconds % 60; // Seconds within the current minute
+                int currentTimeSeconds = startTimeSeconds + i / Fps; // Current time (relative to start)
+                int currentMinute = currentTimeSeconds / OneMinute; // Current minute
+                int currentSecond = currentTimeSeconds % OneMinute; // Seconds within the current minute
 
                 // Add markers
-                if (currentSecond == 0 && i % 30 == 0) // Red minute marker
+                if (currentSecond == 0 && i % Fps == 0) // Red minute marker
                 {
                     Cv2.Line(stitchedImage, new Point(i, stitchedHeight), new Point(i, stitchedHeight + 100), new Scalar(0, 0, 255), 3); // Red line
                     if (i == 0) // First marker (special alignment)
                     {
-                        int firstMinuteLabel = (startTimeSeconds % 60 == 0) ? currentMinute : currentMinute - 1; // Adjust label only if start time is not an exact minute
+                        int firstMinuteLabel = (startTimeSeconds % OneMinute == 0) ? currentMinute : currentMinute - 1; // Adjust label only if start time is not an exact minute
                         Cv2.PutText(stitchedImage, $"{firstMinuteLabel} min", new Point(i, stitchedHeight + 90), HersheyFonts.HersheySimplex, 0.5, new Scalar(255, 255, 255), 1); // Align text to the left with ' min'
                     }
                     else
@@ -101,27 +107,27 @@ namespace PhotoTimingDjaus
                         Cv2.PutText(stitchedImage, $"{currentMinute} min", new Point(i + 5, stitchedHeight + 90), HersheyFonts.HersheySimplex, 0.5, new Scalar(255, 255, 255), 1); // Normal alignment with ' min'
                     }
                 }
-                else if (currentSecond % 10 == 0 && i % 30 == 0) // Green 10-second marker
+                else if (currentSecond % 10 == 0 && i % Fps == 0) // Green 10-second marker
                 {
                     Cv2.Line(stitchedImage, new Point(i, stitchedHeight), new Point(i, stitchedHeight + 50), new Scalar(0, 255, 0), 2); // Green line
                     if (i == 0) // First marker is a 10-second marker
                     {
                         int firstMinuteLabel = currentMinute; // Do not decrement for a 10-second marker
-                        Cv2.PutText(stitchedImage, $"{currentSecond}", new Point(i, stitchedHeight + 60), HersheyFonts.HersheySimplex, 0.5, new Scalar(255, 255, 255), 1); // Align text to the left
+                        Cv2.PutText(stitchedImage, $"{currentSecond}", new Point(i, stitchedHeight + OneMinute), HersheyFonts.HersheySimplex, 0.5, new Scalar(255, 255, 255), 1); // Align text to the left
                         Cv2.PutText(stitchedImage, $"{firstMinuteLabel} min", new Point(i, stitchedHeight + 90), HersheyFonts.HersheySimplex, 0.5, new Scalar(255, 255, 255), 1); // Add minute number aligned below with ' min'
                     }
                     else
                     {
-                        Cv2.PutText(stitchedImage, $"{currentSecond}", new Point(i - 10, stitchedHeight + 60), HersheyFonts.HersheySimplex, 0.5, new Scalar(255, 255, 255), 1); // Normal alignment
+                        Cv2.PutText(stitchedImage, $"{currentSecond}", new Point(i - 10, stitchedHeight + OneMinute), HersheyFonts.HersheySimplex, 0.5, new Scalar(255, 255, 255), 1); // Normal alignment
                     }
                 }
-                else if (currentSecond % 5 == 0 && i % 30 == 0) // Yellow 5-second marker
+                else if (currentSecond % 5 == 0 && i % Fps == 0) // Yellow 5-second marker
                 {
                     Cv2.Line(stitchedImage, new Point(i, stitchedHeight), new Point(i, stitchedHeight + 25), new Scalar(0, 255, 255), 1); // Yellow line
                 }
-                else if (i % 30 == 0) // Blue 1-second marker
+                else if (i % Fps == 0) // Blue 1-second marker
                 {
-                    Cv2.Line(stitchedImage, new Point(i, stitchedHeight), new Point(i, stitchedHeight + 10), new Scalar(255, 0, 0), 1); // Blue line
+                    Cv2.Line(stitchedImage, new Point(i, stitchedHeight), new Point(i, stitchedHeight + 12), new Scalar(255, 255, 255), 1); // White line
                 }
             }
 

@@ -28,7 +28,13 @@
             <ProgressBar Name="BusyIndicator" Height="20" Width="120" IsIndeterminate="True" Visibility="Collapsed" Margin="0,20,0,0" />
 
             <!-- Image Display -->
-            <ScrollViewer Name="ImageScrollViewer" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Margin="0,20,0,0">
+            <ScrollViewer Name="ImageScrollViewer" 
+                HorizontalScrollBarVisibility="Auto" 
+                VerticalScrollBarVisibility="Visible" 
+                PanningMode="Both" 
+                PanningDeceleration="0.001" 
+                PanningRatio="0.5" 
+                Margin="0,20,0,0">
                 <Image Name="StitchedImage" />
             </ScrollViewer>
         </StackPanel>
