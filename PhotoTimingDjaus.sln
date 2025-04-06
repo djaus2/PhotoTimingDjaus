@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35825.156 d17.13
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhotoTimingDjaus", "PhotoTimingDjaus\PhotoTimingDjaus.csproj", "{E4BC8DB3-0857-4B31-97E9-8376BB6CE124}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E4BC8DB3-0857-4B31-97E9-8376BB6CE124}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E4BC8DB3-0857-4B31-97E9-8376BB6CE124}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E4BC8DB3-0857-4B31-97E9-8376BB6CE124}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E4BC8DB3-0857-4B31-97E9-8376BB6CE124}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2690AABE-FD8E-48A3-9983-3C385E7668A0}
+	EndGlobalSection
+EndGlobal
