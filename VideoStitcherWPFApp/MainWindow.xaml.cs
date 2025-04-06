@@ -164,7 +164,7 @@ namespace VideoStitcherGUI
             }
         }
 
-        private Point _lastMousePosition;
+        private System.Windows.Point _lastMousePosition;
         private bool _isPanning = false;
 
         /*
@@ -183,7 +183,7 @@ namespace VideoStitcherGUI
         {
             if (_isPanning)
             {
-                Point currentPosition = e.GetPosition(ImageScrollViewer);
+                System.Windows.Point currentPosition = e.GetPosition(ImageScrollViewer);
                 Vector delta = _lastMousePosition - currentPosition;
 
                 ImageScrollViewer.ScrollToHorizontalOffset(ImageScrollViewer.HorizontalOffset + delta.X);
@@ -210,7 +210,7 @@ namespace VideoStitcherGUI
             OverlayCanvas.CaptureMouse();
 
             // Get the starting position
-            Point position = e.GetPosition(OverlayCanvas);
+            System.Windows.Point position = e.GetPosition(OverlayCanvas);
 
             // Set the line's starting and ending points
             VerticalLine.X1 = position.X;
@@ -227,7 +227,7 @@ namespace VideoStitcherGUI
             if (_isDragging)
             {
                 // Update the line's position as the mouse moves
-                Point position = e.GetPosition(OverlayCanvas);
+                System.Windows.Point position = e.GetPosition(OverlayCanvas);
                 VerticalLine.X1 = position.X;
                 VerticalLine.X2 = position.X;
             }
@@ -250,7 +250,7 @@ namespace VideoStitcherGUI
             StitchedImage.CaptureMouse();
             
             // Get the mouse position relative to the stitched image
-            Point position = e.GetPosition(StitchedImage);
+            System.Windows.Point position = e.GetPosition(StitchedImage);
 
             // Set the line's starting and ending points relative to the image
             VerticalLine.X1 = position.X;
@@ -269,7 +269,7 @@ namespace VideoStitcherGUI
             if (_isDragging)
             {
                 // Update the line's position as the mouse moves over the stitched image
-                Point position = e.GetPosition(StitchedImage);
+                System.Windows.Point position = e.GetPosition(StitchedImage);
                 double posX = position.X;
                 if (StitchedImage.LayoutTransform is ScaleTransform transform)
                 {
