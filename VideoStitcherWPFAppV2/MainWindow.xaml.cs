@@ -23,8 +23,10 @@ namespace VideoStitcherGUI
             string videoPath = VideoPathInput.Text;
             string outputPath = OutputPathInput.Text;
 
+            StitchButton.Width = 0;
             StitchButton.IsEnabled = false; // Disable the button to prevent multiple clicks
                                             // Validate inputs
+            StitchButton.Visibility = Visibility.Hidden; // Hide the button
             if (!File.Exists(videoPath))
             {
                 MessageBox.Show("The specified video file does not exist.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -79,6 +81,8 @@ namespace VideoStitcherGUI
                 {
                     MessageBox.Show("Failed to create the stitched image.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
+                StitchButton.Visibility = Visibility.Visible; // Hide the button
+                StitchButton.Width = 200;
                 StitchButton.IsEnabled = true; // Re-enable the button
             };
 
