@@ -37,7 +37,7 @@
             PanningDeceleration="0.001" 
             PanningRatio="0.5" 
             Margin="0,20,0,0">
-                <Canvas Name="OverlayCanvas">
+                <Canvas Name="OverlayCanvas" Height="600">
                     <Image Name="StitchedImage" Stretch="None"
                     MouseLeftButtonDown="StitchedImage_MouseLeftButtonDown"
                     MouseMove="StitchedImage_MouseMove"

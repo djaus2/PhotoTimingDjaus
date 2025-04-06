@@ -37,7 +37,14 @@
                 PanningDeceleration="0.001" 
                 PanningRatio="0.5" 
                 Margin="0,20,0,0">
-                <Image Name="StitchedImage" />
+                <Canvas Name="OverlayCanvas" Height="800">
+                    <Image Name="StitchedImage" Stretch="None"
+                    MouseLeftButtonDown="StitchedImage_MouseLeftButtonDown"
+                    MouseMove="StitchedImage_MouseMove"
+                    MouseLeftButtonUp="StitchedImage_MouseLeftButtonUp" />
+                    <Line Name="VerticalLine" Stroke="Red" StrokeThickness="2" Visibility="Collapsed" />
+                    <TextBlock Name="TimeLabel" Background="White" Foreground="Black" Visibility="Collapsed" />
+                </Canvas>
             </ScrollViewer>
         </StackPanel>
     </Grid>
