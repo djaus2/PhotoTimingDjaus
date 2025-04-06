@@ -21,7 +21,7 @@ namespace PhotoTimingDjaus
         }
 
         // Main method to start the stitching process
-        public void Stitch()
+        public int Stitch()
         {
             // Delete the file if it already exists
             if (File.Exists(outputPath))
@@ -35,7 +35,7 @@ namespace PhotoTimingDjaus
             if (!capture.IsOpened())
             {
                 Console.WriteLine("Failed to open the video file.");
-                return;
+                return 0;
             }
 
             // Check if the start time exceeds the video duration
@@ -43,7 +43,7 @@ namespace PhotoTimingDjaus
             if (startTimeSeconds > videoDurationSeconds)
             {
                 Console.WriteLine($"Error: Start time ({startTimeSeconds} seconds) exceeds video duration ({videoDurationSeconds:F2} seconds).");
-                return;
+                return 0;
             }
 
             // Calculate the frame to start stitching
@@ -129,6 +129,7 @@ namespace PhotoTimingDjaus
             Cv2.ImWrite(outputPath, stitchedImage);
 
             Console.WriteLine($"Stitched image with markers saved at '{outputPath}'.");
+            return (int) videoDurationSeconds;
         }
     }
 }
