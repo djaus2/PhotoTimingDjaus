@@ -2,7 +2,13 @@
 
 A simple phototiming app for Athletics etc where a finish line is filmed with say, a phone, and a stitched image is created by taking the middle vertical line of pixels from each video frame and stiching together the phototiming image.  Note that video FramesPerSecond are typically 30 so each line represents 0.033 of s second and hence this is the resolution of any timing. Commercial equipment would be to thousandths or tens of thousandths of a second.
 
-**This is a WPF app so runs on a Windows desktop.**  _A Phone version may follow._
+## Apps
+- PhotoTimingDjaus
+  - A Console app that does the image stiching. Also called by VideoSticher apps to do such
+- VideoStitcherWPFApp
+  - Earlier version of WPF app. _Don't use._
+- VideoStitcherWPFAppV2 .. Use this
+  - **This is a WPF app so runs on a Windows desktop.**  _A Phone version may follow._
 
 ## 2Dos
 A few issues remain but getting there. 
