@@ -44,6 +44,8 @@ namespace VideoStitcherGUI
 
             // Show the busy indicator
             BusyIndicator.Visibility = Visibility.Visible;
+            FinishTime.Visibility = Visibility.Hidden;
+            FinishTimeLabel.Visibility = FinishTime.Visibility;
 
             // Run the stitching process in a background thread
             BackgroundWorker worker = new BackgroundWorker();
@@ -168,7 +170,7 @@ namespace VideoStitcherGUI
                     posY2 = posY2 * verticalScale; // Adjust time based on scale
                 }
                 VerticalLine.Y2 = posY2; // Bottom of the image
-                TimeLabel.Margin = new Thickness(posX + 10, position.Y, 0, 0); // Place label slightly to the right of the cursor
+                TimeLabel.Margin = new Thickness(posX + 10, 100, 0, 0); // Place label slightly to the right of the cursor
 
                 UpdateTimeLabel(posX);
             }
@@ -182,26 +184,33 @@ namespace VideoStitcherGUI
             VerticalLine.Visibility = Visibility.Collapsed;
             VerticalLine.Visibility = Visibility.Collapsed;
             TimeLabel.Visibility = Visibility.Collapsed;
+            FinishTime.Visibility = Visibility.Visible;
+            FinishTimeLabel.Visibility = FinishTime.Visibility;
         }
 
         private void UpdateTimeLabel(double positionX)
         {
             // Get the image's horizontal scaling from the LayoutTransform (ScaleTransform)
             double horizontalScale = 1.0; // Default scale (no zoom)
-            //if (StitchedImage.LayoutTransform is ScaleTransform transform)
-            //{
-            //    horizontalScale = transform.ScaleX; // Get the horizontal scale
-            //}
+            if (StitchedImage.LayoutTransform is ScaleTransform transform)
+            {
+                horizontalScale = transform.ScaleX; // Get the horizontal scale
+            }
 
             // Calculate the relative position accounting for the horizontal scale
             double relativePosition = (positionX / horizontalScale) / StitchedImage.ActualWidth;
 
             // Example total duration of the stitched video
             double durationInSeconds = videoLength; // Replace with the actual duration of your stitched image
-            double timeInSeconds = (int)(startTimeSeconds + relativePosition * durationInSeconds);
-
+            double timeInSeconds = (startTimeSeconds + relativePosition * durationInSeconds);
+            TimeSpan ts = TimeSpan.FromMilliseconds((long)(timeInSeconds*1000));
+            string formattedTime = $"{ts.Hours:D2}:{ts.Minutes:D2}:{ts.Seconds:D2}.{(int)(ts.Milliseconds/10)}"; // Format as HH:MM:SS.hh
             // Display the calculated time
-            TimeLabel.Text = $"{Math.Floor(timeInSeconds)} sec";
+            TimeLabel.Text = $"{timeInSeconds:F2} sec";
+            FinishTimeLabel.Text = formattedTime;
+            FinishTime.Visibility = Visibility.Hidden;
+            FinishTimeLabel.Visibility = FinishTime.Visibility;
+            Clipboard.SetData(DataFormats.Text, (Object)formattedTime);
         }
 
     }
