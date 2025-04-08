@@ -15,7 +15,7 @@ A simple phototiming app for Athletics etc where a finish line is filmed with sa
 ## 2Dos
 A few issues remain but getting there. 
 - Times are not quite accurste.
-- Panning and scrolling need improvement.
+- Panning and scrolling need improvement. <- _Fixed in V3_
 - When starting from a time not at start of video, time at bottom scale is not chaned (is from 0). But determined time is correct.
 
 ## Usage
