@@ -7,8 +7,10 @@ A simple phototiming app for Athletics etc where a finish line is filmed with sa
   - A Console app that does the image stiching. Also called by VideoSticher apps to do such
 - VideoStitcherWPFApp
   - Earlier version of WPF app. _Don't use._
-- VideoStitcherWPFAppV2 .. Use this
+- VideoStitcherWPFAppV2
   - **This is a WPF app so runs on a Windows desktop.**  _A Phone version may follow._
+- VideoStitcherWPFAppV3 .. Use this
+  - Can load previous stitched file but timing doesn't work for that (2Do)
 
 ## 2Dos
 A few issues remain but getting there. 
