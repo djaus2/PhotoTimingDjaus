@@ -11,7 +11,7 @@ A simple phototiming app for Athletics etc where a finish line is filmed with sa
   - **This is a WPF app so runs on a Windows desktop.**  _A Phone version may follow._
 - VideoStitcherWPFAppV3 .. Use this
   - Can load previous stitched file but timing doesn't work for that (2Do)
-  - Use Image viwer with zoom and pan from this GitHub project [djaus2/ShowImageWPF](https://github.com/djaus2/ShowImageWPF)
+  - Uses Image viwer with zoom and pan from this GitHub project [djaus2/ShowImageWPF](https://github.com/djaus2/ShowImageWPF)
 
 ## 2Dos
 A few issues remain but getting there. 
