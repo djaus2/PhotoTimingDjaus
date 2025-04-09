@@ -5,11 +5,11 @@ VisualStudioVersion = 17.13.35825.156
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhotoTimingDjaus", "PhotoTimingDjaus\PhotoTimingDjaus.csproj", "{E4BC8DB3-0857-4B31-97E9-8376BB6CE124}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VideoStitcherWPFApp", "VideoStitcherWPFApp\VideoStitcherWPFApp.csproj", "{9F442970-FDFF-41A5-AEC7-AAAE30070623}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VideoStitcherWPFAppV2", "VideoStitcherWPFAppV2\VideoStitcherWPFAppV2.csproj", "{C1B56A2C-5FC9-487E-824E-DF2C2D29D1BE}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VideoStitcherWPFAppV3", "VideoStitcherWPFAppV3\VideoStitcherWPFAppV3.csproj", "{898547B9-461D-7F05-3838-DF1EE59AF6D2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StitchInTimeMaui", "StitchInTime\StitchInTimeMaui.csproj", "{ECE00AFD-8C9A-4B7F-8D4B-7767F11D4997}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhotoTimingDjausLib", "PhotoTimingDjausLib\PhotoTimingDjausLib.csproj", "{6A5635AB-E14C-81E5-BB68-1928C1E8C8CD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,18 +21,20 @@ Global
 		{E4BC8DB3-0857-4B31-97E9-8376BB6CE124}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E4BC8DB3-0857-4B31-97E9-8376BB6CE124}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E4BC8DB3-0857-4B31-97E9-8376BB6CE124}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9F442970-FDFF-41A5-AEC7-AAAE30070623}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9F442970-FDFF-41A5-AEC7-AAAE30070623}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9F442970-FDFF-41A5-AEC7-AAAE30070623}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9F442970-FDFF-41A5-AEC7-AAAE30070623}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C1B56A2C-5FC9-487E-824E-DF2C2D29D1BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C1B56A2C-5FC9-487E-824E-DF2C2D29D1BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C1B56A2C-5FC9-487E-824E-DF2C2D29D1BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C1B56A2C-5FC9-487E-824E-DF2C2D29D1BE}.Release|Any CPU.Build.0 = Release|Any CPU
 		{898547B9-461D-7F05-3838-DF1EE59AF6D2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{898547B9-461D-7F05-3838-DF1EE59AF6D2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{898547B9-461D-7F05-3838-DF1EE59AF6D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{898547B9-461D-7F05-3838-DF1EE59AF6D2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ECE00AFD-8C9A-4B7F-8D4B-7767F11D4997}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ECE00AFD-8C9A-4B7F-8D4B-7767F11D4997}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ECE00AFD-8C9A-4B7F-8D4B-7767F11D4997}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{ECE00AFD-8C9A-4B7F-8D4B-7767F11D4997}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ECE00AFD-8C9A-4B7F-8D4B-7767F11D4997}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ECE00AFD-8C9A-4B7F-8D4B-7767F11D4997}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{6A5635AB-E14C-81E5-BB68-1928C1E8C8CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6A5635AB-E14C-81E5-BB68-1928C1E8C8CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6A5635AB-E14C-81E5-BB68-1928C1E8C8CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6A5635AB-E14C-81E5-BB68-1928C1E8C8CD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

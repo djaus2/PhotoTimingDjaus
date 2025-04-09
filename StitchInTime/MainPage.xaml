@@ -1,0 +1,59 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             
+             x:Class="StitchInTime.MainPage">
+    
+    <ScrollView>
+        <VerticalStackLayout x:Name="MyLayout"
+            Padding="30,0"
+            Spacing="25">
+            <Image
+                Source="dotnet_athletics.jpg"
+                HeightRequest="120"
+                Aspect="AspectFit"
+                SemanticProperties.Description="Usain!" />
+
+            <Label
+                Text="Hello Athlete/Official!"
+                Style="{StaticResource Headline}"
+                SemanticProperties.HeadingLevel="Level1" />
+
+            <Label
+                Text="This app takes a finish line MP4 video and stitches it into a Phototiming PNG image."
+                Style="{StaticResource SubHeadline}"
+                SemanticProperties.HeadingLevel="Level2"
+                SemanticProperties.Description="Welcome to dot net Multi platform App U I" />
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="150"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Label Grid.Row="0" Grid.Column="0" Text="Video Source:" VerticalOptions="Center" HorizontalOptions="Start" HorizontalTextAlignment="End"  TextDecorations= "Underline" WidthRequest="150" FontAttributes="Bold" />
+                <Entry Grid.Row="0" Grid.Column="2" x:Name="Source" HorizontalOptions="Start" Placeholder="Enter path to video"  Completed="OnEntryCompletedVideoPath" WidthRequest="600" />
+                <Label Grid.Row="1" Grid.Column="0" Text="Stitch Output:" VerticalOptions="Center" HorizontalOptions="Start" HorizontalTextAlignment="End"  TextDecorations= "Underline" WidthRequest="150" FontAttributes="Bold" />
+                <Entry Grid.Row="1" Grid.Column="2" x:Name="Stitch" HorizontalOptions="Start" Placeholder="Enter path for stitch file"  Completed="OnEntryCompletedStitchFilePath" WidthRequest="600" />
+                <Label Grid.Row="2" Grid.Column="0" Text="Start time (sec):" VerticalOptions="Center" HorizontalOptions="Start" HorizontalTextAlignment="End"  TextDecorations= "Underline" FontAttributes="Bold" WidthRequest="150"/>
+                <Entry Grid.Row="2" Grid.Column="2" x:Name="Start" HorizontalOptions="Start" Keyboard="Numeric" Completed="Start_Completed" WidthRequest="600" />
+                <Label Grid.Row="3" Grid.Column="0" Text="Video Length (sec):" VerticalOptions="Center" HorizontalOptions="Start" HorizontalTextAlignment="End"  TextDecorations= "Underline" FontAttributes="Bold" WidthRequest="150"/>
+                <Entry Grid.Row="3" Grid.Column="2" x:Name="VidLength" HorizontalOptions="Start" Keyboard="Numeric"  WidthRequest="600" />
+
+            </Grid>
+            <Button
+                x:Name="CounterBtn"
+                Text="Click to Stitch!" 
+                PropertyChanged="CounterBtn_PropertyChanged"
+                SemanticProperties.Hint="Counts the number of times you click"
+                Clicked="OnCounterClicked"
+                HorizontalOptions="Fill" />
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

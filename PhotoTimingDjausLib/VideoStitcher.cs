@@ -1,6 +1,7 @@
 ﻿using OpenCvSharp;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Text.RegularExpressions;
 
@@ -137,5 +138,56 @@ namespace PhotoTimingDjaus
             Console.WriteLine($"Stitched image with markers saved at '{outputPath}'.");
             return (int) videoDurationSeconds;
         }
+
+        private void StitchUpWorker(string videoPath, string outputPath, int startTimeSeconds, Action<IAsyncResult> callback)
+        {
+            int videoLength = 0;
+
+            if (!File.Exists(videoPath))
+            {
+                File.Delete(outputPath);
+            }
+
+
+            // Show the busy indicator
+            //BusyIndicator.Visibility = Visibility.Visible;
+            //FinishTime.Visibility = Visibility.Hidden;
+            //FinishTimeLabel.Visibility = FinishTime.Visibility;
+
+            // Run the stitching process in a background thread
+            BackgroundWorker worker = new BackgroundWorker();
+            worker.DoWork += (s, args) =>
+            {
+                // Call the stitching process
+                var videoStitcher = new PhotoTimingDjaus.VideoStitcher(videoPath, outputPath, startTimeSeconds);
+                videoLength = videoStitcher.Stitch();
+            };
+
+            worker.RunWorkerCompleted += (s, args) =>
+            {
+
+                // Hide the busy indicator
+                //BusyIndicator.Visibility = Visibility.Collapsed;
+
+                // Display the stitched image
+                if (File.Exists(outputPath))
+                {
+                    //null, false, null)
+                    var argsx = new AsyncCompletedEventArgs(null, false, videoLength);
+                    callback.Invoke((IAsyncResult)argsx);
+                }
+                else
+                {
+                    
+                    //MessageBox.Show("Failed to create the stitched image.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                //StitchButton.Visibility = Visibility.Visible; // Hide the button
+                //StitchButton.Width = 200;
+                //StitchButton.IsEnabled = true; // Re-enable the button
+            };
+
+            worker.RunWorkerAsync();
+        }
+
     }
 }
