@@ -7,13 +7,16 @@ A simple phototiming app for Athletics etc where a finish line is filmed with sa
   - A Console app that does the image stiching. Also called by VideoSticher apps to do such
 - VideoStitcherWPFApp
   - Earlier version of WPF app. _Don't use._
-- VideoStitcherWPFAppV2 .. Use this
+- VideoStitcherWPFAppV2
   - **This is a WPF app so runs on a Windows desktop.**  _A Phone version may follow._
+- VideoStitcherWPFAppV3 .. Use this
+  - Can load previous stitched file but timing doesn't work for that (2Do)
+  - Uses Image viwer with zoom and pan from this GitHub project [djaus2/ShowImageWPF](https://github.com/djaus2/ShowImageWPF)
 
 ## 2Dos
 A few issues remain but getting there. 
 - Times are not quite accurste.
-- Panning and scrolling need improvement.
+- Panning and scrolling need improvement. <- _Improved in V3_
 - When starting from a time not at start of video, time at bottom scale is not chaned (is from 0). But determined time is correct.
 
 ## Usage
