@@ -49,7 +49,6 @@
             <Button
                 x:Name="CounterBtn"
                 Text="Click to Stitch!" 
-                PropertyChanged="CounterBtn_PropertyChanged"
                 SemanticProperties.Hint="Counts the number of times you click"
                 Clicked="OnCounterClicked"
                 HorizontalOptions="Fill" />

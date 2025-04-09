@@ -22,6 +22,7 @@ namespace StitchInTime
         int startTimeSeconds { get => startTimeSecondsInit; set => startTimeSecondsInit = value; }
 
         int videoLength = 0;
+        Image image;
 
         public class MyViewModel
         {
@@ -123,6 +124,15 @@ namespace StitchInTime
                 MyLayout.Children.Remove(activityIndicator);
                 Entry vidLength = (Entry)FindByName("VidLength");
                 vidLength.Text = $"{videoLength}";
+                if(image != null)
+                {
+                    MyLayout.Children.Remove(image);
+                }
+                image = new Image
+                {
+                    Source = ImageSource.FromFile(outputPath)
+                };
+                MyLayout.Children.Add(image);
             }
         }
         //////////////////////////////////////////////////////////////////////////////////////
@@ -193,23 +203,6 @@ namespace StitchInTime
                 if (File.Exists(outputPath))
                 {
                     CounterBtn.Text = "Done";
-                    //Maybe add image later.
-                    /*var bitmap = new BitmapImage();
-                    bitmap.BeginInit();
-                    bitmap.UriSource = new Uri(outputPath, UriKind.Absolute);
-                    bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                    bitmap.EndInit();
-
-                    StitchedImage.LayoutTransform = null;
-                    StitchedImage.Source = bitmap;
-                    if (StitchedImage.Source is BitmapSource bitmapx)
-                    {
-                        System.Diagnostics.Debug.WriteLine($"Image Dimensions: {bitmapx.PixelWidth}x{bitmap.PixelHeight}");
-                    }
-                    //Details.Visibility = Visibility.Collapsed;
-                    //Scrolls.Visibility = Visibility.Collapsed;
-                    MessageBox.Show("Stitched image successfully created and displayed!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-                    */
                 }
                 else
                 {
@@ -219,13 +212,5 @@ namespace StitchInTime
 
             worker.RunWorkerAsync();
         }
-
-        private void CounterBtn_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-
-        }
-
-
     }
-
 }
