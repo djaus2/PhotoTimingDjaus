@@ -13,7 +13,7 @@ A simple phototiming app for Athletics etc where a finish line is filmed with sa
   - Can load previous stitched file but timing doesn't work for that (2Do)
   - Uses Image viwer with zoom and pan from this GitHub project [djaus2/ShowImageWPF](https://github.com/djaus2/ShowImageWPF)
 - StitchInTimeMaui  Maui version of PhotoTimingDjaus Console app
-  - No Stitched Image at this stage
+  - ~~No Stitched Image at this stage~~ Now displays stitched iamge.
   - Only runs on Windows Desktop at this stage as uses **OpenCvSharp4.runtime.win**
 
 ## 2Dos
