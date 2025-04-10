@@ -63,7 +63,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\PhotoTimingDjausLib\PhotoTimingDjausLib.csproj" />
+	  <ProjectReference Include="..\PhotoTimingDjausLibAndroid\PhotoTimingDjausLibAndroid.csproj" />
 	</ItemGroup>
 
 </Project>

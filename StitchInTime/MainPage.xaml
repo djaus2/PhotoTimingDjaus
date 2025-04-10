@@ -47,9 +47,15 @@
 
             </Grid>
             <Button
+                x:Name="SetupBtn"
+                Text="Select files!" 
+                SemanticProperties.Hint="Get/site Source video/Target stitched image"
+                Clicked="GetStitchUp"
+                HorizontalOptions="Fill" />
+            <Button
                 x:Name="CounterBtn"
                 Text="Click to Stitch!" 
-                SemanticProperties.Hint="Counts the number of times you click"
+                SemanticProperties.Hint="Start stitching image lines into an image"
                 Clicked="OnCounterClicked"
                 HorizontalOptions="Fill" />
         </VerticalStackLayout>
