@@ -2,6 +2,13 @@
 
 A simple phototiming app for Athletics etc where a finish line is filmed with say, a phone, and a stitched image is created by taking the middle vertical line of pixels from each video frame and stiching together the phototiming image.  Note that video FramesPerSecond are typically 30 so each line represents 0.033 of s second and hence this is the resolution of any timing. Commercial equipment would be to thousandths or tens of thousandths of a second.
 
+## Library
+- **PhotoTimingDjausLib**
+  - Uses **OpenCvSharp4.runtime.win**
+  -    - Does video stitching
+  - **PhotoTimingDjausLibAndroid** BUT ...
+    - Needs correct runtime, not there , so stitch fails
+
 ## Apps
 - PhotoTimingDjaus
   - A Console app that does the image stiching. Also called by VideoSticher apps to do such
@@ -14,9 +21,9 @@ A simple phototiming app for Athletics etc where a finish line is filmed with sa
   - Uses Image viwer with zoom and pan from this GitHub project [djaus2/ShowImageWPF](https://github.com/djaus2/ShowImageWPF)
 - StitchInTimeMaui  Maui version of PhotoTimingDjaus Console app
   - ~~No Stitched Image at this stage~~ Now displays stitched iamge.
-  - Only runs on Windows Desktop at this stage as uses **OpenCvSharp4.runtime.win**
+  - ```Only runs on Windows Desktop at this stage``` as uses **OpenCvSharp4.runtime.win**
     - Now runs in Android Device BUT ..
-    - Is now a Lib for Maui Android but needs correct runtime, not there , so stitch fails
+    - Uses own a Lib for Maui Android but needs correct runtime, not there , so stitch fails
 
 ## 2Dos
 A few issues remain but getting there. 
