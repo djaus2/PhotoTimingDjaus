@@ -8,6 +8,7 @@ A simple phototiming app for Athletics etc where a finish line is filmed with sa
   - Does video stitching
 - **PhotoTimingDjausLibAndroid** BUT ...
   - Needs correct runtime, not there , so stitch fails
+  - Trued a runtime that didn't woirk https://www.nuget.org/packages/Sdcb.OpenCvSharp4.mini.runtime.android-arm64
 
 ## Apps
 - PhotoTimingDjaus
