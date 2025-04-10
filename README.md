@@ -5,9 +5,9 @@ A simple phototiming app for Athletics etc where a finish line is filmed with sa
 ## Library
 - **PhotoTimingDjausLib**
   - Uses **OpenCvSharp4.runtime.win**
-  -    - Does video stitching
-  - **PhotoTimingDjausLibAndroid** BUT ...
-    - Needs correct runtime, not there , so stitch fails
+  - Does video stitching
+- **PhotoTimingDjausLibAndroid** BUT ...
+  - Needs correct runtime, not there , so stitch fails
 
 ## Apps
 - PhotoTimingDjaus
