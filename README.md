@@ -15,6 +15,8 @@ A simple phototiming app for Athletics etc where a finish line is filmed with sa
 - StitchInTimeMaui  Maui version of PhotoTimingDjaus Console app
   - ~~No Stitched Image at this stage~~ Now displays stitched iamge.
   - Only runs on Windows Desktop at this stage as uses **OpenCvSharp4.runtime.win**
+    - Now runs in Android Device BUT ..
+    - Is now a Lib for Maui Android but needs correct runtime, not there , so stitch fails
 
 ## 2Dos
 A few issues remain but getting there. 
