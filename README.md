@@ -16,7 +16,8 @@ A simple phototiming app for Athletics etc where a finish line is filmed with sa
 
 ## Apps
 - PhotoTimingDjaus
-  - A Console app that does the image stiching. Also called by VideoSticher apps to do such
+  - A Console app that does the image stiching.
+    - Originally called by VideoSticher apps to do such but that functionality is separate app.
 - VideoStitcherWPFApp
   - Earlier version of WPF app. _Don't use._
 - VideoStitcherWPFAppV2
