@@ -6,9 +6,8 @@ A simple phototiming app for Athletics etc where a finish line is filmed with sa
 - **PhotoTimingDjausLib**
   - Uses **OpenCvSharp4.runtime.win**
   - Does video stitching
-- **PhotoTimingDjausLibAndroid** BUT ...
-  - Needs correct runtime, not there , so stitch fails
-  - Trued a runtime that didn't woirk https://www.nuget.org/packages/Sdcb.OpenCvSharp4.mini.runtime.android-arm64
+- **PhotoTimingDjausLibAndroid** Works now
+  - Uses **Emgu.CV.runtime.maui.mini.android** instaed of OpenCvSharp4
 
 ## Apps
 - PhotoTimingDjaus
@@ -20,11 +19,12 @@ A simple phototiming app for Athletics etc where a finish line is filmed with sa
 - VideoStitcherWPFAppV3 .. Use this
   - Can load previous stitched file but timing doesn't work for that (2Do)
   - Uses Image viwer with zoom and pan from this GitHub project [djaus2/ShowImageWPF](https://github.com/djaus2/ShowImageWPF)
+    - Zoom etc currently not working
 - StitchInTimeMaui  Maui version of PhotoTimingDjaus Console app
-  - ~~No Stitched Image at this stage~~ Now displays stitched iamge.
-  -  ~~Only runs on Windows Desktop at this stage~~  as uses **OpenCvSharp4.runtime.win**
-    - Now runs in Android Device BUT ..
-    - Uses own a Lib for Maui Android but needs correct runtime, not there , so stitch fails
+  - Now performs stitch of small videos only
+  - ~~Now displays stitched iamge~~. Image now not showing 2Do
+  - Uses **Emgu.CV.runtime.maui.mini.android** via PhotoTimingDjausLibAndroid  library
+  - Now runs in Android Device
 
 ## 2Dos
 A few issues remain but getting there. 
@@ -42,3 +42,4 @@ A few issues remain but getting there.
 Enjoy.
 
 > Nb: This was authoured up to last 10% using GitHub Copilot.
+> Also the porting of PhotoTimingDjausLibAndroid from OpenCvSharp4 to Emgu.CV was done with help of GitHub Copilot!
