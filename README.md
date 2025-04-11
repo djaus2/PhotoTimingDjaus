@@ -12,6 +12,7 @@ A simple phototiming app for Athletics etc where a finish line is filmed with sa
   - Does video stitching
 - **PhotoTimingDjausLibAndroid** Works now
   - Uses **Emgu.CV.runtime.maui.mini.android** instaed of OpenCvSharp4
+  - 2Do: Add timining marks
 
 ## Apps
 - PhotoTimingDjaus
@@ -32,6 +33,7 @@ A simple phototiming app for Athletics etc where a finish line is filmed with sa
     - 2D: Display on separate page
   - Uses **Emgu.CV.runtime.maui.mini.android** via PhotoTimingDjausLibAndroid  library
   - Now runs in Android Device
+  - 2Do, implement timing measurements as per WPF app.
 
 ## 2Dos
 A few issues remain but getting there. 
