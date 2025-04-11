@@ -1,8 +1,4 @@
-﻿using OpenCvSharp;
-using PhotoTimingDjaus;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-
+﻿using PhotoTimingDjaus;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
@@ -16,13 +12,13 @@ namespace StitchInTime
     {
 
         string videoPathInit = @"C:\Users\david\OneDrive\Documents\Camtasia\MVPRenewal\MVPRenewal.mp4";
-        string outputPathInit = @"c:\temp\vid\stitched_image67.png";
+        string outputPathInit = @"stitchup.png";
         int startTimeSecondsInit = 0;
         string videoPath { get => videoPathInit; set => videoPathInit = value; }
         string outputPath { get => outputPathInit; set => outputPathInit = value; }
         int startTimeSeconds { get => startTimeSecondsInit; set => startTimeSecondsInit = value; }
 
-        int videoLength = 0;
+        public int videoLength { get; set; } = 0;
         Image image;
 
         public class MyViewModel
@@ -73,7 +69,7 @@ namespace StitchInTime
             Entry start = (Entry)FindByName("Start");
             start.Text = $"{startTimeSecondsInit}";
             Entry vidLength = (Entry)FindByName("VidLength");
-            vidLength.Text = $"{videoLength}";
+            vidLength.Text = $"{videoLength} mS";
             // Path to save the stitched image
             BindingContext = new MyViewModel();
         }
@@ -124,7 +120,7 @@ namespace StitchInTime
                 activityIndicator.IsRunning = false;
                 MyLayout.Children.Remove(activityIndicator);
                 Entry vidLength = (Entry)FindByName("VidLength");
-                vidLength.Text = $"{videoLength}";
+                vidLength.Text = $"{videoLength} mS";
                 if(image != null)
                 {
                     MyLayout.Children.Remove(image);
@@ -148,8 +144,8 @@ namespace StitchInTime
                 MainThread.InvokeOnMainThreadAsync(() => viewModel.IsBussy = true);
             }
             CounterBtn.Text = $"Stitching";
-            //StitchUp(videoPath, outputPath, startTimeSeconds);
-            asyncStitchUp(videoPath, outputPath, startTimeSeconds).ContinueWith(t =>
+
+            AsyncStitchUp(videoPath, outputPath, startTimeSeconds).ContinueWith(t =>
             {
                 if (t.IsFaulted)
                 {
@@ -158,6 +154,8 @@ namespace StitchInTime
                 }
                 else
                 {
+
+                    var vl = t?.AsyncState;
                     // Continue with the rest of your code after the async operation completes
                     System.Diagnostics.Debug.WriteLine("Async Stitchup operation completed successfully.");
                 }
@@ -219,55 +217,37 @@ namespace StitchInTime
             videoPath = videoP;
             Entry vid = (Entry)FindByName("Source");
             vid.Text = videoPath;
-            result = await PickAndShow(false);
-            if (result == null)
-            {
-                return;
-            }
-            string? oPath = result?.FullPath;
-            if (oPath == null)
-            {
-                return;
-            }
-            outputPath = oPath;
-            Entry stitch = (Entry)FindByName("Stitch");
-            stitch.Text = outputPath;
         }
 
-        private async Task asyncStitchUp(string videoPath, string outputPath, int startTimeSeconds)
+        private async Task AsyncStitchUp(string videoPath, string outputFilename, int startTimeSeconds)
         {
-
+            string outputFilePath = "";
 
             // Run the stitching process in a background thread
-            BackgroundWorker worker = new BackgroundWorker();
-            worker.DoWork += (s, args) =>
+            await Task.Run(() =>
             {
-
                 if (BindingContext is MyViewModel viewModel)
                 {
                     MainThread.InvokeOnMainThreadAsync(() => viewModel.IsBussy = true);
                 }
                 // Call the stitching process
-                var videoStitcher = new PhotoTimingDjaus.VideoStitcher(videoPath, outputPath, startTimeSeconds);
+                var videoStitcher = new PhotoTimingDjaus.VideoStitcher(videoPath, outputFilename, startTimeSeconds);
                 videoLength = videoStitcher.Stitch();
-            };
+                outputFilePath = videoStitcher.outputFilepath;
+            });
 
-            worker.RunWorkerCompleted += (s, args) =>
+            // Stop the activity indicator and update UI on the main thread
+            StoppActivity();
+
+            // Display the stitched image
+            if (File.Exists(outputFilePath))
             {
-                StoppActivity();
-
-                // Display the stitched image
-                if (File.Exists(outputPath))
-                {
-                    CounterBtn.Text = "Done";
-                }
-                else
-                {
-                    CounterBtn.Text = "Failed";
-                }
-            };
-
-            worker.RunWorkerAsync();
+                CounterBtn.Text = "Done";
+            }
+            else
+            {
+                CounterBtn.Text = "Failed";
+            }
         }
 
         public async Task<FileResult> PickAndShow(bool isvideo)
@@ -294,11 +274,9 @@ namespace StitchInTime
                 var result = await FilePicker.Default.PickAsync(options);
                 if (result != null)
                 {
-                    if (/*result.FileName.EndsWith("jpg", StringComparison.OrdinalIgnoreCase) ||*/
-                        result.FileName.EndsWith("png", StringComparison.OrdinalIgnoreCase))
+                    if (result.FileName.EndsWith("png", StringComparison.OrdinalIgnoreCase))
                     {
-                        //using var stream = await result.OpenReadAsync();
-                        //var image = ImageSource.FromStream(() => stream);
+
                     }
                 }
 
@@ -306,12 +284,12 @@ namespace StitchInTime
             }
             catch (Exception ex)
             {
+                // Need to add cancel button
                 // The user canceled or something went wrong
             }
 
             return null;
         }
-
 
     }
 }

@@ -10,10 +10,10 @@ namespace PhotoTimingDjaus
         static void Main(string[] args)
         {
             // Path to the video file
-            string videoPath = @"C:\Users\david\OneDrive\Documents\Camtasia\MVPRenewal\MVPRenewal.mp4";
+            string videoPath = @"C:\Users\me\Documents\athletic.mp4";
 
             // Path to save the stitched image
-            string outputPath = @"c:\temp\vid\stitched_image67.png";
+            string outputPath = @"c:\temp\vid\stitched_image.png";
 
             int startTimeSeconds = 60; // Start time in seconds
 
