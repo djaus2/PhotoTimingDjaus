@@ -22,7 +22,7 @@ A simple phototiming app for Athletics etc where a finish line is filmed with sa
     - Zoom etc currently not working
 - StitchInTimeMaui  Maui version of PhotoTimingDjaus Console app
   - Now performs stitch of small videos only
-  - Now displays stitched iamge.
+  - ~~Now displays stitched iamge~~. Image now not showing 2Do
   - Uses **Emgu.CV.runtime.maui.mini.android** via PhotoTimingDjausLibAndroid  library
   - Now runs in Android Device
 
