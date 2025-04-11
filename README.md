@@ -2,6 +2,10 @@
 
 A simple phototiming app for Athletics etc where a finish line is filmed with say, a phone, and a stitched image is created by taking the middle vertical line of pixels from each video frame and stiching together the phototiming image.  Note that video FramesPerSecond are typically 30 so each line represents 0.033 of s second and hence this is the resolution of any timing. Commercial equipment would be to thousandths or tens of thousandths of a second.
 
+## Info:
+- Input a .MP4 video
+- Output a .png file
+
 ## Library
 - **PhotoTimingDjausLib**
   - Uses **OpenCvSharp4.runtime.win**
@@ -22,7 +26,10 @@ A simple phototiming app for Athletics etc where a finish line is filmed with sa
     - Zoom etc currently not working
 - StitchInTimeMaui  Maui version of PhotoTimingDjaus Console app
   - Now performs stitch of small videos only
-  - ~~Now displays stitched iamge~~. Image now not showing 2Do
+    - Limited to 33 seconds
+  - Now displays stitched image
+    - On phone scroll up from bottom
+    - 2D: Display on separate page
   - Uses **Emgu.CV.runtime.maui.mini.android** via PhotoTimingDjausLibAndroid  library
   - Now runs in Android Device
 
