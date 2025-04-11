@@ -18,6 +18,8 @@ namespace StitchInTime
         string outputPath { get => outputPathInit; set => outputPathInit = value; }
         int startTimeSeconds { get => startTimeSecondsInit; set => startTimeSecondsInit = value; }
 
+        string outputFilePath { get; set; } = "";
+
         public int videoLength { get; set; } = 0;
         Image image;
 
@@ -114,6 +116,7 @@ namespace StitchInTime
         ///  </summary>
         private void StopActivity()
         {
+            System.Diagnostics.Debug.WriteLine("Finishing Image");
             // Stop the activity indicator
             if (activityIndicator != null)
             {
@@ -127,9 +130,10 @@ namespace StitchInTime
                 }
                 image = new Image
                 {
-                    Source = ImageSource.FromFile(outputPath)
+                    Source = ImageSource.FromFile(outputFilePath)
                 };
                 MyLayout.Children.Add(image);
+                System.Diagnostics.Debug.WriteLine("Done Image");
             }
         }
         //////////////////////////////////////////////////////////////////////////////////////
@@ -151,6 +155,7 @@ namespace StitchInTime
                 {
                     // Handle any exceptions that occurred during the async operation
                     System.Diagnostics.Debug.WriteLine($"Stitchup Run Error: {t.Exception?.Message}");
+
                 }
                 else
                 {
@@ -221,7 +226,7 @@ namespace StitchInTime
 
         private async Task AsyncStitchUp(string videoPath, string outputFilename, int startTimeSeconds)
         {
-            string outputFilePath = "";
+            
 
             // Run the stitching process in a background thread
             await Task.Run(() =>
@@ -235,7 +240,7 @@ namespace StitchInTime
                 videoLength = videoStitcher.Stitch();
                 outputFilePath = videoStitcher.outputFilepath;
             });
-
+            System.Diagnostics.Debug.WriteLine("Stitchup task done.");
             // Stop the activity indicator and update UI on the main thread
             StoppActivity();
 
