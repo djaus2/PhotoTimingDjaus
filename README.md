@@ -1,6 +1,7 @@
 # PhotoTimingDjaus
 
-> Just noticed the displayed image afterwards might not be correct. Will fix later today!
+> The displayed image afterwards might not be correct if you don't click the arrow bottom left of on screen keyboard after the entering the image filkename.
+
 
 A simple phototiming app for Athletics etc where a finish line is filmed with say, a phone, and a stitched image is created by taking the middle vertical line of pixels from each video frame and stiching together the phototiming image.  Note that video FramesPerSecond are typically 30 so each line represents 0.033 of s second and hence this is the resolution of any timing. Commercial equipment would be to thousandths or tens of thousandths of a second.
 
