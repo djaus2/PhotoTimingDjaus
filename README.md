@@ -1,6 +1,12 @@
 # PhotoTimingDjaus
 
+> Just noticed the displayed image afterwards might not be correct. Will fix later today!
+
 A simple phototiming app for Athletics etc where a finish line is filmed with say, a phone, and a stitched image is created by taking the middle vertical line of pixels from each video frame and stiching together the phototiming image.  Note that video FramesPerSecond are typically 30 so each line represents 0.033 of s second and hence this is the resolution of any timing. Commercial equipment would be to thousandths or tens of thousandths of a second.
+
+## Info:
+- Input a .MP4 video
+- Output a .png file
 
 ## Library
 - **PhotoTimingDjausLib**
@@ -8,10 +14,12 @@ A simple phototiming app for Athletics etc where a finish line is filmed with sa
   - Does video stitching
 - **PhotoTimingDjausLibAndroid** Works now
   - Uses **Emgu.CV.runtime.maui.mini.android** instaed of OpenCvSharp4
+  - 2Do: Add timining marks
 
 ## Apps
 - PhotoTimingDjaus
-  - A Console app that does the image stiching. Also called by VideoSticher apps to do such
+  - A Console app that does the image stiching.
+    - Originally called by VideoSticher apps to do such but that functionality is separate app.
 - VideoStitcherWPFApp
   - Earlier version of WPF app. _Don't use._
 - VideoStitcherWPFAppV2
@@ -22,9 +30,13 @@ A simple phototiming app for Athletics etc where a finish line is filmed with sa
     - Zoom etc currently not working
 - StitchInTimeMaui  Maui version of PhotoTimingDjaus Console app
   - Now performs stitch of small videos only
-  - ~~Now displays stitched iamge~~. Image now not showing 2Do
+    - Limited to 33 seconds
+  - Now displays stitched image
+    - On phone scroll up from bottom
+    - 2D: Display on separate page
   - Uses **Emgu.CV.runtime.maui.mini.android** via PhotoTimingDjausLibAndroid  library
   - Now runs in Android Device
+  - 2Do, implement timing measurements as per WPF app.
 
 ## 2Dos
 A few issues remain but getting there. 
