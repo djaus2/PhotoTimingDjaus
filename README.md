@@ -29,14 +29,18 @@ A simple phototiming app for Athletics etc where a finish line is filmed with sa
   - Uses Image viwer with zoom and pan from this GitHub project [djaus2/ShowImageWPF](https://github.com/djaus2/ShowImageWPF)
     - Zoom etc currently not working
 - StitchInTimeMaui  Maui version of PhotoTimingDjaus Console app
-  - Now performs stitch of small videos only
-    - Limited to 33 seconds
+  - Now performs stitch of limited video:
+    - Limited to 1000 frames = 33 seconds
   - Now displays stitched image
     - On phone scroll up from bottom
     - 2D: Display on separate page
   - Uses **Emgu.CV.runtime.maui.mini.android** via PhotoTimingDjausLibAndroid  library
   - Now runs in Android Device
-  - 2Do, implement timing measurements as per WPF app.
+  - Ticks added at bottom by overwriting image
+    - 1, 5, 10 sec and minute different colors and sizes
+    - No labels yet
+  - Canel button added
+    - Some times there is a buffer issue.
 
 ## 2Dos
 A few issues remain but getting there. 
