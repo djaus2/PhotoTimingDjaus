@@ -19,16 +19,14 @@ A simple phototiming app for Athletics etc where a finish line is filmed with sa
 ## Apps
 - PhotoTimingDjaus
   - A Console app that does the image stiching.
-    - Originally called by VideoSticher apps to do such but that functionality is separate app.
-- VideoStitcherWPFApp
-  - Earlier version of WPF app. _Don't use._
-- VideoStitcherWPFAppV2
-  - **This is a WPF app so runs on a Windows desktop.**  _A Phone version may follow._
+    - Originally called by VideoSticher apps to do such but that functionality is separate library.
 - VideoStitcherWPFAppV3 .. Use this
+  - **This is a WPF app so runs on a Windows desktop.**
   - Can load previous stitched file but timing doesn't work for that (2Do)
   - Uses Image viwer with zoom and pan from this GitHub project [djaus2/ShowImageWPF](https://github.com/djaus2/ShowImageWPF)
     - Zoom etc currently not working
 - StitchInTimeMaui  Maui version of PhotoTimingDjaus Console app
+  - Tested on Google Pixel 6 phone
   - Now performs stitch of limited video:
     - Limited to 1000 frames = 33 seconds
   - Now displays stitched image
@@ -51,9 +49,9 @@ A few issues remain but getting there.
 ## Usage
 - You need a video, as .MP4.
     - Film with a phone and transfer to desktop.
-- Once stictched, use mouse to select a time, for which a red line appears vertically and time is shown.
-- Once the mouse releases, the time shows in a box towards the top as a time span string.
-- It is also copied to the clipboard.
+- In WPF app, Once stictched, use mouse to select a time, for which a red line appears vertically and time is shown.
+  - Once the mouse releases, the time shows in a box towards the top as a time span string.
+  - It is also copied to the clipboard.
 
 Enjoy.
 
