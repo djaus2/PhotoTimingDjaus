@@ -61,6 +61,12 @@
                 SemanticProperties.Hint="Start stitching image lines into an image"
                 Clicked="OnCounterClicked"
                 HorizontalOptions="Fill" />
+            <Button
+                x:Name="CancelBtn"
+                Text="Cancel" 
+                SemanticProperties.Hint="Cancel stitch"
+                Clicked="OnCancelClicked"
+                HorizontalOptions="Fill" />
         </VerticalStackLayout>
     </ScrollView>
 

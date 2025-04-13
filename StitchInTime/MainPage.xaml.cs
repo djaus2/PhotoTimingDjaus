@@ -92,6 +92,10 @@ namespace StitchInTime
         /// </summary>
         private void StartActivity()
         {
+            if (image != null)
+            {
+                MyLayout.Children.Remove(image);
+            }
             // Start the activity indicator
             activityIndicator = new ActivityIndicator
             {
@@ -224,6 +228,7 @@ namespace StitchInTime
             vid.Text = videoPath;
         }
 
+        PhotoTimingDjaus.VideoStitcher? videoStitcher;
         private async Task AsyncStitchUp(string videoPath, string outputFilename, int startTimeSeconds)
         {
             
@@ -236,7 +241,7 @@ namespace StitchInTime
                     MainThread.InvokeOnMainThreadAsync(() => viewModel.IsBussy = true);
                 }
                 // Call the stitching process
-                var videoStitcher = new PhotoTimingDjaus.VideoStitcher(videoPath, outputFilename, startTimeSeconds);
+                videoStitcher = new PhotoTimingDjaus.VideoStitcher(videoPath, outputFilename, startTimeSeconds);
                 videoLength = videoStitcher.Stitch();
                 outputFilePath = videoStitcher.outputFilepath;
             });
@@ -296,5 +301,17 @@ namespace StitchInTime
             return null;
         }
 
+        private void OnCancelClicked(object sender, EventArgs e)
+        {
+            if (videoStitcher != null)
+            {
+
+                System.Diagnostics.Debug.WriteLine("Canceling VideoStitcher");
+                // Cancel the stitching process
+                // Assuming you have a method to cancel the stitching process
+                // You may need to implement this in your VideoStitcher class
+                videoStitcher.cancel = true;
+            }
+        }
     }
 }
