@@ -79,8 +79,8 @@ namespace PhotoTimingDjaus
                     Bgr bgr = new Bgr(0, 0, 0);
                     Bgr red = new Bgr(0, 0, 255);
                     Bgr black = new Bgr(255, 255, 255);
-                    int ht = 100;
-                    int tick = 0;
+                    int ht = 100; // Height at bottom of ticks area at bottom.Ticks go down.
+                    int tick = 0; // Height of tick, different for whether 1,5,10 sec or 1 minute
                     int startPix = img.Height - ht;
                     if ( currentSecond == 0 && i % Fps == 0) // Red minute marker
                     {
