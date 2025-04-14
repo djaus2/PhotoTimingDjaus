@@ -57,6 +57,11 @@ A few issues remain but getting there.
 - In WPF app, Once stictched, use mouse to select a time, for which a red line appears vertically and time is shown.
   - Once the mouse releases, the time shows in a box towards the top as a time span string.
   - It is also copied to the clipboard.
+ 
+## Footnote
+Found my phone has a few options to try
+- Image stabilisation (Locked)
+- 60 FPS which would halve time resolution to 17 mSec  ... about 2 100ths of a sec
 
 Enjoy.
 
