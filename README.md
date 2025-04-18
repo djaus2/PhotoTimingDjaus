@@ -6,7 +6,7 @@
 
 A simple phototiming app for Athletics etc where a finish line is filmed with say, a phone, and a stitched image is created by taking the middle vertical line of pixels from each video frame and stiching together the phototiming image.  Note that video FramesPerSecond are typically 30 so each line represents 0.033 of s second and hence this is the resolution of any timing. Commercial equipment would be to thousandths or tens of thousandths of a second.
 
-Currently looking at adding the video capture to the ap like what was done in the previous app. Can only get the launching of the inbuilt phone video app to take video; not to orchestarte it, thus far.  
+> Currently looking at adding the video capture to the app like what was done in the previous app. Can only get the launching of the inbuilt phone video app to take video; not to orchestarte it, thus far. 
 One attempt at this is [djaus2/MauiMediaRecorderVideoSample-Android](https://github.com/djaus2/MauiMediaRecorderVideoSample-Android) which uses the MediaRecorder control.
 
 ## Comment
