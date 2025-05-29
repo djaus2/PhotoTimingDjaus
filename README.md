@@ -29,7 +29,8 @@ Have posted a blog post wrt GitHub Pilot strengths and weakness in creating this
   - Does video stitching
 - **PhotoTimingDjausLibAndroid** Works now
   - Uses **Emgu.CV.runtime.maui.mini.android** instaed of OpenCvSharp4
-  - 2Do: Add timining marks
+  - _Not yet as functional as *PhotoTimingDjausLib 2Do._
+
 
 ## Apps
 - **PhotoTimingDjaus**
