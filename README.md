@@ -21,7 +21,11 @@ Have posted a blog post wrt GitHub Pilot strengths and weakness in creating this
 
 ## Library
 - **PhotoTimingDjausLib**
-  - Uses **OpenCvSharp4.runtime.win**
+  - Uses NuGet Packages:
+    - OpenCvSharp4
+    - OpenCvSharp4.runtime.win
+    - FFMpegCore
+    - NAudio
   - Does video stitching
 - **PhotoTimingDjausLibAndroid** Works now
   - Uses **Emgu.CV.runtime.maui.mini.android** instaed of OpenCvSharp4
@@ -31,8 +35,9 @@ Have posted a blog post wrt GitHub Pilot strengths and weakness in creating this
 - PhotoTimingDjaus
   - A Console app that does the image stiching.
     - Originally called by VideoSticher apps to do such but that functionality is separate library.
-- VideoStitcherWPFAppV3 .. Use this
+- **VideoStitcherWPFAppV3** .. Use this
   - **This is a WPF app so runs on a Windows desktop.**
+  - Uses PhotoTimingDjausLib as above
   - Set vudeo file and press [Stitch Video]
     - Geerates stitched image file
     - Also extracts audio max volume (per audio fame) in dB v time text filefrom video, generates gun time
@@ -44,7 +49,8 @@ Have posted a blog post wrt GitHub Pilot strengths and weakness in creating this
   - Can load previous stitched file but timing doesn't work for that (2Do)
   - Uses Image viwer with zoom and pan from this GitHub project [djaus2/ShowImageWPF](https://github.com/djaus2/ShowImageWPF)
     - Zoom etc currently not working
-- StitchInTimeMaui  Maui version of PhotoTimingDjaus Console app
+- **StitchInTimeMaui**  Maui version of PhotoTimingDjaus Console app
+  - Uses PhotoTimingDjausLibAndroid*
   - Tested on Google Pixel 6 phone
   - Now performs stitch of limited video:
     - Limited to 1000 frames = 33 seconds
