@@ -38,7 +38,7 @@ Have posted a blog post wrt GitHub Pilot strengths and weakness in creating this
 - **VideoStitcherWPFAppV3** .. Use this
   - **This is a WPF app so runs on a Windows desktop.**
   - Uses PhotoTimingDjausLib _as above._
-  - Set vudeo file and press [Stitch Video]
+  - Set video file and press [Stitch Video]
     - Geerates stitched image file
     - Also extracts audio max volume (per audio fame) in dB v time text filefrom video, generates gun time
       - Nb: Audio frames are not video frames.
