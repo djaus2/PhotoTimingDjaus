@@ -49,7 +49,7 @@ Have posted a blog post wrt GitHub Pilot strengths and weakness in creating this
         - Graph of Volume added below ticks for WPF app.
       - Guntime is first time at which Volume >= (Max Volume of all frames) /1000 
   - Can load previous stitched file but timing doesn't work for that (2Do)
-  - Uses Image viwer with zoom and pan from this GitHub project [djaus2/ShowImageWPF](https://github.com/djaus2/ShowImageWPF)
+  - Uses Image viewer with zoom and pan from this GitHub project [djaus2/ShowImageWPF](https://github.com/djaus2/ShowImageWPF)
     - Zoom etc currently not working
 - **StitchInTimeMaui**  Maui version of PhotoTimingDjaus Console app
   - Uses PhotoTimingDjausLibAndroid _as above._
