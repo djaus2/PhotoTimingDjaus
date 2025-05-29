@@ -45,7 +45,7 @@ Have posted a blog post wrt GitHub Pilot strengths and weakness in creating this
         - Max vol for each frame = max vol for each frame in dB - (the min value in dB for all audio frames)
       - Volume for each audio frame = 10^ (Max vol for frame in  /10);
         - Graph of Volume added below ticks for WPF app.
-      - Guntime is first time at which Volume > (Max Volume of all frames) /1000 
+      - Guntime is first time at which Volume >= (Max Volume of all frames) /1000 
   - Can load previous stitched file but timing doesn't work for that (2Do)
   - Uses Image viwer with zoom and pan from this GitHub project [djaus2/ShowImageWPF](https://github.com/djaus2/ShowImageWPF)
     - Zoom etc currently not working
