@@ -39,6 +39,7 @@ Have posted a blog post wrt GitHub Pilot strengths and weakness in creating this
 - **VideoStitcherWPFAppV3** .. Use this
   - **This is a WPF app so runs on a Windows desktop.**
   - Uses PhotoTimingDjausLib _as above._
+  - Can measure time for events using mouse click and drag on image.
   - Set video file and press [Stitch Video]
     - Generates stitched image file
     - Also extracts audio max volume (per audio fame) in dB v time text file from video, generates gun time
