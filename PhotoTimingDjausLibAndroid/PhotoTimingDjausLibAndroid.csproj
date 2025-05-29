@@ -10,6 +10,8 @@
   <ItemGroup>
     <PackageReference Include="Emgu.CV" Version="4.10.0.5680" />
     <PackageReference Include="Emgu.CV.runtime.maui.mini.android" Version="4.10.0.5680" />
+    <PackageReference Include="FFMpegCore" Version="5.2.0" />
+    <PackageReference Include="NAudio" Version="2.2.1" />
   </ItemGroup>
 
 </Project>

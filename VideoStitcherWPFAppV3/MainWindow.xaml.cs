@@ -11,11 +11,22 @@ using System.Windows.Controls;
 
 namespace PhotoTimingGui
 {
+
+    using System.ComponentModel;
+    using System.Windows;
+
+  
     public partial class MainWindow : Window
     {
+
         private int margin = 20;
-        private int videoLength = 0;
+        private double videoLength = 0;
         private int startTimeSeconds = 0; // Start time in seconds
+        private string guninfoFilePath = @"C:\temp\vid\guninfo.txt";
+        private double gunTimeDbl { get; set; }
+
+        public Visibility MyVisibility { get; set; } = Visibility.Visible;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -196,6 +207,7 @@ namespace PhotoTimingGui
 
         private void ViewerBorder_SizeChanged(object sender, SizeChangedEventArgs e)
         {
+            return;
             // Handle dynamic resizing when auto-scaling is enabled
             if (AutoScaleCheckbox.IsChecked == true)
             {
@@ -225,16 +237,25 @@ namespace PhotoTimingGui
 
         private void StitchButton_Click(object sender, RoutedEventArgs e)
         {
+            string videoFilePath = VideoPathInput.Text;
+            int axisHeight = (int)AxisHeightSlider.Value;
+            int audioHeight = (int)AudioHeightSlider.Value;
+
+            // Show the busy indicator
+            BusyIndicator.Visibility = Visibility.Visible;
+
+            PhotoTimingDjausLib.FFMpegActions.Filterdata(videoFilePath, guninfoFilePath);
+
             // Validate inputs
             // Read inputs
-            string videoPath = VideoPathInput.Text;
+            //string videoPath = VideoPathInput.Text;
             string outputPath = OutputPathInput.Text;
 
             StitchButton.Width = 0;
             StitchButton.IsEnabled = false; // Disable the button to prevent multiple clicks
                                             // Validate inputs
-            StitchButton.Visibility = Visibility.Hidden; // Hide the button
-            if (!File.Exists(videoPath))
+            MyVisibility = Visibility.Collapsed; ; // Hide the button
+            if (!File.Exists(videoFilePath))
             {
                 MessageBox.Show("The specified video file does not exist.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 StitchButton.IsEnabled = true;
@@ -248,22 +269,23 @@ namespace PhotoTimingGui
                 return;
             }
 
-            // Show the busy indicator
-            BusyIndicator.Visibility = Visibility.Visible;
-            FinishTime.Visibility = Visibility.Hidden;
-            FinishTimeLabel.Visibility = FinishTime.Visibility;
+ 
+ 
 
             // Run the stitching process in a background thread
             BackgroundWorker worker = new BackgroundWorker();
+            var videoStitcher = new PhotoTimingDjaus.VideoStitcher(videoFilePath, outputPath, @"C:\temp\vid\guninfo.txt", startTimeSeconds, axisHeight, audioHeight);
+
             worker.DoWork += (s, args) =>
             {
                 // Call the stitching process
-                var videoStitcher = new PhotoTimingDjaus.VideoStitcher(videoPath, outputPath, startTimeSeconds);
                 videoLength = videoStitcher.Stitch();
+                
             };
 
             worker.RunWorkerCompleted += (s, args) =>
             {
+                VideoLength.Text = $"{videoLength}";
                 // Hide the busy indicator
                 BusyIndicator.Visibility = Visibility.Collapsed;
 
@@ -275,6 +297,9 @@ namespace PhotoTimingGui
                     bitmap.UriSource = new Uri(outputPath, UriKind.Absolute);
                     bitmap.CacheOption = BitmapCacheOption.OnLoad;
                     bitmap.EndInit();
+
+                    gunTimeDbl = videoStitcher.GunTime;
+                    GunTime.Text = $"{gunTimeDbl}";
 
                     StitchedImage.LayoutTransform = null;
                     StitchedImage.Source = bitmap;
@@ -290,7 +315,8 @@ namespace PhotoTimingGui
                 {
                     MessageBox.Show("Failed to create the stitched image.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
-                StitchButton.Visibility = Visibility.Visible; // Hide the button
+                MyVisibility = Visibility.Visible;
+                //StitchButton.Visibility = Visibility.Visible; // Hide the button
                 StitchButton.Width = 200;
                 StitchButton.IsEnabled = true; // Re-enable the button
             };
@@ -308,6 +334,29 @@ namespace PhotoTimingGui
 
             // Get the mouse position relative to the stitched image
             System.Windows.Point position = e.GetPosition(StitchedImage);
+            double posX = position.X;
+            if (StitchedImage.LayoutTransform is ScaleTransform transform)
+            {
+                double horizontalScale = transform.ScaleX; // Get the horizontal scale
+                posX = position.X * horizontalScale; // Adjust time based on scale
+            }
+            if (posX > StitchedImage.ActualWidth)
+            {
+                //if clicked after video ends hide line and text at mouse position
+                TimeLabel.Visibility = Visibility.Collapsed;
+                VerticalLine.Visibility = Visibility.Collapsed;
+                return;
+            }
+            double tim = (posX / StitchedImage.ActualWidth) * videoLength;
+            System.Diagnostics.Debug.WriteLine($"{tim} {gunTimeDbl}");
+            if (tim < gunTimeDbl)
+            {
+                TimeLabel.Visibility = Visibility.Collapsed;
+                VerticalLine.Visibility = Visibility.Collapsed;
+                return;
+            }
+            TimeLabel.Visibility = Visibility.Visible; // Ensure the label is visible when clicked or dragged
+            VerticalLine.Visibility = Visibility.Visible; // Ensure the line is visible when clicked or dragged
 
             // Set the line's starting and ending points relative to the image
             VerticalLine.X1 = position.X;
@@ -317,7 +366,12 @@ namespace PhotoTimingGui
 
             // Make the line visible
             VerticalLine.Visibility = Visibility.Visible;
+
+            // Make time label visible and position it
             TimeLabel.Visibility = Visibility.Visible;
+            TimeLabel.TextAlignment = TextAlignment.Left; // Align text to the left
+            TimeLabel.Margin = new Thickness(posX + 10, 100, 0, 0); // Place label slightly to the right of the cursor
+            
             UpdateTimeLabel(position.X);
         }
 
@@ -333,7 +387,23 @@ namespace PhotoTimingGui
                     double horizontalScale = transform.ScaleX; // Get the horizontal scale
                     posX = position.X * horizontalScale; // Adjust time based on scale
                 }
-
+                if (posX > StitchedImage.ActualWidth)
+                {
+                    //if clicked after video ends hide line and text at mouse position
+                    TimeLabel.Visibility = Visibility.Collapsed;
+                    VerticalLine.Visibility = Visibility.Collapsed;
+                    return;
+                }
+                double tim = (posX / StitchedImage.ActualWidth) * videoLength;
+                if (tim< gunTimeDbl)
+                {
+                    TimeLabel.Visibility = Visibility.Collapsed;
+                    VerticalLine.Visibility = Visibility.Collapsed;
+                    return;
+                }
+                TimeLabel.Visibility = Visibility.Visible; // Ensure the label is visible when clicked or dragge
+                VerticalLine.Visibility = Visibility.Visible; // Ensure the line is visible when clicked or dragge
+                
                 VerticalLine.X1 = posX;
                 VerticalLine.X2 = posX;
                 VerticalLine.Y1 = 0; // Top of the image
@@ -344,8 +414,8 @@ namespace PhotoTimingGui
                     posY2 = posY2 * verticalScale; // Adjust time based on scale
                 }
                 VerticalLine.Y2 = posY2; // Bottom of the image
+                TimeLabel.TextAlignment = TextAlignment.Left; // Align text to the left
                 TimeLabel.Margin = new Thickness(posX + 10, 100, 0, 0); // Place label slightly to the right of the cursor
-
                 UpdateTimeLabel(posX);
             }
         }
@@ -358,8 +428,8 @@ namespace PhotoTimingGui
             VerticalLine.Visibility = Visibility.Collapsed;
             VerticalLine.Visibility = Visibility.Collapsed;
             TimeLabel.Visibility = Visibility.Collapsed;
-            FinishTime.Visibility = Visibility.Visible;
-            FinishTimeLabel.Visibility = FinishTime.Visibility;
+            //FinishTime.Visibility = Visibility.Visible;
+            //FinishTimeLabel.Visibility = FinishTime.Visibility;
         }
 
         private void UpdateTimeLabel(double positionX)
@@ -372,19 +442,48 @@ namespace PhotoTimingGui
             }
 
             // Calculate the relative position accounting for the horizontal scale
+            if(positionX> StitchedImage.ActualWidth)
+            {
+                TimeLabel.Text = $"";
+                TimeLabel.Visibility = Visibility.Collapsed;
+                return;
+            }
             double relativePosition = (positionX / horizontalScale) / StitchedImage.ActualWidth;
-
+            System.Diagnostics.Debug.WriteLine($"{positionX} {horizontalScale} {StitchedImage.ActualWidth}  {relativePosition}");
             // Example total duration of the stitched video
             double durationInSeconds = videoLength; // Replace with the actual duration of your stitched image
-            double timeInSeconds = (startTimeSeconds + relativePosition * durationInSeconds);
-            TimeSpan ts = TimeSpan.FromMilliseconds((long)(timeInSeconds * 1000));
-            string formattedTime = $"{ts.Hours:D2}:{ts.Minutes:D2}:{ts.Seconds:D2}.{(int)(ts.Milliseconds / 10)}"; // Format as HH:MM:SS.hh
-            // Display the calculated time
-            TimeLabel.Text = $"{timeInSeconds:F2} sec";
-            FinishTimeLabel.Text = formattedTime;
-            FinishTime.Visibility = Visibility.Hidden;
-            FinishTimeLabel.Visibility = FinishTime.Visibility;
-            Clipboard.SetData(DataFormats.Text, (Object)formattedTime);
+            VideoLength.Text = $"{videoLength} sec"; // Display the video length in seconds
+            double timeInSeconds = (startTimeSeconds + relativePosition * durationInSeconds - gunTimeDbl);
+            System.Diagnostics.Debug.WriteLine(timeInSeconds);
+            if (timeInSeconds >= 0)
+            {
+
+                TimeSpan ts = TimeSpan.FromMilliseconds((long)(timeInSeconds * 1000));
+                string formattedTime = $"{ts.Hours:D2}:{ts.Minutes:D2}:{ts.Seconds:D2}.{(int)(ts.Milliseconds / 10)}"; // Format as HH:MM:SS.hh
+                                                                                                                       // Display the calculated time
+                TimeLabel.Visibility = Visibility.Visible;
+                TimeLabel.Text = $"{timeInSeconds:F2} sec";
+                //FinishTime.Text = $"{timeInSeconds:F2} sec";
+                FinishTime.Text = formattedTime;
+                Clipboard.SetData(DataFormats.Text, (Object)formattedTime);
+            }
+            else
+            {
+                //FinishTime.Text = "";
+                FinishTime.Text = $"{timeInSeconds:F2} sec";
+                TimeLabel.Text = $"{timeInSeconds:F2} sec";
+                TimeLabel.Visibility = Visibility.Collapsed;
+                Clipboard.SetData(DataFormats.Text, (Object)"");
+            }
+                //FinishTime.Visibility = Visibility.Hidden;
+                //FinishTimeLabel.Visibility = FinishTime.Visibility;*/
+                //Clipboard.SetData(DataFormats.Text, (Object)formattedTime);
+            //System.Diagnostics.Debug.WriteLine($"positionX:{positionX} horizontalScale:{horizontalScale} StitchedImage.ActualWidth:{StitchedImage.ActualWidth} relativePosition:{relativePosition} durationInSeconds:{durationInSeconds} {timeInSeconds} {ts} {formattedTime} {FinishTimeLabel.Text} {FinishTimeLabel.Text} ");
+        }
+
+        private void StitchedImage_Scroll(object sender, System.Windows.Controls.Primitives.ScrollEventArgs e)
+        {
+
         }
     }
 }
