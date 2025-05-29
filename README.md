@@ -40,7 +40,7 @@ Have posted a blog post wrt GitHub Pilot strengths and weakness in creating this
   - Uses PhotoTimingDjausLib _as above._
   - Set video file and press [Stitch Video]
     - Generates stitched image file
-    - Also extracts audio max volume (per audio fame) in dB v time text filefrom video, generates gun time
+    - Also extracts audio max volume (per audio fame) in dB v time text file from video, generates gun time
       - Nb: Audio frames are not video frames.
         - Max vol for each frame = max vol for each frame in dB - (the min value in dB for all audio frames)
       - Volume for each audio frame = 10^ (Max vol for frame in  /10);
