@@ -32,12 +32,12 @@ Have posted a blog post wrt GitHub Pilot strengths and weakness in creating this
   - 2Do: Add timining marks
 
 ## Apps
-- PhotoTimingDjaus
+- **PhotoTimingDjaus**
   - A Console app that does the image stiching.
     - Originally called by VideoSticher apps to do such but that functionality is separate library.
 - **VideoStitcherWPFAppV3** .. Use this
   - **This is a WPF app so runs on a Windows desktop.**
-  - Uses PhotoTimingDjausLib as above
+  - Uses PhotoTimingDjausLib _as above._
   - Set vudeo file and press [Stitch Video]
     - Geerates stitched image file
     - Also extracts audio max volume (per audio fame) in dB v time text filefrom video, generates gun time
@@ -50,7 +50,7 @@ Have posted a blog post wrt GitHub Pilot strengths and weakness in creating this
   - Uses Image viwer with zoom and pan from this GitHub project [djaus2/ShowImageWPF](https://github.com/djaus2/ShowImageWPF)
     - Zoom etc currently not working
 - **StitchInTimeMaui**  Maui version of PhotoTimingDjaus Console app
-  - Uses PhotoTimingDjausLibAndroid*
+  - Uses PhotoTimingDjausLibAndroid _as above._
   - Tested on Google Pixel 6 phone
   - Now performs stitch of limited video:
     - Limited to 1000 frames = 33 seconds
