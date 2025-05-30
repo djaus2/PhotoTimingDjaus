@@ -42,7 +42,11 @@ Have posted a blog post wrt GitHub Pilot strengths and weakness in creating this
   - Can measure time for events using mouse click and drag on image.
   - Set video file and press [Stitch Video]
     - Generates stitched image file
-    - Also extracts audio max volume (per audio fame) in dB v time text file from video, generates gun time
+    - Option to choose timing mode from:
+      1. Video Start
+      2. Detect Start Gun audio
+      3.  Detect video flash _(Not yet imlemented)._
+    - _(For 2.)_ Also extracts audio max volume (per audio fame) in dB v time text file from video, generates gun time
        - **Assumes video  recording is started before gun.**
       - Nb: Audio frames are not video frames.
         - Max vol for each frame = max vol for each frame in dB - (the min value in dB for all audio frames)
