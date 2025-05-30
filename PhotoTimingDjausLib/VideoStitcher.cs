@@ -18,17 +18,20 @@ namespace PhotoTimingDjaus
         private string guninfoFilePath = @"C:\temp\vid\guninfo.txt";
         private int startTimeSeconds;
         private int Fps = 30;
+        private TimeFromMode timeFromMode;
+        private double[] expData = new double[0];
 
         public double videoLength = 0; // Length of the video in seconds
         public double GunTime { get; set; } = 5.00;
-        
-        
+        private int threshold = 1000; // max volume/Threshold for gun detection in audio, default is 1000
+
+
         int axisHeight = 100;  //Vertical height of time axis at bottom below stitched image
         int audioHeight = 100; // Vertical height of space for audio volume graph below axis.
         const int OneMinute = 60;
 
         // Constructor to initialize the video stitcher parameters
-        public VideoStitcher(string videoPath, string outputPath, string _guninfoPath, int startTimeSeconds = 0, int _axisHeight = 100, int _audioHeight = 100)
+        public VideoStitcher(string videoPath, string outputPath, string _guninfoPath, int startTimeSeconds = 0, int _axisHeight = 100, int _audioHeight = 100, TimeFromMode _timeFromMode = TimeFromMode.FromButtonPress, int _threshold=1000)
         {
             this.videoFilePath = videoPath;
             this.outputFilePath = outputPath;
@@ -36,52 +39,59 @@ namespace PhotoTimingDjaus
             this.audioHeight = _audioHeight;
             this.axisHeight = _axisHeight;
             this.guninfoFilePath = _guninfoPath;
+            this.timeFromMode = _timeFromMode;
+            this.threshold = _threshold;
         }
 
         // Main method to start the stitching process
         public double Stitch()
         {
-            if(!File.Exists(guninfoFilePath))
+            int index = 0;
+            GunTime = 0.0;
+            if (timeFromMode == TimeFromMode.FromGunviaAudio)
             {
-                Console.WriteLine("Gun info file not found. Please ensure 'guninfo.txt' exists in 'C:\\temp\\vid\\'.");
-                return 0;
+                if (!File.Exists(guninfoFilePath))
+                {
+                    Console.WriteLine("Gun info file not found. Please ensure 'guninfo.txt' exists in 'C:\\temp\\vid\\'.");
+                    return 0;
+                }
+                var data = File.ReadAllLines(guninfoFilePath)
+                    .Skip(1)
+                   .Select(line => double.Parse(line.Split(',')[3])) // Extract RMS loudness
+                   .ToArray();
+
+                var min = data.Min();
+
+                var max = data.Max();
+
+                var range = max - min;
+
+                int Amp = 10;
+
+                // Normalize the data to a range of 0-Amp
+                var normalizedData = data.Select(x => (double)(Amp * (x - min) / range)).ToArray();
+                expData = normalizedData.Select(x => Math.Round(Math.Pow(x, 10), 0)).ToArray(); // Exponential scaling for better visibility
+                var maxx = expData.Max();
+                expData = expData.Select(x => audioHeight * x / maxx).ToArray(); // Ensure no negative values
+
+                var average = Math.Round(expData
+                .OrderByDescending(n => n) // Sort in descending order
+                .Skip(20)                 // Skip the top 20 values
+                .Average(), 0);
+                double thresholdLevel = expData.Max() / (threshold);
+
+                // Find the index of the first value greater than or equal to the threshold
+                index = Array.FindIndex(expData, x => x >= thresholdLevel);
+
+                int count = expData.Take(index + 1).Count(x => x >= expData[index]);
+                double r = expData[index - 1] / (expData.Max());
+                System.Diagnostics.Debug.WriteLine($"Count: {count} Max {expData.Max()}  ThresholdLevel {thresholdLevel} Indxex {index} Value {expData[index]} Average{average}");
             }
-            var data = File.ReadAllLines(guninfoFilePath)
-                .Skip(1)
-               .Select(line => double.Parse(line.Split(',')[3])) // Extract RMS loudness
-               .ToArray();
-
-            var min = data.Min();
-
-            var max = data.Max();
-
-            var range = max - min;
-
-            int Amp = 10;
-
-            // Normalize the data to a range of 0-Amp
-            var normalizedData = data.Select(x => (double)(Amp*(x - min) / range)).ToArray();
-            var expData = normalizedData.Select(x => Math.Round(Math.Pow(x,10),0)).ToArray(); // Exponential scaling for better visibility
-            var maxx = expData.Max();
-            expData = expData.Select(x => audioHeight*x/maxx).ToArray(); // Ensure no negative values
-
-            var average = Math.Round(expData
-            .OrderByDescending(n => n) // Sort in descending order
-            .Skip(20)                 // Skip the top 20 values
-            .Average(),0);
-            double threshold = expData.Max() / (audioHeight*10);
-
-            // Find the index of the first value greater than or equal to the threshold
-            int index = Array.FindIndex(expData, x => x >= threshold);
-            
-            int count = expData.Take(index+1).Count(x => x >= expData[index]);
-            double r = expData[index - 1] / (expData.Max());
-            Console.WriteLine($"Count: {count}");
             // Delete the file if it already exists
             if (File.Exists(outputFilePath))
             {
                 File.Delete(outputFilePath);
-                Console.WriteLine($"Existing file at '{outputFilePath}' has been deleted.");
+                System.Diagnostics.Debug.WriteLine($"Existing file at '{outputFilePath}' has been deleted.");
             }
 
             // Open the video file
@@ -137,7 +147,20 @@ namespace PhotoTimingDjaus
             int stitchedWidth = verticalLines.Count;    // Number of columns
 
             // Create an empty Mat for the stitched image
-            var stitchedImage = new Mat(stitchedHeight + 1 + audioHeight + axisHeight, stitchedWidth, MatType.CV_8UC3, new Scalar(0,0,0)); // Extra 2 x 100 pixels for markers and audio graph
+            var stitchedImage = new Mat(stitchedHeight + 1 +  axisHeight, stitchedWidth, MatType.CV_8UC3, new Scalar(0, 0, 0)); // Extra 2 x 100 pixels for markers and audio graph
+
+            switch (timeFromMode)
+            {
+                case TimeFromMode.FromButtonPress:
+                    stitchedImage = new Mat(stitchedHeight + 1 + axisHeight, stitchedWidth, MatType.CV_8UC3, new Scalar(0, 0, 0)); // Extra 2 x 100 pixels for markers and audio graph
+                    break;
+                case TimeFromMode.FromGunviaAudio:
+                    stitchedImage = new Mat(stitchedHeight + 1 + audioHeight + axisHeight, stitchedWidth, MatType.CV_8UC3, new Scalar(0, 0, 0)); // Extra 2 x 100 pixels for markers and audio graph
+                    break;
+                case TimeFromMode.FromGunViaVideo:
+                    stitchedImage = new Mat(stitchedHeight + 1 + axisHeight, stitchedWidth, MatType.CV_8UC3, new Scalar(0, 0, 0)); // Extra 2 x 100 pixels for markers and audio graph
+                    break;
+            }
 
             // Populate the stitched image with vertical lines
             for (int i = 0; i < verticalLines.Count; i++)
@@ -185,21 +208,26 @@ namespace PhotoTimingDjaus
                 {
                     Cv2.Line(stitchedImage, new Point(i, stitchedHeight), new Point(i, stitchedHeight + (int)(0.12 * axisHeight)), new Scalar(255, 255, 255), 1); // White line
                 }
-                System.Diagnostics.Debug.WriteLine($"{i} {expData[i]}");
-                int audioframe = (int)Math.Round(i * ratio);
-                int i2 = i;
-                if (i!=0)
+                if (timeFromMode == TimeFromMode.FromGunviaAudio)
                 {
-                    i2 = i - 1;
+                    int audioframe = (int)Math.Round(i * ratio);
+                    int i2 = i;
+                    if (i != 0)
+                    {
+                        i2 = i - 1;
 
+                    }
+                    int audioframe2 = (int)Math.Round(i2 * ratio);
+                    Cv2.Line(stitchedImage, new Point(i2, stitchedHeight + axisHeight + audioHeight - expData[audioframe2]), new Point(i, stitchedHeight + axisHeight + audioHeight - expData[audioframe]), new Scalar(0, 255, 255), 1); // Read line
                 }
-                int audioframe2 = (int)Math.Round(i2 * ratio); 
-                Cv2.Line(stitchedImage, new Point(i2, stitchedHeight + axisHeight + audioHeight - expData[audioframe2]), new Point(i, stitchedHeight + axisHeight + audioHeight - expData[audioframe]), new Scalar(0, 255, 255), 1); // Read line
             }
-            int indexx = (int)Math.Round(index / ratio);
-            GunTime = (double)indexx / Fps;
 
-            Cv2.Line(stitchedImage, new Point(indexx, 0), new Point(indexx, stitchedHeight), new Scalar(255, 255, 255), 1); // White line
+            if (timeFromMode == TimeFromMode.FromGunviaAudio)
+            {
+                int indexx = (int)Math.Round(index / ratio);
+                GunTime = (double)indexx / Fps;
+                Cv2.Line(stitchedImage, new Point(indexx, 0), new Point(indexx, stitchedHeight), new Scalar(255, 255, 255), 1); // White line
+            }
 
             // Save the stitched image.
             Cv2.ImWrite(outputFilePath, stitchedImage);

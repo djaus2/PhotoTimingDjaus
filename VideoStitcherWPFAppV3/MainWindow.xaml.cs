@@ -7,29 +7,28 @@ using System.Windows.Media;
 using System.Windows.Input;
 using Microsoft.Win32;
 using System.Windows.Controls;
+using PhotoTimingDjaus;
 
 
 namespace PhotoTimingGui
 {
 
-    using System.ComponentModel;
-    using System.Windows;
-
-  
     public partial class MainWindow : Window
     {
-
         private int margin = 20;
         private double videoLength = 0;
         private int startTimeSeconds = 0; // Start time in seconds
         private string guninfoFilePath = @"C:\temp\vid\guninfo.txt";
+        private int threshold = 1000; // Threshold for gun sound detection. Gun time is First time sound reaches max/threshold
+
         private double gunTimeDbl { get; set; }
 
-        public Visibility MyVisibility { get; set; } = Visibility.Visible;
+        //public Visibility MyVisibility { get; set; } = Visibility.Visible;
 
         public MainWindow()
         {
             InitializeComponent();
+            this.DataContext = new ViewModels.MyViewModel();
             Loaded += MainWindow_Loaded;
         }
         bool imageLoaded = false;
@@ -228,7 +227,84 @@ namespace PhotoTimingGui
             }
         }
 
+        // Method to access the ViewModel and set the MyVisibility property
+        private void SetMyVisibility(Visibility visibility)
+        {
+            if (DataContext is ViewModels.MyViewModel viewModel)
+            {
+                viewModel.MyVisibility = visibility;
+            }
+        }
 
+        // Method to access the ViewModel and get the MyVisibility property
+        private Visibility GetMyVisibility()
+        {
+            if (DataContext is ViewModels.MyViewModel viewModel)
+            {
+                return viewModel.MyVisibility;
+            }
+            return Visibility.Visible; // Default value if ViewModel is not available
+        }
+
+        // Method to access the ViewModel and set the TimeFromMode property
+        private void SetTimeFromMode(TimeFromMode timeFromMode)
+        {
+            if (DataContext is ViewModels.MyViewModel viewModel)
+            {
+                viewModel.TimeFromMode = timeFromMode;
+            }
+        }
+
+        // Method to access the ViewModel and get the TimeFromMode property
+        private TimeFromMode GetTimeFromMode()
+        {
+            if (DataContext is ViewModels.MyViewModel viewModel)
+            {
+                return viewModel.TimeFromMode;
+            }
+            return TimeFromMode.FromButtonPress; // Default value if ViewModel is not available
+        }
+
+
+        bool firstradioMessage = true;
+        private void RadioButton_Checked(object sender, RoutedEventArgs e)
+        {
+            if (sender is RadioButton radioButton)
+            {
+                if (radioButton.IsChecked.HasValue && radioButton.IsChecked.Value) // Fix for CS8629
+                {
+                    string? content = radioButton.Content.ToString();
+                    if (!string.IsNullOrEmpty(content))
+                    {
+  
+                        content = content.Trim().Replace(":", "");
+                        string msg = "";
+                        switch (content)
+                        {
+                            case "Button":
+                                msg = "Timing is from video start.";
+                                break;
+                            case "Mic":
+                                msg = "Timing is from start gun audio max/1000).";
+                                break;
+                            case "Flash":
+                                msg = "Not yet implemented: Timing from visual flash (2Do). Using Default: Timing is from video start.";
+                                break;
+                        }
+                        string Title = "Timing Mode";
+                        if (firstradioMessage)
+                        {
+                            firstradioMessage = false;
+                            Title = "Timing Mode (First)";
+                            msg = $"You can change the timing mode by clicking on one of the radio buttons. DEFAULT {radioButton.Content}:   {msg}";
+                            MessageBox.Show($"{msg}", Title, MessageBoxButton.OK, MessageBoxImage.Information);
+                        }
+                        else 
+                            MessageBox.Show($"You selected: {radioButton.Content}: {msg}", Title, MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                }
+            }
+        }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
@@ -240,12 +316,18 @@ namespace PhotoTimingGui
             string videoFilePath = VideoPathInput.Text;
             int axisHeight = (int)AxisHeightSlider.Value;
             int audioHeight = (int)AudioHeightSlider.Value;
+            TimeFromMode timeFromMode = GetTimeFromMode();
 
             // Show the busy indicator
             BusyIndicator.Visibility = Visibility.Visible;
+            //MyVisibility = Visibility.Collapsed; ; // Hide the button
+            SetMyVisibility(Visibility.Collapsed);
+            Thread.Yield();
 
-            PhotoTimingDjausLib.FFMpegActions.Filterdata(videoFilePath, guninfoFilePath);
-
+            if (timeFromMode == TimeFromMode.FromGunviaAudio)
+            {
+                PhotoTimingDjausLib.FFMpegActions.Filterdata(videoFilePath, guninfoFilePath);
+            }
             // Validate inputs
             // Read inputs
             //string videoPath = VideoPathInput.Text;
@@ -254,7 +336,7 @@ namespace PhotoTimingGui
             StitchButton.Width = 0;
             StitchButton.IsEnabled = false; // Disable the button to prevent multiple clicks
                                             // Validate inputs
-            MyVisibility = Visibility.Collapsed; ; // Hide the button
+
             if (!File.Exists(videoFilePath))
             {
                 MessageBox.Show("The specified video file does not exist.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -269,12 +351,22 @@ namespace PhotoTimingGui
                 return;
             }
 
- 
- 
+            if (!int.TryParse(Threshold.Text, out int _threshold))
+            {
+                MessageBox.Show("Please enter a valid number >0  (Typical 1000) for threshold.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                threshold = _threshold;
+                return;
+            }
+            threshold = int.Parse(Threshold.Text);
+
+
+
 
             // Run the stitching process in a background thread
             BackgroundWorker worker = new BackgroundWorker();
-            var videoStitcher = new PhotoTimingDjaus.VideoStitcher(videoFilePath, outputPath, @"C:\temp\vid\guninfo.txt", startTimeSeconds, axisHeight, audioHeight);
+            
+            
+            var videoStitcher = new PhotoTimingDjaus.VideoStitcher(videoFilePath, outputPath, @"C:\temp\vid\guninfo.txt", startTimeSeconds, axisHeight, audioHeight, timeFromMode, threshold);
 
             worker.DoWork += (s, args) =>
             {
@@ -315,7 +407,8 @@ namespace PhotoTimingGui
                 {
                     MessageBox.Show("Failed to create the stitched image.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
-                MyVisibility = Visibility.Visible;
+                //MyVisibility = Visibility.Visible;
+                SetMyVisibility(Visibility.Visible);
                 //StitchButton.Visibility = Visibility.Visible; // Hide the button
                 StitchButton.Width = 200;
                 StitchButton.IsEnabled = true; // Re-enable the button
@@ -348,7 +441,6 @@ namespace PhotoTimingGui
                 return;
             }
             double tim = (posX / StitchedImage.ActualWidth) * videoLength;
-            System.Diagnostics.Debug.WriteLine($"{tim} {gunTimeDbl}");
             if (tim < gunTimeDbl)
             {
                 TimeLabel.Visibility = Visibility.Collapsed;
