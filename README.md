@@ -1,8 +1,10 @@
 # PhotoTimingDjaus
 
-> > Just noticed the displayed image afterwards might not be correct unless you do the following:
-- Found what the issue is. You need to enter the stitched image name and accept it, like a return. Om my phone I accept by pressing the tick bottom right of popup keyboard
+>> NB With Phone Video Capture: You need to enter the stitched image name and accept it, like a return. Om my phone I accept by pressing the tick bottom right of popup keyboard
 
+## Recent
+
+The WPF app has been updated to calculate time from gun.  The guntime is taken from audio (microsphone).  So the video is recording before the gun.
 
 A simple phototiming app for Athletics etc where a finish line is filmed with say, a phone, and a stitched image is created by taking the middle vertical line of pixels from each video frame and stiching together the phototiming image. Previously has a similar app that used AForge.  Note that video FramesPerSecond are typically 30 so each line represents 0.033 of s second and hence this is the resolution of any timing. Commercial equipment would be to thousandths or tens of thousandths of a second.
 
@@ -19,22 +21,39 @@ Have posted a blog post wrt GitHub Pilot strengths and weakness in creating this
 
 ## Library
 - **PhotoTimingDjausLib**
-  - Uses **OpenCvSharp4.runtime.win**
+  - Uses NuGet Packages:
+    - OpenCvSharp4
+    - OpenCvSharp4.runtime.win
+    - FFMpegCore
+    - NAudio
   - Does video stitching
 - **PhotoTimingDjausLibAndroid** Works now
   - Uses **Emgu.CV.runtime.maui.mini.android** instaed of OpenCvSharp4
-  - 2Do: Add timining marks
+  - _Not yet as functional as *PhotoTimingDjausLib 2Do._
+
 
 ## Apps
-- PhotoTimingDjaus
+- **PhotoTimingDjaus**
   - A Console app that does the image stiching.
     - Originally called by VideoSticher apps to do such but that functionality is separate library.
-- VideoStitcherWPFAppV3 .. Use this
+- **VideoStitcherWPFAppV3** .. Use this
   - **This is a WPF app so runs on a Windows desktop.**
+  - Uses PhotoTimingDjausLib _as above._
+  - Can measure time for events using mouse click and drag on image.
+  - Set video file and press [Stitch Video]
+    - Generates stitched image file
+    - Also extracts audio max volume (per audio fame) in dB v time text file from video, generates gun time
+       - **Assumes video  recording is started before gun.**
+      - Nb: Audio frames are not video frames.
+        - Max vol for each frame = max vol for each frame in dB - (the min value in dB for all audio frames)
+      - Volume for each audio frame = 10^ (Max vol for frame in  /10);
+        - Graph of Volume added below ticks for WPF app.
+      - Guntime is first time at which Volume >= (Max Volume of all frames) /1000 
   - Can load previous stitched file but timing doesn't work for that (2Do)
-  - Uses Image viwer with zoom and pan from this GitHub project [djaus2/ShowImageWPF](https://github.com/djaus2/ShowImageWPF)
+  - Uses Image viewer with zoom and pan from this GitHub project [djaus2/ShowImageWPF](https://github.com/djaus2/ShowImageWPF)
     - Zoom etc currently not working
-- StitchInTimeMaui  Maui version of PhotoTimingDjaus Console app
+- **StitchInTimeMaui**  Maui version of PhotoTimingDjaus Console app
+  - Uses PhotoTimingDjausLibAndroid _as above._
   - Tested on Google Pixel 6 phone
   - Now performs stitch of limited video:
     - Limited to 1000 frames = 33 seconds
@@ -46,7 +65,7 @@ Have posted a blog post wrt GitHub Pilot strengths and weakness in creating this
   - Ticks added at bottom by overwriting image
     - 1, 5, 10 sec and minute different colors and sizes
     - No labels yet
-  - Canel button added
+  - Cancel button added
     - Some times there is a buffer issue.
 
 ## 2Dos
