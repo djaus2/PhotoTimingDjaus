@@ -7,14 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FFMpegCore" Version="5.2.0" />
-    <PackageReference Include="NAudio" Version="2.2.1" />
     <PackageReference Include="OpenCvSharp4" Version="4.10.0.20241108" />
     <PackageReference Include="OpenCvSharp4.runtime.win" Version="4.10.0.20241108" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DetectVideoFlash\DetectVideoFlash.csproj" />
     <ProjectReference Include="..\VideoEnums\VideoEnums.csproj" />
   </ItemGroup>
 

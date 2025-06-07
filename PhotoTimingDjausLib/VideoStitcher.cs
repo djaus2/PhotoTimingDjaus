@@ -1,5 +1,6 @@
 ﻿using OpenCvSharp;
-using PhotoTimingDjausLib;
+using DetectAudioFlash;
+using DetectVideoFlash;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -8,6 +9,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using PhotoTimingDjaus.Enums; // Ensure this namespace is correct for TimeFromMode
 
 namespace PhotoTimingDjaus
 {
@@ -15,41 +17,69 @@ namespace PhotoTimingDjaus
     {
         private string videoFilePath;
         private string outputFilePath;
-        private string guninfoFilePath = @"C:\temp\vid\guninfo.txt";
-        private int startTimeSeconds;
-        private int Fps = 30;
+
+        // Following are determined in GetGunTimenFrameIndex():
+        ///////////////////////////////////////////////////////////////////
+        public double videoDuration = 0;
+        public int videoFrameCount = 0;
+        private double selectedStartTime;
+        public double GunTime { get; set; } = 0.0;
+        public int GunTimeIndex = 0;
+        public int Fps = 30;
+        private double[] audioData = new double[0];
+        private double ratio = 1;  //The ratio of audio frames to video frames, used for stitching audio data with video frames
+        ///////////////////////////////////////////////////////////////////
         private TimeFromMode timeFromMode;
-        private double[] expData = new double[0];
-
-        public double videoLength = 0; // Length of the video in seconds
-        public double GunTime { get; set; } = 5.00;
-        private int threshold = 1000; // max volume/Threshold for gun detection in audio, default is 1000
-
-
+        
+        private int threshold = 1000; // max volume/Threshold for gun detection in audio, default is 1000      
+        private Scalar GunTimeColor = new Scalar(255, 255, 255, 1); // White line
         int axisHeight = 100;  //Vertical height of time axis at bottom below stitched image
         int audioHeight = 100; // Vertical height of space for audio volume graph below axis.
         const int OneMinute = 60;
 
         // Constructor to initialize the video stitcher parameters
-        public VideoStitcher(string videoPath, string outputPath, string _guninfoPath, int startTimeSeconds = 0, int _axisHeight = 100, int _audioHeight = 100, TimeFromMode _timeFromMode = TimeFromMode.FromButtonPress, int _threshold=1000)
+        public VideoStitcher(string videoPath,  Scalar _gunTimeColor, string outputPath, double _selectedStartTime = 0, int _axisHeight = 100, int _audioHeight = 100, TimeFromMode _timeFromMode = TimeFromMode.FromButtonPress, int _threshold=1000)
         {
             this.videoFilePath = videoPath;
             this.outputFilePath = outputPath;
-            this.startTimeSeconds = startTimeSeconds - (startTimeSeconds % 10);
+            this.selectedStartTime = _selectedStartTime;
             this.audioHeight = _audioHeight;
             this.axisHeight = _axisHeight;
-            this.guninfoFilePath = _guninfoPath;
             this.timeFromMode = _timeFromMode;
             this.threshold = _threshold;
+            this.GunTimeColor = _gunTimeColor;
         }
 
-        // Main method to start the stitching process
-        public double Stitch()
+        public double GetGunTimenFrameIndex(string _guninfoPath, VideoDetectMode vm = VideoDetectMode.FromFlash)
         {
+            string guninfoFilePath = _guninfoPath;
             int index = 0;
             GunTime = 0.0;
+            int Fps = 30; // Default FPS, can be adjusted based on the video file
+            
+            if (!File.Exists(videoFilePath))
+            {
+                Console.WriteLine("Gun info file not found. Please ensure 'guninfo.txt' exists in 'C:\\temp\\vid\\'.");
+                return 0;
+            }
+            // Open the video file
+            using (var capture = new VideoCapture(videoFilePath))
+            {
+                if (!capture.IsOpened())
+                {
+                    Console.WriteLine("Failed to open the video file.");
+                    return 0;
+                }
+                Fps = (int)Math.Round(capture.Fps);
+                //Fps = 30;
+                // Check if the start time exceeds the video duration
+                videoFrameCount = capture.FrameCount;
+                videoDuration = videoFrameCount / capture.Fps; // Calculate total video duration in seconds
+            }
+
             if (timeFromMode == TimeFromMode.FromGunviaAudio)
             {
+                DetectAudioFlash.FFMpegActions.Filterdata(videoFilePath, guninfoFilePath);
                 if (!File.Exists(guninfoFilePath))
                 {
                     Console.WriteLine("Gun info file not found. Please ensure 'guninfo.txt' exists in 'C:\\temp\\vid\\'.");
@@ -70,23 +100,76 @@ namespace PhotoTimingDjaus
 
                 // Normalize the data to a range of 0-Amp
                 var normalizedData = data.Select(x => (double)(Amp * (x - min) / range)).ToArray();
-                expData = normalizedData.Select(x => Math.Round(Math.Pow(x, 10), 0)).ToArray(); // Exponential scaling for better visibility
-                var maxx = expData.Max();
-                expData = expData.Select(x => audioHeight * x / maxx).ToArray(); // Ensure no negative values
+                var expData1 = normalizedData.Select(x => Math.Round(Math.Pow(x, 10), 0)).ToArray(); // Exponential scaling for better visibility
+                var maxx = expData1.Max();
+                audioData = expData1.Select(x => audioHeight * x / maxx).ToArray(); // Ensure no negative values
 
-                var average = Math.Round(expData
+                var average = Math.Round(audioData
                 .OrderByDescending(n => n) // Sort in descending order
                 .Skip(20)                 // Skip the top 20 values
                 .Average(), 0);
-                double thresholdLevel = expData.Max() / (threshold);
+                double thresholdLevel = audioData.Max() / (threshold);
 
                 // Find the index of the first value greater than or equal to the threshold
-                index = Array.FindIndex(expData, x => x >= thresholdLevel);
+                index = Array.FindIndex(audioData, x => x >= thresholdLevel);
 
-                int count = expData.Take(index + 1).Count(x => x >= expData[index]);
-                double r = expData[index - 1] / (expData.Max());
-                System.Diagnostics.Debug.WriteLine($"Count: {count} Max {expData.Max()}  ThresholdLevel {thresholdLevel} Indxex {index} Value {expData[index]} Average{average}");
+                int count = audioData.Take(index + 1).Count(x => x >= audioData[index]);
+                double r = audioData[index - 1] / (audioData.Max());
+                System.Diagnostics.Debug.WriteLine($"Count: {count} Max {audioData.Max()}  ThresholdLevel {thresholdLevel} Indxex {index} Value {audioData[index]} Average{average}");
+                                                                               //Audio frames are different to video frames
+                ratio = (double)FFMpegActions.numAudioFrames / videoFrameCount;
+                GunTimeIndex = (int)Math.Round(index / ratio);
+                GunTime = (double)GunTimeIndex / Fps; // Convert frame index to time in seconds
+                if (GunTime > videoDuration)
+                {
+                    Console.WriteLine($"Error: Start time ({GunTime:F2} seconds) exceeds video duration ({videoDuration:F2} seconds).");
+                    return 0;
+                }
+                return GunTime; // Return the start frame index and time in seconds
             }
+            else if (timeFromMode == TimeFromMode.FromGunViaVideo)
+            {
+                DetectVideoFlash.ActionVideoAnalysis actionVideoAnalysis
+                    = new DetectVideoFlash.ActionVideoAnalysis(videoFilePath, (VideoDetectMode)vm, threshold);
+                actionVideoAnalysis.ProcessVideo();
+                GunTime = actionVideoAnalysis.GunTime;
+                GunTimeIndex = actionVideoAnalysis.GunTimeIndex;
+                return GunTime;
+            }
+            else if (timeFromMode == TimeFromMode.FromButtonPress)
+            {
+                //Use video start
+                GunTime = 0;
+                GunTimeIndex = 0;
+                return GunTime;
+            }
+            else if (timeFromMode == TimeFromMode.ManuallySelect)
+            {
+                // Use the selected start time
+                GunTime = selectedStartTime;
+                GunTimeIndex = (int)Math.Round(selectedStartTime * Fps);
+                return GunTime;
+            }
+            return 0; // Return a tuple with zero values if no valid gun time is found
+        }
+
+        // Main method to start the stitching process
+        public void Stitch()
+        {
+            if (!File.Exists(videoFilePath))
+            {
+                Console.WriteLine("Video file not found. Please ensure 'guninfo.txt' exists in 'C:\\temp\\vid\\'.");
+                return;
+            }
+            if (timeFromMode == TimeFromMode.FromGunviaAudio)
+            {
+ 
+            }
+            else if (timeFromMode== TimeFromMode.FromGunViaVideo)
+            {
+
+            }
+
             // Delete the file if it already exists
             if (File.Exists(outputFilePath))
             {
@@ -96,39 +179,31 @@ namespace PhotoTimingDjaus
 
             // Open the video file
             using var capture = new VideoCapture(videoFilePath);
+            if (!capture.IsOpened())
+            {
+                Console.WriteLine("Failed to open the video file.");
+                return;
+            }
 
             Fps = (int)Math.Round(capture.Fps);
             //Fps = 30;
 
-            if (!capture.IsOpened())
-            {
-                Console.WriteLine("Failed to open the video file.");
-                return 0;
-            }
-
             // Check if the start time exceeds the video duration
-            double videoDurationSeconds = capture.FrameCount / capture.Fps; // Calculate total video duration in seconds
-            //Audio frames are different to video frames
-            double ratio = (double)FFMpegActions.numAudioFrames / capture.FrameCount;
-
-            if (startTimeSeconds > videoDurationSeconds)
+            if (selectedStartTime > videoDuration)
             {
-                Console.WriteLine($"Error: Start time ({startTimeSeconds} seconds) exceeds video duration ({videoDurationSeconds:F2} seconds).");
-                return 0;
+                Console.WriteLine($"Error: Start time ({selectedStartTime} seconds) exceeds video duration ({videoDuration:F2} seconds).");
+                return;
             }
-
-            // Calculate the frame to start stitching
-            int startFrame = startTimeSeconds * (int)capture.Fps;
 
             // Move to the starting frame
-            capture.Set(VideoCaptureProperties.PosFrames, startFrame);
+            capture.Set(VideoCaptureProperties.PosFrames, 0);// GunTimeIndex);
 
             // List to store the extracted vertical lines
             var verticalLines = new List<Mat>();
 
             // Process each frame starting from the specified time
             Mat frame = new Mat();
-
+            
             while (capture.Read(frame))
             {
                 if (frame.Empty())
@@ -152,6 +227,7 @@ namespace PhotoTimingDjaus
             switch (timeFromMode)
             {
                 case TimeFromMode.FromButtonPress:
+                case TimeFromMode.ManuallySelect:
                     stitchedImage = new Mat(stitchedHeight + 1 + axisHeight, stitchedWidth, MatType.CV_8UC3, new Scalar(0, 0, 0)); // Extra 2 x 100 pixels for markers and audio graph
                     break;
                 case TimeFromMode.FromGunviaAudio:
@@ -168,7 +244,7 @@ namespace PhotoTimingDjaus
                 var column = verticalLines[i];
                 column.CopyTo(stitchedImage.RowRange(0, stitchedHeight).Col(i)); // Copy column to the corresponding position
 
-                int currentTimeSeconds = startTimeSeconds + i / Fps; // Current time (relative to start)
+                int currentTimeSeconds = 0 /*selectedStartTime*/ + i / Fps; // Current time (relative to start)
                 int currentMinute = currentTimeSeconds / OneMinute; // Current minute
                 int currentSecond = currentTimeSeconds % OneMinute; // Seconds within the current minute
 
@@ -178,7 +254,7 @@ namespace PhotoTimingDjaus
                     Cv2.Line(stitchedImage, new Point(i, stitchedHeight), new Point(i, stitchedHeight + axisHeight), new Scalar(0, 0, 255), 3); // Red line
                     if (i == 0) // First marker (special alignment)
                     {
-                        int firstMinuteLabel = (startTimeSeconds % OneMinute == 0) ? currentMinute : currentMinute - 1; // Adjust label only if start time is not an exact minute
+                        int firstMinuteLabel = (selectedStartTime % OneMinute == 0) ? currentMinute : currentMinute - 1; // Adjust label only if start time is not an exact minute
                         Cv2.PutText(stitchedImage, $"{firstMinuteLabel} min", new Point(i, stitchedHeight + (int)(0.9 *axisHeight)), HersheyFonts.HersheySimplex, 0.5, new Scalar(255, 255, 255), 1); // Align text to the left with ' min'
                     }
                     else
@@ -218,72 +294,78 @@ namespace PhotoTimingDjaus
 
                     }
                     int audioframe2 = (int)Math.Round(i2 * ratio);
-                    Cv2.Line(stitchedImage, new Point(i2, stitchedHeight + axisHeight + audioHeight - expData[audioframe2]), new Point(i, stitchedHeight + axisHeight + audioHeight - expData[audioframe]), new Scalar(0, 255, 255), 1); // Read line
+                    Cv2.Line(stitchedImage, new Point(i2, stitchedHeight + axisHeight + audioHeight - audioData[audioframe2]), new Point(i, stitchedHeight + axisHeight + audioHeight - audioData[audioframe]), new Scalar(0, 255, 255), 1); // Read line
                 }
             }
 
             if (timeFromMode == TimeFromMode.FromGunviaAudio)
             {
-                int indexx = (int)Math.Round(index / ratio);
-                GunTime = (double)indexx / Fps;
-                Cv2.Line(stitchedImage, new Point(indexx, 0), new Point(indexx, stitchedHeight), new Scalar(255, 255, 255), 1); // White line
+                Cv2.Line(stitchedImage, new Point(GunTimeIndex, 0), new Point(GunTimeIndex, stitchedHeight), GunTimeColor); // White line
+            }
+            else if (timeFromMode == TimeFromMode.FromGunViaVideo)
+            {
+                Cv2.Line(stitchedImage, new Point(GunTimeIndex, 0), new Point(GunTimeIndex, stitchedHeight), GunTimeColor); // White line
+            }
+            else if (timeFromMode == TimeFromMode.ManuallySelect)
+            {
+                Cv2.Line(stitchedImage, new Point(GunTimeIndex, 0), new Point(GunTimeIndex, stitchedHeight), GunTimeColor); // White line
             }
 
             // Save the stitched image.
             Cv2.ImWrite(outputFilePath, stitchedImage);
 
             Console.WriteLine($"Stitched image with markers saved at '{outputFilePath}'.");
-            return videoDurationSeconds;
+            return;
         }
 
-        private void StitchUpWorker(string videoPath, string outputPath, int startTimeSeconds, Action<IAsyncResult> callback)
-        {
+        //private void StitchUpWorker(string videoPath, string outputPath, int startTimeSeconds, Action<IAsyncResult> callback)
+        //{
 
-            if (!File.Exists(videoPath))
-            {
-                File.Delete(outputPath);
-            }
+        //    if (!File.Exists(videoPath))
+        //    {
+        //        File.Delete(outputPath);
+        //    }
 
 
-            // Show the busy indicator
-            //BusyIndicator.Visibility = Visibility.Visible;
-            //FinishTime.Visibility = Visibility.Hidden;
-            //FinishTimeLabel.Visibility = FinishTime.Visibility;
+        //    // Show the busy indicator
+        //    //BusyIndicator.Visibility = Visibility.Visible;
+        //    //FinishTime.Visibility = Visibility.Hidden;
+        //    //FinishTimeLabel.Visibility = FinishTime.Visibility;
 
-            // Run the stitching process in a background thread
-            BackgroundWorker worker = new BackgroundWorker();
-            worker.DoWork += (s, args) =>
-            {
-                // Call the stitching process
-                var videoStitcher = new PhotoTimingDjaus.VideoStitcher(videoPath, outputPath,"", startTimeSeconds);
-                videoLength = videoStitcher.Stitch();
-            };
+        //    // Run the stitching process in a background thread
+        //    BackgroundWorker worker = new BackgroundWorker();
+        //    worker.DoWork += (s, args) =>
+        //    {
+        //        // Call the stitching process
+        //        var videoStitcher = new PhotoTimingDjaus.VideoStitcher(videoPath,GunTimeIndex,GunTime,GunTimeColor, outputPath,"", startTimeSeconds);
+        //        videoLength = videoStitcher.Stitch();
+        //    };
 
-            worker.RunWorkerCompleted += (s, args) =>
-            {
+        //    worker.RunWorkerCompleted += (s, args) =>
+        //    {
 
-                // Hide the busy indicator
-                //BusyIndicator.Visibility = Visibility.Collapsed;
+        //        // Hide the busy indicator
+        //        //BusyIndicator.Visibility = Visibility.Collapsed;
 
-                // Display the stitched image
-                if (File.Exists(outputPath))
-                {
-                    //null, false, null)
-                    var argsx = new AsyncCompletedEventArgs(null, false, videoLength);
-                    callback.Invoke((IAsyncResult)argsx);
-                }
-                else
-                {
+        //        // Display the stitched image
+        //        if (File.Exists(outputPath))
+        //        {
+        //            //null, false, null)
+        //            var argsx = new AsyncCompletedEventArgs(null, false, videoLength);
+        //            callback.Invoke((IAsyncResult)argsx);
+        //        }
+        //        else
+        //        {
                     
-                    //MessageBox.Show("Failed to create the stitched image.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-                //StitchButton.Visibility = Visibility.Visible; // Hide the button
-                //StitchButton.Width = 200;
-                //StitchButton.IsEnabled = true; // Re-enable the button
-            };
+        //            //MessageBox.Show("Failed to create the stitched image.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        //        }
+        //        //StitchButton.Visibility = Visibility.Visible; // Hide the button
+        //        //StitchButton.Width = 200;
+        //        //StitchButton.IsEnabled = true; // Re-enable the button
+        //    };
 
-            worker.RunWorkerAsync();
-        }
+        //    worker.RunWorkerAsync();
+        //}
 
     }
 }

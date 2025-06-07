@@ -11,7 +11,7 @@ using NAudio.Wave;
 using System.Runtime.Versioning;
 using FFMpegCore.Arguments;
 
-namespace PhotoTimingDjausLib
+namespace DetectAudioFlash
 {
     public static class FFMpegActions
     {

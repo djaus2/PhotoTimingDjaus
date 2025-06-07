@@ -1,5 +1,5 @@
 ﻿using OpenCvSharp;
-using PhotoTimingDjausLib;
+using DetectAudioFlash;
 using System;
 using System.Collections.Generic;
 using System.IO; // Required for File operations

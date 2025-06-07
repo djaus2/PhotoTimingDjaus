@@ -8,6 +8,14 @@ using System.Windows.Input;
 using Microsoft.Win32;
 using System.Windows.Controls;
 using PhotoTimingDjaus;
+using DetectAudioFlash;
+using PhotoTimingDjaus.Enums;
+using System.Diagnostics.Eventing.Reader;
+using PhotoTimingGui.ViewModels;
+using System.Net.Sockets;
+using System.Text.Json;
+using System.Windows.Threading;
+//using OpenCvSharp;
 
 
 namespace PhotoTimingGui
@@ -15,34 +23,58 @@ namespace PhotoTimingGui
 
     public partial class MainWindow : Window
     {
+        private PhotoTimingDjaus.VideoStitcher? videoStitcher = null;
         private int margin = 20;
         private double videoLength = 0;
-        private int startTimeSeconds = 0; // Start time in seconds
+        private double selectedStartTime = 0; // Start time in seconds
         private string guninfoFilePath = @"C:\temp\vid\guninfo.txt";
         private int threshold = 1000; // Threshold for gun sound detection. Gun time is First time sound reaches max/threshold
 
-        private double gunTimeDbl { get; set; }
+        private double GunTimeDbl { get; set; }
+        private int GunTimeIndex = 0; // Index of the gun time in the guninfo.txt file
+        private OpenCvSharp.Scalar GunTimeColor = new OpenCvSharp.Scalar(255, 255, 255, 1); // OpenCV color for red (BGR format)
 
         //public Visibility MyVisibility { get; set; } = Visibility.Visible;
+        private readonly DispatcherTimer _saveTimer;
 
         public MainWindow()
         {
             InitializeComponent();
-            this.DataContext = new ViewModels.MyViewModel();
+            LoadViewModel();
+            //this.DataContext = new ViewModels.MyViewModel();
             Loaded += MainWindow_Loaded;
+            _saveTimer = new DispatcherTimer
+            {
+                //Save viewModel after 1 second of inactivity
+                Interval = TimeSpan.FromMilliseconds(1000)
+            };
+            _saveTimer.Tick += (s, e) =>
+            {
+                _saveTimer.Stop();
+                SaveViewModel();
+            };
+
+            if (this.DataContext is MyViewModel vm)
+            {
+                vm.PropertyChanged += (s, e) =>
+                {
+                    _saveTimer.Stop();
+                    _saveTimer.Start();
+                };
+            }
         }
         bool imageLoaded = false;
         private void LoadImageButton_Click(object sender, RoutedEventArgs e)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog
-            {
-                Filter = "Image Files (*.png)|*.png"
-            };
-
-            if (openFileDialog.ShowDialog() == true)
+            //OpenFileDialog openFileDialog = new OpenFileDialog
+            //{
+            //    Filter = "Image Files (*.png)|*.png"
+            //};
+            string imageFilePath = OutputPathInput.Text;
+            if (File.Exists(imageFilePath))
             {
                 // Load the selected image into the Image control
-                BitmapImage bitmap = new BitmapImage(new Uri(openFileDialog.FileName));
+                BitmapImage bitmap = new BitmapImage(new Uri(imageFilePath));
                 StitchedImage.Source = bitmap;
 
                 // Save the original dimensions of the image
@@ -50,6 +82,12 @@ namespace PhotoTimingGui
                 ImageCanvas.Height = bitmap.PixelHeight;
 
                 imageLoaded = true;
+            }
+            else
+            {
+                MessageBox.Show("The specified image file does not exist.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                imageLoaded = false;
+                return;
             }
         }
 
@@ -265,6 +303,24 @@ namespace PhotoTimingGui
             return TimeFromMode.FromButtonPress; // Default value if ViewModel is not available
         }
 
+        private void SetVideoDetectMode(VideoDetectMode videoDetectMode)
+        {
+            if (DataContext is ViewModels.MyViewModel viewModel)
+            {
+                viewModel.VideoDetectMode = videoDetectMode;
+            }
+        }
+
+        // Method to access the ViewModel and get the TimeFromMode property
+        private VideoDetectMode GetVideoDetectMode()
+        {
+            if (DataContext is ViewModels.MyViewModel viewModel)
+            {
+                return viewModel.VideoDetectMode;
+            }
+            return VideoDetectMode.FromFlash; // Default value if ViewModel is not available
+        }
+
 
         bool firstradioMessage = true;
         private void RadioButton_Checked(object sender, RoutedEventArgs e)
@@ -323,19 +379,36 @@ namespace PhotoTimingGui
             //MyVisibility = Visibility.Collapsed; ; // Hide the button
             SetMyVisibility(Visibility.Collapsed);
             Thread.Yield();
-
-            if (timeFromMode == TimeFromMode.FromGunviaAudio)
+            DetectVideoFlash.ActionVideoAnalysis? actionVideoAnalysis = null;
+            VideoDetectMode videoDetectMode = GetVideoDetectMode();
+            if (timeFromMode == TimeFromMode.FromButtonPress)
             {
-                PhotoTimingDjausLib.FFMpegActions.Filterdata(videoFilePath, guninfoFilePath);
+                // Nothing 2Do
+            }
+            else if (timeFromMode == TimeFromMode.FromGunviaAudio)
+            {
+                //DetectVideoFlash.FFMpegActions.Filterdata(videoFilePath, guninfoFilePath);
+            }
+            else if(timeFromMode == TimeFromMode.FromGunViaVideo)
+            {
+            }
+            else if (timeFromMode == TimeFromMode.ManuallySelect)
+            {
             }
             // Validate inputs
             // Read inputs
-            //string videoPath = VideoPathInput.Text;
+            string gunAudioPath = GunAudioPathInput.Text;
             string outputPath = OutputPathInput.Text;
+
 
             StitchButton.Width = 0;
             StitchButton.IsEnabled = false; // Disable the button to prevent multiple clicks
                                             // Validate inputs
+            if (File.Exists(outputPath))
+            {
+                File.Delete(outputPath); // Delete existing output file if it exists
+                //return;
+            }
 
             if (!File.Exists(videoFilePath))
             {
@@ -344,9 +417,9 @@ namespace PhotoTimingGui
                 return;
             }
 
-            if (!int.TryParse(StartTimeInput.Text, out startTimeSeconds))
+            if (!double.TryParse(StartTimeInput.Text, out selectedStartTime))
             {
-                MessageBox.Show("Please enter a valid number for Start Time (Seconds).", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Please enter a valid start time (seconds as decimal).", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 StitchButton.IsEnabled = true;
                 return;
             }
@@ -359,24 +432,58 @@ namespace PhotoTimingGui
             }
             threshold = int.Parse(Threshold.Text);
 
-
+            //if (videoStitcher == null)
+            //{
+                videoStitcher = new PhotoTimingDjaus.VideoStitcher(
+                videoFilePath,
+                (DataContext as ViewModels.MyViewModel)?.GunColor ?? new OpenCvSharp.Scalar(255, 255, 255, 1),
+                outputPath,
+                selectedStartTime,
+                axisHeight,
+                audioHeight,
+                timeFromMode,
+                threshold);
+            //}
 
 
             // Run the stitching process in a background thread
             BackgroundWorker worker = new BackgroundWorker();
             
             
-            var videoStitcher = new PhotoTimingDjaus.VideoStitcher(videoFilePath, outputPath, @"C:\temp\vid\guninfo.txt", startTimeSeconds, axisHeight, audioHeight, timeFromMode, threshold);
+
 
             worker.DoWork += (s, args) =>
             {
-                // Call the stitching process
-                videoLength = videoStitcher.Stitch();
+                //Determine guntime
                 
+                if (timeFromMode == TimeFromMode.FromButtonPress)
+                {
+                    GunTimeDbl = 0; // Default value when timing is from button press
+                    GunTimeIndex = 0; // Default index when timing is from button press
+                }
+                else if (timeFromMode == TimeFromMode.FromGunviaAudio)
+                {
+                    GunTimeDbl = videoStitcher.GetGunTimenFrameIndex(gunAudioPath);
+                    GunTimeIndex = videoStitcher.GunTimeIndex;
+                }
+                else if (timeFromMode == TimeFromMode.FromGunViaVideo)
+                {
+                    GunTimeDbl = videoStitcher.GetGunTimenFrameIndex(gunAudioPath,videoDetectMode);
+                    GunTimeIndex = videoStitcher.GunTimeIndex;
+                }
+                else if (timeFromMode == TimeFromMode.ManuallySelect)
+                {
+                    GunTimeDbl = videoStitcher.GetGunTimenFrameIndex(gunAudioPath);
+                    GunTimeIndex = videoStitcher.GunTimeIndex;
+                }
+
+                videoLength = videoStitcher.videoDuration; 
+                videoStitcher.Stitch();              
             };
 
             worker.RunWorkerCompleted += (s, args) =>
             {
+                GunTime.Text = $"{GunTimeDbl}";
                 VideoLength.Text = $"{videoLength}";
                 // Hide the busy indicator
                 BusyIndicator.Visibility = Visibility.Collapsed;
@@ -389,9 +496,26 @@ namespace PhotoTimingGui
                     bitmap.UriSource = new Uri(outputPath, UriKind.Absolute);
                     bitmap.CacheOption = BitmapCacheOption.OnLoad;
                     bitmap.EndInit();
-
-                    gunTimeDbl = videoStitcher.GunTime;
-                    GunTime.Text = $"{gunTimeDbl}";
+                    /*if (timeFromMode == TimeFromMode.FromButtonPress)
+                    {
+                        GunTimeDbl = 0;
+                    }
+                    else if (timeFromMode == TimeFromMode.FromGunviaAudio)
+                    {
+                        GunTimeDbl = videoStitcher.GunTime;
+                    }
+                    else if (timeFromMode == TimeFromMode.FromGunViaVideo)
+                    {
+                        if (actionVideoAnalysis == null)
+                        {
+                            MessageBox.Show("ActionVideoAnalysis is not initialized.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                            return;
+                        }
+                        GunTimeIndex = actionVideoAnalysis.GunTimeIndex;
+                        GunTimeDbl = actionVideoAnalysis.GunTime;
+                    }*/
+                    
+                    
 
                     StitchedImage.LayoutTransform = null;
                     StitchedImage.Source = bitmap;
@@ -441,7 +565,7 @@ namespace PhotoTimingGui
                 return;
             }
             double tim = (posX / StitchedImage.ActualWidth) * videoLength;
-            if (tim < gunTimeDbl)
+            if (tim < GunTimeDbl)
             {
                 TimeLabel.Visibility = Visibility.Collapsed;
                 VerticalLine.Visibility = Visibility.Collapsed;
@@ -487,7 +611,7 @@ namespace PhotoTimingGui
                     return;
                 }
                 double tim = (posX / StitchedImage.ActualWidth) * videoLength;
-                if (tim< gunTimeDbl)
+                if (tim< GunTimeDbl)
                 {
                     TimeLabel.Visibility = Visibility.Collapsed;
                     VerticalLine.Visibility = Visibility.Collapsed;
@@ -545,8 +669,8 @@ namespace PhotoTimingGui
             // Example total duration of the stitched video
             double durationInSeconds = videoLength; // Replace with the actual duration of your stitched image
             VideoLength.Text = $"{videoLength} sec"; // Display the video length in seconds
-            double timeInSeconds = (startTimeSeconds + relativePosition * durationInSeconds - gunTimeDbl);
-            System.Diagnostics.Debug.WriteLine(timeInSeconds);
+            double timeInSeconds = (selectedStartTime + relativePosition * durationInSeconds - GunTimeDbl);
+            //System.Diagnostics.Debug.WriteLine($"{timeInSeconds} = {selectedStartTime} + {relativePosition}*{durationInSeconds}-{GunTimeDbl}");
             if (timeInSeconds >= 0)
             {
 
@@ -577,5 +701,290 @@ namespace PhotoTimingGui
         {
 
         }
+
+
+        private void FlashButton_Click(object sender, RoutedEventArgs e)
+        {
+            VideoDetectMode vm = GetVideoDetectMode();
+
+            double threshold = int.Parse(Threshold.Text); // Default threshold value, can be adjusted
+            DetectVideoFlash.ActionVideoAnalysis actionVideoAnalysis 
+                = new DetectVideoFlash.ActionVideoAnalysis(VideoPathInput.Text,vm, threshold);
+            actionVideoAnalysis.ProcessVideo();
+            //GunTime.Text = $"{actionVideoAnalysis.ProcessVideo()}";
+        }
+
+        /*
+        private void ApplyColor_Click(object sender, RoutedEventArgs e)
+        {
+            string colorName = ColorTextBox.Text.Trim();
+
+            try
+            {
+                SolidColorBrush clr = new SolidColorBrush((Color)ColorConverter.ConvertFromString(colorName));
+            }
+            catch
+            {
+                MessageBox.Show("Invalid color name. Try again.");
+            }
+        }
+
+        private void ApplyOpenCVColor_Click(object sender, RoutedEventArgs e)
+        {
+            string colorName = ColorTextBox.Text.Trim().ToUpper();
+            OpenCvSharp.Scalar selectedColor;
+
+            switch (colorName)
+            {
+                case "RED":
+                    selectedColor = new OpenCvSharp.Scalar(0, 0, 255, 1);
+                    break;
+                case "GREEN":
+                    selectedColor = new OpenCvSharp.Scalar(0, 255, 0, 1);
+                    break;
+                case "BLUE":
+                    selectedColor = new OpenCvSharp.Scalar(255, 0, 0, 1);
+                    break;
+                case "YELLOW":
+                    selectedColor = new OpenCvSharp.Scalar(0, 255, 255, 1);
+                    break;
+                case "CYAN":
+                    selectedColor = new OpenCvSharp.Scalar(255, 255, 0, 1);
+                    break;
+                case "MAGENTA":
+                    selectedColor = new OpenCvSharp.Scalar(255, 0, 255, 1);
+                    break;
+                case "WHITE":
+                    selectedColor = new OpenCvSharp.Scalar(255, 255, 255, 1);
+                    break;
+                case "BLACK":
+                    selectedColor = new OpenCvSharp.Scalar(0, 0, 0, 1);
+                    break;
+                default:
+                    MessageBox.Show("Invalid color name. Try again.");
+                    return;
+            }
+
+            MessageBox.Show($"You selected OpenCV color: {colorName} ({selectedColor.Val0}, {selectedColor.Val1}, {selectedColor.Val2}, , {selectedColor.Val3})");
+        }
+
+        private void ColorMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is MenuItem menuItem)
+            {
+                string colorName = menuItem.Header.ToString().ToUpper();
+                OpenCvSharp.Scalar selectedColor;
+
+                switch (colorName)
+                {
+                    case "RED":
+                        selectedColor = new OpenCvSharp.Scalar(0, 0, 255, 1);
+                        break;
+                    case "GREEN":
+                        selectedColor = new OpenCvSharp.Scalar(0, 255, 0, 1);
+                        break;
+                    case "BLUE":
+                        selectedColor = new OpenCvSharp.Scalar(255, 0, 0, 1);
+                        break;
+                    case "YELLOW":
+                        selectedColor = new OpenCvSharp.Scalar(0, 255, 255, 1);
+                        break;
+                    case "CYAN":
+                        selectedColor = new OpenCvSharp.Scalar(255, 255, 0, 1);
+                        break;
+                    case "MAGENTA":
+                        selectedColor = new OpenCvSharp.Scalar(255, 0, 255, 1);
+                        break;
+                    case "WHITE":
+                        selectedColor = new OpenCvSharp.Scalar(255, 255, 255, 1);
+                        break;
+                    case "BLACK":
+                        selectedColor = new OpenCvSharp.Scalar(0, 0, 0, 1);
+                        break;
+                    default:
+                        MessageBox.Show("Invalid color selection.");
+                        return;
+                }
+                GunTimeColor = selectedColor;
+                MessageBox.Show($"You selected OpenCV color: {colorName} ({selectedColor.Val0}, {selectedColor.Val1}, {selectedColor.Val2}, {selectedColor.Val3})");
+            }
+        }
+        */
+        ////////////////////////////// File Menu ///////////////////////////////
+        
+        private void OpenMp4File_Click(object sender, RoutedEventArgs e)
+        {
+            string videoFilePath = VideoPathInput.Text;
+            OpenFileDialog openFileDialog;
+            if (File.Exists(videoFilePath)) 
+            {
+                string? initialDirectory = System.IO.Path.GetDirectoryName(videoFilePath);
+                if (!string.IsNullOrEmpty(initialDirectory) && !Directory.Exists(initialDirectory))
+                {
+                    openFileDialog = new OpenFileDialog
+                    {
+                        Filter = "MP4 Files (*.mp4)|*.mp4",
+                        InitialDirectory = initialDirectory, // Set the folder
+                        FileName = videoFilePath
+                    };
+                }
+                else
+                {
+                    openFileDialog = new OpenFileDialog
+                    {
+                        Filter = "MP4 Files (*.mp4)|*.mp4",
+
+                    };
+                }
+            }
+            else {
+                openFileDialog = new OpenFileDialog
+                {
+                    Filter = "MP4 Files (*.mp4)|*.mp4",
+                };
+            }
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                videoFilePath = openFileDialog.FileName;
+                VideoPathInput.Text = videoFilePath;
+            }
+        }
+
+        private void OpenPngFile_Click(object sender, RoutedEventArgs e)
+        {
+            string OutputFilePath = OutputPathInput.Text;
+            OpenFileDialog openFileDialog;
+            if (File.Exists(OutputFilePath))
+            {
+                string? initialDirectory = System.IO.Path.GetDirectoryName(OutputFilePath);
+                if (!string.IsNullOrEmpty(initialDirectory) && !Directory.Exists(initialDirectory))
+                {
+                    openFileDialog = new OpenFileDialog
+                    {
+                        Filter = "PNG Files (*.png)|*.png",
+                        InitialDirectory = initialDirectory, // Set the folder
+                        FileName = OutputFilePath
+                    };
+                }
+                else
+                {
+                    openFileDialog = new OpenFileDialog
+                    {
+                        Filter = "PNG Files (*.png)|*.png",
+                    };
+                }
+            }
+            else
+            {
+                openFileDialog = new OpenFileDialog
+                {
+                    Filter = "PNG Files (*.png)|*.png",
+                };
+            }
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                OutputFilePath = openFileDialog.FileName;
+                OutputPathInput.Text = OutputFilePath;
+            }
+        }
+
+        private void OpenGunAudioTextFile_Click(object sender, RoutedEventArgs e)
+        {
+            string GunAudioPathInput = this.GunAudioPathInput.Text;
+            OpenFileDialog openFileDialog;
+            if (File.Exists(GunAudioPathInput))
+            {
+                string? initialDirectory = System.IO.Path.GetDirectoryName(GunAudioPathInput);
+                if (!string.IsNullOrEmpty(initialDirectory) && !Directory.Exists(initialDirectory))
+                {
+                    openFileDialog = new OpenFileDialog
+                    {
+                        Filter = "TXT Files (*.txt)|*.txt",
+                        InitialDirectory = initialDirectory, // Set the folder
+                        FileName = GunAudioPathInput
+                    };
+                }
+                else
+                {
+                    openFileDialog = new OpenFileDialog
+                    {
+                        Filter = "TXT Files (*.txt)|*.txt",
+                    };
+                }
+            }
+            else
+            {
+                openFileDialog = new OpenFileDialog
+                {
+                    Filter = "TXT Files (*.txt)|*.txt",
+                };
+            }
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                GunAudioPathInput = openFileDialog.FileName;
+                this.GunAudioPathInput.Text = GunAudioPathInput;
+            }
+        }
+
+        /////////////////////////////////////////////////////////////////////////
+        ///
+        private void TimeFromMode_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is MenuItem menuItem && menuItem.Tag is TimeFromMode timeMode)
+            {
+                // Update the view model's TimeFromMode property.
+                // Replace 'viewModel' with your actual view model reference or use DataContext.
+                if (DataContext is ViewModels.MyViewModel viewModel)
+                {
+                    viewModel.TimeFromMode = timeMode;
+                }
+            }
+        }
+
+        private void VideoDetectMode_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is MenuItem menuItem && menuItem.Tag is VideoDetectMode detectMode)
+            {
+                // Update the view model's VideoDetectMode property.
+                if (DataContext is ViewModels.MyViewModel viewModel)
+                {
+                    viewModel.VideoDetectMode = detectMode;
+                }
+            }
+        }
+
+      
+
+        public void SaveViewModel()
+        {  
+            MyViewModel viewModel = (this.DataContext as MyViewModel) ?? new MyViewModel(); // Ensure viewModel is not null, otherwise create a new instance
+            string json = JsonSerializer.Serialize(viewModel);
+            VideoStitcherWPFAppV3.Properties.Settings.Default.SavedViewModel = json;
+            VideoStitcherWPFAppV3.Properties.Settings.Default.Save(); // Persist settings
+        }
+
+        public void LoadViewModel()
+        {
+            string json = VideoStitcherWPFAppV3.Properties.Settings.Default.SavedViewModel;
+            if(!string.IsNullOrEmpty(json))
+            {
+                this.DataContext = JsonSerializer.Deserialize<MyViewModel>(json) ?? new MyViewModel();
+            }
+            else
+            {
+                this.DataContext = new MyViewModel();
+            }
+            if(this.DataContext is MyViewModel viewModel)
+            {
+                // Set default visibility at start to visble for controls
+                //Add any other defaults here.
+                viewModel.MyVisibility = Visibility.Visible; 
+            }
+        }
+
+
     }
 }

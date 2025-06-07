@@ -13,6 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\DetectVideoFlash\DetectVideoFlash.csproj" />
     <ProjectReference Include="..\PhotoTimingDjausLib\PhotoTimingDjausLib.csproj" />
   </ItemGroup>
 

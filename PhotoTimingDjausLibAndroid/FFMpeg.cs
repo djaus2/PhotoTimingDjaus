@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using static Android.Provider.MediaStore;
 using NAudio.Wave;
 
-namespace PhotoTimingDjausLib
+namespace DetectAudioFlash
 {
     public static class FFMpegActions
     {
