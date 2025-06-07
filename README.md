@@ -42,13 +42,17 @@ Have posted a blog post wrt GitHub Pilot strengths and weakness in creating this
   - Can measure time for events using mouse click and drag on image.
   - Set video file and press [Stitch Video]
     - Generates stitched image file
-    - Also extracts audio max volume (per audio fame) in dB v time text file from video, generates gun time
+    - Option to choose timing mode from:
+      1. Video Start
+      2. Detect Start Gun audio
+      3.  Detect video flash _(Not yet imlemented)._
+    - _(For 2.)_ Also extracts audio max volume (per audio fame) in dB v time text file from video, generates gun time
        - **Assumes video  recording is started before gun.**
       - Nb: Audio frames are not video frames.
         - Max vol for each frame = max vol for each frame in dB - (the min value in dB for all audio frames)
       - Volume for each audio frame = 10^ (Max vol for frame in  /10);
         - Graph of Volume added below ticks for WPF app.
-      - Guntime is first time at which Volume >= (Max Volume of all frames) /1000 
+      - Guntime is first time at which Volume >= (Max Volume of all frames) /1000  <-- This 1000 value is in-app settable.
   - Can load previous stitched file but timing doesn't work for that (2Do)
   - Uses Image viewer with zoom and pan from this GitHub project [djaus2/ShowImageWPF](https://github.com/djaus2/ShowImageWPF)
     - Zoom etc currently not working
