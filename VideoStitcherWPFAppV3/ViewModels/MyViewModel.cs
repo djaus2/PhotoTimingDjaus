@@ -26,7 +26,8 @@ namespace PhotoTimingGui.ViewModels
         private VideoDetectMode _videoDetectMode = VideoDetectMode.FromFlash;
 
         private string _VideoPathInput = "";
-        public string VideoPathInput { get => _VideoPathInput; set  { _VideoPathInput = value; OnPropertyChanged(nameof(VideoPathInput)); } }
+        public string VideoPathInput { get => _VideoPathInput; 
+            set  { _VideoPathInput = value; OnPropertyChanged(nameof(VideoPathInput)); } }
 
         private string _OutputPathInput = "";
         public string OutputPathInput { get => _OutputPathInput; set  { _OutputPathInput = value; OnPropertyChanged(nameof(OutputPathInput)); } }
@@ -125,7 +126,8 @@ namespace PhotoTimingGui.ViewModels
         public bool IsCyanSelected => string.Equals(_selectedColorName, "Cyan", StringComparison.OrdinalIgnoreCase);
         public bool IsMagentaSelected => string.Equals(_selectedColorName, "Magenta", StringComparison.OrdinalIgnoreCase);
         public bool IsWhiteSelected => string.Equals(_selectedColorName, "White", StringComparison.OrdinalIgnoreCase);
-        public bool IsBlackSelected => string.Equals(_selectedColorName, "Black", StringComparison.OrdinalIgnoreCase);
+        public bool IsBlackSelected => string.Equals(_selectedColorName, "Black", StringComparison.OrdinalIgnoreCase);      
+        public bool FlashSelected => TimeFromMode.Equals(_TimeFromMode, TimeFromMode.FromGunViaVideo);
 
         private void UpdateColorSelectionProperties()
         {

@@ -703,6 +703,7 @@ namespace PhotoTimingGui
         }
 
 
+        /*
         private void FlashButton_Click(object sender, RoutedEventArgs e)
         {
             VideoDetectMode vm = GetVideoDetectMode();
@@ -714,7 +715,7 @@ namespace PhotoTimingGui
             //GunTime.Text = $"{actionVideoAnalysis.ProcessVideo()}";
         }
 
-        /*
+        
         private void ApplyColor_Click(object sender, RoutedEventArgs e)
         {
             string colorName = ColorTextBox.Text.Trim();
@@ -810,8 +811,14 @@ namespace PhotoTimingGui
             }
         }
         */
-        ////////////////////////////// File Menu ///////////////////////////////
+
+        ////////////////////////////////////// File Menu //////////////////////////////////////
         
+        /// <summary>
+        /// Select the MP4 file but not open it.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void OpenMp4File_Click(object sender, RoutedEventArgs e)
         {
             string videoFilePath = VideoPathInput.Text;
@@ -847,10 +854,23 @@ namespace PhotoTimingGui
             if (openFileDialog.ShowDialog() == true)
             {
                 videoFilePath = openFileDialog.FileName;
-                VideoPathInput.Text = videoFilePath;
+                MyViewModel? viewModel = this.DataContext as MyViewModel;
+                if (viewModel != null)
+                {
+                    viewModel.VideoPathInput = videoFilePath; // Update the ViewModel with the new path
+                }
+                else
+                {
+                    VideoPathInput.Text = videoFilePath;
+                }
             }
         }
 
+        /// <summary>
+        /// Select the Stitched Video output PNG file and open if it exists.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void OpenPngFile_Click(object sender, RoutedEventArgs e)
         {
             string OutputFilePath = OutputPathInput.Text;
@@ -885,11 +905,32 @@ namespace PhotoTimingGui
 
             if (openFileDialog.ShowDialog() == true)
             {
-                OutputFilePath = openFileDialog.FileName;
-                OutputPathInput.Text = OutputFilePath;
+                OutputFilePath = openFileDialog.FileName;               
+                MyViewModel? viewModel = this.DataContext as MyViewModel;
+                if(viewModel != null)
+                {
+                    viewModel.OutputPathInput = OutputFilePath; // Update the ViewModel with the new path
+                }
+                else
+                {
+                    OutputPathInput.Text = OutputFilePath;
+                }
+                if (File.Exists(OutputFilePath))
+                {
+                    LoadImageButton_Click(null, null);
+                }
+                else
+                {
+                    MessageBox.Show("Failed to select a PNG image file.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
         }
 
+        /// <summary>
+        /// Select the Gun Audio text file but not open it.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void OpenGunAudioTextFile_Click(object sender, RoutedEventArgs e)
         {
             string GunAudioPathInput = this.GunAudioPathInput.Text;
@@ -925,18 +966,30 @@ namespace PhotoTimingGui
             if (openFileDialog.ShowDialog() == true)
             {
                 GunAudioPathInput = openFileDialog.FileName;
-                this.GunAudioPathInput.Text = GunAudioPathInput;
+                MyViewModel? viewModel = this.DataContext as MyViewModel;
+                if (viewModel != null)
+                {
+                    viewModel.GunAudioPathInput = GunAudioPathInput; // Update the ViewModel with the new path
+                }
+                else
+                {
+                    this.GunAudioPathInput.Text = GunAudioPathInput;
+                }
             }
         }
 
-        /////////////////////////////////////////////////////////////////////////
-        ///
+        //////////////////////// Time from and Video Detect Mode Menu Handlers ////////////////
+
+        /// <summary>
+        /// From menu set the TimeFromMode property in the ViewModel.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void TimeFromMode_Click(object sender, RoutedEventArgs e)
         {
             if (sender is MenuItem menuItem && menuItem.Tag is TimeFromMode timeMode)
             {
                 // Update the view model's TimeFromMode property.
-                // Replace 'viewModel' with your actual view model reference or use DataContext.
                 if (DataContext is ViewModels.MyViewModel viewModel)
                 {
                     viewModel.TimeFromMode = timeMode;
@@ -944,6 +997,12 @@ namespace PhotoTimingGui
             }
         }
 
+        /// <summary>
+        /// Set the VideoDetectMode property in the ViewModel from the menu 
+        /// ... when TimeFromMode is set to FromGunViaVideo or FromFlash.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void VideoDetectMode_Click(object sender, RoutedEventArgs e)
         {
             if (sender is MenuItem menuItem && menuItem.Tag is VideoDetectMode detectMode)
@@ -956,8 +1015,14 @@ namespace PhotoTimingGui
             }
         }
 
-      
 
+        ///////////////////////////// MyViewModel State Management /////////////////////////////
+
+        /// <summary>
+        /// Save the properties of the ViewModel to application settings.
+        /// Automatically called on property change via PropertyChanged event.
+        /// Changes saved after 1 second timeout
+        /// </summary>
         public void SaveViewModel()
         {  
             MyViewModel viewModel = (this.DataContext as MyViewModel) ?? new MyViewModel(); // Ensure viewModel is not null, otherwise create a new instance
@@ -966,6 +1031,9 @@ namespace PhotoTimingGui
             VideoStitcherWPFAppV3.Properties.Settings.Default.Save(); // Persist settings
         }
 
+        /// <summary>
+        /// Load the ViewModel from saved settings at startup.
+        /// </summary>
         public void LoadViewModel()
         {
             string json = VideoStitcherWPFAppV3.Properties.Settings.Default.SavedViewModel;
@@ -985,6 +1053,17 @@ namespace PhotoTimingGui
             }
         }
 
+        /// <summary>
+        /// Called from File Menu
+        /// Shouldn't be needed because the ViewModel is saved automatically on property change.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SaveViewModel_Click(object sender, RoutedEventArgs e)
+        {
+            SaveViewModel();
+        }
 
+        ////////////////////////////////////////////////////////////////////////////////////////
     }
 }

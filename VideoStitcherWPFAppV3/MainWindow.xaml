@@ -70,8 +70,10 @@
                             FontStyle="Italic"
                             Foreground="Blue">
                             <MenuItem Header="Select Video File" Click="OpenMp4File_Click"/>
-                            <MenuItem Header="Select Existing Image File" Click="OpenPngFile_Click"/>
+                            <MenuItem Header="Load Image File" Click="OpenPngFile_Click"/>
                             <MenuItem Header="Set Temp Gun Audio File" Click="OpenGunAudioTextFile_Click"/>
+                            <Separator/>
+                            <MenuItem Header="Save State" Click="SaveViewModel_Click"/>
                             <Separator/>
                             <MenuItem Header="Exit" Command="ApplicationCommands.Close"/>
                         </MenuItem>
@@ -127,7 +129,7 @@
                         <MenuItem Header="Time From Mode:" 
                               FontWeight="Bold" 
                               FontStyle="Italic"
-                              Foreground="Purple">
+                              Foreground="Blue">
                             <!-- Option 1: Button -->
                             <MenuItem Header="Button" 
                   Click="TimeFromMode_Click"
@@ -166,11 +168,11 @@
 
                 <!-- File Paths -->
                 <TextBlock Grid.Row="1" Grid.Column="0"    Text="Video Path:" TextAlignment="Right"  />
-                <TextBox Grid.Row="1" Grid.Column="1"  Name="VideoPathInput" HorizontalAlignment="Left"  Margin="10,0,0,0" Width="180"  Text= "{Binding VideoPathInput}" />
+                <TextBox Grid.Row="1" Grid.Column="1"  Name="VideoPathInput" HorizontalAlignment="Left"  Margin="10,0,0,0" Width="180"  Text= "{Binding VideoPathInput, UpdateSourceTrigger=PropertyChanged}" />
                 <TextBlock Grid.Row="2" Grid.Column="0"  Text="Output Path:" TextAlignment="Right"  />
-                <TextBox Grid.Row="2" Grid.Column="1"  Name="OutputPathInput" HorizontalAlignment="Left"  Margin="10,0,0,0"  Width="180"  Text="{Binding OutputPathInput}"   />
+                <TextBox Grid.Row="2" Grid.Column="1"  Name="OutputPathInput" HorizontalAlignment="Left"  Margin="10,0,0,0"  Width="180"  Text="{Binding OutputPathInput, UpdateSourceTrigger=PropertyChanged}"   />
                 <TextBlock Grid.Row="3" Grid.Column="0"  Text="Gun Audio File Path:" TextAlignment="Right" />
-                <TextBox Grid.Row="3" Grid.Column="1"  x:Name="GunAudioPathInput" HorizontalAlignment="Left" Margin="10,0,0,0" Width="180"   Text= "{Binding GunAudioPathInput}"  />
+                <TextBox Grid.Row="3" Grid.Column="1"  x:Name="GunAudioPathInput" HorizontalAlignment="Left" Margin="10,0,0,0" Width="180"   Text= "{Binding GunAudioPathInput, UpdateSourceTrigger=PropertyChanged}"  />
 
                 <!-- Zoom and Pan Sliders -->
                 <!-- Horizontal -->
@@ -186,11 +188,11 @@
 
     
                 <!-- ButtonsEtc. -->
-                <Button Grid.Row="6" Grid.Column="1" Grid.RowSpan="2" Name="StitchButton" VerticalAlignment="Center" HorizontalAlignment="Center"  Content="Stitch Video" Width="150" Click="StitchButton_Click"  Visibility="{Binding MyVisibility}" 
+                <Button Grid.Row="6" Grid.Column="0" Grid.RowSpan="2" Name="StitchButton" VerticalAlignment="Center" HorizontalAlignment="Center"  Content="Stitch Video" Height="50" Width="200" Click="StitchButton_Click"  Visibility="{Binding MyVisibility}" 
                         Foreground="Green" FontWeight="Bold" Background="LightPink"/>
 
-                <Button Grid.Row="6" Grid.Column="0" Name="LoadImageButton" HorizontalAlignment="Left" Content="Load Image" Width="150" Click="LoadImageButton_Click" Height="20" VerticalAlignment="Top" />
-                <Button Grid.Row="7" Grid.Column="0" x:Name="FlashButton" HorizontalAlignment="Left"  Content="Detect Flash in Video" Width="150" Click="FlashButton_Click" VerticalAlignment="Center" Visibility="{Binding MyVisibility}"/>
+                <!-- Button Grid.Row="6" Grid.Column="0" Name="LoadImageButton" HorizontalAlignment="Left" Content="Load Image" Width="150" Click="LoadImageButton_Click" Height="20" VerticalAlignment="Top" / -->
+                <!-- Button Grid.Row="7" Grid.Column="0" x:Name="FlashButton" HorizontalAlignment="Left"  Content="Detect Flash in Video" Width="150" Click="FlashButton_Click" VerticalAlignment="Center" Visibility="{Binding MyVisibility}"/ -->
                 <CheckBox Grid.Row="9" Grid.Column="2" VerticalAlignment="Center"  Name="AutoScaleCheckbox" HorizontalAlignment="Center"  Content="Auto Scale to Height" Checked="AutoScaleCheckbox_Checked" Unchecked="AutoScaleCheckbox_Unchecked"/>
 
 
@@ -219,8 +221,8 @@
                     <TextBlock  Text="{Binding ElementName=AudioHeightSlider, Path=Value, Mode=OneWay}"  TextAlignment="Right" Width="50" />
                 </StackPanel>
 
-                <Label Grid.Row="4" Grid.Column="0"  Content="Time From Mode: " FontWeight="Bold" FontStyle="Italic" Foreground="Purple"  HorizontalAlignment="Right" />
-                <Label Grid.Row="5" Grid.Column="0"  Content="Detect Flash: " FontWeight="Bold" FontStyle="Italic" Foreground="Purple" HorizontalAlignment="Right" />
+                <Label Grid.Row="4" Grid.Column="0"  Content="Time From Mode: " FontWeight="Bold" FontStyle="Italic" Foreground="Blue"  HorizontalAlignment="Right" />
+                <Label Grid.Row="5" Grid.Column="0"  Content="Detect Flash: " FontWeight="Bold" FontStyle="Italic" Foreground="Blue" HorizontalAlignment="Right" />
                 <Label Grid.Row="4" Grid.Column="1"  Content="{Binding TimeFromMode}" FontWeight="Bold"  Foreground="Purple"  HorizontalAlignment="Left" />
                 <StackPanel Grid.Row="5"
             Grid.Column="1"
