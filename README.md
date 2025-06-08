@@ -18,7 +18,7 @@ The WPF app has been updated to calculate time from gun.  The guntime is taken f
     - Currently only allows mouse left click time selections from there but times are from video start.
 - None of the image expansions work.
 
-## Featurse to add
+## Features to add
 - On mouse click, show image frame at that point.
 
 
