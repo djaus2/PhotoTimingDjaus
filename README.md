@@ -17,7 +17,7 @@ The WPF app has been updated to calculate time from gun.  The guntime is taken f
   - Then Button to set this as GunTime and write its line
     - That button is only visible when in Manual mode, and image is stitched in that mode and gun line not drawn.
   - ***2Do*** Then make all Left Click timings relative to that.
-    - Times are from video start.
+    - For Manul Mode Times are from video start, _but are from gun time(line) for other modes_.
 
 ## 2Do
 - None of the image expansions work.
