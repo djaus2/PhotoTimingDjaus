@@ -35,11 +35,41 @@ namespace PhotoTimingGui.ViewModels
         private string _GunAudioPathInput = "";
         public string GunAudioPathInput { get => _GunAudioPathInput; set  { _GunAudioPathInput = value; OnPropertyChanged(nameof(OutputPathInput)); } }
 
-
+        public double _StartTimeInput = 0.0;
+        public double StartTimeInput
+        { 
+            get => _StartTimeInput;
+            set { _StartTimeInput = value; OnPropertyChanged(nameof(StartTimeInput)); }
+        }
 
         public MyViewModel()
         {
             _setColorCommand = new RelayCommand(SetColor);
+        }
+
+        private bool _HasStitched = false;
+        public bool HasStitched
+        {
+            get => _HasStitched;
+            set
+            {
+                _HasStitched = value;
+                OnPropertyChanged(nameof(HasStitched));
+                HaveSelectedandShownGunLineToManualMode = false;
+            }
+        }
+
+        private bool _HasSelectedandShownGunLineToManualMode = false;
+        public bool HaveSelectedandShownGunLineToManualMode
+        {
+            get => TimeFromMode.Equals(_TimeFromMode, TimeFromMode.ManuallySelect) && _HasSelectedandShownGunLineToManualMode;
+            set
+            {
+                    if (TimeFromMode != TimeFromMode.ManuallySelect)
+                        return;
+                    _HasSelectedandShownGunLineToManualMode = value; // Set HasStitched to true when switching to manual mode
+                    OnPropertyChanged(nameof(HaveSelectedandShownGunLineToManualMode));
+            }
         }
 
         public Visibility MyVisibility
@@ -59,6 +89,7 @@ namespace PhotoTimingGui.ViewModels
             {
                 _TimeFromMode = value;
                 OnPropertyChanged(nameof(TimeFromMode));
+                HasStitched = false; // Reset HasStitched when TimeFromMode changes
             }
         }
 
@@ -128,6 +159,7 @@ namespace PhotoTimingGui.ViewModels
         public bool IsWhiteSelected => string.Equals(_selectedColorName, "White", StringComparison.OrdinalIgnoreCase);
         public bool IsBlackSelected => string.Equals(_selectedColorName, "Black", StringComparison.OrdinalIgnoreCase);      
         public bool FlashSelected => TimeFromMode.Equals(_TimeFromMode, TimeFromMode.FromGunViaVideo);
+        public bool ManualSelected => TimeFromMode.Equals(_TimeFromMode, TimeFromMode.ManuallySelect);
 
         private void UpdateColorSelectionProperties()
         {

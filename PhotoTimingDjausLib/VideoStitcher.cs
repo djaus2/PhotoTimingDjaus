@@ -156,6 +156,8 @@ namespace PhotoTimingDjaus
         // Main method to start the stitching process
         public void Stitch()
         {
+            PreviousStitchedImage = null;
+            PreviousStitchedImageHeight = 0;
             if (!File.Exists(videoFilePath))
             {
                 Console.WriteLine("Video file not found. Please ensure 'guninfo.txt' exists in 'C:\\temp\\vid\\'.");
@@ -311,12 +313,39 @@ namespace PhotoTimingDjaus
                 Cv2.Line(stitchedImage, new Point(GunTimeIndex, 0), new Point(GunTimeIndex, stitchedHeight), GunTimeColor); // White line
             }
 
+            PreviousStitchedImage = stitchedImage;
+            PreviousStitchedImageHeight = stitchedHeight;
             // Save the stitched image.
             Cv2.ImWrite(outputFilePath, stitchedImage);
 
             Console.WriteLine($"Stitched image with markers saved at '{outputFilePath}'.");
             return;
         }
+
+        Mat? PreviousStitchedImage = null;
+        int PreviousStitchedImageHeight = 0;
+        public void AddGunLine(double _GunTimeDbl, Scalar _GunTimeColor)
+        {
+            int _GunTimeIndex = (int)Math.Round(_GunTimeDbl * Fps);
+            if (PreviousStitchedImage == null)
+            {
+                Console.WriteLine("No stitched image available to add gun line.");
+                return;
+            }
+            if(PreviousStitchedImageHeight==0)
+            {
+                Console.WriteLine("No stitched image height available to add gun line.");
+                return;
+            }
+            Cv2.Line(PreviousStitchedImage, new Point(_GunTimeIndex, 0), new Point(_GunTimeIndex, PreviousStitchedImageHeight), _GunTimeColor); // White line
+
+            // Save the stitched image.
+            Cv2.ImWrite(outputFilePath, PreviousStitchedImage);
+
+            Console.WriteLine($"Stitched image with markers saved at '{outputFilePath}'.");
+            return;
+        }
+   
 
         //private void StitchUpWorker(string videoPath, string outputPath, int startTimeSeconds, Action<IAsyncResult> callback)
         //{

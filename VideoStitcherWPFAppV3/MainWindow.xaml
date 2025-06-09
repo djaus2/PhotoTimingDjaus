@@ -190,6 +190,39 @@
                 <!-- ButtonsEtc. -->
                 <Button Grid.Row="6" Grid.Column="0" Grid.RowSpan="2" Name="StitchButton" VerticalAlignment="Center" HorizontalAlignment="Center"  Content="Stitch Video" Height="50" Width="200" Click="StitchButton_Click"  Visibility="{Binding MyVisibility}" 
                         Foreground="Green" FontWeight="Bold" Background="LightPink"/>
+                <Button Grid.Row="6" Grid.Column="1" Name="WriteGunLine" 
+                        Click="WriteGunLineButton_Click"
+                        HorizontalAlignment="Left" VerticalAlignment="Top"
+                        Content="WriteGun Line" 
+                        Width="150"  Height="20"                                                                                    
+                        FontWeight="Bold"
+                        Foreground="Purple">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <!-- Default state -->
+                                <Setter Property="Visibility" Value="Collapsed"/>
+
+                                <!-- Make it Visible only when TimeFromMode == ManuallySelect -->
+                                <!-- Style.Triggers>
+                                    <DataTrigger Binding="{Binding TimeFromMode}"
+                                        Value="{x:Static enums:TimeFromMode.ManuallySelect}">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers -->
+                            <Style.Triggers>
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding TimeFromMode}" 
+                                            Value="{x:Static enums:TimeFromMode.ManuallySelect}" />
+                                        <Condition Binding="{Binding HasStitched}" Value="True" />
+                                        <Condition Binding="{Binding HaveSelectedandShownGunLineToManualMode}" Value="False" />
+                                    </MultiDataTrigger.Conditions>
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </MultiDataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                        </Button.Style>
+                    </Button>
 
                 <!-- Button Grid.Row="6" Grid.Column="0" Name="LoadImageButton" HorizontalAlignment="Left" Content="Load Image" Width="150" Click="LoadImageButton_Click" Height="20" VerticalAlignment="Top" / -->
                 <!-- Button Grid.Row="7" Grid.Column="0" x:Name="FlashButton" HorizontalAlignment="Left"  Content="Detect Flash in Video" Width="150" Click="FlashButton_Click" VerticalAlignment="Center" Visibility="{Binding MyVisibility}"/ -->
@@ -198,7 +231,7 @@
 
                 <!-- Output Data -->
                 <TextBlock Grid.Column="2" Grid.Row="4" Name="StartTimeInputLabel"            TextAlignment="Right" Text="Start Time (Seconds): "  />
-                <TextBox Grid.Column="3"   Grid.Row="4" Name="StartTimeInput"                 HorizontalAlignment="Left"  Width="150"   Text="0"  />
+                <TextBox Grid.Column="3"   Grid.Row="4" Name="StartTimeInput"                 HorizontalAlignment="Left"  Width="150"  IsReadOnly="True"  Text="{Binding StartTimeInput}"  />
                 <TextBlock Grid.Column="2" Grid.Row="5" Name="VideoLengthLabel"               TextAlignment="Right" Text="Video Length:" Visibility="{Binding MyVisibility}"   />
                 <TextBox Grid.Column="3"   Grid.Row="5" Name="VideoLength" IsReadOnly="True"  HorizontalAlignment="Left" Width="150"  VerticalAlignment="Center" Text="0" Visibility="{Binding MyVisibility}"  />
                 <TextBlock Grid.Column="2" Grid.Row="6" Name="GunTimeLabel"                   TextAlignment="Right" Text="Gun Time: "   Visibility="{Binding MyVisibility}"  />
@@ -225,14 +258,14 @@
                 <Label Grid.Row="5" Grid.Column="0"  Content="Detect Flash: " FontWeight="Bold" FontStyle="Italic" Foreground="Blue" HorizontalAlignment="Right" />
                 <Label Grid.Row="4" Grid.Column="1"  Content="{Binding TimeFromMode}" FontWeight="Bold"  Foreground="Purple"  HorizontalAlignment="Left" />
                 <StackPanel Grid.Row="5"
-            Grid.Column="1"
-            Visibility="{Binding FlashSelected,
-                                 Converter={StaticResource BoolToVis}}">
+                    Grid.Column="1"
+                    Visibility="{Binding FlashSelected,
+                    Converter={StaticResource BoolToVis}}">
 
                     <Label Content="{Binding VideoDetectMode}"
-           FontWeight="Bold"
-           Foreground="Purple"
-           HorizontalAlignment="Left">
+                       FontWeight="Bold"
+                       Foreground="Purple"
+                       HorizontalAlignment="Left">      
                         <Label.Style>
                             <Style TargetType="Label">
                                 <!-- Default state -->
@@ -312,10 +345,14 @@
                        HorizontalAlignment="Left"
                         Height="{Binding ActualHeight-100, RelativeSource={RelativeSource AncestorType=Window}}" 
                         Source="C:\temp\stitched_image.png"
-                    MouseLeftButtonDown="StitchedImage_MouseLeftButtonDown"
-                    MouseMove="StitchedImage_MouseMove"
-                    MouseLeftButtonUp="StitchedImage_MouseLeftButtonUp" />
+                    MouseLeftButtonDown="StitchedImage_MouseButtonDown"
+                    MouseLeftButtonUp="StitchedImage_MouseButtonUp"
+                    MouseRightButtonUp="StitchedImage_MouseButtonUp"
+                    MouseRightButtonDown="StitchedImage_MouseButtonDown"
+                    MouseMove="StitchedImage_MouseMove"/>
+
                     <Line Name="VerticalLine" Stroke="Red" StrokeThickness="2" Visibility="Collapsed" />
+                    <Line Name="StartVerticalLine" Stroke="Green" StrokeThickness="2" Visibility="Collapsed" />
                     <TextBlock Name="TimeLabel"   Foreground="White" Visibility="Collapsed" />
                 </Grid>
             </ScrollViewer>

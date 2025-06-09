@@ -373,6 +373,10 @@ namespace PhotoTimingGui
             int axisHeight = (int)AxisHeightSlider.Value;
             int audioHeight = (int)AudioHeightSlider.Value;
             TimeFromMode timeFromMode = GetTimeFromMode();
+            // Used by manully select mode, later
+            // Need to get stitched image first
+            // You can then set it.
+            StartTimeInput.Text = "0.0";
 
             // Show the busy indicator
             BusyIndicator.Visibility = Visibility.Visible;
@@ -417,12 +421,7 @@ namespace PhotoTimingGui
                 return;
             }
 
-            if (!double.TryParse(StartTimeInput.Text, out selectedStartTime))
-            {
-                MessageBox.Show("Please enter a valid start time (seconds as decimal).", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                StitchButton.IsEnabled = true;
-                return;
-            }
+
 
             if (!int.TryParse(Threshold.Text, out int _threshold))
             {
@@ -536,6 +535,11 @@ namespace PhotoTimingGui
                 //StitchButton.Visibility = Visibility.Visible; // Hide the button
                 StitchButton.Width = 200;
                 StitchButton.IsEnabled = true; // Re-enable the button
+                if (this.DataContext is MyViewModel viewModel)
+                {
+                    viewModel.HasStitched = true;
+                    viewModel.HaveSelectedandShownGunLineToManualMode = false;
+                }
             };
 
             worker.RunWorkerAsync();
@@ -543,8 +547,42 @@ namespace PhotoTimingGui
 
         private bool _isDragging = false;
 
-        private void StitchedImage_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        private void StitchedImage_MouseButtonDown(object sender, MouseButtonEventArgs e)
         {
+            System.Windows.Shapes.Line _VerticalLine = VerticalLine;
+            bool isLeft = (e.LeftButton == MouseButtonState.Pressed);
+            if (isLeft)
+            {
+                if (this.DataContext is MyViewModel viewModel)
+                {
+                    if (!viewModel.HasStitched)
+                        return;
+                }
+                _VerticalLine = VerticalLine;
+                VerticalLine.Visibility = Visibility.Visible;
+                StartVerticalLine.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                if (!(e.RightButton == MouseButtonState.Pressed))
+                    return;
+                if (this.DataContext is MyViewModel viewModel)
+                {
+                    if (viewModel.TimeFromMode != TimeFromMode.ManuallySelect)
+                        return;
+                    if (!viewModel.HasStitched)
+                        return;
+                    if (viewModel.HaveSelectedandShownGunLineToManualMode)
+                    {
+                        // Already in manual mode, so just return
+                        return;
+                    }
+                }
+                _VerticalLine = StartVerticalLine;
+                VerticalLine.Visibility = Visibility.Collapsed;
+                StartVerticalLine.Visibility = Visibility.Visible;
+            }
+
             // Start drawing the line only when the mouse is over the image
             _isDragging = true;
             StitchedImage.CaptureMouse();
@@ -572,16 +610,16 @@ namespace PhotoTimingGui
                 return;
             }
             TimeLabel.Visibility = Visibility.Visible; // Ensure the label is visible when clicked or dragged
-            VerticalLine.Visibility = Visibility.Visible; // Ensure the line is visible when clicked or dragged
+            _VerticalLine.Visibility = Visibility.Visible; // Ensure the line is visible when clicked or dragged
 
             // Set the line's starting and ending points relative to the image
-            VerticalLine.X1 = position.X;
-            VerticalLine.X2 = position.X;
-            VerticalLine.Y1 = 0; // Top of the image
-            VerticalLine.Y2 = StitchedImage.ActualHeight; // Bottom of the image
+            _VerticalLine.X1 = position.X;
+            _VerticalLine.X2 = position.X;
+            _VerticalLine.Y1 = 0; // Top of the image
+            _VerticalLine.Y2 = StitchedImage.ActualHeight; // Bottom of the image
 
             // Make the line visible
-            VerticalLine.Visibility = Visibility.Visible;
+            _VerticalLine.Visibility = Visibility.Visible;
 
             // Make time label visible and position it
             TimeLabel.Visibility = Visibility.Visible;
@@ -593,8 +631,25 @@ namespace PhotoTimingGui
 
         private void StitchedImage_MouseMove(object sender, MouseEventArgs e)
         {
+            System.Windows.Shapes.Line _VerticalLine = VerticalLine;
             if (_isDragging)
             {
+                bool isLeft = (e.LeftButton == MouseButtonState.Pressed);
+                if (isLeft)
+                {
+                    _VerticalLine = VerticalLine;
+                    VerticalLine.Visibility = Visibility.Visible;
+                    StartVerticalLine.Visibility = Visibility.Collapsed;
+                }
+                else
+                {
+                    if (!(e.RightButton == MouseButtonState.Pressed))
+                        return;
+                    _VerticalLine = StartVerticalLine;
+                    VerticalLine.Visibility = Visibility.Collapsed;
+                    StartVerticalLine.Visibility = Visibility.Visible;
+                }
+
                 // Update the line's position as the mouse moves over the stitched image
                 System.Windows.Point position = e.GetPosition(StitchedImage);
                 double posX = position.X;
@@ -607,48 +662,49 @@ namespace PhotoTimingGui
                 {
                     //if clicked after video ends hide line and text at mouse position
                     TimeLabel.Visibility = Visibility.Collapsed;
-                    VerticalLine.Visibility = Visibility.Collapsed;
+                        _VerticalLine.Visibility = Visibility.Collapsed;
                     return;
                 }
                 double tim = (posX / StitchedImage.ActualWidth) * videoLength;
                 if (tim< GunTimeDbl)
                 {
                     TimeLabel.Visibility = Visibility.Collapsed;
-                    VerticalLine.Visibility = Visibility.Collapsed;
+                        _VerticalLine.Visibility = Visibility.Collapsed;
                     return;
                 }
                 TimeLabel.Visibility = Visibility.Visible; // Ensure the label is visible when clicked or dragge
-                VerticalLine.Visibility = Visibility.Visible; // Ensure the line is visible when clicked or dragge
-                
-                VerticalLine.X1 = posX;
-                VerticalLine.X2 = posX;
-                VerticalLine.Y1 = 0; // Top of the image
+                _VerticalLine.Visibility = Visibility.Visible; // Ensure the line is visible when clicked or dragge
+
+                _VerticalLine.X1 = posX;
+                _VerticalLine.X2 = posX;
+                _VerticalLine.Y1 = 0; // Top of the image
                 double posY2 = StitchedImage.ActualHeight;
                 if (StitchedImage.LayoutTransform is ScaleTransform transformV)
                 {
                     double verticalScale = transformV.ScaleY; // Get the horizontal scale
                     posY2 = posY2 * verticalScale; // Adjust time based on scale
                 }
-                VerticalLine.Y2 = posY2; // Bottom of the image
+                _VerticalLine.Y2 = posY2; // Bottom of the image
                 TimeLabel.TextAlignment = TextAlignment.Left; // Align text to the left
                 TimeLabel.Margin = new Thickness(posX + 10, 100, 0, 0); // Place label slightly to the right of the cursor
-                UpdateTimeLabel(posX);
+                UpdateTimeLabel(posX, isLeft);
             }
         }
 
-        private void StitchedImage_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        private void StitchedImage_MouseButtonUp(object sender, MouseButtonEventArgs e)
         {
             // Stop dragging and hide the line
             _isDragging = false;
             StitchedImage.ReleaseMouseCapture();
             VerticalLine.Visibility = Visibility.Collapsed;
-            VerticalLine.Visibility = Visibility.Collapsed;
+            StartVerticalLine.Visibility = Visibility.Collapsed;
             TimeLabel.Visibility = Visibility.Collapsed;
             //FinishTime.Visibility = Visibility.Visible;
             //FinishTimeLabel.Visibility = FinishTime.Visibility;
         }
 
-        private void UpdateTimeLabel(double positionX)
+
+        private void UpdateTimeLabel(double positionX, bool isLeftButton=true)
         {
             // Get the image's horizontal scaling from the LayoutTransform (ScaleTransform)
             double horizontalScale = 1.0; // Default scale (no zoom)
@@ -669,7 +725,14 @@ namespace PhotoTimingGui
             // Example total duration of the stitched video
             double durationInSeconds = videoLength; // Replace with the actual duration of your stitched image
             VideoLength.Text = $"{videoLength} sec"; // Display the video length in seconds
-            double timeInSeconds = (selectedStartTime + relativePosition * durationInSeconds - GunTimeDbl);
+            double StartTime = 0.0;
+            if (this.DataContext is MyViewModel viewModel)
+            {
+                // Set default visibility at start to visble for controls
+                //Add any other defaults here.
+                StartTime = viewModel.StartTimeInput;
+            }
+            double timeInSeconds = (selectedStartTime + relativePosition * durationInSeconds - GunTimeDbl- StartTime);
             //System.Diagnostics.Debug.WriteLine($"{timeInSeconds} = {selectedStartTime} + {relativePosition}*{durationInSeconds}-{GunTimeDbl}");
             if (timeInSeconds >= 0)
             {
@@ -680,8 +743,15 @@ namespace PhotoTimingGui
                 TimeLabel.Visibility = Visibility.Visible;
                 TimeLabel.Text = $"{timeInSeconds:F2} sec";
                 //FinishTime.Text = $"{timeInSeconds:F2} sec";
-                FinishTime.Text = formattedTime;
-                Clipboard.SetData(DataFormats.Text, (Object)formattedTime);
+                if (isLeftButton)
+                {
+                    FinishTime.Text = formattedTime;
+                    Clipboard.SetData(DataFormats.Text, (Object)formattedTime);
+                }
+                else
+                {
+                    StartTimeInput.Text = formattedTime;
+                }
             }
             else
             {
@@ -1050,6 +1120,11 @@ namespace PhotoTimingGui
                 // Set default visibility at start to visble for controls
                 //Add any other defaults here.
                 viewModel.MyVisibility = Visibility.Visible; 
+                viewModel.StartTimeInput = 0.0; // Default start time
+                viewModel.HasStitched = false;
+                viewModel.HaveSelectedandShownGunLineToManualMode = false;
+                viewModel.GunColor = new OpenCvSharp.Scalar(255, 255, 255, 1); // Default gun color White
+                viewModel.SelectedColorName = "White"; // Default color name
             }
         }
 
@@ -1062,6 +1137,62 @@ namespace PhotoTimingGui
         private void SaveViewModel_Click(object sender, RoutedEventArgs e)
         {
             SaveViewModel();
+        }
+
+        private void WriteGunLineButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Default StartTimeInput.Text to zero if blank or invalid
+            if (!double.TryParse(StartTimeInput.Text, out selectedStartTime))
+            {
+                //Try for TimeSpan and turn into milliseconds
+                if (TimeSpan.TryParse(StartTimeInput.Text, out TimeSpan timeSpan))
+                {
+                    var ms = timeSpan.TotalMilliseconds;
+                    selectedStartTime = Math.Round(ms / 1000.0,3);
+                }
+                else
+                {
+                    selectedStartTime =0.0;
+                }
+                StartTimeInput.Text =$"{selectedStartTime:F3}"; // Format to 3 decimal places
+            }
+            string outputPath = OutputPathInput.Text;
+            // Only write line if non zero start time is selected
+            if (selectedStartTime != 0)
+            {
+                if (this.DataContext is MyViewModel viewModel)
+                {
+
+                    videoStitcher?.AddGunLine(selectedStartTime,
+                        (DataContext as ViewModels.MyViewModel)?.GunColor ?? new OpenCvSharp.Scalar(255, 255, 255, 1)
+                        );
+
+                    using var fs = new FileStream(outputPath, FileMode.Open,
+                              FileAccess.Read, FileShare.ReadWrite);
+
+                    var bitmap = new BitmapImage();
+                    bitmap.BeginInit();
+                    bitmap.CacheOption = BitmapCacheOption.OnLoad; // read into RAM, release stream afterwards
+                    bitmap.StreamSource = fs;                      // <— no Uri, so no cache
+                    bitmap.EndInit();
+                    bitmap.Freeze();
+
+                    StitchedImage.Source = bitmap;
+
+
+                    StitchedImage.Source = bitmap;
+                    if (StitchedImage.Source is BitmapSource bitmapx)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Image Dimensions: {bitmapx.PixelWidth}x{bitmap.PixelHeight}");
+                    }
+                    GunTimeDbl = selectedStartTime;
+                    GunTime.Text = $"{GunTimeDbl}";
+                    viewModel.HaveSelectedandShownGunLineToManualMode = true;
+
+                    MessageBox.Show("Stitched image successfully updated and displayed!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            
+            }
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////
