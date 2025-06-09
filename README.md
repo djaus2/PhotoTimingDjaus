@@ -47,7 +47,7 @@ Have posted a blog post wrt GitHub Pilot strengths and weakness in creating this
     - NAudio
   - Does video stitching
 - **PhotoTimingDjausLibAndroid** Works now
-  - Uses **Emgu.CV.runtime.maui.mini.android** instaed of OpenCvSharp4
+  - Uses **Emgu.CV.runtime.maui.mini.android** instead of OpenCvSharp4
   - _Not yet as functional as *PhotoTimingDjausLib 2Do._
 
 
