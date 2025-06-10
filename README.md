@@ -7,6 +7,10 @@ A simple phototiming app for Athletics etc where a finish line is filmed with sa
 
 ## Recent
 
+### Latest
+Major rework so that all/most info in XAML page is bound to ViewModel properties. Get Set for many in separate page which handles the DtataContext.  
+Still a workk in progress
+
 The WPF app has been updated to calculate time from gun.  The guntime is taken from audio (microsphone).  So the video is recording before the gun. Continued development of teh WPF app.  
 > Latest: Big changes to the WPF UI and functionality.
 
