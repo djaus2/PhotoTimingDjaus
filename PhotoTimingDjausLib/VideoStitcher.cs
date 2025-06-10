@@ -324,18 +324,18 @@ namespace PhotoTimingDjaus
 
         Mat? PreviousStitchedImage = null;
         int PreviousStitchedImageHeight = 0;
-        public void AddGunLine(double _GunTimeDbl, Scalar _GunTimeColor)
+        public int AddGunLine(double _GunTimeDbl, Scalar _GunTimeColor)
         {
             int _GunTimeIndex = (int)Math.Round(_GunTimeDbl * Fps);
             if (PreviousStitchedImage == null)
             {
                 Console.WriteLine("No stitched image available to add gun line.");
-                return;
+                return 0;
             }
             if(PreviousStitchedImageHeight==0)
             {
                 Console.WriteLine("No stitched image height available to add gun line.");
-                return;
+                return 0;
             }
             Cv2.Line(PreviousStitchedImage, new Point(_GunTimeIndex, 0), new Point(_GunTimeIndex, PreviousStitchedImageHeight), _GunTimeColor); // White line
 
@@ -343,7 +343,7 @@ namespace PhotoTimingDjaus
             Cv2.ImWrite(outputFilePath, PreviousStitchedImage);
 
             Console.WriteLine($"Stitched image with markers saved at '{outputFilePath}'.");
-            return;
+            return _GunTimeIndex;
         }
    
 

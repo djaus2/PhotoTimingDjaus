@@ -270,6 +270,16 @@ namespace PhotoTimingGui
             }
         }
 
+        private double GetVideoLength()
+        {
+            if (DataContext is ViewModels.MyViewModel viewModel)
+            {
+                double videoLength = viewModel.VideoLength;
+                return videoLength;
+            }
+            return 0;
+        }
+
         private void SetGunTime(double guntime, int gunTimeIndex)
         {
             if (DataContext is ViewModels.MyViewModel viewModel)
@@ -280,6 +290,25 @@ namespace PhotoTimingGui
                     viewModel.GunTimeIndex = gunTimeIndex; // Set the index of the gun time
                 }
             }
+        }
+        private double GetGunTime()
+        {
+            if (DataContext is ViewModels.MyViewModel viewModel)
+            {
+                var gunTime = viewModel.GunTime;
+                return gunTime;
+            }
+            return 0;
+        }
+
+        private int GetGunTimeIndex()
+        {
+            if (DataContext is ViewModels.MyViewModel viewModel)
+            {
+                var gunTimeIndex = viewModel.GunTimeIndex;
+                return gunTimeIndex;
+            }
+            return 0;
         }
     }
 }

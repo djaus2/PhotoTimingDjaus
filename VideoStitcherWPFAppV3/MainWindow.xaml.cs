@@ -70,7 +70,7 @@ namespace PhotoTimingGui
             //{
             //    Filter = "Image Files (*.png)|*.png"
             //};
-            string imageFilePath = OutputPathInput.Text;
+            string imageFilePath = GetOutputPath();
             if (File.Exists(imageFilePath))
             {
                 // Load the selected image into the Image control
@@ -315,14 +315,14 @@ namespace PhotoTimingGui
 
         private void StitchButton_Click(object sender, RoutedEventArgs e)
         {
-            string videoFilePath = VideoPathInput.Text;
+            string videoFilePath = GetVideoPath();
             int axisHeight = (int)AxisHeightSlider.Value;
             int audioHeight = (int)AudioHeightSlider.Value;
             TimeFromMode timeFromMode = GetTimeFromMode();
             // Used by manully select mode, later
             // Need to get stitched image first
             // You can then set it.
-            StartTimeInput.Text = "0.0";
+            SetSelectedStartTime(0);
 
             // Show the busy indicator
             BusyIndicator.Visibility = Visibility.Visible;
@@ -347,8 +347,8 @@ namespace PhotoTimingGui
             }
             // Validate inputs
             // Read inputs
-            //string gunAudioPath = GunAudioPathInput.Text;
-            string outputPath = OutputPathInput.Text;
+            //string gunAudioPath = GunAudioPath();
+            string outputPath = GetOutputPath();
 
 
             StitchButton.Width = 0;
@@ -373,6 +373,7 @@ namespace PhotoTimingGui
             {
                 MessageBox.Show("Please enter a valid number >0  (Typical 1000) for threshold.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 threshold = _threshold;
+                
                 return;
             }
             threshold = int.Parse(Threshold.Text);
@@ -622,6 +623,7 @@ namespace PhotoTimingGui
                     _VerticalLine.Visibility = Visibility.Collapsed;
                     return;
                 }
+                System.Diagnostics.Debug.WriteLine($"Line 618 tim:{tim}");
                 TimeLabel.Visibility = Visibility.Visible; // Ensure the label is visible when clicked or dragge
                 _VerticalLine.Visibility = Visibility.Visible; // Ensure the line is visible when clicked or dragge
 
@@ -675,15 +677,15 @@ namespace PhotoTimingGui
             double relativePosition = (positionX / horizontalScale) / StitchedImage.ActualWidth;
             System.Diagnostics.Debug.WriteLine($"{positionX} {horizontalScale} {StitchedImage.ActualWidth}  {relativePosition}");
             // Example total duration of the stitched video
-            double durationInSeconds = videoLength; // Replace with the actual duration of your stitched image
-            VideoLength.Text = $"{videoLength} sec"; // Display the video length in seconds
+            double durationInSeconds = GetVideoLength(); // Replace with the actual duration of your stitched image
+            //VideoLength.Text = $"{videoLength} sec"; // Display the video length in seconds
 
             // Set default visibility at start to visible for controls
             //Add any other defaults here.
-            double StartTime = GetSelectedStartTime();
-
-            double timeInSeconds = (selectedStartTime + relativePosition * durationInSeconds - GunTimeDbl);
-            //System.Diagnostics.Debug.WriteLine($"{timeInSeconds} = {selectedStartTime} + {relativePosition}*{durationInSeconds}-{GunTimeDbl}");
+            //StartTime = GetSelectedStartTime();
+            GunTimeDbl = GetGunTime();
+            double timeInSeconds = relativePosition * durationInSeconds - GunTimeDbl;
+            System.Diagnostics.Debug.WriteLine($"===={timeInSeconds} = {relativePosition * durationInSeconds}  {relativePosition}*{durationInSeconds}-{GunTimeDbl}");
             if (timeInSeconds >= 0)
             {
 
@@ -920,12 +922,23 @@ namespace PhotoTimingGui
                 return;
 
             selectedStartTime = this.GetSelectedStartTime();
-            string outputPath = OutputPathInput.Text;
+            string outputPath = GetOutputPath();
             // Only write line if non zero start time is selected
             if (selectedStartTime != 0)
             {
-
-                videoStitcher?.AddGunLine(selectedStartTime, GetGunColor());
+                if(videoStitcher == null)
+                {
+                    videoStitcher = new PhotoTimingDjaus.VideoStitcher(
+                       GetVideoPath(),
+                       GetGunColor(),
+                       GetOutputPath(),
+                       selectedStartTime,
+                       100, //axisHeight,
+                       100, //audioHeight,
+                       GetTimeFromMode(),
+                       threshold);
+                }
+                int gunTimeIndex = videoStitcher.AddGunLine(selectedStartTime, GetGunColor());
 
                 using var fs = new FileStream(outputPath, FileMode.Open,
                             FileAccess.Read, FileShare.ReadWrite);
@@ -942,8 +955,7 @@ namespace PhotoTimingGui
                 {
                     System.Diagnostics.Debug.WriteLine($"Image Dimensions: {bitmapx.PixelWidth}x{bitmap.PixelHeight}");
                 }
-                GunTimeDbl = selectedStartTime;
-                GunTime.Text = $"{GunTimeDbl}";
+                SetGunTime(selectedStartTime,gunTimeIndex);
                 SetHaveSelectedandShownGunLineToManualMode(true);
 
                 MessageBox.Show("Stitched image successfully updated and displayed!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);        
