@@ -42,6 +42,27 @@ namespace PhotoTimingGui.ViewModels
             set { _StartTimeInput = value; OnPropertyChanged(nameof(StartTimeInput)); }
         }
 
+        private double _VideoLength =0;
+        public double VideoLength
+        {
+            get => _VideoLength;
+            set { _VideoLength = value; OnPropertyChanged(nameof(VideoLength)); }
+        }
+
+        private double _GunTime = 0;
+        public double GunTime
+        {
+            get => _GunTime;
+            set { _GunTime = value; OnPropertyChanged(nameof(GunTime)); }
+        }
+
+        private int _GunTimeIndex = 0;
+        public int GunTimeIndex
+        {
+            get => _GunTimeIndex;
+            set { _GunTimeIndex = value; OnPropertyChanged(nameof(GunTimeIndex)); }
+        }
+
         public MyViewModel()
         {
             _setColorCommand = new RelayCommand(SetColor);
