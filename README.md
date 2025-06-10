@@ -10,12 +10,16 @@ A simple phototiming app for Athletics etc where a finish line is filmed with sa
 The WPF app has been updated to calculate time from gun.  The guntime is taken from audio (microsphone).  So the video is recording before the gun. Continued development of teh WPF app.  
 > Latest: Big changes to the WPF UI and functionality.
 
-## To Do:
-- Manual Mode: Done  Stitch image then select start from video
-  - In Manual mode need to select "gun time"  from stitched image with mouse using right click
-  - Then add line at this point
-  - Then make all timings relative to that.
-    - Currently only allows mouse left click time selections from there but times are from video start.
+## Manual Mode:
+- Can select **Manual Mode**
+  - Stitch image then
+  - Select "Start Time" from stitched image with mouse using right click and drag
+  - Then Button to set this as GunTime and write its line
+    - That button is only visible when in Manual mode, and image is stitched in that mode and gun line not drawn.
+  - ***2Do*** Then make all Left Click timings relative to that.
+    - For Manul Mode Times are from video start, _but are from gun time(line) for other modes_.
+
+## 2Do
 - None of the image expansions work.
 
 ## Features to add
@@ -43,7 +47,7 @@ Have posted a blog post wrt GitHub Pilot strengths and weakness in creating this
     - NAudio
   - Does video stitching
 - **PhotoTimingDjausLibAndroid** Works now
-  - Uses **Emgu.CV.runtime.maui.mini.android** instaed of OpenCvSharp4
+  - Uses **Emgu.CV.runtime.maui.mini.android** instead of OpenCvSharp4
   - _Not yet as functional as *PhotoTimingDjausLib 2Do._
 
 
