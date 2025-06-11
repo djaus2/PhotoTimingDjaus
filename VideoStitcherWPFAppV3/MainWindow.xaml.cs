@@ -15,6 +15,7 @@ using PhotoTimingGui.ViewModels;
 using System.Net.Sockets;
 using System.Text.Json;
 using System.Windows.Threading;
+using System.Drawing;
 //using OpenCvSharp;
 
 
@@ -444,7 +445,10 @@ namespace PhotoTimingGui
                 BusyIndicator.Visibility = Visibility.Collapsed;
 
                 // Display the stitched image
-                if (File.Exists(outputPath))
+                LoadStitchedImage(GetOutputPath());
+
+                /*
+                if (File.Exists(GetOutputPath()))
                 {
                     var bitmap = new BitmapImage();
                     bitmap.BeginInit();
@@ -468,7 +472,7 @@ namespace PhotoTimingGui
                         }
                         GunTimeIndex = actionVideoAnalysis.GunTimeIndex;
                         GunTimeDbl = actionVideoAnalysis.GunTime;
-                    }*/
+                    }
                     
                     
 
@@ -478,6 +482,7 @@ namespace PhotoTimingGui
                     {
                         System.Diagnostics.Debug.WriteLine($"Image Dimensions: {bitmapx.PixelWidth}x{bitmap.PixelHeight}");
                     }
+                
                     //Details.Visibility = Visibility.Collapsed;
                     //Scrolls.Visibility = Visibility.Collapsed;
                     MessageBox.Show("Stitched image successfully created and displayed!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -485,7 +490,7 @@ namespace PhotoTimingGui
                 else
                 {
                     MessageBox.Show("Failed to create the stitched image.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
+                }*/
                 //MyVisibility = Visibility.Visible;
                 SetMyVisibility(Visibility.Visible);
                 //StitchButton.Visibility = Visibility.Visible; // Hide the button
@@ -685,7 +690,7 @@ namespace PhotoTimingGui
             //StartTime = GetSelectedStartTime();
             GunTimeDbl = GetGunTime();
             double timeInSeconds = relativePosition * durationInSeconds - GunTimeDbl;
-            System.Diagnostics.Debug.WriteLine($"===={timeInSeconds} = {relativePosition * durationInSeconds}  {relativePosition}*{durationInSeconds}-{GunTimeDbl}");
+            //ystem.Diagnostics.Debug.WriteLine($"===={timeInSeconds} = {relativePosition * durationInSeconds}  {relativePosition}*{durationInSeconds}-{GunTimeDbl}");
             if (timeInSeconds >= 0)
             {
 
@@ -916,6 +921,30 @@ namespace PhotoTimingGui
             SaveViewModel();
         }
 
+        private void LoadStitchedImage(string imageFilePath)
+        {
+            BitmapImage bitmap = new BitmapImage();
+            if(!File.Exists(imageFilePath))
+            {
+                MessageBox.Show($"The specified image file does not exist: {imageFilePath}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            using var fs = new FileStream(imageFilePath, FileMode.Open,
+                FileAccess.Read, FileShare.ReadWrite);
+
+            bitmap.BeginInit();
+            bitmap.CacheOption = BitmapCacheOption.OnLoad; // read into RAM, release stream afterwards
+            bitmap.StreamSource = fs;                      // <— no Uri, so no cache
+            bitmap.EndInit();
+            bitmap.Freeze();
+
+            StitchedImage.Source = bitmap;
+            if (StitchedImage.Source is BitmapSource bitmapx)
+            {
+                System.Diagnostics.Debug.WriteLine($"Image Dimensions: {bitmapx.PixelWidth}x{bitmap.PixelHeight}");
+            }
+            return;
+        }
         private void WriteGunLineButton_Click(object sender, RoutedEventArgs e)
         {
             if (!IsDataContext())
@@ -940,7 +969,9 @@ namespace PhotoTimingGui
                 }
                 int gunTimeIndex = videoStitcher.AddGunLine(selectedStartTime, GetGunColor());
 
-                using var fs = new FileStream(outputPath, FileMode.Open,
+                LoadStitchedImage(GetOutputPath());
+                /*
+                using var fs = new FileStream(GetOutputPath(), FileMode.Open,
                             FileAccess.Read, FileShare.ReadWrite);
 
                 var bitmap = new BitmapImage();
@@ -955,6 +986,7 @@ namespace PhotoTimingGui
                 {
                     System.Diagnostics.Debug.WriteLine($"Image Dimensions: {bitmapx.PixelWidth}x{bitmap.PixelHeight}");
                 }
+                */
                 SetGunTime(selectedStartTime,gunTimeIndex);
                 SetHaveSelectedandShownGunLineToManualMode(true);
 

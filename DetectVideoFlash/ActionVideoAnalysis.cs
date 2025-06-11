@@ -17,7 +17,7 @@ namespace DetectVideoFlash
         private VideoCapture videoCapture;
         private double thresholdLevel;
         private VideoDetectMode videoDetectMode;
-        List<int> ints = new List<int>();
+        public List<int> VideoBrightnessData = new List<int>();
         List<double> doubles = new List<double>();
 
         public double GunTime { get; set; } = 0;
@@ -53,17 +53,17 @@ namespace DetectVideoFlash
             int max;
             int min;
             int median;
-            average = (int)ints.Average();
-            var ints2 = ints.Select(x => x >= average? x-average:0).ToList();
+            average = (int)VideoBrightnessData.Average();
+            var ints2 = VideoBrightnessData.Select(x => x >= average? x-average:0).ToList();
             max = ints2.Max();
             min = ints2.Min();
             GunTimeIndex = ints2.FindIndex(x => x >= ints2.Max() / 100);
             double fps = videoCapture.Get(VideoCaptureProperties.Fps);
             GunTime = GunTimeIndex / fps;
 
-            median = ints.OrderBy(x => x).ElementAt(doubles.Count / 2);
+            median = VideoBrightnessData.OrderBy(x => x).ElementAt(doubles.Count / 2);
             System.Diagnostics.Debug.WriteLine($"GunTime: {GunTime} Average: {average} Min: {min} Max: {max} Median: {median}");
-            foreach (int x in ints)
+            foreach (int x in VideoBrightnessData)
             {
                 System.Diagnostics.Debug.WriteLine(x);
             }
@@ -90,17 +90,17 @@ namespace DetectVideoFlash
                         case VideoDetectMode.FromFlash:
                             // Initialize flash detector
                             int brightness = (int)Math.Round(flashDetector.DetectBrightness(frame),0);
-                            ints.Add(brightness);
+                            VideoBrightnessData.Add(brightness);
                             break;
                         case VideoDetectMode.FromFrameChange:
                             // Initialize frame change detector
                             int diffs = frameChangeDetector.GetDiffs(frame);
-                            ints.Add(diffs);
+                            VideoBrightnessData.Add(diffs);
                             break;
                         case VideoDetectMode.FromMotionDetector:
                             // Initialize motion detector
                             int motion = motionDetector.GetMotion(frame); 
-                            ints.Add(motion);
+                            VideoBrightnessData.Add(motion);
                             break;
                         default:
                             throw new ArgumentException("Invalid video detect mode");

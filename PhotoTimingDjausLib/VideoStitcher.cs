@@ -134,6 +134,29 @@ namespace PhotoTimingDjaus
                 actionVideoAnalysis.ProcessVideo();
                 GunTime = actionVideoAnalysis.GunTime;
                 GunTimeIndex = actionVideoAnalysis.GunTimeIndex;
+
+                var data = actionVideoAnalysis.VideoBrightnessData.ToArray(); // Get the video brightness data
+ 
+
+                var min = data.Min();
+
+                var max = data.Max();
+
+                var range = max - min;
+
+                int Amp = 10;
+
+                // Normalize the data to a range of 0-Amp
+                var normalizedData = data.Select(x => (double)(Amp * (x - min) / range)).ToArray();
+                var expData1 = normalizedData.Select(x => Math.Round(Math.Pow(x, 10), 0)).ToArray(); // Exponential scaling for better visibility
+                var maxx = expData1.Max();
+                audioData = expData1.Select(x => audioHeight * x / maxx).ToArray(); // Ensure no negative values
+
+                var average = Math.Round(audioData
+                .OrderByDescending(n => n) // Sort in descending order
+                .Skip(20)                 // Skip the top 20 values
+                .Average(), 0);
+
                 return GunTime;
             }
             else if (timeFromMode == TimeFromMode.FromButtonPress)
@@ -236,7 +259,7 @@ namespace PhotoTimingDjaus
                     stitchedImage = new Mat(stitchedHeight + 1 + audioHeight + axisHeight, stitchedWidth, MatType.CV_8UC3, new Scalar(0, 0, 0)); // Extra 2 x 100 pixels for markers and audio graph
                     break;
                 case TimeFromMode.FromGunViaVideo:
-                    stitchedImage = new Mat(stitchedHeight + 1 + axisHeight, stitchedWidth, MatType.CV_8UC3, new Scalar(0, 0, 0)); // Extra 2 x 100 pixels for markers and audio graph
+                    stitchedImage = new Mat(stitchedHeight + 1 + audioHeight + axisHeight, stitchedWidth, MatType.CV_8UC3, new Scalar(0, 0, 0)); // Extra 2 x 100 pixels for markers and audio graph
                     break;
             }
 
@@ -298,6 +321,17 @@ namespace PhotoTimingDjaus
                     int audioframe2 = (int)Math.Round(i2 * ratio);
                     Cv2.Line(stitchedImage, new Point(i2, stitchedHeight + axisHeight + audioHeight - audioData[audioframe2]), new Point(i, stitchedHeight + axisHeight + audioHeight - audioData[audioframe]), new Scalar(0, 255, 255), 1); // Read line
                 }
+                else if (timeFromMode == TimeFromMode.FromGunViaVideo)
+                {
+                    int i2 = i;
+                    if (i != 0)
+                    {
+                        i2 = i - 1;
+
+                    }                 
+                    Cv2.Line(stitchedImage, new Point(i2, stitchedHeight + axisHeight + audioHeight - audioData[i2]), new Point(i, stitchedHeight + axisHeight + audioHeight - audioData[i]), new Scalar(0, 255, 255), 1); // Read line
+                    
+                }
             }
 
             if (timeFromMode == TimeFromMode.FromGunviaAudio)
@@ -324,8 +358,9 @@ namespace PhotoTimingDjaus
 
         Mat? PreviousStitchedImage = null;
         int PreviousStitchedImageHeight = 0;
-        public int AddGunLine(double _GunTimeDbl, Scalar _GunTimeColor)
+        public int AddGunLine(double _GunTimeDbl, Scalar _gunTimeColor)
         {
+            this.GunTimeColor = _gunTimeColor;
             int _GunTimeIndex = (int)Math.Round(_GunTimeDbl * Fps);
             if (PreviousStitchedImage == null)
             {
@@ -337,7 +372,7 @@ namespace PhotoTimingDjaus
                 Console.WriteLine("No stitched image height available to add gun line.");
                 return 0;
             }
-            Cv2.Line(PreviousStitchedImage, new Point(_GunTimeIndex, 0), new Point(_GunTimeIndex, PreviousStitchedImageHeight), _GunTimeColor); // White line
+            Cv2.Line(PreviousStitchedImage, new Point(_GunTimeIndex, 0), new Point(_GunTimeIndex, PreviousStitchedImageHeight), GunTimeColor); 
 
             // Save the stitched image.
             Cv2.ImWrite(outputFilePath, PreviousStitchedImage);

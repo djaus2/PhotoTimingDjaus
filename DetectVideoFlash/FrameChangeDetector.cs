@@ -41,6 +41,7 @@ namespace DetectVideoFlash
 
             // Count non-zero pixels (changed pixels)
             int changedPixels = Cv2.CountNonZero(thresholdedDiff);
+            previousFrame = currentFrame;
             return changedPixels;
         }
 

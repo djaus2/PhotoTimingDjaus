@@ -153,9 +153,9 @@
                       Click="VideoDetectMode_Click"
                       Tag="{x:Static enums:VideoDetectMode.FromFlash}" />
                                 <!-- Flash detection option 2 -->
-                                <MenuItem Header="Detect Frame Change"
+                                <!-- MenuItem Header="Detect Frame Change"
                       Click="VideoDetectMode_Click"
-                      Tag="{x:Static enums:VideoDetectMode.FromFrameChange}" />
+                      Tag="{x:Static enums:VideoDetectMode.FromFrameChange}" / -->
                             </MenuItem>
                             <!-- Option 4: Manual -->
                             <MenuItem Header="Manual" 
