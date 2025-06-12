@@ -522,7 +522,6 @@ namespace PhotoTimingGui
             {
                 if (!(e.RightButton == MouseButtonState.Pressed))
                     return;
-                if (!ManuallySelectMode())
                     return;
                 if (!HasStitched())
                     return;
