@@ -63,6 +63,20 @@ namespace PhotoTimingGui.ViewModels
             set { _GunTimeIndex = value; OnPropertyChanged(nameof(GunTimeIndex)); }
         }
 
+        private int _PopupHeight = 150;
+        public int MinPopupHeight
+        {
+            get => _PopupHeight;
+            set { _PopupHeight = value; OnPropertyChanged(nameof(MinPopupHeight)); }
+        }
+
+        private int _PopupWidth = 150;
+        public int MinPopupWidth
+        {
+            get => _PopupWidth;
+            set { _PopupWidth = value; OnPropertyChanged(nameof(MinPopupWidth)); }
+        }
+
         public MyViewModel()
         {
             _setColorCommand = new RelayCommand(SetColor);
@@ -170,6 +184,18 @@ namespace PhotoTimingGui.ViewModels
             }
         }
 
+        private Thickness _TimeLabeMargin = new Thickness(10, 100, 0, 0);
+
+        public Thickness TimeLabelMargin
+        {
+            get => _TimeLabeMargin;
+            set
+            {
+                _TimeLabeMargin = value;
+                OnPropertyChanged(nameof(TimeLabelMargin));
+            }
+        }
+
         // Color selection indicator properties
         public bool IsRedSelected => string.Equals(_selectedColorName, "Red", StringComparison.OrdinalIgnoreCase);
         public bool IsGreenSelected => string.Equals(_selectedColorName, "Green", StringComparison.OrdinalIgnoreCase);
@@ -195,6 +221,8 @@ namespace PhotoTimingGui.ViewModels
         }
 
         public ICommand SetColorCommand => _setColorCommand;
+
+        public Thickness TimeLabeMargin { get => _TimeLabeMargin; set => _TimeLabeMargin = value; }
 
         private void SetColor(object parameter)
         {

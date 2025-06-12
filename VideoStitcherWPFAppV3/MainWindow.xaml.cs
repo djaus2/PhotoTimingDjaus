@@ -16,6 +16,8 @@ using System.Net.Sockets;
 using System.Text.Json;
 using System.Windows.Threading;
 using System.Drawing;
+using System.Windows.Controls.Primitives;
+//using OpenCvSharp;
 //using OpenCvSharp;
 
 
@@ -508,6 +510,15 @@ namespace PhotoTimingGui
         {
             if (!IsDataContext())
                 return;
+            FrameImage.Width = 100;
+            FrameImage.Height = 100;
+
+            // Reset position to mouse location
+            System.Windows.Point position = e.GetPosition(ImageCanvas);
+            //Popup.HorizontalOffset = position.X;
+            //Popup.VerticalOffset = position.Y;
+            Popup.IsOpen = false;
+
             System.Windows.Shapes.Line _VerticalLine = VerticalLine;
             bool isLeft = (e.LeftButton == MouseButtonState.Pressed);
             if (isLeft)
@@ -522,14 +533,14 @@ namespace PhotoTimingGui
             {
                 if (!(e.RightButton == MouseButtonState.Pressed))
                     return;
-                    return;
                 if (!HasStitched())
                     return;
-                if (HasSelectedandShownGunLineToManualMode())
-                {
-                    // Already set gun line
+                if (!ManuallySelectMode())
                     return;
-                }
+
+                if (HasSelectedandShownGunLineToManualMode())
+                    return;
+
                 _VerticalLine = StartVerticalLine;
                 VerticalLine.Visibility = Visibility.Collapsed;
                 StartVerticalLine.Visibility = Visibility.Visible;
@@ -540,7 +551,7 @@ namespace PhotoTimingGui
             StitchedImage.CaptureMouse();
 
             // Get the mouse position relative to the stitched image
-            System.Windows.Point position = e.GetPosition(StitchedImage);
+            //System.Windows.Point position = e.GetPosition(StitchedImage);
             double posX = position.X;
             if (StitchedImage.LayoutTransform is ScaleTransform transform)
             {
@@ -559,6 +570,7 @@ namespace PhotoTimingGui
             {
                 TimeLabel.Visibility = Visibility.Collapsed;
                 VerticalLine.Visibility = Visibility.Collapsed;
+                Popup.IsOpen = false; // Close the popup if the time is before the gun time
                 return;
             }
             TimeLabel.Visibility = Visibility.Visible; // Ensure the label is visible when clicked or dragged
@@ -576,8 +588,9 @@ namespace PhotoTimingGui
             // Make time label visible and position it
             TimeLabel.Visibility = Visibility.Visible;
             TimeLabel.TextAlignment = TextAlignment.Left; // Align text to the left
-            TimeLabel.Margin = new Thickness(posX + 10, 100, 0, 0); // Place label slightly to the right of the cursor
-            
+            var margin = GetTimeLabelMargin();
+            margin.Left += position.X;
+            TimeLabel.Margin = margin;            
             UpdateTimeLabel(position.X,isLeft);
         }
 
@@ -586,9 +599,10 @@ namespace PhotoTimingGui
             if (!IsDataContext())
                 return;
             
-            System.Windows.Shapes.Line _VerticalLine = VerticalLine;
+            
             if (_isDragging)
             {
+                System.Windows.Shapes.Line _VerticalLine = VerticalLine;
                 bool isLeft = (e.LeftButton == MouseButtonState.Pressed);
                 if (isLeft)
                 {
@@ -623,6 +637,7 @@ namespace PhotoTimingGui
                 double tim = (posX / StitchedImage.ActualWidth) * videoLength;
                 if (tim < GunTimeDbl)
                 {
+                    Popup.IsOpen = false; // Close the popup if the time is before the gun time
                     TimeLabel.Visibility = Visibility.Collapsed;
                     _VerticalLine.Visibility = Visibility.Collapsed;
                     return;
@@ -644,19 +659,51 @@ namespace PhotoTimingGui
                 TimeLabel.TextAlignment = TextAlignment.Left; // Align text to the left
                 TimeLabel.Margin = new Thickness(posX + 10, 100, 0, 0); // Place label slightly to the right of the cursor
                 UpdateTimeLabel(posX, isLeft);
+                
             }
         }
-
+        int frameNo = 0;
+        double Fps = 30;
         private void StitchedImage_MouseButtonUp(object sender, MouseButtonEventArgs e)
         {
-            // Stop dragging and hide the line
             _isDragging = false;
             StitchedImage.ReleaseMouseCapture();
-            VerticalLine.Visibility = Visibility.Collapsed;
             StartVerticalLine.Visibility = Visibility.Collapsed;
-            TimeLabel.Visibility = Visibility.Collapsed;
+
+            System.Windows.Point position = e.GetPosition(StitchedImage);
+            double posX = position.X;
+            if (StitchedImage.LayoutTransform is ScaleTransform transform)
+            {
+                double horizontalScale = transform.ScaleX; // Get the horizontal scale
+                posX = position.X * horizontalScale; // Adjust time based on scale
+            }
+            if (posX > StitchedImage.ActualWidth)
+            {
+                //if clicked after video ends hide line and text at mouse position
+                TimeLabel.Visibility = Visibility.Collapsed;
+                VerticalLine.Visibility = Visibility.Collapsed;
+                Popup.IsOpen = false;
+                return;
+            }
+            double tim = (posX / StitchedImage.ActualWidth) * videoLength;
+            if (tim < GunTimeDbl)
+            {
+                Popup.IsOpen = false; // Close the popup if the time is before the gun time
+                TimeLabel.Visibility = Visibility.Collapsed;
+                VerticalLine.Visibility = Visibility.Collapsed;
+                Popup.IsOpen = false;
+                return;
+            }
+            // Stop dragging and hide the line
+
+            //VerticalLine.Visibility = Visibility.Collapsed;
+            StartVerticalLine.Visibility = Visibility.Collapsed;
+            //TimeLabel.Visibility = Visibility.Collapsed;
             //FinishTime.Visibility = Visibility.Visible;
             //FinishTimeLabel.Visibility = FinishTime.Visibility;
+            // Get mouse position relative to the container
+            DisplayFrame(frameNo, e.GetPosition(StitchedImage));
+
         }
 
 
@@ -670,7 +717,6 @@ namespace PhotoTimingGui
             {
                 horizontalScale = transform.ScaleX; // Get the horizontal scale
             }
-
             // Calculate the relative position accounting for the horizontal scale
             if (positionX > StitchedImage.ActualWidth)
             {
@@ -688,7 +734,9 @@ namespace PhotoTimingGui
             //Add any other defaults here.
             //StartTime = GetSelectedStartTime();
             GunTimeDbl = GetGunTime();
-            double timeInSeconds = relativePosition * durationInSeconds - GunTimeDbl;
+            double tim = relativePosition * durationInSeconds;
+            frameNo = (int)(tim * Fps); // Assuming 30 FPS, adjust as needed
+            double timeInSeconds = tim - GunTimeDbl;
             //ystem.Diagnostics.Debug.WriteLine($"===={timeInSeconds} = {relativePosition * durationInSeconds}  {relativePosition}*{durationInSeconds}-{GunTimeDbl}");
             if (timeInSeconds >= 0)
             {
@@ -920,6 +968,39 @@ namespace PhotoTimingGui
             SaveViewModel();
         }
 
+        private void DisplayFrame(int frameNo, System.Windows.Point position)
+        {
+            // Get mouse position relative to the container
+
+            if ((videoStitcher==null))
+            {
+                return;
+            }
+            Bitmap bitmap = videoStitcher.GetNthFrame(frameNo);
+
+            BitmapImage bitmapImage = new BitmapImage();
+            using (MemoryStream memory = new MemoryStream())
+            {
+                bitmap.Save(memory, System.Drawing.Imaging.ImageFormat.Png);
+                memory.Position = 0;
+                bitmapImage.BeginInit();
+                bitmapImage.StreamSource = memory;
+                bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+                bitmapImage.EndInit();
+            }
+
+            //StitchedImage.Source = bitmapImage;
+            //if (StitchedImage.Source is BitmapSource bitmapx)
+            //{
+            //    System.Diagnostics.Debug.WriteLine($"Image Dimensions: {bitmapx.PixelWidth}x{bitmap.PixelHeight}");
+            //}
+            FrameImage.Source = bitmapImage;
+            Popup.HorizontalOffset = position.X + 2 + 100; // GetPopupWidth();
+            Popup.VerticalOffset = /*GetTimeLabelMargin().Top + TimeLabel.ActualHeight*/ + 115;
+            Popup.IsOpen = true;
+            return;
+        }
+
         private void LoadStitchedImage(string imageFilePath)
         {
             BitmapImage bitmap = new BitmapImage();
@@ -1018,6 +1099,38 @@ namespace PhotoTimingGui
                 this.SetSelectedStartTime(selectedStartTime);               
             }
         }
+
+        private void ResizeThumb_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
+        {
+            var margin = Popup.Margin;
+            
+            double prevWidth = FrameImage.Width;
+            double posx = Popup.HorizontalOffset - prevWidth;
+
+            double newWidth = FrameImage.Width + e.HorizontalChange;
+            double newHeight = FrameImage.Height + e.VerticalChange;
+
+            // Ensure minimum size
+            FrameImage.Width = Math.Max(newWidth, GetMinPopupWidth()/2 );
+            FrameImage.Height = Math.Max(newHeight, GetMinPopupHeight()/2);
+            posx += FrameImage.Width;;
+            Popup.HorizontalOffset = posx; // Update horizontal offset to keep the popup in place
+
+            // Close popup if resized below 50px
+            if (FrameImage.Width <= (GetMinPopupWidth() / 2 )|| FrameImage.Height <= (GetMinPopupHeight() / 2))
+            {
+                Popup.IsOpen = false;
+            }
+        }
+
+        private void Popup_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ClickCount == 2) // Detect double-click
+            {
+                Popup.IsOpen = false; // Close popup
+            }
+        }
+
 
         ////////////////////////////////////////////////////////////////////////////////////////
     }

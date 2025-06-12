@@ -10,6 +10,8 @@ using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using PhotoTimingDjaus.Enums; // Ensure this namespace is correct for TimeFromMode
+using OpenCvSharp.Extensions;
+
 
 namespace PhotoTimingDjaus
 {
@@ -50,6 +52,23 @@ namespace PhotoTimingDjaus
             this.GunTimeColor = _gunTimeColor;
         }
 
+
+        public System.Drawing.Bitmap GetNthFrame(int frameIndex)
+        {
+            using var capture = new VideoCapture(videoFilePath);
+
+            // Set the frame position
+            capture.Set(VideoCaptureProperties.PosFrames, frameIndex);
+            // Retrieve the frame
+            Mat frame = new Mat();
+            capture.Read(frame);
+            // Only in Windows so OK.
+#pragma warning disable CA1416 // Validate platform compatibility
+            System.Drawing.Bitmap bitmap = BitmapConverter.ToBitmap(frame);
+#pragma warning restore CA1416 // Validate platform compatibility
+            return bitmap;
+        }
+        
         public double GetGunTimenFrameIndex(string _guninfoPath, VideoDetectMode vm = VideoDetectMode.FromFlash)
         {
             string guninfoFilePath = _guninfoPath;
@@ -334,17 +353,20 @@ namespace PhotoTimingDjaus
                 }
             }
 
-            if (timeFromMode == TimeFromMode.FromGunviaAudio)
+            if (GunTimeIndex != 0)
             {
-                Cv2.Line(stitchedImage, new Point(GunTimeIndex, 0), new Point(GunTimeIndex, stitchedHeight), GunTimeColor); // White line
-            }
-            else if (timeFromMode == TimeFromMode.FromGunViaVideo)
-            {
-                Cv2.Line(stitchedImage, new Point(GunTimeIndex, 0), new Point(GunTimeIndex, stitchedHeight), GunTimeColor); // White line
-            }
-            else if (timeFromMode == TimeFromMode.ManuallySelect)
-            {
-                Cv2.Line(stitchedImage, new Point(GunTimeIndex, 0), new Point(GunTimeIndex, stitchedHeight), GunTimeColor); // White line
+                if (timeFromMode == TimeFromMode.FromGunviaAudio)
+                {
+                    Cv2.Line(stitchedImage, new Point(GunTimeIndex, 0), new Point(GunTimeIndex, stitchedHeight), GunTimeColor); // White line
+                }
+                else if (timeFromMode == TimeFromMode.FromGunViaVideo)
+                {
+                    Cv2.Line(stitchedImage, new Point(GunTimeIndex, 0), new Point(GunTimeIndex, stitchedHeight), GunTimeColor); // White line
+                }
+                else if (timeFromMode == TimeFromMode.ManuallySelect)
+                {
+                    Cv2.Line(stitchedImage, new Point(GunTimeIndex, 0), new Point(GunTimeIndex, stitchedHeight), GunTimeColor); // White line
+                }
             }
 
             PreviousStitchedImage = stitchedImage;

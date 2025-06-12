@@ -2,11 +2,13 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:PhotoTimingGui.ViewModels"
+        xmlns:conv="clr-namespace:PhotoTimingGui.Converters"
         xmlns:enums="clr-namespace:PhotoTimingDjaus.Enums;assembly=VideoEnums"
-        Title="Image Viewer" >
+        Title="Image Viewer">
     <Window.Resources>
         <local:EnumToBooleanConverter x:Key="EnumConverter"/>
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
+        <conv:HalfValueConverter x:Key="HalfValueConverter"/>
         <Style TargetType="Menu">
                 <Setter Property="Background" Value="LightGray"/>
                 <Setter Property="FontSize" Value="14"/>
@@ -404,11 +406,29 @@
                        HorizontalAlignment="Left"
                         Height="{Binding ActualHeight-100, RelativeSource={RelativeSource AncestorType=Window}}" 
                         Source="C:\temp\stitched_image.png"
-                    MouseLeftButtonDown="StitchedImage_MouseButtonDown"
-                    MouseLeftButtonUp="StitchedImage_MouseButtonUp"
-                    MouseRightButtonUp="StitchedImage_MouseButtonUp"
-                    MouseRightButtonDown="StitchedImage_MouseButtonDown"
-                    MouseMove="StitchedImage_MouseMove"/>
+                        MouseLeftButtonDown="StitchedImage_MouseButtonDown"
+                        MouseLeftButtonUp="StitchedImage_MouseButtonUp"
+                        MouseRightButtonUp="StitchedImage_MouseButtonUp"
+                        MouseRightButtonDown="StitchedImage_MouseButtonDown"
+                        MouseMove="StitchedImage_MouseMove"/>
+                    <Popup Name="Popup"
+                       IsOpen="False"
+                       Placement="Relative"
+                       PlacementTarget="{Binding ElementName=ImageCanvas}"
+		               StaysOpen="False">
+                        <Border BorderBrush="Black" BorderThickness="2"
+				            MouseDown="Popup_MouseDown">
+                            <Grid>
+                                <Image Name="FrameImage" Width="100" Height="100"/>
+                                <!-- Bottom-right resize handle -->
+                                <Thumb Width="10" Height="10"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Bottom"
+                                Background="Gray"
+                                DragDelta="ResizeThumb_DragDelta"/>
+                            </Grid>
+                        </Border>
+                    </Popup>
 
                     <Line Name="VerticalLine" Stroke="Red" StrokeThickness="2" Visibility="Collapsed" />
                     <Line Name="StartVerticalLine" Stroke="{Binding SelectedColorName}" StrokeThickness="2" Visibility="Collapsed" />

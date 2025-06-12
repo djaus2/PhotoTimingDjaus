@@ -2,11 +2,13 @@
 using PhotoTimingGui.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Data;
 using System.Windows.Forms;
 
 namespace PhotoTimingGui
@@ -310,5 +312,35 @@ namespace PhotoTimingGui
             }
             return 0;
         }
+
+        private int GetMinPopupHeight()
+        {
+            if (DataContext is ViewModels.MyViewModel viewModel)
+            {
+                var minPopupHeight = viewModel.MinPopupHeight;
+                return minPopupHeight;
+            }
+            return 0;
+        }
+
+        private int GetMinPopupWidth()
+        {
+            if (DataContext is ViewModels.MyViewModel viewModel)
+            {
+                var minPopupWidth = viewModel.MinPopupWidth;
+                return minPopupWidth;
+            }
+            return 0;
+        }
+
+        private Thickness GetTimeLabelMargin()
+        {
+            if (DataContext is ViewModels.MyViewModel viewModel)
+            {
+                return viewModel.TimeLabelMargin;
+            }
+            return new Thickness(0); // Default value if DataContext is not set or Thickness is not available
+        }
+
     }
 }
