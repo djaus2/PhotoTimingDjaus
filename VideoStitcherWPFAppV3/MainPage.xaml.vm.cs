@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Forms;
+using System.Windows.Media.TextFormatting;
+using System.Windows.Navigation;
 
 namespace PhotoTimingGui
 {
@@ -227,7 +229,7 @@ namespace PhotoTimingGui
             return VideoDetectMode.FromFlash; // Default value if ViewModel is not available
         }
 
-        private void SetHaveSelectedandShownGunLineToManualMode(bool state)
+        private void Set_HaveSelectedandShownGunLineinManualMode(bool state)
         {
             if (DataContext is ViewModels.MyViewModel viewModel)
             {
@@ -237,10 +239,12 @@ namespace PhotoTimingGui
             return; // Failed to set the state, DataContext is not available
         }
 
-        private bool GetSetHaveSelectedandShownGunLineToManualMode()
+        private bool Get_HaveSelectedandShownGunLineinManualMode()
         {
             if (DataContext is ViewModels.MyViewModel viewModel)
             {
+                if(viewModel.TimeFromMode!= TimeFromMode.ManuallySelect)
+                    return true;
                 return viewModel.HaveSelectedandShownGunLineToManualMode;
             }
             return false;
@@ -341,6 +345,18 @@ namespace PhotoTimingGui
             }
             return new Thickness(0); // Default value if DataContext is not set or Thickness is not available
         }
+
+        private bool GetShowVideoFramePopup()
+        {
+            if (DataContext is ViewModels.MyViewModel viewModel)
+            {
+ 
+                bool show = viewModel.ShowVideoFramePopup;
+                return show;
+            }
+            return false; // Default value if DataContext is not set or ShowVideoFramePopup is not available
+        }
+
 
     }
 }

@@ -63,6 +63,14 @@ namespace PhotoTimingGui.ViewModels
             set { _GunTimeIndex = value; OnPropertyChanged(nameof(GunTimeIndex)); }
         }
 
+        private bool _ShowVideoFramePopup = true;
+        public bool ShowVideoFramePopup
+        {
+            get => _ShowVideoFramePopup;
+            set { _ShowVideoFramePopup = value; OnPropertyChanged(nameof(ShowVideoFramePopup)); }
+        }
+ 
+
         private int _PopupHeight = 150;
         public int MinPopupHeight
         {
@@ -195,6 +203,37 @@ namespace PhotoTimingGui.ViewModels
                 OnPropertyChanged(nameof(TimeLabelMargin));
             }
         }
+
+        /*
+        private bool _isPopupVisible;
+
+        public bool IsPopupVisible
+        {
+            get => _isPopupVisible;
+            set
+            {
+                _isPopupVisible = value;
+                OnPropertyChanged(nameof(IsPopupVisible));
+            }
+        }*/
+
+        public Visibility ShowVideoFramePopupCheckbox => HasStitched ? Visibility.Visible : Visibility.Collapsed;
+
+        /*
+        private BOO bShow_ShowVideoFramePopupCheckbox()
+        {
+                bool stitched = HasStitched;
+                if (!stitched)
+                {
+                    IsPopupVisible = false;
+                }// Do not show checkbox if not stitched and gun line has not been selected
+                var mode = TimeFromMode;
+                if (mode == TimeFromMode.ManuallySelect) && (!stitched))
+            //return Visibility.Collapsed;
+            IsIsPopupVisible ;
+        }*/
+
+
 
         // Color selection indicator properties
         public bool IsRedSelected => string.Equals(_selectedColorName, "Red", StringComparison.OrdinalIgnoreCase);

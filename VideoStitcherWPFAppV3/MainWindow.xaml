@@ -4,6 +4,7 @@
         xmlns:local="clr-namespace:PhotoTimingGui.ViewModels"
         xmlns:conv="clr-namespace:PhotoTimingGui.Converters"
         xmlns:enums="clr-namespace:PhotoTimingDjaus.Enums;assembly=VideoEnums"
+        KeyDown="ImageKeyDown"
         Title="Image Viewer">
     <Window.Resources>
         <local:EnumToBooleanConverter x:Key="EnumConverter"/>
@@ -250,6 +251,17 @@
                     <!-- The rest of your StackPanel content goes here -->
                
                 <!-- Left Button (Back icon) -->
+                    <Button ToolTip="Back 5" Click="NudgeButton_Click">
+                        <Button.Content>
+                            <TextBlock Text="&#xE744;" 
+                       FontFamily="Segoe MDL2 Assets" 
+                       FontSize="24" 
+                       FontWeight="Bold"
+                       Foreground="{Binding SelectedColorName}"
+                       VerticalAlignment="Center" 
+                       HorizontalAlignment="Center"/>
+                        </Button.Content>
+                    </Button>
                     <Button ToolTip="Back" Click="NudgeButton_Click">
                         <Button.Content>
                             <TextBlock Text="&#xE72B;" 
@@ -283,11 +295,23 @@
                        HorizontalAlignment="Center"/>
                         </Button.Content>
                     </Button>
+                    <Button ToolTip="Forward 5" Click="NudgeButton_Click">
+                        <Button.Content>
+                            <TextBlock Text="&#xE72A;" 
+                    FontFamily="Segoe MDL2 Assets" 
+                    FontSize="24" 
+                    FontWeight="Bold"
+                    Foreground="{Binding SelectedColorName}"
+                    VerticalAlignment="Center" 
+                    HorizontalAlignment="Center"/>
+                        </Button.Content>
+                    </Button>
                 </StackPanel>
 
                 <!-- Button Grid.Row="6" Grid.Column="0" Name="LoadImageButton" HorizontalAlignment="Left" Content="Load Image" Width="150" Click="LoadImageButton_Click" Height="20" VerticalAlignment="Top" / -->
                 <!-- Button Grid.Row="7" Grid.Column="0" x:Name="FlashButton" HorizontalAlignment="Left"  Content="Detect Flash in Video" Width="150" Click="FlashButton_Click" VerticalAlignment="Center" Visibility="{Binding MyVisibility}"/ -->
                 <CheckBox Grid.Row="9" Grid.Column="2" VerticalAlignment="Center"  Name="AutoScaleCheckbox" HorizontalAlignment="Center"  Content="Auto Scale to Height" Checked="AutoScaleCheckbox_Checked" Unchecked="AutoScaleCheckbox_Unchecked"/>
+                <CheckBox Grid.Row="9" Grid.Column="3" VerticalAlignment="Center"  Name="ShowVideoFrame" HorizontalAlignment="Left"  Content="Show Video Frame" IsChecked="{Binding ShowVideoFramePopup}" Visibility = "{Binding  HasStitched}" />
 
 
                 <!-- Output Data -->
@@ -406,6 +430,7 @@
                        HorizontalAlignment="Left"
                         Height="{Binding ActualHeight-100, RelativeSource={RelativeSource AncestorType=Window}}" 
                         Source="C:\temp\stitched_image.png"
+                        
                         MouseLeftButtonDown="StitchedImage_MouseButtonDown"
                         MouseLeftButtonUp="StitchedImage_MouseButtonUp"
                         MouseRightButtonUp="StitchedImage_MouseButtonUp"
