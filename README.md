@@ -8,6 +8,8 @@ A simple phototiming app for Athletics etc where a finish line is filmed with sa
 ## Recent
 
 ### Latest
+> **A work in progress:** Adding ability to popup corresponding video frame for selected time.
+
 Major rework so that all/most info in XAML page is bound to ViewModel properties. Get Set for many in separate page which handles the DtataContext.  
 Still a workk in progress
 
