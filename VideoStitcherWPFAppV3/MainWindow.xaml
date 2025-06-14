@@ -1,6 +1,8 @@
 ﻿<Window x:Class="PhotoTimingGui.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:svg="http://sharpvectors.codeplex.com/runtime/"
+        xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
         xmlns:local="clr-namespace:PhotoTimingGui.ViewModels"
         xmlns:conv="clr-namespace:PhotoTimingGui.Converters"
         xmlns:enums="clr-namespace:PhotoTimingDjaus.Enums;assembly=VideoEnums"
@@ -252,26 +254,12 @@
                
                 <!-- Left Button (Back icon) -->
                     <Button ToolTip="Back 5" Click="NudgeButton_Click">
-                        <Button.Content>
-                            <TextBlock Text="&#xE744;" 
-                       FontFamily="Segoe MDL2 Assets" 
-                       FontSize="24" 
-                       FontWeight="Bold"
-                       Foreground="{Binding SelectedColorName}"
-                       VerticalAlignment="Center" 
-                       HorizontalAlignment="Center"/>
-                        </Button.Content>
+                        <svgc:SvgViewbox Source="pack://application:,,,/Resources/svgimages/doubleprevious.svg"
+                                            Width="24" Height="24"/>
                     </Button>
                     <Button ToolTip="Back" Click="NudgeButton_Click">
-                        <Button.Content>
-                            <TextBlock Text="&#xE72B;" 
-                       FontFamily="Segoe MDL2 Assets" 
-                       FontSize="24" 
-                       FontWeight="Bold"
-                       Foreground="{Binding SelectedColorName}"
-                       VerticalAlignment="Center" 
-                       HorizontalAlignment="Center"/>
-                        </Button.Content>
+                        <svgc:SvgViewbox Source="pack://application:,,,/Resources/svgimages/previous.svg"
+                                             Width="24" Height="24"/>
                     </Button>
 
                     <TextBlock Text=" Nudge Gun Line " 
@@ -285,26 +273,12 @@
 
                     <!-- Right Button (Forward icon) -->
                     <Button ToolTip="Forward" Click="NudgeButton_Click">
-                        <Button.Content>
-                            <TextBlock Text="&#xE72A;" 
-                       FontFamily="Segoe MDL2 Assets" 
-                       FontSize="24" 
-                       FontWeight="Bold"
-                       Foreground="{Binding SelectedColorName}"
-                       VerticalAlignment="Center" 
-                       HorizontalAlignment="Center"/>
-                        </Button.Content>
+                        <svgc:SvgViewbox Source="pack://application:,,,/Resources/svgimages/next.svg"
+                                             Width="24" Height="24"/>
                     </Button>
                     <Button ToolTip="Forward 5" Click="NudgeButton_Click">
-                        <Button.Content>
-                            <TextBlock Text="&#xE72A;" 
-                    FontFamily="Segoe MDL2 Assets" 
-                    FontSize="24" 
-                    FontWeight="Bold"
-                    Foreground="{Binding SelectedColorName}"
-                    VerticalAlignment="Center" 
-                    HorizontalAlignment="Center"/>
-                        </Button.Content>
+                        <svgc:SvgViewbox Source="pack://application:,,,/Resources/svgimages/doublenext.svg"
+                                             Width="24" Height="24"/>
                     </Button>
                 </StackPanel>
 
