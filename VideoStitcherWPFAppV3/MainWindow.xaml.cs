@@ -19,6 +19,7 @@ using System.Drawing;
 using System.Windows.Controls.Primitives;
 using OpenCvSharp.Features2D;
 using static System.Net.Mime.MediaTypeNames;
+using SharpVectors.Converters;
 //using OpenCvSharp;
 //using OpenCvSharp;
 
@@ -564,6 +565,8 @@ namespace PhotoTimingGui
                 //if clicked after video ends hide line and text at mouse position
                 return;
             }
+
+            videoLength = GetVideoLength();
             double tim = (posX / StitchedImage.ActualWidth) * videoLength;
             if (tim < GunTimeDbl)
             {
@@ -629,6 +632,7 @@ namespace PhotoTimingGui
                     _isDragging = false;
                     return;
                 }
+                videoLength = GetVideoLength();
                 double tim = (posX / StitchedImage.ActualWidth) * videoLength;
                 if (tim < GunTimeDbl)
                 {
@@ -679,6 +683,7 @@ namespace PhotoTimingGui
                 VerticalLine.Visibility = Visibility.Collapsed;
                 return;
             }
+            videoLength = GetVideoLength();
             double tim = (posX / StitchedImage.ActualWidth) * videoLength;
             if (tim < GunTimeDbl)
             {
@@ -687,7 +692,7 @@ namespace PhotoTimingGui
                 return;
             }
             if (GetShowVideoFramePopup())
-                DisplayFrame(frameNo, e.GetPosition(StitchedImage));
+                DisplayFrame(frameNo, posX);
         }
 
 
@@ -948,7 +953,7 @@ namespace PhotoTimingGui
             SaveViewModel();
         }
 
-        private void DisplayFrame(int frameNo, System.Windows.Point position, bool resize = true)
+        private void DisplayFrame(int frameNo, double posX, bool resize = true)
         {
 
             // Get mouse position relative to the container
@@ -975,13 +980,19 @@ namespace PhotoTimingGui
             //{
             //    System.Diagnostics.Debug.WriteLine($"Image Dimensions: {bitmapx.PixelWidth}x{bitmap.PixelHeight}");
             //}
+            if (Popup.Width is double.NaN)
+                resize = true;
             if(resize)
             {
+
                 FrameImage.Width = 100;
                 FrameImage.Height = 100;
             }
+            Popup.Width = FrameImage.Width;
+            Popup.Height = FrameImage.Height;
+            Divider.Y2 = FrameImage.Height;
             FrameImage.Source = bitmapImage;
-            Popup.HorizontalOffset = position.X + 2 + 100; // GetPopupWidth();
+            Popup.HorizontalOffset = posX +  (int)(Popup.Width/2); // GetPopupWidth();
             Popup.VerticalOffset = /*GetTimeLabelMargin().Top + TimeLabel.ActualHeight*/ + 115;
             Popup.IsOpen = true;
             return;
@@ -1089,62 +1100,94 @@ namespace PhotoTimingGui
 
             if (toolTip == "")
                 return;
-            selectedStartTime = this.GetSelectedStartTime(); // Get the current start time from the ViewModel
+            System.Windows.Shapes.Line  _VerticalLine = VerticalLine;
+            TimeFromMode timeFromMode = GetTimeFromMode();
+            double startTime = 0;
+            bool isManualNotSelected = false;
+            bool isLeft = true;
+            double posX;
+            if (timeFromMode == TimeFromMode.ManuallySelect)
+            {
+                var hsnshwngunline = Get_HaveSelectedandShownGunLineinManualMode();
+                if (!hsnshwngunline)
+                {
+                    _VerticalLine = StartVerticalLine; // Use the start line for manual mode
+                    selectedStartTime = this.GetSelectedStartTime();
+                    startTime = selectedStartTime;
+                    isManualNotSelected = true;
+                    isLeft = false;
+                }
+            }
+            if (_VerticalLine.Visibility == Visibility.Collapsed)
+                return;
+
+            posX = _VerticalLine.X1;
             double oneFrame = 1 / Fps;
+            videoLength = GetVideoLength();
+            int numFrames = (int)(videoLength*Fps);
+            double posXPrev = posX;
             if (toolTip == "Back")
             {
-                if (selectedStartTime >= oneFrame)
-                    selectedStartTime -= oneFrame; //Back one Frame
+                if (posX >= 1)
+                {
+                    //Back one Frame
+                    posX -= 1;
+                }
             }
             else if (toolTip == "Forward")
             {
-                if (selectedStartTime <= 200)
-                    selectedStartTime += oneFrame; //Forwards one Frame
+                if (startTime <= (numFrames-1))
+                {
+                    //Forward one Frame
+                    posX +=1;
+                }
             }
             else if (toolTip == "Back 5")
             {
-                if (selectedStartTime >= 5 * oneFrame)
-                    selectedStartTime -= 5 * oneFrame; //Back five Frames
+                if (posX >= 5)
+                {
+                    //Back five Frames
+                    posX -= 5;
+                }
             }
             else if (toolTip == "Forward 5")
             {
-                if (selectedStartTime <= 200)
-                    selectedStartTime += 5 * oneFrame; //Forwards five Frames
+                if (posX < (numFrames-4))
+                {
+                    //Forward five Frames
+                    posX += 5;
+                }
             }
-            this.SetSelectedStartTime(selectedStartTime);
+
+            if (posX == posXPrev)
+            {
+                // No change in time, so do not update the line or label
+                return;
+            }
+
+            startTime = (posX / StitchedImage.ActualWidth) * videoLength;
 
 
-
-            double timm = selectedStartTime;
-            double posX = StitchedImage.ActualWidth * (timm / videoLength);
-
-            string formattedTime = $"{timm}";                                                                                                      // Display the calculated time
+            string formattedTime = $"{startTime}";                                                                                                      // Display the calculated time
             TimeLabel.Visibility = Visibility.Visible;
-            TimeLabel.Text = $"{timm:F2} sec";
+            TimeLabel.Text = $"{startTime:F2} sec";
             var margin = GetTimeLabelMargin();
             margin.Left += posX;
             TimeLabel.Margin = margin;
 
-            StartVerticalLine.X1 = posX;
-            StartVerticalLine.X2 = posX;
-            StartVerticalLine.Y1 = 0; // Top of the image
+            _VerticalLine.X1 = posX;
+            _VerticalLine.X2 = posX;
+            _VerticalLine.Y1 = 0; // Top of the image
             double posY2 = StitchedImage.ActualHeight;
             if (StitchedImage.LayoutTransform is ScaleTransform transformV)
             {
                 double verticalScale = transformV.ScaleY; // Get the horizontal scale
                 posY2 = posY2 * verticalScale; // Adjust time based on scale
             }
-            StartVerticalLine.Y2 = posY2; // Bottom of the image
+            _VerticalLine.Y2 = posY2; // Bottom of the image
+            UpdateTimeLabel(posX, isLeft);
             if (GetShowVideoFramePopup())
-            {
-                // Get the position of the TextBlock relative to its ancestor (e.g., the Window)
-                //GeneralTransform transform = TimeLabel.TransformToAncestor(StitchedImage);
-                GeneralTransform transform = TimeLabel.TransformToAncestor(System.Windows.Application.Current.MainWindow);
-                System.Windows.Point relativePosition = transform.Transform(new System.Windows.Point(0, 5));
-                frameNo = (int)(timm * Fps); // Assuming 30 FPS, adjust as needed
-                System.Diagnostics.Debug.WriteLine($"Nudge: {timm} {relativePosition} {frameNo}");
-                DisplayFrame(frameNo, relativePosition, false);
-            }
+                DisplayFrame(frameNo, posX, false);
         }        
 
         private void ResizeThumb_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
@@ -1160,6 +1203,8 @@ namespace PhotoTimingGui
             // Ensure minimum size
             FrameImage.Width = Math.Max(newWidth, GetMinPopupWidth()/2 );
             FrameImage.Height = Math.Max(newHeight, GetMinPopupHeight()/2);
+            Popup.Width = FrameImage.Width;
+            Popup.Height = FrameImage.Height;
             posx += FrameImage.Width;;
             Popup.HorizontalOffset = posx; // Update horizontal offset to keep the popup in place
 

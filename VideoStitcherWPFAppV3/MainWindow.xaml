@@ -33,6 +33,8 @@
         <Window.DataContext>
         <local:MyViewModel/>
     </Window.DataContext>
+    
+    
 
     <Grid>
         <!-- Grid Layout with Two Sections -->
@@ -235,17 +237,10 @@
                             <!-- Default: hide the panel -->
                             <Setter Property="Visibility" Value="Collapsed"/>
                             <Style.Triggers>
-                                <MultiDataTrigger>
-                                    <MultiDataTrigger.Conditions>
-                                        <Condition Binding="{Binding TimeFromMode}" 
-                                   Value="{x:Static enums:TimeFromMode.ManuallySelect}" />
-                                        <Condition Binding="{Binding HasStitched}" 
-                                   Value="True" />
-                                        <Condition Binding="{Binding HaveSelectedandShownGunLineToManualMode}" 
-                                   Value="False" />
-                                    </MultiDataTrigger.Conditions>
+                                <DataTrigger Binding="{Binding HasStitched}"
+                                        Value="True">
                                     <Setter Property="Visibility" Value="Visible"/>
-                                </MultiDataTrigger>
+                                </DataTrigger>
                             </Style.Triggers>
                         </Style>
                     </StackPanel.Style>
@@ -262,7 +257,7 @@
                                              Width="24" Height="24"/>
                     </Button>
 
-                    <TextBlock Text=" Nudge Gun Line " 
+                    <TextBlock Text=" Nudge Line " 
                         FontWeight="Bold"
                         Foreground="{Binding SelectedColorName}"
                         Height="28"
@@ -281,6 +276,8 @@
                                              Width="24" Height="24"/>
                     </Button>
                 </StackPanel>
+
+
 
                 <!-- Button Grid.Row="6" Grid.Column="0" Name="LoadImageButton" HorizontalAlignment="Left" Content="Load Image" Width="150" Click="LoadImageButton_Click" Height="20" VerticalAlignment="Top" / -->
                 <!-- Button Grid.Row="7" Grid.Column="0" x:Name="FlashButton" HorizontalAlignment="Left"  Content="Detect Flash in Video" Width="150" Click="FlashButton_Click" VerticalAlignment="Center" Visibility="{Binding MyVisibility}"/ -->
@@ -410,28 +407,36 @@
                         MouseRightButtonUp="StitchedImage_MouseButtonUp"
                         MouseRightButtonDown="StitchedImage_MouseButtonDown"
                         MouseMove="StitchedImage_MouseMove"/>
+                    <Line Name="VerticalLine" Stroke="Red" StrokeThickness="2" Visibility="Collapsed" />
+                    <Line Name="StartVerticalLine" Stroke="{Binding SelectedColorName}" StrokeThickness="2" Visibility="Collapsed" />
+                    <TextBlock Name="TimeLabel"   Foreground="White" Visibility="Collapsed" />
+
                     <Popup Name="Popup"
                        IsOpen="False"
                        Placement="Relative"
-                       PlacementTarget="{Binding ElementName=ImageCanvas}"
+                       PlacementTarget="{Binding ElementName=StitchedImage}"
 		               StaysOpen="False">
                         <Border BorderBrush="Black" BorderThickness="2"
 				            MouseDown="Popup_MouseDown">
                             <Grid>
-                                <Image Name="FrameImage" Width="100" Height="100"/>
+                                <Image Name="FrameImage" Width="100" Height="100"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
                                 <!-- Bottom-right resize handle -->
                                 <Thumb Width="10" Height="10"
                                 HorizontalAlignment="Right"
                                 VerticalAlignment="Bottom"
                                 Background="Gray"
                                 DragDelta="ResizeThumb_DragDelta"/>
+                                <Line Name="Divider" Stroke="{Binding SelectedColorName}" StrokeThickness="1" 
+                                      HorizontalAlignment="Center"
+                                      Y1="0"
+                                      Y2="100"
+                                      Visibility="Visible" />
                             </Grid>
                         </Border>
                     </Popup>
 
-                    <Line Name="VerticalLine" Stroke="Red" StrokeThickness="2" Visibility="Collapsed" />
-                    <Line Name="StartVerticalLine" Stroke="{Binding SelectedColorName}" StrokeThickness="2" Visibility="Collapsed" />
-                    <TextBlock Name="TimeLabel"   Foreground="White" Visibility="Collapsed" />
                 </Grid>
             </ScrollViewer>
         </Border>
