@@ -1,5 +1,7 @@
 # PhotoTimingDjaus
 
+**Note that the WPF app will be renamed StitchInTimeWPF** Watch this space
+
 >> NB With Phone Video Capture: You need to enter the stitched image name and accept it, like a return. Om my phone I accept by pressing the tick bottom right of popup keyboard
 
 ## About
