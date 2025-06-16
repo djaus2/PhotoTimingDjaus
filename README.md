@@ -11,7 +11,7 @@ A simple phototiming app for Athletics etc where a finish line is filmed with sa
 
 ### Latest
 > **A work in progress:**
-- **Added WallClock Start Time**: Just enter the start time of the event (Calenday, Time of Day to ms). Initaially set to Video Start. Start on StitchedImage is then calculated wrt Video start DateTime. _(Currently assumes same day)_
+- **Added WallClock Start Time**: Just enter the start time of the event (Calendar Day (Select), Time of Day to ms). Initaially set to Video Start. Start on StitchedImage is then calculated wrt Video start DateTime. _(Currently assumes same day)_
 -  **Added ability to popup corresponding video frame for selected time centred on StitchedImage timing line with aligned line thru frame.**
 
 Major rework so that all/most info in XAML page is bound to ViewModel properties. Get Set for many in separate page which handles the DtataContext.  
