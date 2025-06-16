@@ -10,6 +10,7 @@
   
     <ItemGroup>
     <!-- https://elinamllc.github.io/SharpVectors/ -->
+    <PackageReference Include="Extended.Wpf.Toolkit" Version="4.7.25104.5739" />
     <PackageReference Include="SharpVectors.Wpf" Version="1.8.4.2" />
   </ItemGroup>
   

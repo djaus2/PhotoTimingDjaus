@@ -8,6 +8,8 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using static Android.Provider.MediaStore;
 using NAudio.Wave;
+using Java.Util;
+using static Android.Renderscripts.ScriptGroup;
 
 namespace DetectAudioFlash
 {

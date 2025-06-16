@@ -1,6 +1,7 @@
 ﻿<Window x:Class="PhotoTimingGui.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:sys="clr-namespace:System;assembly=System.Runtime"
         xmlns:svg="http://sharpvectors.codeplex.com/runtime/"
         xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
         xmlns:local="clr-namespace:PhotoTimingGui.ViewModels"
@@ -137,6 +138,9 @@
                               FontWeight="Bold" 
                               FontStyle="Italic"
                               Foreground="Blue">
+                            <MenuItem Header="WallClock" 
+                  Click="TimeFromMode_Click"
+                  Tag="{x:Static enums:TimeFromMode.WallClockSelect}" />
                             <!-- Option 1: Button -->
                             <MenuItem Header="Button" 
                   Click="TimeFromMode_Click"
@@ -169,6 +173,7 @@
                   Click="TimeFromMode_Click"
                   Tag="{x:Static enums:TimeFromMode.ManuallySelect}" />
                         </MenuItem>
+
                     </Menu>
                 </StackPanel>
 
@@ -246,8 +251,8 @@
                     </StackPanel.Style>
 
                     <!-- The rest of your StackPanel content goes here -->
-               
-                <!-- Left Button (Back icon) -->
+
+                    <!-- Left Button (Back icon) -->
                     <Button ToolTip="Back 5" Click="NudgeButton_Click">
                         <svgc:SvgViewbox Source="pack://application:,,,/Resources/svgimages/doubleprevious.svg"
                                             Width="24" Height="24"/>
@@ -275,7 +280,74 @@
                         <svgc:SvgViewbox Source="pack://application:,,,/Resources/svgimages/doublenext.svg"
                                              Width="24" Height="24"/>
                     </Button>
+
+  
                 </StackPanel>
+
+                <StackPanel Orientation="Horizontal" Grid.Row="5" Grid.Column="1">
+
+                    <TextBlock Text="{Binding TimeFromMode}" />
+                    <TextBlock Text=" " />
+                    <TextBlock Text="{Binding HasStitched}" />
+                    <TextBlock Text=" " />
+                    <TextBlock Text="{Binding HaveSelectedandShownGunLineToManualMode}" />
+
+                </StackPanel>
+                <Button  Grid.Column="1" Grid.Row="6" 
+                             Content="Pick Event Start WallClock Date and enter Time(HH:mm:SS.fff)"  Click="ShowPopup">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <!-- Default: hide the panel -->
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding TimeFromMode}" 
+                                               Value="{x:Static enums:TimeFromMode.WallClockSelect}" />
+                                            <Condition Binding="{Binding HasStitched}" Value="True" />
+                                            <Condition Binding="{Binding HaveSelectedandShownGunLineToManualMode}" 
+                                                  Value="False" />
+                                        </MultiDataTrigger.Conditions>
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </MultiDataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                        <Popup x:Name="DateTimePopup"
+                        PlacementTarget="{Binding ElementName=PickBtn}"
+                        Placement="Bottom"
+                        StaysOpen="False"
+                        AllowsTransparency="True">
+
+
+                        <Border Background="White" 
+                        BorderBrush="Gray" 
+                        BorderThickness="1" 
+                        Padding="8">
+                            <StackPanel>
+                                <!-- date -->
+                                <DatePicker x:Name="Dp"
+                 SelectedDate="{Binding EventStartWallClockDateTime}"/>
+                                <!-- time -->
+                                <TextBox x:Name="TbTime"
+                      Margin="0,4,0,0"
+                      Text="{Binding EventStartWallClockTimeofDay}"/>
+
+                                <StackPanel Orientation="Horizontal" 
+                 HorizontalAlignment="Right" 
+                 Margin="0,8,0,0">
+                                    <Button Content="OK" 
+                 Width="60" 
+                 Margin="0,0,4,0"
+                 Click="Ok_Click"/>
+                                    <Button Content="Cancel" 
+                 Width="60" 
+                 Click="Cancel_Click"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                    </Popup>
 
 
 

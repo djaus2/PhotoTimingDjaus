@@ -38,7 +38,15 @@ namespace PhotoTimingGui
             string json = VideoStitcherWPFAppV3.Properties.Settings.Default.SavedViewModel;
             if (!string.IsNullOrEmpty(json))
             {
-                this.DataContext = JsonSerializer.Deserialize<MyViewModel>(json) ?? new MyViewModel();
+                try
+                {
+                    this.DataContext = JsonSerializer.Deserialize<MyViewModel>(json) ?? new MyViewModel();
+                }
+                catch (Exception)
+                {
+                    /// If in error reset
+                    this.DataContext = new MyViewModel();
+                }
             }
             else
             {
@@ -48,6 +56,8 @@ namespace PhotoTimingGui
             {
                 // Set default visibility at start to visble for controls
                 //Add any other defaults here.
+                viewModel.GunTimeIndex = 0; // Reset the gun time index to 0 before saving
+                viewModel.GunTime = 0.0; // Reset the gun time to 0 before saving
                 viewModel.MyVisibility = Visibility.Visible;
                 viewModel.StartTimeInput = 0.0; // Default start time
                 viewModel.HasStitched = false;
@@ -87,7 +97,7 @@ namespace PhotoTimingGui
             }
         }
 
-        public bool HasStitched()
+        public bool Get_HasStitched()
         {
             if (this.DataContext is MyViewModel viewModel)
             {
@@ -137,6 +147,23 @@ namespace PhotoTimingGui
                 return viewModel.VideoPathInput; // Get the current video path from the ViewModel
             }
             return string.Empty; // Default value if DataContext is not set or VideoPathInput is not available
+        }
+
+        public void SetEventWallClockStart(DateTime start)
+        {
+            if (this.DataContext is MyViewModel viewModel)
+            {
+                viewModel.EventStartWallClockDateTime = start;
+            }
+        }
+
+        public DateTime GetEventWallClockStart()
+        {
+            if (this.DataContext is MyViewModel viewModel)
+            {
+                return viewModel.EventStartWallClockDateTime; // Get the current video path from the ViewModel
+            }
+            return DateTime.MinValue; // Default value if DataContext is not set or VideoPathInput is not available
         }
 
         public void SetOutputPath(string outputPath)
@@ -211,6 +238,7 @@ namespace PhotoTimingGui
             return TimeFromMode.FromButtonPress; // Default value if ViewModel is not available
         }
 
+
         private void SetVideoDetectMode(VideoDetectMode videoDetectMode)
         {
             if (DataContext is ViewModels.MyViewModel viewModel)
@@ -243,7 +271,8 @@ namespace PhotoTimingGui
         {
             if (DataContext is ViewModels.MyViewModel viewModel)
             {
-                if(viewModel.TimeFromMode!= TimeFromMode.ManuallySelect)
+                if((viewModel.TimeFromMode!= TimeFromMode.ManuallySelect) &&
+                        (viewModel.TimeFromMode != TimeFromMode.WallClockSelect))
                     return true;
                 return viewModel.HaveSelectedandShownGunLineToManualMode;
             }
@@ -355,6 +384,44 @@ namespace PhotoTimingGui
                 return show;
             }
             return false; // Default value if DataContext is not set or ShowVideoFramePopup is not available
+        }
+
+        private void SetVideoCreationDate(DateTime? creationDate)
+        {
+            if (DataContext is ViewModels.MyViewModel viewModel)
+            {
+
+                viewModel. VideoCreationDate = creationDate?? DateTime.MaxValue;
+            }
+        }
+
+        private DateTime GetVideoCreationDate()
+        {
+            if (DataContext is ViewModels.MyViewModel viewModel)
+            {
+
+                return viewModel.VideoCreationDate;
+            }
+            return DateTime.MinValue;
+        }
+        //SetEventWallClockStartTime
+        private void SetEventWallClockStartTime(DateTime? start)
+        {
+            if (DataContext is ViewModels.MyViewModel viewModel)
+            {
+
+                viewModel.EventStartWallClockDateTime = start ?? DateTime.MaxValue;
+            }
+        }
+
+        private DateTime GetEventWallClockStartTime()
+        {
+            if (DataContext is ViewModels.MyViewModel viewModel)
+            {
+
+                return viewModel.EventStartWallClockDateTime;
+            }
+            return DateTime.MinValue;
         }
 
 

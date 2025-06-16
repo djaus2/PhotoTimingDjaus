@@ -20,6 +20,7 @@ using System.Windows.Controls.Primitives;
 using OpenCvSharp.Features2D;
 using static System.Net.Mime.MediaTypeNames;
 using SharpVectors.Converters;
+using System.Runtime.Intrinsics.Arm;
 //using OpenCvSharp;
 //using OpenCvSharp;
 
@@ -384,9 +385,15 @@ namespace PhotoTimingGui
             }
             threshold = int.Parse(Threshold.Text);
 
+            DateTime? creationDate = DetectAudioFlash.FFMpegActions.GetVideoStart(GetVideoPath());
+            if(creationDate != null)
+            {
+                SetVideoCreationDate(creationDate);
+            }
+
             //if (videoStitcher == null)
             //{
-                videoStitcher = new PhotoTimingDjaus.VideoStitcher(
+            videoStitcher = new PhotoTimingDjaus.VideoStitcher(
                 GetVideoPath(),
                 GetGunColor(),
                 GetOutputPath(),
@@ -435,13 +442,15 @@ namespace PhotoTimingGui
                     GunTimeIndex = 0;// videoStitcher.GunTimeIndex;
                 }
 
-                videoLength = videoStitcher.videoDuration;
+
                 videoStitcher.Stitch();
                 
             };
 
             worker.RunWorkerCompleted += (s, args) =>
             {
+                videoLength = videoStitcher.videoDuration;
+                SetVideoLength(videoLength);
                 SetGunTime(GunTimeDbl, GunTimeIndex); // Set the gun time in the ViewModel
                 
                 SetVideoLength(videoLength);
@@ -502,6 +511,10 @@ namespace PhotoTimingGui
                 StitchButton.Width = 200;
                 StitchButton.IsEnabled = true; // Re-enable the button
                 SetHasStitched();
+                if (timeFromMode == TimeFromMode.WallClockSelect)
+                {
+                    SetEventWallClockStartTime(GetVideoCreationDate());
+                }
             };
 
             worker.RunWorkerAsync();
@@ -526,7 +539,7 @@ namespace PhotoTimingGui
             bool isLeft = (e.LeftButton == MouseButtonState.Pressed);
             if (isLeft)
             {
-                if (!HasStitched())
+                if (!Get_HasStitched())
                     return;
                 // Left button for Manuual Mode only if guntime has been set
                 if (!Get_HaveSelectedandShownGunLineinManualMode())
@@ -537,7 +550,7 @@ namespace PhotoTimingGui
             {
                 if (!(e.RightButton == MouseButtonState.Pressed))
                     return;
-                if (!HasStitched())
+                if (!Get_HasStitched())
                     return;
                 if (!ManuallySelectMode())
                     return;
@@ -1026,53 +1039,50 @@ namespace PhotoTimingGui
         {
             if (!IsDataContext())
                 return;
+            selectedStartTime = this.GetSelectedStartTime();
+            WriteGLine(selectedStartTime);
+        }
+
+        private void WriteGLine(double guntime,int gunTimeIndex=-1)
+        {
+            if (!IsDataContext())
+                return;
 
             // Hide lines
             StartVerticalLine.Visibility = Visibility.Collapsed;
             VerticalLine.Visibility = Visibility.Collapsed;
             TimeLabel.Visibility = Visibility.Collapsed;
 
-            selectedStartTime = this.GetSelectedStartTime();
+            //selectedStartTime = this.GetSelectedStartTime();
             string outputPath = GetOutputPath();
             // Only write line if non zero start time is selected
-            if (selectedStartTime != 0)
+            if (guntime != 0)
             {
-                if(videoStitcher == null)
+                if (videoStitcher == null)
                 {
                     videoStitcher = new PhotoTimingDjaus.VideoStitcher(
                        GetVideoPath(),
                        GetGunColor(),
                        GetOutputPath(),
-                       selectedStartTime,
+                       guntime,
                        100, //axisHeight,
                        100, //audioHeight,
                        GetTimeFromMode(),
                        threshold);
                 }
-                int gunTimeIndex = videoStitcher.AddGunLine(selectedStartTime, GetGunColor());
+
+                if(gunTimeIndex <= 0)
+                    gunTimeIndex = videoStitcher.AddGunLine(guntime, GetGunColor());
 
                 LoadStitchedImage(GetOutputPath());
-                /*
-                using var fs = new FileStream(GetOutputPath(), FileMode.Open,
-                            FileAccess.Read, FileShare.ReadWrite);
 
-                var bitmap = new BitmapImage();
-                bitmap.BeginInit();
-                bitmap.CacheOption = BitmapCacheOption.OnLoad; // read into RAM, release stream afterwards
-                bitmap.StreamSource = fs;                      // <— no Uri, so no cache
-                bitmap.EndInit();
-                bitmap.Freeze();
-
-                StitchedImage.Source = bitmap;
-                if (StitchedImage.Source is BitmapSource bitmapx)
-                {
-                    System.Diagnostics.Debug.WriteLine($"Image Dimensions: {bitmapx.PixelWidth}x{bitmap.PixelHeight}");
-                }
-                */
-                SetGunTime(selectedStartTime,gunTimeIndex);
+                SetGunTime(guntime, gunTimeIndex);
                 Set_HaveSelectedandShownGunLineinManualMode(true);
+                var a = Get_HasStitched();
+                var b = Get_HaveSelectedandShownGunLineinManualMode();
+                var c = GetTimeFromMode();
 
-                MessageBox.Show("Stitched image successfully updated and displayed!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);        
+                MessageBox.Show("Stitched image successfully updated and displayed!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
 
@@ -1227,7 +1237,7 @@ namespace PhotoTimingGui
         {
             if (!IsDataContext())
                 return;
-            if(!HasStitched())
+            if(!Get_HasStitched())
                 return;
             // Check if the pressed key is Escape
             bool shift = false;
@@ -1263,6 +1273,46 @@ namespace PhotoTimingGui
                     break;
             }
  
+        }
+
+
+        private void ShowPopup(object s, RoutedEventArgs e)
+        {
+            Dp.DisplayDate = DateTime.Now;       // reset default
+            DateTimePopup.IsOpen = true;
+        }
+
+        private void Ok_Click(object s, RoutedEventArgs e)
+        {
+            if (DataContext is ViewModels.MyViewModel viewModel)
+            {
+
+                var dt = viewModel.EventStartWallClockDateTime;
+                var timeofDay = dt.TimeOfDay;
+                var videoStartTime = viewModel.VideoCreationDate;
+                TimeSpan timeSpan = timeofDay - videoStartTime.TimeOfDay;
+                double gunTime = timeSpan.TotalSeconds;
+                if (videoStitcher == null)
+                {
+                videoStitcher = new PhotoTimingDjaus.VideoStitcher(
+                    GetVideoPath(),
+                    GetGunColor(),
+                    GetOutputPath(),
+                    GetSelectedStartTime(),
+                    100, //axisHeight,
+                    100, //audioHeight,
+                    GetTimeFromMode(),
+                    threshold);
+                }
+                this.WriteGLine(gunTime);
+            }
+            
+            DateTimePopup.IsOpen = false;
+        }
+
+        private void Cancel_Click(object s, RoutedEventArgs e)
+        {
+            DateTimePopup.IsOpen = false;
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////

@@ -22,8 +22,8 @@ namespace PhotoTimingDjaus
 
         // Following are determined in GetGunTimenFrameIndex():
         ///////////////////////////////////////////////////////////////////
-        public double videoDuration = 0;
-        public int videoFrameCount = 0;
+        public double videoDuration { get; set; } = 0;
+        public int videoFrameCount { get; set; } = 0;
         private double selectedStartTime;
         public double GunTime { get; set; } = 0.0;
         public int GunTimeIndex = 0;
@@ -50,6 +50,18 @@ namespace PhotoTimingDjaus
             this.timeFromMode = _timeFromMode;
             this.threshold = _threshold;
             this.GunTimeColor = _gunTimeColor;
+            using (var capture = new VideoCapture(videoFilePath))
+            {
+                if (!capture.IsOpened())
+                {
+                    Console.WriteLine("Failed to open the video file.");
+                }
+                Fps = (int)Math.Round(capture.Fps);
+                //Fps = 30;
+                // Check if the start time exceeds the video duration
+                videoFrameCount = capture.FrameCount;
+                videoDuration = videoFrameCount / capture.Fps; // Calculate total video duration in seconds
+            }
         }
 
 

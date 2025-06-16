@@ -105,13 +105,82 @@ namespace PhotoTimingGui.ViewModels
         private bool _HasSelectedandShownGunLineToManualMode = false;
         public bool HaveSelectedandShownGunLineToManualMode
         {
-            get => TimeFromMode.Equals(_TimeFromMode, TimeFromMode.ManuallySelect) && _HasSelectedandShownGunLineToManualMode;
+            get => _HasSelectedandShownGunLineToManualMode;
             set
             {
-                    if (TimeFromMode != TimeFromMode.ManuallySelect)
+                    if ((TimeFromMode != TimeFromMode.ManuallySelect) &&
+                        (TimeFromMode != TimeFromMode.WallClockSelect))
                         return;
                     _HasSelectedandShownGunLineToManualMode = value; // Set HasStitched to true when switching to manual mode
                     OnPropertyChanged(nameof(HaveSelectedandShownGunLineToManualMode));
+            }
+        }
+
+
+        public DateTime EventStartWallClockDateOnly
+        {
+            get
+            {
+                DateTime date = EventStartWallClockDateTime.Date;
+                return date;
+            }
+            set
+            {
+                DateTime originalDateTime = EventStartWallClockDateTime;  // Example: 2025-06-16 13:45:30
+                DateTime newDate = value; // Set to Christmas Day
+                EventStartWallClockDateTime = newDate.Date + originalDateTime.TimeOfDay;
+            }
+        }
+
+
+        public string EventStartWallClockTimeofDay
+        {
+            get
+            {
+                TimeSpan ts = _EventStartWallClockDateTime?.TimeOfDay ?? TimeSpan.Zero;
+                string tsStr = $"{ts.Hours:D2}:{ts.Minutes:D2}:{ts.Seconds:D2}.{ts.Milliseconds:d3}"; // Format as HH:MM:SS.mmm
+                return tsStr;
+            }
+
+            set
+            {
+                if (TimeSpan.TryParse(value, out TimeSpan ts))
+                {
+                    EventStartWallClockDateTime = EventStartWallClockDateTime.Date + ts;
+                }
+                //Ignore change if not valid time format
+                else
+                {
+                    MessageBox.Show("Invalid Time of Day", "Error", MessageBoxButton.OK);// Optionally, you can handle invalid time format here, e.g., show a message or log an error.
+                }
+            }
+        }
+
+        private DateTime? _EventStartWallClockDateTime = null;
+        public DateTime EventStartWallClockDateTime
+        {
+            get 
+            {
+                DateTime dt = _EventStartWallClockDateTime ?? DateTime.MinValue;
+                return dt;
+            }
+            set
+            {
+                _EventStartWallClockDateTime = value;
+                OnPropertyChanged(nameof(EventStartWallClockDateTime));
+                OnPropertyChanged(nameof(EventStartWallClockTimeofDay));
+                OnPropertyChanged(nameof(EventStartWallClockDateOnly));
+            }
+        }
+
+        private  DateTime _VideoCreationDate;
+        public DateTime VideoCreationDate
+        {
+            get => _VideoCreationDate;
+            set
+            {
+                _VideoCreationDate = value;
+                OnPropertyChanged(nameof(VideoCreationDate));
             }
         }
 

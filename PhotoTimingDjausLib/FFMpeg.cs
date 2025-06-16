@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using NAudio.Wave;
 using System.Runtime.Versioning;
 using FFMpegCore.Arguments;
+using System.Data;
 
 namespace DetectAudioFlash
 {
@@ -17,6 +18,45 @@ namespace DetectAudioFlash
     {
         
         public static int numAudioFrames = 0;
+
+        public static DateTime? GetVideoStart(string videoPath)
+        {
+            string tempPath = @"C:\Users\david\OneDrive\Documents\Downloads\ffmpeg-master-latest-win64-gpl-shared\ffmpeg-master-latest-win64-gpl-shared\bin";
+            string? currentPath = Environment.GetEnvironmentVariable("PATH");
+
+            if (!string.IsNullOrEmpty(currentPath))
+            {
+                if (!currentPath.Split(';').Contains(tempPath))
+                {
+                    Environment.SetEnvironmentVariable("PATH", currentPath + ";" + tempPath);
+                }
+                return GetStartTime(videoPath);
+            }
+            return null;
+        }
+
+
+        public static DateTime? GetStartTime(string videoPath)
+        {
+            //C:\Users\david\OneDrive\Documents\Downloads\ffmpeg-master-latest-win64-gpl-shared\ffmpeg-master-latest-win64-gpl-shared\bin
+            var mediaInfo = FFMpegCore.FFProbe.Analyse(videoPath);
+            if (mediaInfo != null)
+            {
+                var tags = mediaInfo.Format.Tags;
+                foreach (var tag in tags)
+                {
+                    System.Diagnostics.Debug.WriteLine($"{tag.Key} {tag.Value}");
+                    if(tag.Key == "creation_time")
+                    {
+                        string createDateStr = tag.Value;
+                        DateTime? createDate = DateTime.Parse(createDateStr);
+                         return createDate;
+                    }
+                }
+            }
+            return null;
+            //ffprobe - v quiet - print_format json - show_format - show_entries format_tags = creation_time input.mp4
+        }
 
         /*
         public static void ParseSoundperFrame()

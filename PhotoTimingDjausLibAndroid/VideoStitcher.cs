@@ -39,6 +39,7 @@ namespace PhotoTimingDjaus
 
 
             VideoCapture capture = new VideoCapture(videoPath);
+            DateTime recordingStart = DateTime.Now;
             var height = capture.QueryFrame().Height;
             var width = capture.QueryFrame().Width;
             var depth = capture.QueryFrame().Depth;

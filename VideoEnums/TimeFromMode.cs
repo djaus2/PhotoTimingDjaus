@@ -12,7 +12,8 @@ namespace PhotoTimingDjaus.Enums
         FromButtonPress, //From start of video capture
         FromGunviaAudio, //From gun sound
         FromGunViaVideo,  //From observed flash of gun on video
-        ManuallySelect //Manually selected start time
+        ManuallySelect, //Manually selected start time
+        WallClockSelect
     }
 
     public enum VideoDetectMode
