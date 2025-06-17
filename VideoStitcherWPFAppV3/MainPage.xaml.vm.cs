@@ -319,7 +319,9 @@ namespace PhotoTimingGui
         {
             if (DataContext is ViewModels.MyViewModel viewModel)
             {
-                if (gunTimeIndex >= 0 && guntime < viewModel.VideoLength)
+                // Gun time can be before video starts for WallClock mode
+                var mode = viewModel.TimeFromMode;
+                if (((guntime >= 0) || (mode == TimeFromMode.WallClockSelect)) && (guntime < viewModel.VideoLength))
                 {
                     viewModel.GunTime = guntime;
                     viewModel.GunTimeIndex = gunTimeIndex; // Set the index of the gun time
