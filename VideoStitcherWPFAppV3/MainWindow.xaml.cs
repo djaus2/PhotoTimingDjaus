@@ -21,6 +21,8 @@ using OpenCvSharp.Features2D;
 using static System.Net.Mime.MediaTypeNames;
 using SharpVectors.Converters;
 using System.Runtime.Intrinsics.Arm;
+using System.Diagnostics;
+using System.Windows.Documents;
 //using OpenCvSharp;
 //using OpenCvSharp;
 
@@ -285,7 +287,7 @@ namespace PhotoTimingGui
                     string? content = radioButton.Content.ToString();
                     if (!string.IsNullOrEmpty(content))
                     {
-  
+
                         content = content.Trim().Replace(":", "");
                         string msg = "";
                         switch (content)
@@ -308,7 +310,7 @@ namespace PhotoTimingGui
                             msg = $"You can change the timing mode by clicking on one of the radio buttons. DEFAULT {radioButton.Content}:   {msg}";
                             MessageBox.Show($"{msg}", Title, MessageBoxButton.OK, MessageBoxImage.Information);
                         }
-                        else 
+                        else
                             MessageBox.Show($"You selected: {radioButton.Content}: {msg}", Title, MessageBoxButton.OK, MessageBoxImage.Information);
                     }
                 }
@@ -346,7 +348,7 @@ namespace PhotoTimingGui
             {
                 //DetectVideoFlash.FFMpegActions.Filterdata(videoFilePath, guninfoFilePath);
             }
-            else if(timeFromMode == TimeFromMode.FromGunViaVideo)
+            else if (timeFromMode == TimeFromMode.FromGunViaVideo)
             {
             }
             else if (timeFromMode == TimeFromMode.ManuallySelect)
@@ -380,13 +382,13 @@ namespace PhotoTimingGui
             {
                 MessageBox.Show("Please enter a valid number >0  (Typical 1000) for threshold.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 threshold = _threshold;
-                
+
                 return;
             }
             threshold = int.Parse(Threshold.Text);
 
             DateTime? creationDate = DetectAudioFlash.FFMpegActions.GetVideoStart(GetVideoPath());
-            if(creationDate != null)
+            if (creationDate != null)
             {
                 SetVideoCreationDate(creationDate);
             }
@@ -409,14 +411,14 @@ namespace PhotoTimingGui
 
             // Run the stitching process in a background thread
             BackgroundWorker worker = new BackgroundWorker();
-            
-            
+
+
 
 
             worker.DoWork += (s, args) =>
             {
                 //Determine guntime
-                
+
                 if (timeFromMode == TimeFromMode.FromButtonPress)
                 {
                     //Need next to get video length
@@ -437,14 +439,14 @@ namespace PhotoTimingGui
                 else if (timeFromMode == TimeFromMode.ManuallySelect)
                 {
                     //Need next to get video length
-                    var xx  = videoStitcher.GetGunTimenFrameIndex(gunAudioPath);
+                    var xx = videoStitcher.GetGunTimenFrameIndex(gunAudioPath);
                     GunTimeDbl = 0;
                     GunTimeIndex = 0;// videoStitcher.GunTimeIndex;
                 }
 
 
                 videoStitcher.Stitch();
-                
+
             };
 
             worker.RunWorkerCompleted += (s, args) =>
@@ -452,9 +454,9 @@ namespace PhotoTimingGui
                 videoLength = videoStitcher.videoDuration;
                 SetVideoLength(videoLength);
                 SetGunTime(GunTimeDbl, GunTimeIndex); // Set the gun time in the ViewModel
-                
+
                 SetVideoLength(videoLength);
-                
+
                 // Hide the busy indicator
                 BusyIndicator.Visibility = Visibility.Collapsed;
 
@@ -562,7 +564,7 @@ namespace PhotoTimingGui
             }
 
             // Start drawing the line only when the mouse is over the image
-            
+
             StitchedImage.CaptureMouse();
 
             // Get the mouse position relative to the stitched image
@@ -603,7 +605,7 @@ namespace PhotoTimingGui
             margin.Left += position.X;
             TimeLabel.Margin = margin;
             _isDragging = true;
-            UpdateTimeLabel(position.X,isLeft);
+            UpdateTimeLabel(position.X, isLeft);
         }
 
         private void StitchedImage_MouseMove(object sender, MouseEventArgs e)
@@ -611,8 +613,8 @@ namespace PhotoTimingGui
             if (!IsDataContext())
                 return;
             //Jeteson quickly
-            if((!(e.LeftButton == MouseButtonState.Pressed))&& !(e.RightButton == MouseButtonState.Pressed))
-                    return;
+            if ((!(e.LeftButton == MouseButtonState.Pressed)) && !(e.RightButton == MouseButtonState.Pressed))
+                return;
 
             if (_isDragging)
             {
@@ -672,7 +674,7 @@ namespace PhotoTimingGui
                 TimeLabel.TextAlignment = TextAlignment.Left; // Align text to the left
                 TimeLabel.Margin = new Thickness(posX + 10, 100, 0, 0); // Place label slightly to the right of the cursor
                 UpdateTimeLabel(posX, isLeft);
-                
+
             }
         }
         int frameNo = 0;
@@ -757,8 +759,8 @@ namespace PhotoTimingGui
                 else
                 {
 
-                // Set default visibility at start to visble for controls
-                //Add any other defaults here.
+                    // Set default visibility at start to visble for controls
+                    //Add any other defaults here.
                     SetSelectedStartTime(timeInSeconds);
                 }
             }
@@ -771,7 +773,7 @@ namespace PhotoTimingGui
                 Clipboard.SetData(DataFormats.Text, (Object)"");
             }
         }
-        
+
 
         private void StitchedImage_Scroll(object sender, System.Windows.Controls.Primitives.ScrollEventArgs e)
         {
@@ -780,7 +782,7 @@ namespace PhotoTimingGui
 
 
         ////////////////////////////////////// File Menu //////////////////////////////////////
-        
+
         /// <summary>
         /// Select the MP4 file but not open it.
         /// </summary>
@@ -790,7 +792,7 @@ namespace PhotoTimingGui
         {
             string videoFilePath = GetVideoPath();
             OpenFileDialog openFileDialog;
-            if (File.Exists(videoFilePath)) 
+            if (File.Exists(videoFilePath))
             {
                 string? initialDirectory = System.IO.Path.GetDirectoryName(videoFilePath);
                 if (!string.IsNullOrEmpty(initialDirectory) && !Directory.Exists(initialDirectory))
@@ -864,7 +866,7 @@ namespace PhotoTimingGui
 
             if (openFileDialog.ShowDialog() == true)
             {
-                OutputFilePath = openFileDialog.FileName;               
+                OutputFilePath = openFileDialog.FileName;
                 SetOutputPath(OutputFilePath); // Update the ViewModel with the new path
                 if (File.Exists(OutputFilePath))
                 {
@@ -971,7 +973,7 @@ namespace PhotoTimingGui
 
             // Get mouse position relative to the container
 
-            if ((videoStitcher==null))
+            if ((videoStitcher == null))
             {
                 return;
             }
@@ -995,7 +997,7 @@ namespace PhotoTimingGui
             //}
             if (Popup.Width is double.NaN)
                 resize = true;
-            if(resize)
+            if (resize)
             {
 
                 FrameImage.Width = 100;
@@ -1005,8 +1007,8 @@ namespace PhotoTimingGui
             Popup.Height = FrameImage.Height;
             Divider.Y2 = FrameImage.Height;
             FrameImage.Source = bitmapImage;
-            Popup.HorizontalOffset = posX +  (int)(Popup.Width/2); // GetPopupWidth();
-            Popup.VerticalOffset = /*GetTimeLabelMargin().Top + TimeLabel.ActualHeight*/ + 115;
+            Popup.HorizontalOffset = posX + (int)(Popup.Width / 2); // GetPopupWidth();
+            Popup.VerticalOffset = /*GetTimeLabelMargin().Top + TimeLabel.ActualHeight*/ +115;
             Popup.IsOpen = true;
             return;
         }
@@ -1014,7 +1016,7 @@ namespace PhotoTimingGui
         private void LoadStitchedImage(string imageFilePath)
         {
             BitmapImage bitmap = new BitmapImage();
-            if(!File.Exists(imageFilePath))
+            if (!File.Exists(imageFilePath))
             {
                 MessageBox.Show($"The specified image file does not exist: {imageFilePath}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
@@ -1043,7 +1045,7 @@ namespace PhotoTimingGui
             WriteGLine(selectedStartTime);
         }
 
-        private void WriteGLine(double guntime,int gunTimeIndex=-1)
+        private void WriteGLine(double guntime, int gunTimeIndex = -1)
         {
             if (!IsDataContext())
                 return;
@@ -1071,7 +1073,7 @@ namespace PhotoTimingGui
                        threshold);
                 }
 
-                if(gunTimeIndex <= 0)
+                if (gunTimeIndex <= 0)
                     gunTimeIndex = videoStitcher.AddGunLine(guntime, GetGunColor());
 
                 LoadStitchedImage(GetOutputPath());
@@ -1110,7 +1112,7 @@ namespace PhotoTimingGui
 
             if (toolTip == "")
                 return;
-            System.Windows.Shapes.Line  _VerticalLine = VerticalLine;
+            System.Windows.Shapes.Line _VerticalLine = VerticalLine;
             TimeFromMode timeFromMode = GetTimeFromMode();
             double startTime = 0;
             bool isManualNotSelected = false;
@@ -1134,7 +1136,7 @@ namespace PhotoTimingGui
             posX = _VerticalLine.X1;
             double oneFrame = 1 / Fps;
             videoLength = GetVideoLength();
-            int numFrames = (int)(videoLength*Fps);
+            int numFrames = (int)(videoLength * Fps);
             double posXPrev = posX;
             if (toolTip == "Back")
             {
@@ -1146,10 +1148,10 @@ namespace PhotoTimingGui
             }
             else if (toolTip == "Forward")
             {
-                if (startTime <= (numFrames-1))
+                if (startTime <= (numFrames - 1))
                 {
                     //Forward one Frame
-                    posX +=1;
+                    posX += 1;
                 }
             }
             else if (toolTip == "Back 5")
@@ -1162,7 +1164,7 @@ namespace PhotoTimingGui
             }
             else if (toolTip == "Forward 5")
             {
-                if (posX < (numFrames-4))
+                if (posX < (numFrames - 4))
                 {
                     //Forward five Frames
                     posX += 5;
@@ -1198,12 +1200,12 @@ namespace PhotoTimingGui
             UpdateTimeLabel(posX, isLeft);
             if (GetShowVideoFramePopup())
                 DisplayFrame(frameNo, posX, false);
-        }        
+        }
 
         private void ResizeThumb_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
         {
             var margin = Popup.Margin;
-            
+
             double prevWidth = FrameImage.Width;
             double posx = Popup.HorizontalOffset - prevWidth;
 
@@ -1211,15 +1213,15 @@ namespace PhotoTimingGui
             double newHeight = FrameImage.Height + e.VerticalChange;
 
             // Ensure minimum size
-            FrameImage.Width = Math.Max(newWidth, GetMinPopupWidth()/2 );
-            FrameImage.Height = Math.Max(newHeight, GetMinPopupHeight()/2);
+            FrameImage.Width = Math.Max(newWidth, GetMinPopupWidth() / 2);
+            FrameImage.Height = Math.Max(newHeight, GetMinPopupHeight() / 2);
             Popup.Width = FrameImage.Width;
             Popup.Height = FrameImage.Height;
-            posx += FrameImage.Width;;
+            posx += FrameImage.Width; ;
             Popup.HorizontalOffset = posx; // Update horizontal offset to keep the popup in place
 
             // Close popup if resized below 50px
-            if (FrameImage.Width <= (GetMinPopupWidth() / 2 )|| FrameImage.Height <= (GetMinPopupHeight() / 2))
+            if (FrameImage.Width <= (GetMinPopupWidth() / 2) || FrameImage.Height <= (GetMinPopupHeight() / 2))
             {
                 Popup.IsOpen = false;
             }
@@ -1237,7 +1239,7 @@ namespace PhotoTimingGui
         {
             if (!IsDataContext())
                 return;
-            if(!Get_HasStitched())
+            if (!Get_HasStitched())
                 return;
             // Check if the pressed key is Escape
             bool shift = false;
@@ -1248,7 +1250,7 @@ namespace PhotoTimingGui
             switch (e.Key)
             {
                 case Key.Left:
-                    if(shift)
+                    if (shift)
                     {
                         Nudge("Back 5");
                     }
@@ -1259,7 +1261,7 @@ namespace PhotoTimingGui
                     Nudge("Back");
                     break;
                 case Key.Right:
-                    if(shift)
+                    if (shift)
                     {
                         Nudge("Forward 5");
                     }
@@ -1272,7 +1274,7 @@ namespace PhotoTimingGui
                 default:
                     break;
             }
- 
+
         }
 
 
@@ -1294,25 +1296,64 @@ namespace PhotoTimingGui
                 double gunTime = timeSpan.TotalSeconds;
                 if (videoStitcher == null)
                 {
-                videoStitcher = new PhotoTimingDjaus.VideoStitcher(
-                    GetVideoPath(),
-                    GetGunColor(),
-                    GetOutputPath(),
-                    GetSelectedStartTime(),
-                    100, //axisHeight,
-                    100, //audioHeight,
-                    GetTimeFromMode(),
-                    threshold);
+                    videoStitcher = new PhotoTimingDjaus.VideoStitcher(
+                        GetVideoPath(),
+                        GetGunColor(),
+                        GetOutputPath(),
+                        GetSelectedStartTime(),
+                        100, //axisHeight,
+                        100, //audioHeight,
+                        GetTimeFromMode(),
+                        threshold);
                 }
                 this.WriteGLine(gunTime);
             }
-            
+
             DateTimePopup.IsOpen = false;
         }
 
         private void Cancel_Click(object s, RoutedEventArgs e)
         {
             DateTimePopup.IsOpen = false;
+        }
+
+        private void About_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("Photo Timing Djaus\nVersion 1.0\n\nA tool for stitching video frames and timing gun shots.\n\nDeveloped by David Jones\n\nBlog: https://davidjones.sportronics.com.au\n\nRepository https://github.com/djaus2/PhotoTimingDjaus", "About Photo Timing Djaus", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+        private void BlogSite_Click(object sender, RoutedEventArgs e)
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = "https://davidjones.sportronics.com.au",
+                UseShellExecute = true
+            });
+        }
+
+        private void Repo_Click(object sender, RoutedEventArgs e)
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = "https://github.com/djaus2/PhotoTimingDjaus",
+                UseShellExecute = true
+            });
+        }
+
+        private void NuGet_Click(object sender, RoutedEventArgs e)
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = "https://www.nuget.org/packages/djaus2_MauiMediaRecorderVideoLib/",
+                UseShellExecute = true
+            });
+        }
+        private void AndroidAppNuGet_Click(object sender, RoutedEventArgs e)
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = "https://github.com/djaus2/MauiMediaRecorderVideoAndroidApp\r\n",
+                UseShellExecute = true
+            });
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////

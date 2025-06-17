@@ -48,12 +48,13 @@
 
         <!-- Zoom and Pan Controls -->
         <StackPanel Orientation="Vertical" Margin="10,10,10,10" Grid.Row="0" Visibility="{Binding MyVisibility}">
-            <Grid ShowGridLines="True">
+            <Grid ShowGridLines="False">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition />
-                    <ColumnDefinition />
-                    <ColumnDefinition />
-                    <ColumnDefinition />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition />
@@ -64,143 +65,155 @@
                     <RowDefinition />
                     <RowDefinition />
                     <RowDefinition />
-                    <RowDefinition />
-                    <RowDefinition />
-                    <RowDefinition />
-                    <RowDefinition />
-
                 </Grid.RowDefinitions>
 
-                <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
-                    <Menu >
-                        <MenuItem Header="File"
+                <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="5" Background="LightGray">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <!-- Left menus -->
+                        <ColumnDefinition Width="*" />
+                        <!-- Spacer -->
+                        <ColumnDefinition Width="Auto"/>
+                        <!-- Right menu -->
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Orientation="Horizontal" Grid.Column="0">
+                        <Menu >
+                            <MenuItem Header="File"
                             FontWeight="Bold" 
                             FontStyle="Italic"
                             Foreground="Blue">
-                            <MenuItem Header="Select Video File" Click="OpenMp4File_Click"/>
-                            <MenuItem Header="Load Image File" Click="OpenPngFile_Click"/>
-                            <MenuItem Header="Set Temp Gun Audio File" Click="OpenGunAudioTextFile_Click"/>
-                            <Separator/>
-                            <MenuItem Header="Save State" Click="SaveViewModel_Click"/>
-                            <Separator/>
-                            <MenuItem Header="Exit" Command="ApplicationCommands.Close"/>
-                        </MenuItem>
-                    </Menu>
-                    <Menu >
-                        <MenuItem Header="Gun Time Line Color" 
+                                <MenuItem Header="Select Video File" Click="OpenMp4File_Click"/>
+                                <MenuItem Header="Load Image File" Click="OpenPngFile_Click"/>
+                                <MenuItem Header="Set Temp Gun Audio File" Click="OpenGunAudioTextFile_Click"/>
+                                <Separator/>
+                                <MenuItem Header="Save State" Click="SaveViewModel_Click"/>
+                                <Separator/>
+                                <MenuItem Header="Exit" Command="ApplicationCommands.Close"/>
+                            </MenuItem>
+                        </Menu>
+                        <Menu >
+                            <MenuItem Header="Gun Time Line Color" 
                             FontWeight="Bold" 
                             FontStyle="Italic"
-                            Foreground="{Binding SelectedColorName}" > <!--Background="{Binding SelectedColorBackgroundName}" -->
-                            <MenuItem Header="Red" Command="{Binding SetColorCommand}" CommandParameter="Red">
-                                <MenuItem.Icon>
-                                    <CheckBox IsChecked="{Binding IsRedSelected, Mode=OneWay}" IsHitTestVisible="False" />
-                                </MenuItem.Icon>
+                            Foreground="{Binding SelectedColorName}" >
+                                <!--Background="{Binding SelectedColorBackgroundName}" -->
+                                <MenuItem Header="Red" Command="{Binding SetColorCommand}" CommandParameter="Red">
+                                    <MenuItem.Icon>
+                                        <CheckBox IsChecked="{Binding IsRedSelected, Mode=OneWay}" IsHitTestVisible="False" />
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem Header="Green" Command="{Binding SetColorCommand}" CommandParameter="Green">
+                                    <MenuItem.Icon>
+                                        <CheckBox IsChecked="{Binding IsGreenSelected, Mode=OneWay}" IsHitTestVisible="False" />
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem Header="Blue" Command="{Binding SetColorCommand}" CommandParameter="Blue">
+                                    <MenuItem.Icon>
+                                        <CheckBox IsChecked="{Binding IsBlueSelected, Mode=OneWay}" IsHitTestVisible="False" />
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem Header="Yellow" Command="{Binding SetColorCommand}" CommandParameter="Yellow">
+                                    <MenuItem.Icon>
+                                        <CheckBox IsChecked="{Binding IsYellowSelected, Mode=OneWay}" IsHitTestVisible="False" />
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem Header="Cyan" Command="{Binding SetColorCommand}" CommandParameter="Cyan">
+                                    <MenuItem.Icon>
+                                        <CheckBox IsChecked="{Binding IsCyanSelected, Mode=OneWay}" IsHitTestVisible="False" />
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem Header="Magenta" Command="{Binding SetColorCommand}" CommandParameter="Magenta">
+                                    <MenuItem.Icon>
+                                        <CheckBox IsChecked="{Binding IsMagentaSelected, Mode=OneWay}" IsHitTestVisible="False" />
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem Header="White" Command="{Binding SetColorCommand}" CommandParameter="White">
+                                    <MenuItem.Icon>
+                                        <CheckBox IsChecked="{Binding IsWhiteSelected, Mode=OneWay}" IsHitTestVisible="False" />
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem Header="Black" Command="{Binding SetColorCommand}" CommandParameter="Black">
+                                    <MenuItem.Icon>
+                                        <CheckBox IsChecked="{Binding IsBlackSelected, Mode=OneWay}" IsHitTestVisible="False" />
+                                    </MenuItem.Icon>
+                                </MenuItem>
                             </MenuItem>
-                            <MenuItem Header="Green" Command="{Binding SetColorCommand}" CommandParameter="Green">
-                                <MenuItem.Icon>
-                                    <CheckBox IsChecked="{Binding IsGreenSelected, Mode=OneWay}" IsHitTestVisible="False" />
-                                </MenuItem.Icon>
-                            </MenuItem>
-                            <MenuItem Header="Blue" Command="{Binding SetColorCommand}" CommandParameter="Blue">
-                                <MenuItem.Icon>
-                                    <CheckBox IsChecked="{Binding IsBlueSelected, Mode=OneWay}" IsHitTestVisible="False" />
-                                </MenuItem.Icon>
-                            </MenuItem>
-                            <MenuItem Header="Yellow" Command="{Binding SetColorCommand}" CommandParameter="Yellow">
-                                <MenuItem.Icon>
-                                    <CheckBox IsChecked="{Binding IsYellowSelected, Mode=OneWay}" IsHitTestVisible="False" />
-                                </MenuItem.Icon>
-                            </MenuItem>
-                            <MenuItem Header="Cyan" Command="{Binding SetColorCommand}" CommandParameter="Cyan">
-                                <MenuItem.Icon>
-                                    <CheckBox IsChecked="{Binding IsCyanSelected, Mode=OneWay}" IsHitTestVisible="False" />
-                                </MenuItem.Icon>
-                            </MenuItem>
-                            <MenuItem Header="Magenta" Command="{Binding SetColorCommand}" CommandParameter="Magenta">
-                                <MenuItem.Icon>
-                                    <CheckBox IsChecked="{Binding IsMagentaSelected, Mode=OneWay}" IsHitTestVisible="False" />
-                                </MenuItem.Icon>
-                            </MenuItem>
-                            <MenuItem Header="White" Command="{Binding SetColorCommand}" CommandParameter="White">
-                                <MenuItem.Icon>
-                                    <CheckBox IsChecked="{Binding IsWhiteSelected, Mode=OneWay}" IsHitTestVisible="False" />
-                                </MenuItem.Icon>
-                            </MenuItem>
-                            <MenuItem Header="Black" Command="{Binding SetColorCommand}" CommandParameter="Black">
-                                <MenuItem.Icon>
-                                    <CheckBox IsChecked="{Binding IsBlackSelected, Mode=OneWay}" IsHitTestVisible="False" />
-                                </MenuItem.Icon>
-                            </MenuItem>
-                        </MenuItem>
-                    </Menu>
-                    <Menu Visibility="{Binding MyVisibility}">
-                        <MenuItem Header="Time From Mode:" 
+                        </Menu>
+                        <Menu Visibility="{Binding MyVisibility}">
+                            <MenuItem Header="Time From Mode:" 
                               FontWeight="Bold" 
                               FontStyle="Italic"
                               Foreground="Blue">
-                            <MenuItem Header="WallClock" 
+                                <MenuItem Header="WallClock" 
                   Click="TimeFromMode_Click"
                   Tag="{x:Static enums:TimeFromMode.WallClockSelect}" />
-                            <!-- Option 1: Button -->
-                            <MenuItem Header="Button" 
+                                <!-- Option 1: Button -->
+                                <MenuItem Header="Button" 
                   Click="TimeFromMode_Click"
                   Tag="{x:Static enums:TimeFromMode.FromButtonPress}" />
-                            <!-- Option 2: Mic -->
-                            <MenuItem Header="Mic" 
+                                <!-- Option 2: Mic -->
+                                <MenuItem Header="Mic" 
                   Click="TimeFromMode_Click"
                   Tag="{x:Static enums:TimeFromMode.FromGunviaAudio}" />
-                            <!-- Option 3: Flash - with a side (sub) menu -->
-                            <MenuItem Header="Flash" 
+                                <!-- Option 3: Flash - with a side (sub) menu -->
+                                <MenuItem Header="Flash" 
                   Click="TimeFromMode_Click"
                   Tag="{x:Static enums:TimeFromMode.FromGunViaVideo}">
-                                <!-- Submenu Header (non-selectable) -->
-                                <MenuItem Header="Detect Flash:" 
+                                    <!-- Submenu Header (non-selectable) -->
+                                    <MenuItem Header="Detect Flash:" 
                                       IsEnabled="False" 
                                       FontWeight="Bold"
                                       FontStyle="Italic"
                                       Foreground="Purple"/>
-                                <!-- Flash detection option 1 -->
-                                <MenuItem Header="From Brightness Flash"
+                                    <!-- Flash detection option 1 -->
+                                    <MenuItem Header="From Brightness Flash"
                       Click="VideoDetectMode_Click"
                       Tag="{x:Static enums:VideoDetectMode.FromFlash}" />
-                                <!-- Flash detection option 2 -->
-                                <!-- MenuItem Header="Detect Frame Change"  ERRANT
+                                    <!-- Flash detection option 2 -->
+                                    <!-- MenuItem Header="Detect Frame Change"  ERRANT
                       Click="VideoDetectMode_Click"
                       Tag="{x:Static enums:VideoDetectMode.FromFrameChange}" / -->
-                            </MenuItem>
-                            <!-- Option 4: Manual -->
-                            <MenuItem Header="Manual" 
+                                </MenuItem>
+                                <!-- Option 4: Manual -->
+                                <MenuItem Header="Manual" 
                   Click="TimeFromMode_Click"
                   Tag="{x:Static enums:TimeFromMode.ManuallySelect}" />
-                        </MenuItem>
+                            </MenuItem>
 
+                        </Menu>
+                    </StackPanel>
+
+                    <Menu Visibility="{Binding MyVisibility}" HorizontalAlignment="Right" Grid.Column="2">
+                        <MenuItem Header="Help" 
+                            FontWeight="Bold" 
+                            FontStyle="Italic"
+                            Foreground="Blue">
+                            <MenuItem Header="View Blog Site" Click="BlogSite_Click"/>
+                            <MenuItem Header="View Code Repository" Click="Repo_Click"/>
+                            <MenuItem Header="NuGet Android Phone Video Capture Package" Click="NuGet_Click"/>
+                            <MenuItem Header="Android App for NuGet Package Repository" Click="AndroidAppNuGet_Click"/>
+                            <MenuItem Header="" />
+                            <MenuItem Header="About" Click="About_Click"/>
+                        </MenuItem>
                     </Menu>
-                </StackPanel>
+                    <!-- Last menu aligned right -->
+                </Grid>
+
 
 
                 <!-- File Paths -->
                 <TextBlock Grid.Row="1" Grid.Column="0"    Text="Video Path:" TextAlignment="Right"  />
-                <TextBox Grid.Row="1" Grid.Column="1"  Name="VideoPathInput" HorizontalAlignment="Left"  Margin="10,0,0,0" Width="180"  Text= "{Binding VideoPathInput, UpdateSourceTrigger=PropertyChanged}" />
+                <TextBox Grid.Row="1" Grid.Column="1"  Background="LightCyan"  Name="VideoPathInput" HorizontalAlignment="Left"  Margin="10,0,0,0" Width="180"  Text= "{Binding VideoPathInput, UpdateSourceTrigger=PropertyChanged}" />
                 <TextBlock Grid.Row="2" Grid.Column="0"  Text="Output Path:" TextAlignment="Right"  />
-                <TextBox Grid.Row="2" Grid.Column="1"  Name="OutputPathInput" HorizontalAlignment="Left"  Margin="10,0,0,0"  Width="180"  Text="{Binding OutputPathInput, UpdateSourceTrigger=PropertyChanged}"   />
+                <TextBox Grid.Row="2" Grid.Column="1"  Background="LightCyan" Name="OutputPathInput" HorizontalAlignment="Left"  Margin="10,0,0,0"  Width="180"  Text="{Binding OutputPathInput, UpdateSourceTrigger=PropertyChanged}"   />
                 <TextBlock Grid.Row="3" Grid.Column="0"  Text="Gun Audio File Path:" TextAlignment="Right" />
-                <TextBox Grid.Row="3" Grid.Column="1"  x:Name="GunAudioPathInput" HorizontalAlignment="Left" Margin="10,0,0,0" Width="180"   Text= "{Binding GunAudioPathInput, UpdateSourceTrigger=PropertyChanged}"  />
+                <TextBox Grid.Row="3" Grid.Column="1"  Background="LightCyan" x:Name="GunAudioPathInput" HorizontalAlignment="Left" Margin="10,0,0,0" Width="180"   Text= "{Binding GunAudioPathInput, UpdateSourceTrigger=PropertyChanged}"  />
 
-                <!-- Zoom and Pan Sliders -->
-                <!-- Horizontal -->
-                <TextBlock Grid.Column="2" Grid.Row="0" Text="Horizontal Zoom:" TextAlignment="Right"    />
-                <Slider Grid.Column="3" Grid.Row="0" Name="HorizontalZoomSlider" HorizontalAlignment="Left" Minimum="0.5" Maximum="3" Value="1" Width="150"   ValueChanged="HorizontalZoomSlider_ValueChanged" Grid.RowSpan="2" />
-                <TextBlock Grid.Column="2" Grid.Row="1" Text="Horizontal Pan:" TextAlignment="Right"    />
-                <Slider Grid.Column="3" Grid.Row="1" Name="HorizontalPanSlider" HorizontalAlignment="Left" Minimum="0" Maximum="1" Value="0.5" Width="150"   ValueChanged="HorizontalPanSlider_ValueChanged" />
-                <!-- Vertical -->
-                <TextBlock Grid.Column="2" Grid.Row="2" Text="Vertical Zoom:" TextAlignment="Right"   />
-                <Slider Grid.Column="3" Grid.Row="2" Name="VerticalZoomSlider" HorizontalAlignment="Left"  Minimum="0.5" Maximum="3" Value="1" Width="150"   ValueChanged="VerticalZoomSlider_ValueChanged" Grid.RowSpan="2" />
-                <TextBlock Grid.Column="2" Grid.Row="3" Text="Vertical Pan:" TextAlignment="Right"   />
-                <Slider Grid.Column="3" Grid.Row="3" Name="VerticalPanSlider" HorizontalAlignment="Left"  Minimum="0" Maximum="1" Value="0.5" Width="150"   ValueChanged="VerticalPanSlider_ValueChanged" />
 
     
                 <!-- ButtonsEtc. -->
-                <Button Grid.Row="6" Grid.Column="0" Grid.RowSpan="2" Name="StitchButton" VerticalAlignment="Center" HorizontalAlignment="Center"  Content="Stitch Video" Height="50" Width="200" Click="StitchButton_Click"  Visibility="{Binding MyVisibility}" 
+                <Button Grid.Row="6" Grid.Column="2" Grid.RowSpan="2" Name="StitchButton" VerticalAlignment="Center" HorizontalAlignment="Center"  Content="Stitch Video" Height="50" Width="200" Click="StitchButton_Click"  Visibility="{Binding MyVisibility}" 
                         Foreground="Green" FontWeight="Bold" Background="LightPink"/>
                 <Button Grid.Row="6" Grid.Column="1" Name="WriteGunLine" 
                         Click="WriteGunLineButton_Click"
@@ -284,17 +297,9 @@
   
                 </StackPanel>
 
-                <StackPanel Orientation="Horizontal" Grid.Row="5" Grid.Column="1">
 
-                    <TextBlock Text="{Binding TimeFromMode}" />
-                    <TextBlock Text=" " />
-                    <TextBlock Text="{Binding HasStitched}" />
-                    <TextBlock Text=" " />
-                    <TextBlock Text="{Binding HaveSelectedandShownGunLineToManualMode}" />
-
-                </StackPanel>
                 <Button  Grid.Column="1" Grid.Row="6" 
-                             Content="Pick Event Start WallClock Date and enter Time(HH:mm:SS.fff)"  Click="ShowPopup">
+                             Content="Set Event WallClcok Start"  Click="ShowPopup">
                         <Button.Style>
                             <Style TargetType="Button">
                                 <!-- Default: hide the panel -->
@@ -353,31 +358,47 @@
 
                 <!-- Button Grid.Row="6" Grid.Column="0" Name="LoadImageButton" HorizontalAlignment="Left" Content="Load Image" Width="150" Click="LoadImageButton_Click" Height="20" VerticalAlignment="Top" / -->
                 <!-- Button Grid.Row="7" Grid.Column="0" x:Name="FlashButton" HorizontalAlignment="Left"  Content="Detect Flash in Video" Width="150" Click="FlashButton_Click" VerticalAlignment="Center" Visibility="{Binding MyVisibility}"/ -->
-                <CheckBox Grid.Row="9" Grid.Column="2" VerticalAlignment="Center"  Name="AutoScaleCheckbox" HorizontalAlignment="Center"  Content="Auto Scale to Height" Checked="AutoScaleCheckbox_Checked" Unchecked="AutoScaleCheckbox_Unchecked"/>
-                <CheckBox Grid.Row="9" Grid.Column="3" VerticalAlignment="Center"  Name="ShowVideoFrame" HorizontalAlignment="Left"  Content="Show Video Frame" IsChecked="{Binding ShowVideoFramePopup}" Visibility = "{Binding  HasStitched}" />
+                <CheckBox Grid.Row="7" Grid.Column="4" VerticalAlignment="Center"  Name="AutoScaleCheckbox" HorizontalAlignment="Left"  Content="Auto Scale to Height" Checked="AutoScaleCheckbox_Checked" Unchecked="AutoScaleCheckbox_Unchecked"/>
+                <CheckBox Grid.Row="7" Grid.Column="3" VerticalAlignment="Center"  Name="ShowVideoFrame" HorizontalAlignment="Left"  Content="Show Video Frame" IsChecked="{Binding ShowVideoFramePopup}" Visibility = "{Binding  HasStitched}" />
+
+<!-- Columns 2 and 3 START ========================================================================================================================================================================================== -->
+
+                <!-- Zoom and Pan Sliders -->
+                <!-- Horizontal -->
+                <TextBlock Grid.Column="3" Grid.Row="1" Text="Horizontal Zoom:" TextAlignment="Right"    />
+                <Slider Grid.Column="4" Grid.Row="1" Name="HorizontalZoomSlider" HorizontalAlignment="Left" Minimum="0.5" Maximum="3" Value="1" Width="150"   ValueChanged="HorizontalZoomSlider_ValueChanged" Grid.RowSpan="2" />
+                <TextBlock Grid.Column="3" Grid.Row="2" Text="Horizontal Pan:" TextAlignment="Right"    />
+                <Slider Grid.Column="4" Grid.Row="2" Name="HorizontalPanSlider" HorizontalAlignment="Left" Minimum="0" Maximum="1" Value="0.5" Width="150"   ValueChanged="HorizontalPanSlider_ValueChanged" />
+                <!-- Vertical -->
+                <TextBlock Grid.Column="3" Grid.Row="3" Text="Vertical Zoom:" TextAlignment="Right"   />
+                <Slider Grid.Column="4" Grid.Row="3" Name="VerticalZoomSlider" HorizontalAlignment="Left"  Minimum="0.5" Maximum="3" Value="1" Width="150"   ValueChanged="VerticalZoomSlider_ValueChanged" Grid.RowSpan="2" />
+                <TextBlock Grid.Column="3" Grid.Row="4" Text="Vertical Pan:" TextAlignment="Right"   />
+                <Slider Grid.Column="4" Grid.Row="4" Name="VerticalPanSlider" HorizontalAlignment="Left"  Minimum="0" Maximum="1" Value="0.5" Width="150"   ValueChanged="VerticalPanSlider_ValueChanged" />
 
 
                 <!-- Output Data -->
-                <TextBlock Grid.Column="2" Grid.Row="4" Name="StartTimeInputLabel"            TextAlignment="Right" Text="Start Time (Seconds): "  />
-                <TextBox Grid.Column="3"   Grid.Row="4" Name="StartTimeInput"                 HorizontalAlignment="Left"  Width="150"  IsReadOnly="True"  Text="{Binding StartTimeInput}"  />
-                <TextBlock Grid.Column="2" Grid.Row="5" Name="VideoLengthLabel"               TextAlignment="Right" Text="Video Length:" Visibility="{Binding MyVisibility}"   />
-                <TextBox Grid.Column="3"   Grid.Row="5" Name="VideoLength" IsReadOnly="True"  HorizontalAlignment="Left" Width="150"  VerticalAlignment="Center" Text="{Binding VideoLength}" Visibility="{Binding MyVisibility}"  />
-                <TextBlock Grid.Column="2" Grid.Row="6" Name="GunTimeLabel"                   TextAlignment="Right" Text="Gun Time: "   Visibility="{Binding MyVisibility}"  />
-                <TextBox Grid.Column="3"   Grid.Row="6" Name="GunTime" IsReadOnly="True"      HorizontalAlignment="Left" Width="150"  Text="{Binding GunTime}"   Visibility="{Binding MyVisibility}" />
-                <TextBlock Grid.Column="2" Grid.Row="7" Name="ThresholdLabel"                 TextAlignment="Right" Text="Audio Max /Threshold: "   Visibility="{Binding MyVisibility}"  />
-                <TextBox Grid.Column="3"   Grid.Row="7" Name="Threshold" IsReadOnly="False"   HorizontalAlignment="Left"  Width="150" Text="1000"  Visibility="{Binding MyVisibility}" />
-                <TextBlock Grid.Column="2" Grid.Row="8" Name="FinishTimeLabel"                TextAlignment="Right" Text="Finish Time: " FontWeight="Bold" Foreground="Blue"   Visibility="{Binding MyVisibility}"  />
-                <TextBox Grid.Column="3"   Grid.Row="8" Name="FinishTime" IsReadOnly="True"   HorizontalAlignment="Left" Width="150"  Foreground="Purple" VerticalAlignment="Center" Text="" Visibility="{Binding MyVisibility}"  />
+                <TextBlock Grid.Column="2" Grid.Row="1" Name="StartTimeInputLabel"            TextAlignment="Right" Text="Start Time (Seconds): "  />
+                <TextBox Grid.Column="3"   Grid.Row="1" Name="StartTimeInput"                 Background="Beige" HorizontalAlignment="Left"  Width="150"  IsReadOnly="True"  Text="{Binding StartTimeInput}"  />
+                <TextBlock Grid.Column="2" Grid.Row="2" Name="VideoLengthLabel"               TextAlignment="Right" Text="Video Length:" Visibility="{Binding MyVisibility}"   />
+                <TextBox Grid.Column="3"   Grid.Row="2" Name="VideoLength" IsReadOnly="True"  Background="Beige" HorizontalAlignment="Left" Width="150"  VerticalAlignment="Center" Text="{Binding VideoLength}" Visibility="{Binding MyVisibility}"  />
+                <TextBlock Grid.Column="2" Grid.Row="3" Name="GunTimeLabel"                   TextAlignment="Right" Text="Gun Time: "   Visibility="{Binding MyVisibility}"  />
+                <TextBox Grid.Column="3"   Grid.Row="3" Name="GunTime" IsReadOnly="True"      Background="Beige" HorizontalAlignment="Left" Width="150"  Text="{Binding GunTime}"   Visibility="{Binding MyVisibility}" />
+                <TextBlock Grid.Column="2" Grid.Row="4" Name="ThresholdLabel"                 TextAlignment="Right" Text="Audio Max /Threshold: "   Visibility="{Binding MyVisibility}"  />
+                <TextBox Grid.Column="3"   Grid.Row="4" Name="Threshold" IsReadOnly="False"   Background="Beige" HorizontalAlignment="Left"  Width="150" Text="1000"  Visibility="{Binding MyVisibility}" />
+                <TextBlock Grid.Column="2" Grid.Row="5" Name="FinishTimeLabel"                TextAlignment="Right" Text="Finish Time: " FontWeight="Bold" Foreground="Blue"   Visibility="{Binding MyVisibility}"  />
+                <TextBox Grid.Column="3"   Grid.Row="5" Name="FinishTime" IsReadOnly="True"   Background="Beige" HorizontalAlignment="Left" Width="150"  Foreground="Purple" VerticalAlignment="Center" Text="" Visibility="{Binding MyVisibility}"  />
+
+<!-- Columns 2 and 3 END  ========================================================================================================================================================================================== -->
 
 
                 <!-- Sliders -->
-                <TextBlock Grid.Column="0" Grid.Row="8" Text="Axis Height: " HorizontalAlignment="Right" />
-                <StackPanel Orientation="Horizontal" Grid.Row="8" Grid.Column="1">
+                <TextBlock Grid.Column="3" Grid.Row="5" Text="Axis Height: " HorizontalAlignment="Right" />
+                <StackPanel Orientation="Horizontal" Grid.Row="5" Grid.Column="4">
                     <Slider Name="AxisHeightSlider" HorizontalAlignment="Left"  Minimum="0" Maximum="100" Value="100" TickFrequency="10" IsSnapToTickEnabled="True" Width="150"  ValueChanged="VerticalZoomSlider_ValueChanged" />
                     <TextBlock Text="{Binding ElementName=AxisHeightSlider, Path=Value, Mode=OneWay}"  TextAlignment="Right" Width="50"  />
                 </StackPanel>
-                <TextBlock Grid.Column="0" Grid.Row="9" Text="Audio Height: " HorizontalAlignment="Right"  Grid.RowSpan="2"  />
-                <StackPanel Orientation="Horizontal" Grid.Row="9" Grid.Column="1">
+                <TextBlock Grid.Column="3" Grid.Row="6" Text="Audio Height: " HorizontalAlignment="Right"  Grid.RowSpan="2"  />
+                <StackPanel Orientation="Horizontal" Grid.Row="6" Grid.Column="4">
                     <Slider  Name="AudioHeightSlider" HorizontalAlignment="Left"  Minimum="0" Maximum="100" Value="100" TickFrequency="10" IsSnapToTickEnabled="True" Width="150"   ValueChanged="VerticalPanSlider_ValueChanged"  />
                     <TextBlock  Text="{Binding ElementName=AudioHeightSlider, Path=Value, Mode=OneWay}"  TextAlignment="Right" Width="50" />
                 </StackPanel>
