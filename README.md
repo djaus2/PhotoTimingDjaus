@@ -11,7 +11,7 @@ A simple phototiming app for Athletics etc where a finish line is filmed with sa
 
 ### Latest
 > **A work in progress:**
-- Default TimeFrome mode is Manual. If Video Filname has DateTime string on end then that is interpreted as the Gun (race start) DateTime.
+- Default TimeFrom mode is Manual. If Video Filname has DateTime string on end then that is interpreted as the Gun (race start) DateTime.
   - eg ```qwerty1_GUN_2025-06-19 11--34--08.591_.mp4```     Pattern searched for with Regex is  
 ```string pattern = @"_GUN_(\d{4}-\d{2}-\d{2} \d{2}--\d{2}--\d{2}\.\d{3})_\.mp4$"```
 - Matching change coming in Video Capture Phone app.
