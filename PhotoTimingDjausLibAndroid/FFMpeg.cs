@@ -15,6 +15,35 @@ namespace DetectAudioFlash
 {
     public static class FFMpegActions
     {
+
+        /// <summary>
+        /// Write the gun time as metadata (comment) to the video file.
+        /// </summary>
+        /// <param name="videoFilePath">Video File Path</param>
+        /// <param name="gunTime">Gun Time before or after video start as TimeSpan</param>
+        /// <exception cref="FileNotFoundException"></exception>
+        /// <exception cref="ArgumentException"></exception>
+        public static void WriteGunTime(string videoFilePath, TimeSpan gunTime)
+        {
+            string inputPath = "videoFilePath";
+            if (!File.Exists(inputPath))
+            {
+                throw new FileNotFoundException($"The specified video file does not exist: {inputPath}");
+            }
+            string extension = Path.GetExtension(inputPath);
+            if (string.IsNullOrEmpty(extension) || !extension.Equals(".mp4", StringComparison.OrdinalIgnoreCase))
+            {
+                throw new ArgumentException("The input file must be an MP4 video file.");
+            }
+            string outputPath = inputPath.Replace(".mp4", "_startset.mp4",StringComparison.OrdinalIgnoreCase);
+            string gunTimeString = gunTime.ToString(@"hh\:mm\:ss\.fff");
+            FFMpegArguments
+                .FromFileInput(inputPath)
+                .OutputToFile(outputPath, overwrite: true, options => options
+                    .WithCustomArgument("-metadata comment={gunTimeString}")
+                    .WithCustomArgument("-codec copy"))
+                .ProcessSynchronously();
+        }
         public static void Truncate(string inputPath, string outputPath, TimeSpan startTime, int duration=0 )
         {
             var mediaInfo = FFProbe.Analyse(inputPath); // Use FFProbe to get media info  

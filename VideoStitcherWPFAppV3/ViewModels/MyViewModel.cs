@@ -137,7 +137,7 @@ namespace PhotoTimingGui.ViewModels
         {
             get
             {
-                TimeSpan ts = _EventStartWallClockDateTime?.TimeOfDay ?? TimeSpan.Zero;
+                TimeSpan ts = _EventStartWallClockDateTime.TimeOfDay;
                 string tsStr = $"{ts.Hours:D2}:{ts.Minutes:D2}:{ts.Seconds:D2}.{ts.Milliseconds:d3}"; // Format as HH:MM:SS.mmm
                 return tsStr;
             }
@@ -156,12 +156,12 @@ namespace PhotoTimingGui.ViewModels
             }
         }
 
-        private DateTime? _EventStartWallClockDateTime = null;
+        private DateTime _EventStartWallClockDateTime = DateTime.MinValue;
         public DateTime EventStartWallClockDateTime
         {
             get 
             {
-                DateTime dt = _EventStartWallClockDateTime ?? DateTime.MinValue;
+                DateTime dt = _EventStartWallClockDateTime;
                 return dt;
             }
             set

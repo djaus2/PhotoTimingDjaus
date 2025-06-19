@@ -313,5 +313,11 @@ namespace StitchInTime
                 videoStitcher.cancel = true;
             }
         }
+
+        private void SetGunTime_Click(object sender, EventArgs e)
+        {
+            TimeSpan ts = DateTime.Now.TimeOfDay;
+            DetectAudioFlash.FFMpegActions.WriteGunTime(videoPath, ts);
+        }
     }
 }

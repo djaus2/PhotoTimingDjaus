@@ -50,6 +50,12 @@
 
             </Grid>
             <Button
+                x:Name="SetGunTime"
+                Text="Set Gun Time as NOW" 
+                SemanticProperties.Hint="Click at event start"
+                Clicked="SetGunTime_Click"
+                HorizontalOptions="Fill" />
+            <Button
                 x:Name="SetupBtn"
                 Text="Select files!" 
                 SemanticProperties.Hint="Get/site Source video/Target stitched image"

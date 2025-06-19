@@ -23,6 +23,8 @@ using SharpVectors.Converters;
 using System.Runtime.Intrinsics.Arm;
 using System.Diagnostics;
 using System.Windows.Documents;
+using System.Text.RegularExpressions;
+using OpenCvSharp;
 //using OpenCvSharp;
 //using OpenCvSharp;
 
@@ -30,7 +32,7 @@ using System.Windows.Documents;
 namespace PhotoTimingGui
 {
 
-    public partial class MainWindow : Window
+    public partial class MainWindow : System.Windows.Window
     {
         private PhotoTimingDjaus.VideoStitcher? videoStitcher = null;
         private int margin = 20;
@@ -246,7 +248,7 @@ namespace PhotoTimingGui
             ImageCanvas.Height = ViewerBorder.ActualHeight;
 
             // Apply clipping region to the canvas
-            ImageCanvas.Clip = new RectangleGeometry(new Rect(0, 0, ViewerBorder.ActualWidth, ViewerBorder.ActualHeight));
+            ImageCanvas.Clip = new RectangleGeometry(new System.Windows.Rect(0, 0, ViewerBorder.ActualWidth, ViewerBorder.ActualHeight));
 
             UpdateCanvasBounds(); // Recalculate pan and zoom limits
         }
@@ -259,7 +261,7 @@ namespace PhotoTimingGui
             {
                 ImageCanvas.Width = ViewerBorder.ActualWidth;
                 ImageCanvas.Height = ViewerBorder.ActualHeight;
-                ImageCanvas.Clip = new RectangleGeometry(new Rect(0, 0, ViewerBorder.ActualWidth, ViewerBorder.ActualHeight));
+                ImageCanvas.Clip = new RectangleGeometry(new System.Windows.Rect(0, 0, ViewerBorder.ActualWidth, ViewerBorder.ActualHeight));
                 AutoScaleCheckbox_Checked(null, null);
 
             }
@@ -269,7 +271,7 @@ namespace PhotoTimingGui
                 ImageCanvas.Height = ViewerBorder.ActualHeight;
 
                 // Apply clipping region to the canvas
-                ImageCanvas.Clip = new RectangleGeometry(new Rect(0, 0, ViewerBorder.ActualWidth, ViewerBorder.ActualHeight));
+                ImageCanvas.Clip = new RectangleGeometry(new System.Windows.Rect(0, 0, ViewerBorder.ActualWidth, ViewerBorder.ActualHeight));
                 UpdateCanvasBounds();
             }
         }
@@ -515,7 +517,14 @@ namespace PhotoTimingGui
                 SetHasStitched();
                 if (timeFromMode == TimeFromMode.WallClockSelect)
                 {
-                    SetEventWallClockStartTime(GetVideoCreationDate());
+                    //If the wall clock start time is not set,
+                    //.. thatis its is DateTime.MinValue
+                    // set it to the video creation date
+                    if (GetEventWallClockStartTime() == DateTime.MinValue)
+                    {
+                        SetEventWallClockStartTime(GetVideoCreationDate());
+                    }
+                    
                 }
             };
 
@@ -824,6 +833,30 @@ namespace PhotoTimingGui
             {
                 videoFilePath = openFileDialog.FileName;
                 SetVideoPath(videoFilePath);
+                //string pattern = @"_GUN_(\d{2}--\d{2}--\d{2}\.\d{3})_\.mp4$";
+                string pattern = @"_GUN_(\d{4}-\d{2}-\d{2} \d{2}--\d{2}--\d{2}\.\d{3})_\.mp4$";
+
+                Match match = Regex.Match(videoFilePath, pattern);
+                if (match.Success)
+                {
+                    string gunTimeString = match.Groups[1].Value;
+
+                    // Normalize by replacing "--" with ":" in time portion
+                    int timeStartIndex = gunTimeString.IndexOf(' ') + 1;
+                    string normalized = gunTimeString.Substring(0, timeStartIndex) +
+                                        gunTimeString.Substring(timeStartIndex).Replace("--", ":");
+
+                    DateTime gunDateTime = DateTime.ParseExact(normalized, "yyyy-MM-dd HH:mm:ss.fff", null);
+                    Console.WriteLine($"Parsed DateTime: {gunDateTime}");
+                    SetEventWallClockStartTime(gunDateTime);
+                    SetTimeFromMode(TimeFromMode.WallClockSelect); // Set the mode to WallClockSelect
+                }
+                else
+                {
+                    Console.WriteLine("No match found.");
+                    SetEventWallClockStartTime(DateTime.MinValue);
+                    SetTimeFromMode(TimeFromMode.ManuallySelect); // Set the mode to WallClockSelect
+                }
             }
         }
 

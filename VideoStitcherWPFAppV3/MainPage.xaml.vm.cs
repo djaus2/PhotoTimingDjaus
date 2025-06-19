@@ -407,12 +407,12 @@ namespace PhotoTimingGui
             return DateTime.MinValue;
         }
         //SetEventWallClockStartTime
-        private void SetEventWallClockStartTime(DateTime? start)
+        private void SetEventWallClockStartTime(DateTime start)
         {
             if (DataContext is ViewModels.MyViewModel viewModel)
             {
 
-                viewModel.EventStartWallClockDateTime = start ?? DateTime.MaxValue;
+                viewModel.EventStartWallClockDateTime = start;
             }
         }
 
