@@ -11,6 +11,11 @@ A simple phototiming app for Athletics etc where a finish line is filmed with sa
 
 ### Latest
 > **A work in progress:**
+- Default TimeFrome mode is Manual. If Video Filname has DateTime string on end then that is interpretted as teh Gun (Start) DateTime.
+  - eg qwerty1_GUN_2025-06-19 11--34--08.591_.mp4     Pattern searched for with Regex is  
+```string pattern = @"_GUN_(\d{4}-\d{2}-\d{2} \d{2}--\d{2}--\d{2}\.\d{3})_\.mp4$"```
+- Matching change coming in Video Capture Phone app.
+
 - **Added WallClock Start Time**: Just enter the start time of the event (Calendar Day (Select), Time of Day to ms). Initaially set to Video Start. Start on StitchedImage is then calculated wrt Video start DateTime. _(Currently assumes same day)_
 -  **Added ability to popup corresponding video frame for selected time centred on StitchedImage timing line with aligned line thru frame.**
 
