@@ -14,7 +14,9 @@ A simple phototiming app for Athletics etc where a finish line is filmed with sa
 - Default TimeFrom mode is Manual. If Video Filename has DateTime string on end then that is interpreted as the Gun (race start) DateTime and set to WallClock mode.
   - eg ```qwerty1_GUN_2025-06-19 11--34--08.591_.mp4```     Pattern searched for with Regex is  
 ```string pattern = @"_GUN_(\d{4}-\d{2}-\d{2} \d{2}--\d{2}--\d{2}\.\d{3})_\.mp4$"```
-- Matching change coming in Video Capture Phone app.
+  - Matching change now in Video Capture Phone app: [djaus2/MauiMediaRecorderVideoAndroidApp](https://github.com/djaus2/MauiMediaRecorderVideoAndroidApp)
+    - If Gun icon is tapped before or after video start then that WallClock time is used as race start and is appended as a DateTime string to video filename as above. WallClock mode here uses that as default instead of VideoStart time and calculates times wrt to that.
+  - Video Capture NuGet Package has been updated (V2.2.2): [djaus2/djaus2_MauiMediaRecorderVideoLib](https://www.nuget.org/packages/djaus2_MauiMediaRecorderVideoLib/) adds this Gun functionality.
   - _Could also check if audio in video and set that mode or even check video frames for flash mnde._
 - **Added WallClock Start Time**: Just enter the start time of the event (Calendar Day (Select), Time of Day to ms). Initaially set to Video Start. Start on StitchedImage is then calculated wrt Video start DateTime. _(Currently assumes same day)_
 -  **Added ability to popup corresponding video frame for selected time centred on StitchedImage timing line with aligned line thru frame.**
