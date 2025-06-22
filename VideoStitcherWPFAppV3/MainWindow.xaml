@@ -240,7 +240,7 @@
                                             <Condition Binding="{Binding TimeFromMode}" 
                                                 Value="{x:Static enums:TimeFromMode.ManuallySelect}" />
                                             <Condition Binding="{Binding HasStitched}" Value="True" />
-                                            <Condition Binding="{Binding HaveSelectedandShownGunLineToManualMode}" Value="False" />
+                                            <Condition Binding="{Binding HaveSelectedandShownGunLineToManualorWallClockMode}" Value="False" />
                                         </MultiDataTrigger.Conditions>
                                         <Setter Property="Visibility" Value="Visible"/>
                                     </MultiDataTrigger>
@@ -299,7 +299,7 @@
 
 
                 <Button  Grid.Column="1" Grid.Row="6" 
-                             Content="Set Event WallClcok Start"  Click="ShowPopup">
+                             Content="Set Event WallClock Start"  Click="ShowPopup">
                         <Button.Style>
                             <Style TargetType="Button">
                                 <!-- Default: hide the panel -->
@@ -310,7 +310,7 @@
                                             <Condition Binding="{Binding TimeFromMode}" 
                                                Value="{x:Static enums:TimeFromMode.WallClockSelect}" />
                                             <Condition Binding="{Binding HasStitched}" Value="True" />
-                                            <Condition Binding="{Binding HaveSelectedandShownGunLineToManualMode}" 
+                                            <Condition Binding="{Binding HaveSelectedandShownGunLineToManualorWallClockMode}" 
                                                   Value="False" />
                                         </MultiDataTrigger.Conditions>
                                         <Setter Property="Visibility" Value="Visible"/>
@@ -350,7 +350,48 @@
                  Width="60" 
                  Click="Cancel_Click"/>
                                 </StackPanel>
+                            <StackPanel  Orientation="Horizontal" HorizontalAlignment="Center">
+                                <StackPanel.Style>
+                                    <Style TargetType="StackPanel">
+                                        <!-- Default: hide the panel -->
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding HasStitched}"
+                                       Value="True">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </StackPanel.Style>
+
+                                <!-- The rest of your StackPanel content goes here -->
+
+                                <!-- Left Button (Back icon) -->
+                                <Button ToolTip="WC Back 1 sec" Click="NudgeButton_Click">
+                                    <svgc:SvgViewbox Source="pack://application:,,,/Resources/svgimages/doubleprevious.svg"
+                                           Width="24" Height="24"/>
+                                </Button>
+                                <Button ToolTip="WC Back 1 Frame" Click="NudgeButton_Click">
+                                    <svgc:SvgViewbox Source="pack://application:,,,/Resources/svgimages/previous.svg"
+                                            Width="24" Height ="24"/>
+                                </Button>
+
+
+                                <!-- Right Button (Forward icon) -->
+                                <Button ToolTip="WC Forward 1 Frame" Click="NudgeButton_Click">
+                                    <svgc:SvgViewbox Source="pack://application:,,,/Resources/svgimages/next.svg"
+                                            Width="24" Height="24"/>
+                                </Button>
+                                <Button ToolTip="WC Forward 1 sec" Click="NudgeButton_Click">
+                                    <svgc:SvgViewbox Source="pack://application:,,,/Resources/svgimages/doublenext.svg"
+                                            Width="24" Height="24"/>
+                                </Button>
+
+
                             </StackPanel>
+
+
+                        </StackPanel>
                         </Border>
                     </Popup>
 
@@ -358,20 +399,23 @@
 
                 <!-- Button Grid.Row="6" Grid.Column="0" Name="LoadImageButton" HorizontalAlignment="Left" Content="Load Image" Width="150" Click="LoadImageButton_Click" Height="20" VerticalAlignment="Top" / -->
                 <!-- Button Grid.Row="7" Grid.Column="0" x:Name="FlashButton" HorizontalAlignment="Left"  Content="Detect Flash in Video" Width="150" Click="FlashButton_Click" VerticalAlignment="Center" Visibility="{Binding MyVisibility}"/ -->
-                <CheckBox Grid.Row="7" Grid.Column="4" VerticalAlignment="Center"  Name="AutoScaleCheckbox" HorizontalAlignment="Left"  Content="Auto Scale to Height" Checked="AutoScaleCheckbox_Checked" Unchecked="AutoScaleCheckbox_Unchecked"/>
-                <CheckBox Grid.Row="7" Grid.Column="3" VerticalAlignment="Center"  Name="ShowVideoFrame" HorizontalAlignment="Left"  Content="Show Video Frame" IsChecked="{Binding ShowVideoFramePopup}" Visibility = "{Binding  HasStitched}" />
+                <CheckBox Grid.Row="7" Grid.Column="4" VerticalAlignment="Center"  Name="AutoScaleHeightCheckbox" HorizontalAlignment="Center"  Content="Auto Scale to Height" Checked="AutoScaleHeightCheckbox_Checked" Unchecked="AutoScaleHeightCheckbox_Unchecked"/>
+                <CheckBox Grid.Row="7" Grid.Column="3" VerticalAlignment="Center"  Name="AutoScaleWidthCheckbox" HorizontalAlignment="Center"  Content="Auto Scale to Width" Checked="AutoScaleWidthCheckbox_Checked" Unchecked="AutoScaleWidthCheckbox_Unchecked"/>
+                <CheckBox Grid.Row="7" Grid.Column="0" VerticalAlignment="Center"  Name="ShowVideoFrame" HorizontalAlignment="Center"  Content="Show Video Frame" IsChecked="{Binding ShowVideoFramePopup}" Visibility = "{Binding  HasStitched}" />
+                <CheckBox Grid.Row="6" Grid.Column="0" VerticalAlignment="Center"  Name="ShowLevelImage" HorizontalAlignment="Center"  Content="Show Level Image" IsChecked="{Binding ShowLevelImage}" Visibility = "{Binding  HasNotStitched}" />
 
-<!-- Columns 2 and 3 START ========================================================================================================================================================================================== -->
+
+                <!-- Columns 2 and 3 START ========================================================================================================================================================================================== -->
 
                 <!-- Zoom and Pan Sliders -->
                 <!-- Horizontal -->
                 <TextBlock Grid.Column="3" Grid.Row="1" Text="Horizontal Zoom:" TextAlignment="Right"    />
-                <Slider Grid.Column="4" Grid.Row="1" Name="HorizontalZoomSlider" HorizontalAlignment="Left" Minimum="0.5" Maximum="3" Value="1" Width="150"   ValueChanged="HorizontalZoomSlider_ValueChanged" Grid.RowSpan="2" />
+                <Slider Grid.Column="4" Grid.Row="1" Name="HorizontalZoomSlider" HorizontalAlignment="Left" Minimum="0.1" Maximum="5" Value="1" Width="150"   ValueChanged="HorizontalZoomSlider_ValueChanged" Grid.RowSpan="2" />
                 <TextBlock Grid.Column="3" Grid.Row="2" Text="Horizontal Pan:" TextAlignment="Right"    />
                 <Slider Grid.Column="4" Grid.Row="2" Name="HorizontalPanSlider" HorizontalAlignment="Left" Minimum="0" Maximum="1" Value="0.5" Width="150"   ValueChanged="HorizontalPanSlider_ValueChanged" />
                 <!-- Vertical -->
                 <TextBlock Grid.Column="3" Grid.Row="3" Text="Vertical Zoom:" TextAlignment="Right"   />
-                <Slider Grid.Column="4" Grid.Row="3" Name="VerticalZoomSlider" HorizontalAlignment="Left"  Minimum="0.5" Maximum="3" Value="1" Width="150"   ValueChanged="VerticalZoomSlider_ValueChanged" Grid.RowSpan="2" />
+                <Slider Grid.Column="4" Grid.Row="3" Name="VerticalZoomSlider" HorizontalAlignment="Left"  Minimum="0.1" Maximum="5" Value="1" Width="150"   ValueChanged="VerticalZoomSlider_ValueChanged" Grid.RowSpan="2" />
                 <TextBlock Grid.Column="3" Grid.Row="4" Text="Vertical Pan:" TextAlignment="Right"   />
                 <Slider Grid.Column="4" Grid.Row="4" Name="VerticalPanSlider" HorizontalAlignment="Left"  Minimum="0" Maximum="1" Value="0.5" Width="150"   ValueChanged="VerticalPanSlider_ValueChanged" />
 
@@ -433,35 +477,6 @@
                 </StackPanel>
 
 
-
-                <!-- Start Detect Mode RadioButtons
-                <StackPanel Orientation="Horizontal" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" Visibility="{Binding MyVisibility}"  >
-                    <Label Content="Time From Mode: " FontWeight="Bold" FontStyle="Italic" Foreground="Blue" VerticalContentAlignment="Center" VerticalAlignment="Bottom" HorizontalAlignment="Center" />
-                    <RadioButton Content=" Button " VerticalContentAlignment="Center"
-                 IsChecked="{Binding TimeFromMode, Converter={StaticResource EnumConverter}, ConverterParameter={x:Static enums:TimeFromMode.FromButtonPress}}" Checked="RadioButton_Checked" />
-                    <RadioButton Content=" Mic " VerticalContentAlignment="Center" 
-                 IsChecked="{Binding TimeFromMode, Converter={StaticResource EnumConverter}, ConverterParameter={x:Static enums:TimeFromMode.FromGunviaAudio}}" Checked="RadioButton_Checked" />
-                    <RadioButton Content=" Flash " VerticalContentAlignment="Center"
-                 IsChecked="{Binding TimeFromMode, Converter={StaticResource EnumConverter}, ConverterParameter={x:Static enums:TimeFromMode.FromGunViaVideo}}" Checked="RadioButton_Checked" />
-                    <RadioButton Content=" Manual " VerticalContentAlignment="Center"
-                 IsChecked="{Binding TimeFromMode, Converter={StaticResource EnumConverter}, ConverterParameter={x:Static enums:TimeFromMode.ManuallySelect}}" Checked="RadioButton_Checked" />
-                </StackPanel>
-                -->
-
-                <!-- Flash Detect RadioButtons
-                <StackPanel Orientation="Horizontal" Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" Visibility="{Binding MyVisibility}"   >
-                    <Label Content="Detect Flash: " FontWeight="Bold" FontStyle="Italic" Foreground="Blue" HorizontalAlignment="Center" />
-                    <RadioButton Content="From Brightness Flash  " VerticalContentAlignment="Center"
-                 IsChecked="{Binding VideoDetectMode, Converter={StaticResource EnumConverter}, ConverterParameter={x:Static enums:VideoDetectMode.FromFlash}}" Checked="RadioButton_Checked" />
-                     RadioButton Content="Detect Motion  " VerticalContentAlignment="Center" 
-                 IsChecked="{Binding VideoDetectMode, Converter={StaticResource EnumConverter}, ConverterParameter={x:Static enums:VideoDetectMode.FromFrameChange}}" Checked="RadioButton_Checked" / 
-                    <RadioButton Content="Detect Frame Change " VerticalContentAlignment="Center"
-                 IsChecked="{Binding VideoDetectMode, Converter={StaticResource EnumConverter}, ConverterParameter={x:Static enums:VideoDetectMode.FromMotionDetector}}" Checked="RadioButton_Checked" />
-                </StackPanel>
-                -->
-
-
-
     </Grid>
         </StackPanel>
         <ProgressBar  Name="BusyIndicator" Height="20" Width="150" IsIndeterminate="True" Visibility="Collapsed" Margin="10,0,0,0" VerticalAlignment="Center"  />
@@ -494,7 +509,6 @@
                        HorizontalAlignment="Left"
                         Height="{Binding ActualHeight-100, RelativeSource={RelativeSource AncestorType=Window}}" 
                         Source="C:\temp\stitched_image.png"
-                        
                         MouseLeftButtonDown="StitchedImage_MouseButtonDown"
                         MouseLeftButtonUp="StitchedImage_MouseButtonUp"
                         MouseRightButtonUp="StitchedImage_MouseButtonUp"
@@ -506,7 +520,7 @@
 
                     <Popup Name="Popup"
                        IsOpen="False"
-                       Placement="Relative"
+                       Placement="MousePoint"
                        PlacementTarget="{Binding ElementName=StitchedImage}"
 		               StaysOpen="False">
                         <Border BorderBrush="Black" BorderThickness="2"

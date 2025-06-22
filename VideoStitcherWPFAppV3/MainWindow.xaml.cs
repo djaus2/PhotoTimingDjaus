@@ -25,6 +25,8 @@ using System.Diagnostics;
 using System.Windows.Documents;
 using System.Text.RegularExpressions;
 using OpenCvSharp;
+using System.Media;
+using System.Collections.Generic;
 //using OpenCvSharp;
 //using OpenCvSharp;
 
@@ -77,6 +79,8 @@ namespace PhotoTimingGui
         bool imageLoaded = false;
         private void LoadImageButton_Click(object sender, RoutedEventArgs e)
         {
+            VerticalLine.Visibility = Visibility.Collapsed; // Hide the vertical line
+            StartVerticalLine.Visibility = Visibility.Collapsed; // Hide the start vertical line
             //OpenFileDialog openFileDialog = new OpenFileDialog
             //{
             //    Filter = "Image Files (*.png)|*.png"
@@ -104,11 +108,20 @@ namespace PhotoTimingGui
 
         private void HorizontalZoomSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
+            if (VerticalLine != null)
+            { VerticalLine.Visibility = Visibility.Collapsed; }
+            if (StartVerticalLine != null)
+            { StartVerticalLine.Visibility = Visibility.Collapsed; }
             UpdateZoom();
         }
 
         private void VerticalZoomSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
+            if(VerticalLine != null)
+            {  VerticalLine.Visibility = Visibility.Collapsed;}
+            if (StartVerticalLine != null)
+            { StartVerticalLine.Visibility = Visibility.Collapsed; }
+
             UpdateZoom();
         }
 
@@ -148,67 +161,123 @@ namespace PhotoTimingGui
             }
         }
 
-        private void AutoScaleCheckbox_Checked1(object sender, RoutedEventArgs e)
+        private void AutoScaleWidthCheckbox_Checked(object sender, RoutedEventArgs e)
         {
-            if (imageLoaded)
+            if (VerticalLine != null)
+            { VerticalLine.Visibility = Visibility.Collapsed; }
+            if (StartVerticalLine != null)
+            { StartVerticalLine.Visibility = Visibility.Collapsed; }
+
+            if ((imageLoaded) || (StitchedImage == null))
+                return;
+            if (HorizontalZoomSlider == null)
+                return;
+            if (VerticalZoomSlider == null)
+                return;
+            // Calculate the height of the Border, accounting for any border thickness
+            double availableWidth = ViewerBorder.ActualWidth - ViewerBorder.BorderThickness.Left - ViewerBorder.BorderThickness.Right;
+
+            if (StitchedImage.Source is BitmapSource bitmap)
             {
-                // Calculate scaling factor to fit the height of the Border
-                double borderHeight = ViewerBorder.ActualHeight;
-                //ImageCanvas.Height = ViewerBorder.ActualHeight;
+                // Calculate scale factor to fit the height
+                double scaleFactor = availableWidth / bitmap.PixelWidth;
+                // Ensure the scale factor is not less than 0.1 to avoid too small scaling
+                if (scaleFactor < HorizontalZoomSlider.Minimum)
+                    scaleFactor = VerticalZoomSlider.Minimum;
+                if (scaleFactor > HorizontalZoomSlider.Maximum)
+                    scaleFactor = HorizontalZoomSlider.Maximum;
+                HorizontalZoomSlider.Value = scaleFactor;
+                return;
+                // Apply vertical scaling only
+                ScaleTransform scaleTransform = new ScaleTransform(1, scaleFactor);
+                StitchedImage.LayoutTransform = scaleTransform;
 
-                // Apply clipping region to the canvas
-                //ImageCanvas.Clip = new RectangleGeometry(new Rect(0, 0, ViewerBorder.ActualWidth, ViewerBorder.ActualHeight));
-
-                if (StitchedImage.Source is BitmapSource bitmap)
-                {
-                    // Scale the image proportionally to match the Border's height
-                    double scaleFactor = borderHeight / bitmap.PixelHeight;
-
-                    ScaleTransform scaleTransform = new ScaleTransform(1, scaleFactor);
-                    StitchedImage.LayoutTransform = scaleTransform;
-                    VerticalZoomSlider.IsEnabled = false;
-                    VerticalPanSlider.IsEnabled = VerticalZoomSlider.IsEnabled;
-                }
+                // Optionally center the image horizontally within the Canvas
+                //double horizontalOffset = 0; // (ImageCanvas.Width - bitmap.PixelWidth * 1) / 2; // 1 = no horizontal scaling
+                //Canvas.SetLeft(StitchedImage, horizontalOffset > 0 ? horizontalOffset : 0); // Ensure no negative offsets
             }
+
         }
 
-        private void AutoScaleCheckbox_Checked(object sender, RoutedEventArgs e)
+        private void AutoScaleWidthCheckbox_Unchecked(object sender, RoutedEventArgs e)
         {
-            if (imageLoaded)
-            {
-                // Calculate the height of the Border, accounting for any border thickness
-                double availableHeight = ViewerBorder.ActualHeight - ViewerBorder.BorderThickness.Top - ViewerBorder.BorderThickness.Bottom;
+            if (VerticalLine != null)
+            { VerticalLine.Visibility = Visibility.Collapsed; }
+            if (StartVerticalLine != null)
+            { StartVerticalLine.Visibility = Visibility.Collapsed; }
 
-                if (StitchedImage.Source is BitmapSource bitmap)
-                {
-                    // Calculate scale factor to fit the height
-                    double scaleFactor = availableHeight / bitmap.PixelHeight;
-
-                    // Apply vertical scaling only
-                    ScaleTransform scaleTransform = new ScaleTransform(1, scaleFactor);
-                    StitchedImage.LayoutTransform = scaleTransform;
-
-                    // Optionally center the image horizontally within the Canvas
-                    double horizontalOffset = 0; // (ImageCanvas.Width - bitmap.PixelWidth * 1) / 2; // 1 = no horizontal scaling
-                    Canvas.SetLeft(StitchedImage, horizontalOffset > 0 ? horizontalOffset : 0); // Ensure no negative offsets
-                }
-            }
+            if ((imageLoaded) || (StitchedImage == null))
+                return;
+            if (HorizontalZoomSlider == null)
+                return;
+            if (VerticalZoomSlider == null)
+                return;
+            // Reset the image scaling to manual zoom levels
+            HorizontalZoomSlider.IsEnabled = true;
+            HorizontalZoomSlider.IsEnabled = HorizontalZoomSlider.IsEnabled;
+            UpdateZoom();
         }
 
-        private void AutoScaleCheckbox_Unchecked(object sender, RoutedEventArgs e)
+
+        private void AutoScaleHeightCheckbox_Checked(object sender, RoutedEventArgs e)
         {
-            if (imageLoaded)
+            if (VerticalLine != null)
+            { VerticalLine.Visibility = Visibility.Collapsed; }
+            if (StartVerticalLine != null)
+            { StartVerticalLine.Visibility = Visibility.Collapsed; }
+
+            if ((imageLoaded) || (StitchedImage == null))
+                return;
+            if (HorizontalZoomSlider == null)
+                return;
+            if (VerticalZoomSlider == null)
+                return;
+            // Calculate the height of the Border, accounting for any border thickness
+            double availableHeight = ViewerBorder.ActualHeight - ViewerBorder.BorderThickness.Top - ViewerBorder.BorderThickness.Bottom;
+
+            if (StitchedImage.Source is BitmapSource bitmap)
             {
-                // Reset the image scaling to manual zoom levels
-                VerticalZoomSlider.IsEnabled = true;
+                // Calculate scale factor to fit the height
+                double scaleFactor = availableHeight / bitmap.PixelHeight;
+                // Ensure the scale factor is not less than 0.1 to avoid too small scaling
+                if (scaleFactor < VerticalZoomSlider.Minimum)
+                    scaleFactor = VerticalZoomSlider.Minimum;
+                if (scaleFactor > VerticalZoomSlider.Maximum)
+                    scaleFactor = VerticalZoomSlider.Maximum;
+                VerticalZoomSlider.Value = scaleFactor;
+                return;
+                // Apply vertical scaling only
+                ScaleTransform scaleTransform = new ScaleTransform(1, scaleFactor);
+                StitchedImage.LayoutTransform = scaleTransform;
+
+                // Optionally center the image horizontally within the Canvas
+                //double horizontalOffset = 0; // (ImageCanvas.Width - bitmap.PixelWidth * 1) / 2; // 1 = no horizontal scaling
+                //Canvas.SetLeft(StitchedImage, horizontalOffset > 0 ? horizontalOffset : 0); // Ensure no negative offsets
+            }
+            
+        }
+
+        private void AutoScaleHeightCheckbox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            if ((imageLoaded) || (StitchedImage == null))
+                return;
+            if (HorizontalZoomSlider == null)
+                return;
+            if (VerticalZoomSlider == null)
+                return;
+            // Reset the image scaling to manual zoom levels
+            VerticalZoomSlider.IsEnabled = true;
                 VerticalPanSlider.IsEnabled = VerticalZoomSlider.IsEnabled;
                 UpdateZoom();
-            }
         }
 
         private void UpdatePan()
         {
-            if (!imageLoaded)
+            if ((imageLoaded) || (StitchedImage == null))
+                return;
+            if (HorizontalZoomSlider == null)
+                return;
+            if (VerticalZoomSlider == null)
                 return;
 
             double horizontalOffset = HorizontalPanSlider.Value;
@@ -220,11 +289,15 @@ namespace PhotoTimingGui
 
         private void UpdateZoom()
         {
-            if (!imageLoaded)
+            if ((imageLoaded) || (StitchedImage == null))
                 return;
-
+            if (HorizontalZoomSlider == null)
+                return;
+            if (VerticalZoomSlider == null)
+                return;
             double horizontalScale = HorizontalZoomSlider.Value;
             double verticalScale = VerticalZoomSlider.Value;
+
 
             ScaleTransform scaleTransform = new ScaleTransform(horizontalScale, verticalScale);
             StitchedImage.LayoutTransform = scaleTransform;
@@ -255,24 +328,49 @@ namespace PhotoTimingGui
 
         private void ViewerBorder_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            return;
-            // Handle dynamic resizing when auto-scaling is enabled
-            if (AutoScaleCheckbox.IsChecked == true)
+            if (e.HeightChanged)
             {
-                ImageCanvas.Width = ViewerBorder.ActualWidth;
-                ImageCanvas.Height = ViewerBorder.ActualHeight;
-                ImageCanvas.Clip = new RectangleGeometry(new System.Windows.Rect(0, 0, ViewerBorder.ActualWidth, ViewerBorder.ActualHeight));
-                AutoScaleCheckbox_Checked(null, null);
+                ////return;
+                // Handle dynamic resizing when auto-scaling is enabled
+                if (AutoScaleHeightCheckbox.IsChecked == true)
+                {
+                    ImageCanvas.Width = ViewerBorder.ActualWidth;
+                    ImageCanvas.Height = ViewerBorder.ActualHeight;
+                    ImageCanvas.Clip = new RectangleGeometry(new System.Windows.Rect(0, 0, ViewerBorder.ActualWidth, ViewerBorder.ActualHeight));
+                    AutoScaleHeightCheckbox_Checked(null, null);
 
+                }
+                else
+                {
+                    ImageCanvas.Width = ViewerBorder.ActualWidth;
+                    ImageCanvas.Height = ViewerBorder.ActualHeight;
+
+                    // Apply clipping region to the canvas
+                    ImageCanvas.Clip = new RectangleGeometry(new System.Windows.Rect(0, 0, ViewerBorder.ActualWidth, ViewerBorder.ActualHeight));
+                    UpdateCanvasBounds();
+                }
             }
-            else
+            else if (e.WidthChanged)
             {
-                ImageCanvas.Width = ViewerBorder.ActualWidth;
-                ImageCanvas.Height = ViewerBorder.ActualHeight;
+                ////return;
+                // Handle dynamic resizing when auto-scaling is enabled
+                if (AutoScaleWidthCheckbox.IsChecked == true)
+                {
+                    ImageCanvas.Width = ViewerBorder.ActualWidth;
+                    ImageCanvas.Height = ViewerBorder.ActualHeight;
+                    ImageCanvas.Clip = new RectangleGeometry(new System.Windows.Rect(0, 0, ViewerBorder.ActualWidth, ViewerBorder.ActualHeight));
+                    AutoScaleWidthCheckbox_Checked(null, null);
 
-                // Apply clipping region to the canvas
-                ImageCanvas.Clip = new RectangleGeometry(new System.Windows.Rect(0, 0, ViewerBorder.ActualWidth, ViewerBorder.ActualHeight));
-                UpdateCanvasBounds();
+                }
+                else
+                {
+                    ImageCanvas.Width = ViewerBorder.ActualWidth;
+                    ImageCanvas.Height = ViewerBorder.ActualHeight;
+
+                    // Apply clipping region to the canvas
+                    ImageCanvas.Clip = new RectangleGeometry(new System.Windows.Rect(0, 0, ViewerBorder.ActualWidth, ViewerBorder.ActualHeight));
+                    UpdateCanvasBounds();
+                }
             }
         }
 
@@ -334,6 +432,8 @@ namespace PhotoTimingGui
             // Need to get stitched image first
             // You can then set it.
             SetSelectedStartTime(0);
+            VerticalLine.Visibility = Visibility.Collapsed; // Hide the vertical line
+            StartVerticalLine.Visibility = Visibility.Collapsed; // Hide the start vertical line
 
             // Show the busy indicator
             BusyIndicator.Visibility = Visibility.Visible;
@@ -404,6 +504,7 @@ namespace PhotoTimingGui
                 GetSelectedStartTime(),
                 axisHeight,
                 audioHeight,
+                GetlevelImage(),
                 GetTimeFromMode(),
                 threshold);
             //}
@@ -533,27 +634,78 @@ namespace PhotoTimingGui
 
         private bool _isDragging = false;
 
+        private bool SetVerticalLine(System.Windows.Point position, System.Windows.Shapes.Line _VerticalLine)
+        {
+            Popup.IsOpen = false;
+            if (_VerticalLine != null)
+            { _VerticalLine.Visibility = Visibility.Collapsed; }
+            TimeLabel.Visibility = Visibility.Collapsed;
+
+
+            // Get the mouse position relative to the stitched image
+            //System.Windows.Point position = e.GetPosition(StitchedImage);
+
+            double posX = position.X;
+            double horizontalScale = 1;
+            double verticalScale = 1;
+            if (StitchedImage.LayoutTransform is ScaleTransform transform)
+            {
+                horizontalScale = transform.ScaleX; // Get the horizontal scale
+                verticalScale = transform.ScaleY;
+                //posX = position.X * horizontalScale; // Adjust time based on scale
+            }
+
+            double stitchedImageVirtualWidth = StitchedImage.ActualWidth * horizontalScale;
+            double stitchedImageVirtualHeight = StitchedImage.ActualHeight * verticalScale;
+            if (posX > stitchedImageVirtualWidth)
+            {
+                _VerticalLine.Visibility = Visibility.Collapsed;
+                return false;
+                //if clicked after video ends hide line and text at mouse position
+            }
+
+            videoLength = GetVideoLength();
+            double timeFromVideoStart = (posX / stitchedImageVirtualWidth) * videoLength;
+            System.Diagnostics.Debug.WriteLine($"DOWN -- tim {timeFromVideoStart} = (posX {posX}/ sivw {stitchedImageVirtualWidth})* videoLength {videoLength}");
+            double gunTime = GetGunTime();
+            if (timeFromVideoStart < gunTime)
+            {
+                //Before gun so hide line
+                _VerticalLine.Visibility = Visibility.Collapsed;
+                return false;
+            }
+
+            // Set the line's starting and ending points relative to the image
+            _VerticalLine.X1 = position.X;
+            _VerticalLine.X2 = position.X;
+            _VerticalLine.Y1 = 0; // Top of the image
+            _VerticalLine.Y2 = stitchedImageVirtualHeight; // Bottom of the image
+
+            // Make the line visible
+            _VerticalLine.Visibility = Visibility.Visible;
+
+            bool isLeft = (_VerticalLine == VerticalLine);
+            UpdateTimeLabel(position.X, timeFromVideoStart, isLeft);
+
+            return true;
+        }
+
         private void StitchedImage_MouseButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (!IsDataContext())
                 return;
-            _isDragging = false;
-            Popup.IsOpen = false;
-            VerticalLine.Visibility = Visibility.Visible;
-            StartVerticalLine.Visibility = Visibility.Collapsed;
+
             TimeLabel.Visibility = Visibility.Collapsed;
 
-            // Reset position to mouse location
-            System.Windows.Point position = e.GetPosition(ImageCanvas);
-
             System.Windows.Shapes.Line _VerticalLine = VerticalLine;
+
             bool isLeft = (e.LeftButton == MouseButtonState.Pressed);
             if (isLeft)
             {
                 if (!Get_HasStitched())
                     return;
                 // Left button for Manuual Mode only if guntime has been set
-                if (!Get_HaveSelectedandShownGunLineinManualMode())
+                if (!Get_HaveSelectedandShownGunLineinManualorWallClockMode())
                     return;
                 _VerticalLine = VerticalLine;
             }
@@ -571,50 +723,20 @@ namespace PhotoTimingGui
 
                 _VerticalLine = StartVerticalLine;
             }
-
+            
             // Start drawing the line only when the mouse is over the image
 
             StitchedImage.CaptureMouse();
 
-            // Get the mouse position relative to the stitched image
-            //System.Windows.Point position = e.GetPosition(StitchedImage);
-            double posX = position.X;
-            if (StitchedImage.LayoutTransform is ScaleTransform transform)
+            // Set the vertical line position based on the mouse click position
+            System.Windows.Point position = e.GetPosition(ImageCanvas);
+            bool result = this.SetVerticalLine(position, _VerticalLine);
+            if (!result)
             {
-                double horizontalScale = transform.ScaleX; // Get the horizontal scale
-                posX = position.X * horizontalScale; // Adjust time based on scale
-            }
-            if (posX > StitchedImage.ActualWidth)
-            {
-                //if clicked after video ends hide line and text at mouse position
+                // If the line was not set, exit the method
                 return;
             }
-
-            videoLength = GetVideoLength();
-            double tim = (posX / StitchedImage.ActualWidth) * videoLength;
-            if (tim < GunTimeDbl)
-            {
-                return;
-            }
-            _VerticalLine.Visibility = Visibility.Visible; // Ensure the line is visible when clicked or dragged
-
-            // Set the line's starting and ending points relative to the image
-            _VerticalLine.X1 = position.X;
-            _VerticalLine.X2 = position.X;
-            _VerticalLine.Y1 = 0; // Top of the image
-            _VerticalLine.Y2 = StitchedImage.ActualHeight; // Bottom of the image
-
-            // Make the line visible
-            _VerticalLine.Visibility = Visibility.Visible;
-
-            // Make time label visible and position it
-            TimeLabel.Visibility = Visibility.Visible;
-            TimeLabel.TextAlignment = TextAlignment.Left; // Align text to the left
-            var margin = GetTimeLabelMargin();
-            margin.Left += position.X;
-            TimeLabel.Margin = margin;
             _isDragging = true;
-            UpdateTimeLabel(position.X, isLeft);
         }
 
         private void StitchedImage_MouseMove(object sender, MouseEventArgs e)
@@ -641,49 +763,15 @@ namespace PhotoTimingGui
                 }
 
                 // Update the line's position as the mouse moves over the stitched image
-                System.Windows.Point position = e.GetPosition(StitchedImage);
-                double posX = position.X;
-                if (StitchedImage.LayoutTransform is ScaleTransform transform)
+                //System.Windows.Point position = e.GetPosition(StitchedImage);
+                // Set the vertical line position based on the mouse click position
+                System.Windows.Point position = e.GetPosition(ImageCanvas);
+                bool result = this.SetVerticalLine(position, _VerticalLine);
+                if (!result)
                 {
-                    double horizontalScale = transform.ScaleX; // Get the horizontal scale
-                    posX = position.X * horizontalScale; // Adjust time based on scale
-                }
-                if (posX > StitchedImage.ActualWidth)
-                {
-                    //if clicked after video ends hide line and text at mouse position
-                    TimeLabel.Visibility = Visibility.Collapsed;
-                    _VerticalLine.Visibility = Visibility.Collapsed;
-                    _isDragging = false;
+                    // If the line was not set, exit the method
                     return;
                 }
-                videoLength = GetVideoLength();
-                double tim = (posX / StitchedImage.ActualWidth) * videoLength;
-                if (tim < GunTimeDbl)
-                {
-                    Popup.IsOpen = false; // Close the popup if the time is before the gun time
-                    TimeLabel.Visibility = Visibility.Collapsed;
-                    _VerticalLine.Visibility = Visibility.Collapsed;
-                    _isDragging = false;
-                    return;
-                }
-                System.Diagnostics.Debug.WriteLine($"Line 618 tim:{tim}");
-                //TimeLabel.Visibility = Visibility.Visible; // Ensure the label is visible when clicked or dragge
-                //_VerticalLine.Visibility = Visibility.Visible; // Ensure the line is visible when clicked or dragge
-
-                _VerticalLine.X1 = posX;
-                _VerticalLine.X2 = posX;
-                _VerticalLine.Y1 = 0; // Top of the image
-                double posY2 = StitchedImage.ActualHeight;
-                if (StitchedImage.LayoutTransform is ScaleTransform transformV)
-                {
-                    double verticalScale = transformV.ScaleY; // Get the horizontal scale
-                    posY2 = posY2 * verticalScale; // Adjust time based on scale
-                }
-                _VerticalLine.Y2 = posY2; // Bottom of the image
-                TimeLabel.TextAlignment = TextAlignment.Left; // Align text to the left
-                TimeLabel.Margin = new Thickness(posX + 10, 100, 0, 0); // Place label slightly to the right of the cursor
-                UpdateTimeLabel(posX, isLeft);
-
             }
         }
         int frameNo = 0;
@@ -691,74 +779,76 @@ namespace PhotoTimingGui
         private void StitchedImage_MouseButtonUp(object sender, MouseButtonEventArgs e)
         {
             _isDragging = false;
-            StitchedImage.ReleaseMouseCapture();
 
-            System.Windows.Point position = e.GetPosition(StitchedImage);
-            double posX = position.X;
-            if (StitchedImage.LayoutTransform is ScaleTransform transform)
+            if ((VerticalLine.Visibility == Visibility.Visible) ||
+                    (StartVerticalLine.Visibility == Visibility.Visible))
             {
-                double horizontalScale = transform.ScaleX; // Get the horizontal scale
-                posX = position.X * horizontalScale; // Adjust time based on scale
+                System.Windows.Point position = e.GetPosition(ImageCanvas);
+
+                double posX = position.X;
+
+                if (GetShowVideoFramePopup())
+                    DisplayFrame(frameNo, posX);
             }
-            if (posX > StitchedImage.ActualWidth)
-            {
-                //if clicked after video ends hide line and text at mouse position
-                TimeLabel.Visibility = Visibility.Collapsed;
-                VerticalLine.Visibility = Visibility.Collapsed;
-                return;
-            }
-            videoLength = GetVideoLength();
-            double tim = (posX / StitchedImage.ActualWidth) * videoLength;
-            if (tim < GunTimeDbl)
-            {
-                TimeLabel.Visibility = Visibility.Collapsed;
-                VerticalLine.Visibility = Visibility.Collapsed;
-                return;
-            }
-            if (GetShowVideoFramePopup())
-                DisplayFrame(frameNo, posX);
+            StitchedImage.ReleaseMouseCapture();
         }
 
 
-        private void UpdateTimeLabel(double positionX, bool isLeftButton = true)
+        private void UpdateTimeLabel(double positionX, double timeFromVideoStart, bool isLeftButton = true)
         {
             if (!IsDataContext())
                 return;
+
+            var margin = GetTimeLabelMargin();
+            margin.Left += positionX;
+            TimeLabel.Margin = margin;
+
             // Get the image's horizontal scaling from the LayoutTransform (ScaleTransform)
-            double horizontalScale = 1.0; // Default scale (no zoom)
+            double horizontalScale = 1;
+            double verticalScale = 1;
             if (StitchedImage.LayoutTransform is ScaleTransform transform)
             {
                 horizontalScale = transform.ScaleX; // Get the horizontal scale
+                verticalScale = transform.ScaleY;
+                //posX = position.X * horizontalScale; // Adjust time based on scale
             }
-            // Calculate the relative position accounting for the horizontal scale
-            if (positionX > StitchedImage.ActualWidth)
+            double stitchedImageVirtualWidth = StitchedImage.ActualWidth * horizontalScale;
+            double stitchedImageVirtualHeight = StitchedImage.ActualHeight * verticalScale;
+            if (positionX > stitchedImageVirtualWidth)
             {
                 TimeLabel.Text = $"";
                 TimeLabel.Visibility = Visibility.Collapsed;
                 return;
             }
-            double relativePosition = (positionX / horizontalScale) / StitchedImage.ActualWidth;
-            System.Diagnostics.Debug.WriteLine($"{positionX} {horizontalScale} {StitchedImage.ActualWidth}  {relativePosition}");
             // Example total duration of the stitched video
             double durationInSeconds = GetVideoLength(); // Replace with the actual duration of your stitched image
-            //VideoLength.Text = $"{videoLength} sec"; // Display the video length in seconds
 
             // Set default visibility at start to visible for controls
             //Add any other defaults here.
-            //StartTime = GetSelectedStartTime();
-            GunTimeDbl = GetGunTime();
-            double tim = relativePosition * durationInSeconds;
-            frameNo = (int)(tim * Fps); // Assuming 30 FPS, adjust as needed
-            double timeInSeconds = tim - GunTimeDbl;
-            //ystem.Diagnostics.Debug.WriteLine($"===={timeInSeconds} = {relativePosition * durationInSeconds}  {relativePosition}*{durationInSeconds}-{GunTimeDbl}");
-            if (timeInSeconds >= 0)
+
+            double gunTime = 0;
+            //With WallClock and Manual need to select gun time first
+            if ((GetTimeFromMode() != TimeFromMode.WallClockSelect) &&
+                    (GetTimeFromMode() != TimeFromMode.ManuallySelect))
+            {
+                // Get the gun time from the ViewModel
+                gunTime = GetGunTime(); // Get the gun time from the ViewModel
+            }
+            else if (this.Get_HaveSelectedandShownGunLineinManualorWallClockMode())
+            { 
+                gunTime = GetGunTime(); // Get the gun time from the ViewModel
+            }
+            double timeFromGunStart = timeFromVideoStart - gunTime; // Calculate time from gun start
+            frameNo = (int)(timeFromVideoStart * Fps); // Assuming 30 FPS, adjust as needed
+            
+            if (timeFromGunStart >= 0)
             {
 
-                //TimeSpan ts = TimeSpan.FromMilliseconds((long)(timeInSeconds * 1000));
-                //string formattedTime = $"{ts.Hours:D2}:{ts.Minutes:D2}:{ts.Seconds:D2}.{(int)(ts.Milliseconds / 10)}"; // Format as HH:MM:SS.hh
-                string formattedTime = $"{timeInSeconds}";                                                                                                      // Display the calculated time
+                string formattedTime = $"{timeFromGunStart}";                                                                                                      // Display the calculated time
                 TimeLabel.Visibility = Visibility.Visible;
-                TimeLabel.Text = $"{timeInSeconds:F2} sec";
+                TimeLabel.Text = $"{timeFromGunStart:F2} sec";
+                TimeLabel.TextAlignment = TextAlignment.Left; // Align text to the left
+
                 //FinishTime.Text = $"{timeInSeconds:F2} sec";
                 if (isLeftButton)
                 {
@@ -770,13 +860,13 @@ namespace PhotoTimingGui
 
                     // Set default visibility at start to visble for controls
                     //Add any other defaults here.
-                    SetSelectedStartTime(timeInSeconds);
+                    SetSelectedStartTime(timeFromGunStart);
                 }
             }
             else
             {
                 //FinishTime.Text = "";
-                FinishTime.Text = $"{timeInSeconds:F2}";
+                FinishTime.Text = $"{timeFromGunStart:F2}";
                 //TimeLabel.Text = $"{timeInSeconds:F2}";
                 TimeLabel.Visibility = Visibility.Collapsed;
                 Clipboard.SetData(DataFormats.Text, (Object)"");
@@ -1028,6 +1118,7 @@ namespace PhotoTimingGui
             //{
             //    System.Diagnostics.Debug.WriteLine($"Image Dimensions: {bitmapx.PixelWidth}x{bitmap.PixelHeight}");
             //}
+            resize = false;
             if (Popup.Width is double.NaN)
                 resize = true;
             if (resize)
@@ -1040,8 +1131,8 @@ namespace PhotoTimingGui
             Popup.Height = FrameImage.Height;
             Divider.Y2 = FrameImage.Height;
             FrameImage.Source = bitmapImage;
-            Popup.HorizontalOffset = posX + (int)(Popup.Width / 2); // GetPopupWidth();
-            Popup.VerticalOffset = /*GetTimeLabelMargin().Top + TimeLabel.ActualHeight*/ +115;
+            Popup.HorizontalOffset =  (int)(Popup.Width / 2); // GetPopupWidth();
+            Popup.VerticalOffset = 0;// (int)Popup.Height; /*GetTimeLabelMargin().Top + TimeLabel.ActualHeight +115;*/
             Popup.IsOpen = true;
             return;
         }
@@ -1102,6 +1193,7 @@ namespace PhotoTimingGui
                        guntime,
                        100, //axisHeight,
                        100, //audioHeight,
+                       GetlevelImage(),
                        GetTimeFromMode(),
                        threshold);
                 }
@@ -1112,9 +1204,9 @@ namespace PhotoTimingGui
                 LoadStitchedImage(GetOutputPath());
 
                 SetGunTime(guntime, gunTimeIndex);
-                Set_HaveSelectedandShownGunLineinManualMode(true);
+                Set_HaveSelectedandShownGunLineinManualorWallClockMode(true);
                 var a = Get_HasStitched();
-                var b = Get_HaveSelectedandShownGunLineinManualMode();
+                var b = Get_HaveSelectedandShownGunLineinManualorWallClockMode();
                 var c = GetTimeFromMode();
 
                 MessageBox.Show("Stitched image successfully updated and displayed!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -1131,7 +1223,10 @@ namespace PhotoTimingGui
             if (sender is Button button)
             {
                 string toolTip = button.ToolTip?.ToString() ?? "";
-                Nudge(toolTip);
+                if(!toolTip.Contains("WC"))
+                    Nudge(toolTip);
+                else 
+                    NudgeWC(toolTip);
             }
         }
 
@@ -1153,7 +1248,7 @@ namespace PhotoTimingGui
             double posX;
             if (timeFromMode == TimeFromMode.ManuallySelect)
             {
-                var hsnshwngunline = Get_HaveSelectedandShownGunLineinManualMode();
+                var hsnshwngunline = Get_HaveSelectedandShownGunLineinManualorWallClockMode();
                 if (!hsnshwngunline)
                 {
                     _VerticalLine = StartVerticalLine; // Use the start line for manual mode
@@ -1165,6 +1260,16 @@ namespace PhotoTimingGui
             }
             if (_VerticalLine.Visibility == Visibility.Collapsed)
                 return;
+            double horizontalScale = 1;
+            double verticalScale = 1;
+            if (StitchedImage.LayoutTransform is ScaleTransform transform)
+            {
+                horizontalScale = transform.ScaleX; // Get the horizontal scale
+                verticalScale = transform.ScaleY;
+                //posX = position.X * horizontalScale; // Adjust time based on scale
+            }
+            double stitchedImageVirtualWidth = StitchedImage.ActualWidth * horizontalScale;
+            double stitchedImageVirtualHeight = StitchedImage.ActualHeight * verticalScale;
 
             posX = _VerticalLine.X1;
             double oneFrame = 1 / Fps;
@@ -1181,7 +1286,7 @@ namespace PhotoTimingGui
             }
             else if (toolTip == "Forward")
             {
-                if (startTime <= (numFrames - 1))
+                if (posX <= (stitchedImageVirtualWidth - 1))
                 {
                     //Forward one Frame
                     posX += 1;
@@ -1197,7 +1302,7 @@ namespace PhotoTimingGui
             }
             else if (toolTip == "Forward 5")
             {
-                if (posX < (numFrames - 4))
+                if (posX < (stitchedImageVirtualWidth - 4))
                 {
                     //Forward five Frames
                     posX += 5;
@@ -1210,7 +1315,7 @@ namespace PhotoTimingGui
                 return;
             }
 
-            startTime = (posX / StitchedImage.ActualWidth) * videoLength;
+            startTime = (posX / stitchedImageVirtualWidth) * videoLength;
 
 
             string formattedTime = $"{startTime}";                                                                                                      // Display the calculated time
@@ -1223,16 +1328,57 @@ namespace PhotoTimingGui
             _VerticalLine.X1 = posX;
             _VerticalLine.X2 = posX;
             _VerticalLine.Y1 = 0; // Top of the image
-            double posY2 = StitchedImage.ActualHeight;
-            if (StitchedImage.LayoutTransform is ScaleTransform transformV)
-            {
-                double verticalScale = transformV.ScaleY; // Get the horizontal scale
-                posY2 = posY2 * verticalScale; // Adjust time based on scale
-            }
+            double posY2 = stitchedImageVirtualHeight;
+            
             _VerticalLine.Y2 = posY2; // Bottom of the image
-            UpdateTimeLabel(posX, isLeft);
+
+            UpdateTimeLabel(posX,startTime,isLeft);
             if (GetShowVideoFramePopup())
                 DisplayFrame(frameNo, posX, false);
+        }
+
+        /// <summary>
+        /// Nudge WallClock +/- by 1/100 second
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void NudgeWC(string toolTip)
+        {
+
+            if (toolTip == "")
+                return;
+            TimeFromMode timeFromMode = GetTimeFromMode();
+            if (timeFromMode != TimeFromMode.WallClockSelect)
+                return;
+            TimeSpan evw = this.GetEventWallClockStartTimeofDay();
+            var WClockTime = evw;
+            TimeSpan oneSec = new TimeSpan(0, 0, 0, 1);
+            TimeSpan delta = new TimeSpan(0, 0, 0, 0, 0, (int)Math.Round(1000000 / Fps,0));
+
+            if (toolTip == "WC Back 1 Frame")
+            {
+                //Back one Frame
+                evw = evw.Subtract(delta);
+            }
+            else if (toolTip == "WC Forward 1 Frame")
+            {
+                evw = evw.Add(delta);
+            }
+            else if (toolTip == "WC Back 1 sec")
+            {
+                evw = evw.Subtract(oneSec);
+            }
+            else if (toolTip == "WC Forward 1 sec")
+            {
+                evw = evw.Add(oneSec);
+            }
+
+            if (evw == WClockTime)
+            {
+                // No change in time, so do not update
+                return;
+            }
+            SetEventWallClockStartTimeofDay(evw);
         }
 
         private void ResizeThumb_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
@@ -1336,6 +1482,7 @@ namespace PhotoTimingGui
                         GetSelectedStartTime(),
                         100, //axisHeight,
                         100, //audioHeight,
+                        GetlevelImage(),
                         GetTimeFromMode(),
                         threshold);
                 }

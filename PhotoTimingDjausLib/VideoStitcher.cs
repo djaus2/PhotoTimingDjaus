@@ -11,6 +11,8 @@ using System.Text.RegularExpressions;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using PhotoTimingDjaus.Enums; // Ensure this namespace is correct for TimeFromMode
 using OpenCvSharp.Extensions;
+using PhotoTimingDjausLib;
+using System.Diagnostics;
 
 
 namespace PhotoTimingDjaus
@@ -38,15 +40,17 @@ namespace PhotoTimingDjaus
         int axisHeight = 100;  //Vertical height of time axis at bottom below stitched image
         int audioHeight = 100; // Vertical height of space for audio volume graph below axis.
         const int OneMinute = 60;
+        bool _levelImage = false; // If true, the image is leveled to the bottom of the stitched image
 
         // Constructor to initialize the video stitcher parameters
-        public VideoStitcher(string videoPath,  Scalar _gunTimeColor, string outputPath, double _selectedStartTime = 0, int _axisHeight = 100, int _audioHeight = 100, TimeFromMode _timeFromMode = TimeFromMode.FromButtonPress, int _threshold=1000)
+        public VideoStitcher(string videoPath, Scalar _gunTimeColor, string outputPath, double _selectedStartTime = 0, int _axisHeight = 100, int _audioHeight = 100, bool levelImage = false, TimeFromMode _timeFromMode = TimeFromMode.FromButtonPress, int _threshold=1000)
         {
             this.videoFilePath = videoPath;
             this.outputFilePath = outputPath;
             this.selectedStartTime = _selectedStartTime;
             this.audioHeight = _audioHeight;
             this.axisHeight = _axisHeight;
+            this._levelImage = levelImage;
             this.timeFromMode = _timeFromMode;
             this.threshold = _threshold;
             this.GunTimeColor = _gunTimeColor;
@@ -64,11 +68,24 @@ namespace PhotoTimingDjaus
             }
         }
 
+        public static void DebugLog(string message, [CallerMemberName] string caller = "")
+        {
+            Debug.WriteLine($"[{caller}] {message}");
+        }
+
+            public static void DebugLogCaller(string message, [CallerMemberName] string member = "")
+            {
+                var stackTrace = new StackTrace();
+                var callingMethod = stackTrace.GetFrame(2)?.GetMethod(); // GetFrame(2) skips 2 levels
+                var callingMethod3 = stackTrace.GetFrame(3)?.GetMethod();
+                Debug.WriteLine($"[{callingMethod3?.DeclaringType?.Name}->{callingMethod?.DeclaringType?.Name}.{callingMethod?.Name}] → [{member}] {message}");
+            }
+
 
         public System.Drawing.Bitmap GetNthFrame(int frameIndex)
         {
             using var capture = new VideoCapture(videoFilePath);
-
+            DebugLogCaller($"frame: {frameIndex}");
             // Set the frame position
             capture.Set(VideoCaptureProperties.PosFrames, frameIndex);
             // Retrieve the frame
@@ -272,6 +289,8 @@ namespace PhotoTimingDjaus
                 // Add the column to the list
                 verticalLines.Add(middleColumnMat.Clone()); // Clone to ensure memory safety
             }
+            if(_levelImage)
+                verticalLines = StitchStraightenerofMat.LevelBottomIterative(verticalLines, 5, 1.0); // Straighten the bottom line in each Mat
             
             // Determine height and width for the stitched image
             int stitchedHeight = verticalLines[0].Rows; // All columns have the same height

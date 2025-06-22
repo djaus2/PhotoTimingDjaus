@@ -61,7 +61,7 @@ namespace PhotoTimingGui
                 viewModel.MyVisibility = Visibility.Visible;
                 viewModel.StartTimeInput = 0.0; // Default start time
                 viewModel.HasStitched = false;
-                viewModel.HaveSelectedandShownGunLineToManualMode = false;
+                viewModel.HaveSelectedandShownGunLineToManualorWallClockMode = false;
                 viewModel.GunColor = new OpenCvSharp.Scalar(255, 255, 255, 1); // Default gun color White
                 viewModel.SelectedColorName = "White"; // Default color name
             }
@@ -93,7 +93,7 @@ namespace PhotoTimingGui
             if (this.DataContext is MyViewModel viewModel)
             {
                 viewModel.HasStitched = true;
-                viewModel.HaveSelectedandShownGunLineToManualMode = false;
+                viewModel.HaveSelectedandShownGunLineToManualorWallClockMode = false;
             }
         }
 
@@ -105,6 +105,26 @@ namespace PhotoTimingGui
                     return true;
             }
             return false; // Default value if DataContext is not set or HasStitched is not available
+        }
+
+        public bool GetlevelImage()
+        {
+            if (this.DataContext is MyViewModel viewModel)
+            {
+                if (viewModel.ShowLevelImage)
+                    return true;
+            }
+            return false; // Default value if DataContext is not set or ShowLevelImage is not available
+        }
+
+        public bool SetlevelImage(bool showLevelImage)
+        {
+            if (this.DataContext is MyViewModel viewModel)
+            {
+                viewModel.ShowLevelImage = showLevelImage;
+                return true; // Successfully set the state
+            }
+            return false; // Failed to set the state, DataContext is not available
         }
 
         public bool ManuallySelectMode()
@@ -121,7 +141,7 @@ namespace PhotoTimingGui
         {
             if (this.DataContext is MyViewModel viewModel)
             {
-                if (viewModel.HaveSelectedandShownGunLineToManualMode)
+                if (viewModel.HaveSelectedandShownGunLineToManualorWallClockMode)
                     return true;
             }
             return false; // Default value if DataContext is not set or HaveSelectedandShownGunLineToManualMode is not available
@@ -164,6 +184,24 @@ namespace PhotoTimingGui
                 return viewModel.EventStartWallClockDateTime; // Get the current video path from the ViewModel
             }
             return DateTime.MinValue; // Default value if DataContext is not set or VideoPathInput is not available
+        }
+
+        public void SetEventWallClockStartTimeofDay(TimeSpan ts)
+        {
+            if (this.DataContext is MyViewModel viewModel)
+            {
+                string tsStr = $"{ts.Hours:D2}:{ts.Minutes:D2}:{ts.Seconds:D2}.{ts.Milliseconds:d3}";
+                viewModel.EventStartWallClockTimeofDay = tsStr;
+            }
+        }
+
+        public TimeSpan GetEventWallClockStartTimeofDay()
+        {
+            if (this.DataContext is MyViewModel viewModel)
+            {
+                return TimeSpan.Parse(viewModel.EventStartWallClockTimeofDay); // Get the current video path from the ViewModel
+            }
+            return TimeSpan.Zero; // Default value if DataContext is not set or VideoPathInput is not available
         }
 
         public void SetOutputPath(string outputPath)
@@ -257,24 +295,24 @@ namespace PhotoTimingGui
             return VideoDetectMode.FromFlash; // Default value if ViewModel is not available
         }
 
-        private void Set_HaveSelectedandShownGunLineinManualMode(bool state)
+        private void Set_HaveSelectedandShownGunLineinManualorWallClockMode(bool state)
         {
             if (DataContext is ViewModels.MyViewModel viewModel)
             {
-                viewModel.HaveSelectedandShownGunLineToManualMode = state;
+                viewModel.HaveSelectedandShownGunLineToManualorWallClockMode = state;
                 return; // Successfully set the state
             }
             return; // Failed to set the state, DataContext is not available
         }
 
-        private bool Get_HaveSelectedandShownGunLineinManualMode()
+        private bool Get_HaveSelectedandShownGunLineinManualorWallClockMode()
         {
             if (DataContext is ViewModels.MyViewModel viewModel)
             {
                 if((viewModel.TimeFromMode!= TimeFromMode.ManuallySelect) &&
                         (viewModel.TimeFromMode != TimeFromMode.WallClockSelect))
                     return true;
-                return viewModel.HaveSelectedandShownGunLineToManualMode;
+                return viewModel.HaveSelectedandShownGunLineToManualorWallClockMode;
             }
             return false;
 

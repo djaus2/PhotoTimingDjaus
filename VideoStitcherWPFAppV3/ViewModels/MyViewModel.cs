@@ -63,6 +63,14 @@ namespace PhotoTimingGui.ViewModels
             set { _GunTimeIndex = value; OnPropertyChanged(nameof(GunTimeIndex)); }
         }
 
+        private bool _ShowLevelImage = false;
+        public bool ShowLevelImage
+        {
+            get => _ShowLevelImage;
+            set { _ShowLevelImage = value; OnPropertyChanged(nameof(ShowLevelImage)); }
+        }
+
+
         private bool _ShowVideoFramePopup = true;
         public bool ShowVideoFramePopup
         {
@@ -90,6 +98,8 @@ namespace PhotoTimingGui.ViewModels
             _setColorCommand = new RelayCommand(SetColor);
         }
 
+        public bool HasNotStitched => !_HasStitched; // Inverse of HasStitched
+
         private bool _HasStitched = false;
         public bool HasStitched
         {
@@ -98,12 +108,13 @@ namespace PhotoTimingGui.ViewModels
             {
                 _HasStitched = value;
                 OnPropertyChanged(nameof(HasStitched));
-                HaveSelectedandShownGunLineToManualMode = false;
+                OnPropertyChanged(nameof(HasNotStitched));
+                HaveSelectedandShownGunLineToManualorWallClockMode = false;
             }
         }
 
         private bool _HasSelectedandShownGunLineToManualMode = false;
-        public bool HaveSelectedandShownGunLineToManualMode
+        public bool HaveSelectedandShownGunLineToManualorWallClockMode
         {
             get => _HasSelectedandShownGunLineToManualMode;
             set
@@ -112,7 +123,7 @@ namespace PhotoTimingGui.ViewModels
                         (TimeFromMode != TimeFromMode.WallClockSelect))
                         return;
                     _HasSelectedandShownGunLineToManualMode = value; // Set HasStitched to true when switching to manual mode
-                    OnPropertyChanged(nameof(HaveSelectedandShownGunLineToManualMode));
+                    OnPropertyChanged(nameof(HaveSelectedandShownGunLineToManualorWallClockMode));
             }
         }
 
