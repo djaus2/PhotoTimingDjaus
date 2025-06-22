@@ -266,6 +266,10 @@
                     <!-- The rest of your StackPanel content goes here -->
 
                     <!-- Left Button (Back icon) -->
+                    <Button ToolTip="Back 1 sec" Click="NudgeButton_Click">
+                        <svgc:SvgViewbox Source="pack://application:,,,/Resources/svgimages/previoussec.svg"
+                                            Width="24" Height="24"/>
+                    </Button>
                     <Button ToolTip="Back 5" Click="NudgeButton_Click">
                         <svgc:SvgViewbox Source="pack://application:,,,/Resources/svgimages/doubleprevious.svg"
                                             Width="24" Height="24"/>
@@ -293,8 +297,12 @@
                         <svgc:SvgViewbox Source="pack://application:,,,/Resources/svgimages/doublenext.svg"
                                              Width="24" Height="24"/>
                     </Button>
+                    <Button ToolTip="Forward 1 sec" Click="NudgeButton_Click">
+                        <svgc:SvgViewbox Source="pack://application:,,,/Resources/svgimages/nextsec.svg"
+                                             Width="24" Height="24"/>
+                    </Button>
 
-  
+
                 </StackPanel>
 
 
@@ -368,6 +376,10 @@
 
                                 <!-- Left Button (Back icon) -->
                                 <Button ToolTip="WC Back 1 sec" Click="NudgeButton_Click">
+                                    <svgc:SvgViewbox Source="pack://application:,,,/Resources/svgimages/previoussec.svg"
+                                           Width="24" Height="24"/>
+                                </Button>
+                                <Button ToolTip="WC Back 5 Frames" Click="NudgeButton_Click">
                                     <svgc:SvgViewbox Source="pack://application:,,,/Resources/svgimages/doubleprevious.svg"
                                            Width="24" Height="24"/>
                                 </Button>
@@ -382,11 +394,14 @@
                                     <svgc:SvgViewbox Source="pack://application:,,,/Resources/svgimages/next.svg"
                                             Width="24" Height="24"/>
                                 </Button>
-                                <Button ToolTip="WC Forward 1 sec" Click="NudgeButton_Click">
+                                <Button ToolTip="WC Forward 5 Frames" Click="NudgeButton_Click">
                                     <svgc:SvgViewbox Source="pack://application:,,,/Resources/svgimages/doublenext.svg"
                                             Width="24" Height="24"/>
                                 </Button>
-
+                                <Button ToolTip="WC Forward 1 sec" Click="NudgeButton_Click">
+                                    <svgc:SvgViewbox Source="pack://application:,,,/Resources/svgimages/nextsec.svg"
+                                            Width="24" Height="24"/>
+                                </Button>
 
                             </StackPanel>
 

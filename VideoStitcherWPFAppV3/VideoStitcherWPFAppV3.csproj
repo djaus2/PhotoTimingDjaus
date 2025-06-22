@@ -26,6 +26,7 @@
     <None Remove="Resources\Images\nextvid.svg" />
     <None Remove="Resources\Images\optionsvid.svg" />
     <None Remove="Resources\Images\pausesvid.svg" />
+    <None Remove="Resources\Images\previousprevious.svg" />
     <None Remove="Resources\Images\startvid.svg" />
     <None Remove="Resources\Images\stopvid.svg" />
   </ItemGroup>
@@ -63,6 +64,7 @@
     <Resource Include="Resources\Images\pausesvid.svg">
       <CopyToOutputDirectory></CopyToOutputDirectory>
     </Resource>
+    <Resource Include="Resources\Images\previousprevious.svg" />
     <Resource Include="Resources\Images\startvid.svg">
       <CopyToOutputDirectory></CopyToOutputDirectory>
     </Resource>
@@ -96,10 +98,16 @@
     <Resource Include="Resources\svgimages\doubleprevious.svg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
+    <Resource Include="Resources\svgimages\nextsec.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
     <Resource Include="Resources\svgimages\previous.svg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Resources\svgimages\previous2.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\svgimages\previoussec.svg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
   </ItemGroup>

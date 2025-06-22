@@ -1273,39 +1273,56 @@ namespace PhotoTimingGui
 
             posX = _VerticalLine.X1;
             double oneFrame = 1 / Fps;
+            double oneSecNoFrames = Fps;
             videoLength = GetVideoLength();
             int numFrames = (int)(videoLength * Fps);
             double posXPrev = posX;
             if (toolTip == "Back")
             {
-                if (posX >= 1)
+                if (posX >= 1* horizontalScale)
                 {
                     //Back one Frame
-                    posX -= 1;
+                    posX -= 1* horizontalScale;
                 }
             }
             else if (toolTip == "Forward")
             {
-                if (posX <= (stitchedImageVirtualWidth - 1))
+                if (posX <= (stitchedImageVirtualWidth - 1* horizontalScale))
                 {
                     //Forward one Frame
-                    posX += 1;
+                    posX += 1* horizontalScale;
                 }
             }
             else if (toolTip == "Back 5")
             {
-                if (posX >= 5)
+                if (posX >= 5* horizontalScale)
                 {
                     //Back five Frames
-                    posX -= 5;
+                    posX -= 5 * horizontalScale;
                 }
             }
             else if (toolTip == "Forward 5")
             {
-                if (posX < (stitchedImageVirtualWidth - 4))
+                if (posX < (stitchedImageVirtualWidth - 5* horizontalScale))
                 {
                     //Forward five Frames
-                    posX += 5;
+                    posX += 5* horizontalScale;
+                }
+            }
+            else if (toolTip == "Back 1 sec")
+            {
+                if (posX >= oneSecNoFrames* horizontalScale)
+                {
+                    //Back five Frames
+                    posX -= oneSecNoFrames* horizontalScale;
+                }
+            }
+            else if (toolTip == "Forward 1 sec")
+            {
+                if (posX < (stitchedImageVirtualWidth - oneSecNoFrames* horizontalScale))
+                {
+                    //Forward five Frames
+                    posX += oneSecNoFrames* horizontalScale;
                 }
             }
 
@@ -1316,6 +1333,9 @@ namespace PhotoTimingGui
             }
 
             startTime = (posX / stitchedImageVirtualWidth) * videoLength;
+            GunTimeDbl = GetGunTime(); // Get the gun time from the ViewModel
+            if (startTime < GunTimeDbl)
+                return;
 
 
             string formattedTime = $"{startTime}";                                                                                                      // Display the calculated time
@@ -1350,35 +1370,46 @@ namespace PhotoTimingGui
             TimeFromMode timeFromMode = GetTimeFromMode();
             if (timeFromMode != TimeFromMode.WallClockSelect)
                 return;
-            TimeSpan evw = this.GetEventWallClockStartTimeofDay();
-            var WClockTime = evw;
+            TimeSpan eventStartWallClockTimeofDay = this.GetEventWallClockStartTimeofDay();
+            var WClockTime = eventStartWallClockTimeofDay;
+
             TimeSpan oneSec = new TimeSpan(0, 0, 0, 1);
-            TimeSpan delta = new TimeSpan(0, 0, 0, 0, 0, (int)Math.Round(1000000 / Fps,0));
+            TimeSpan fiveFramesTs = new TimeSpan(0, 0, 0, 0, 0, (int)Math.Round(5000000 / Fps, 0));
+            TimeSpan oneFrameTs = new TimeSpan(0, 0, 0, 0, 0, (int)Math.Round(1000000 / Fps,0));
 
             if (toolTip == "WC Back 1 Frame")
             {
                 //Back one Frame
-                evw = evw.Subtract(delta);
+                eventStartWallClockTimeofDay = eventStartWallClockTimeofDay.Subtract(oneFrameTs);
             }
             else if (toolTip == "WC Forward 1 Frame")
             {
-                evw = evw.Add(delta);
+                eventStartWallClockTimeofDay = eventStartWallClockTimeofDay.Add(oneFrameTs);
+            }
+            if (toolTip == "WC Back 5 Frames")
+            {
+                //Back one Frame
+                eventStartWallClockTimeofDay = eventStartWallClockTimeofDay.Subtract(fiveFramesTs);
+            }
+            else if (toolTip == "WC Forward 5 Frames")
+            {
+                eventStartWallClockTimeofDay = eventStartWallClockTimeofDay.Add(fiveFramesTs);
             }
             else if (toolTip == "WC Back 1 sec")
             {
-                evw = evw.Subtract(oneSec);
+                eventStartWallClockTimeofDay = eventStartWallClockTimeofDay.Subtract(oneSec);
             }
             else if (toolTip == "WC Forward 1 sec")
             {
-                evw = evw.Add(oneSec);
+                eventStartWallClockTimeofDay = eventStartWallClockTimeofDay.Add(oneSec);
             }
 
-            if (evw == WClockTime)
+            if (eventStartWallClockTimeofDay == WClockTime)
             {
                 // No change in time, so do not update
                 return;
             }
-            SetEventWallClockStartTimeofDay(evw);
+            SetEventWallClockStartTimeofDay(eventStartWallClockTimeofDay);
         }
 
         private void ResizeThumb_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
