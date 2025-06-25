@@ -1160,6 +1160,58 @@ namespace PhotoTimingGui
             return;
         }
 
+        private void NudgeDisplayFrame(int frameNo, double posX, bool resize = true)
+        {
+
+            // Get mouse position relative to the container
+
+            if ((videoStitcher == null))
+            {
+                return;
+            }
+            Bitmap bitmap = videoStitcher.GetNthFrame(frameNo);
+
+            BitmapImage bitmapImage = new BitmapImage();
+            using (MemoryStream memory = new MemoryStream())
+            {
+                bitmap.Save(memory, System.Drawing.Imaging.ImageFormat.Png);
+                memory.Position = 0;
+                bitmapImage.BeginInit();
+                bitmapImage.StreamSource = memory;
+                bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+                bitmapImage.EndInit();
+            }
+            NudgeFrameImage.Source = bitmapImage;
+            //StitchedImage.Source = bitmapImage;
+            //if (StitchedImage.Source is BitmapSource bitmapx)
+            //{
+            //    System.Diagnostics.Debug.WriteLine($"Image Dimensions: {bitmapx.PixelWidth}x{bitmap.PixelHeight}");
+            //}
+            resize = false;
+            if (NudgePopupVideoFrameImage.Width is double.NaN)
+                resize = true;
+            if (resize)
+            {
+
+                NudgeFrameImage.Width = 100;
+                //FrameImage.Height = 100;
+                var width = NudgeFrameImage.Source.Width;
+                var height = NudgeFrameImage.Source.Height;
+                double ratio = height / width;
+                FrameImage.Height = ratio * FrameImage.Width + ResizeThumb.Height;
+            }
+            NudgePopupVideoFrameImage.Width = NudgeFrameImage.Width;
+            NudgePopupVideoFrameImage.Height = NudgeFrameImage.Height;
+            NudgePopupVideoFrameImage.HorizontalOffset = NudgeFrameImage.Width / 2;
+            NudgeDivider.Y2 = NudgeFrameImage.Height;
+
+            //PopupVideoFrameImage.HorizontalOffset =  (int)(PopupVideoFrameImage.Width / 2); // GetPopupWidth();
+            //PopupVideoFrameImage.VerticalOffset = 0;// (int)PopupVideoFrameImage.Height; /*GetTimeLabelMargin().Top + TimeLabel.ActualHeight +115;*/
+
+            NudgePopupVideoFrameImage.IsOpen = true;
+            return;
+        }
+
         private void LoadStitchedImage(string imageFilePath)
         {
             BitmapImage bitmap = new BitmapImage();
@@ -1286,7 +1338,7 @@ namespace PhotoTimingGui
         /// <param name="e"></param>
         private void Nudge(string toolTip)
         {
-
+            PopupVideoFrameImage.IsOpen = false;
             if (toolTip == "")
                 return;
             System.Windows.Shapes.Line _VerticalLine = NudgeVerticalLine;
@@ -1405,7 +1457,7 @@ namespace PhotoTimingGui
             verticalOffset = posY2; ;
             UpdateTimeLabel(posX,startTime,isLeft);
             if (GetShowVideoFramePopup())
-                DisplayFrame(frameNo, posX, false);
+                NudgeDisplayFrame(frameNo, posX, false);
         }
 
         /// <summary>
@@ -1490,11 +1542,90 @@ namespace PhotoTimingGui
             }
         }
 
+        private void NudgeResizeThumb_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
+        {
+            var margin = NudgePopupVideoFrameImage.Margin;
+
+            double prevWidth = NudgeFrameImage.Width;
+            double posx = NudgePopupVideoFrameImage.HorizontalOffset - prevWidth;
+            var width = NudgeFrameImage.Source.Width;
+            var height = NudgeFrameImage.Source.Height;
+            double ratio = height / width;
+            double newWidth = NudgeFrameImage.Width + e.HorizontalChange;
+            double newHeight = ratio * NudgeFrameImage.Width + ResizeThumb.Height;
+
+            // Ensure minimum size
+            NudgeFrameImage.Width = Math.Max(newWidth, GetMinPopupWidth() / 2);
+            NudgeFrameImage.Height = Math.Max(newHeight, GetMinPopupHeight() / 2);
+            NudgePopupVideoFrameImage.Width = FrameImage.Width;
+            NudgePopupVideoFrameImage.Height = FrameImage.Height;
+            posx += NudgeFrameImage.Width; ;
+            NudgePopupVideoFrameImage.HorizontalOffset = posx; // Update horizontal offset to keep the popup in place
+
+            // Close popup if resized below 50px
+            if (NudgeFrameImage.Width <= (GetMinPopupWidth() / 2) || NudgeFrameImage.Height <= (GetMinPopupHeight() / 2))
+            {
+                NudgePopupVideoFrameImage.IsOpen = false;
+            }
+        }
+
         private void Popup_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (e.ClickCount == 2) // Detect double-click
+            bool isShift = Keyboard.IsKeyDown(Key.LeftShift);
+            if (e.ClickCount == 1) // Detect double-click
+            {
+                if (isShift)
+                {
+                    FrameImage.Width /= 1.5; 
+                    FrameImage.Height /= 1.5;
+                    PopupVideoFrameImage.Width /= 1.5;
+                    PopupVideoFrameImage.Height /= 1.5;
+                    if (FrameImage.Width < GetMinPopupWidth() / 2 || FrameImage.Height < GetMinPopupHeight() / 2)
+                    {
+                        PopupVideoFrameImage.IsOpen = false; // Close popup if too small
+                    }
+                }
+                else 
+                { 
+                    FrameImage.Width *= 1.5; // Close popup
+                    FrameImage.Height *= 1.5;
+                    PopupVideoFrameImage.Width *= 1.5;
+                    PopupVideoFrameImage.Height *= 1.5;
+                }
+            }
+            else if (e.ClickCount == 2) // Detect double-click
             {
                 PopupVideoFrameImage.IsOpen = false; // Close popup
+            }
+        }
+
+        private void NudgePopup_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            bool isShift = Keyboard.IsKeyDown(Key.LeftShift);
+            if (e.ClickCount == 1) // Detect double-click
+            {
+                if (isShift)
+                {
+                    NudgeFrameImage.Width /= 1.5;
+                    NudgeFrameImage.Height /= 1.5;
+                    NudgePopupVideoFrameImage.Width /= 1.5;
+                    NudgePopupVideoFrameImage.Height /= 1.5;
+                    if (NudgeFrameImage.Width < GetMinPopupWidth() / 2 || NudgeFrameImage.Height < GetMinPopupHeight() / 2)
+                    {
+                        NudgePopupVideoFrameImage.IsOpen = false; // Close popup if too small
+                    }
+                }
+                else
+                {
+                    NudgeFrameImage.Width *= 1.5; // Close popup
+                    NudgeFrameImage.Height *= 1.5;
+                    NudgePopupVideoFrameImage.Width *= 1.5;
+                    NudgePopupVideoFrameImage.Height *= 1.5;
+                }
+            }
+            else if (e.ClickCount == 2) // Detect double-click
+            {
+                NudgePopupVideoFrameImage.IsOpen = false; // Close popup
             }
         }
 
@@ -1636,27 +1767,47 @@ namespace PhotoTimingGui
             PopupVideoFrameImage.IsOpen = true;
         }
 
-        private void PositionPopupOverLine()
+        private void PositionPopupOverLine(bool resize = false)
         {
             if (!IsDataContext())
                 return;
 
             Line? lineToUse = NudgeVerticalLine;
-            if (NudgeVerticalLine?.Visibility != Visibility.Visible)
-                return;
+            
+
             if (lineToUse != null)
             {
+                if (lineToUse.Visibility != Visibility.Visible)
+                    return;
+
+                if(NudgePopupVideoFrameImage.Width < this.GetMinPopupWidth()/2)
+                {
+                    resize = true;
+                }
+                else if (NudgePopupVideoFrameImage.Width is double.NaN)
+                    resize = true;
+                if (resize)
+                {
+
+                    NudgeFrameImage.Width = 100;
+                    //FrameImage.Height = 100;
+                }
+                var width = NudgeFrameImage.Source.Width;
+                var height = NudgeFrameImage.Source.Height;
+                double ratio = height / width;
+                NudgeFrameImage.Height = ratio * NudgeFrameImage.Width;
+                NudgePopupVideoFrameImage.Width = NudgeFrameImage.Width;
+                NudgePopupVideoFrameImage.Height = NudgeFrameImage.Height + NudgeResizeThumb.Height;
 
                 System.Windows.Point fakeMousePoint = new System.Windows.Point(horizOffset, 0); // arbitrarily chosen coordinates
                 var screenPoint = ImageCanvas.PointToScreen(fakeMousePoint);
                 var windowPoint = this.PointFromScreen(screenPoint);
 
-
                 if (DataContext is ViewModels.MyViewModel MyViewModel)
                 {
-                    PopupVideoFrameImage.HorizontalOffset = (int)Math.Round(windowPoint.X  ,0);
-                    if (PopupVideoFrameImage.VerticalOffset <= 0)
-                        PopupVideoFrameImage.VerticalOffset = 100;
+                    NudgePopupVideoFrameImage.HorizontalOffset = (int)Math.Round(windowPoint.X  ,0);
+                    if (NudgePopupVideoFrameImage.VerticalOffset <= 0)
+                        NudgePopupVideoFrameImage.VerticalOffset = 100;
                     System.Diagnostics.Debug.WriteLine(horizOffset);
                 }
 

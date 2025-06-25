@@ -528,7 +528,7 @@
                     <Popup Name="PopupVideoFrameImage"
                        IsOpen="False"
                        Placement="MousePoint"
-                       PlacementTarget="{Binding ElementName=NudgeVerticalLine}"
+                       PlacementTarget="{Binding ElementName=VerticalLine}"
                        HorizontalOffset="0"
                        StaysOpen="False">
                         <Border BorderBrush="Black" BorderThickness="2"
@@ -544,6 +544,34 @@
                                 Background="Gray"
                                 DragDelta="ResizeThumb_DragDelta"/>
                                 <Line Name="Divider" Stroke="{Binding SelectedColorName}" StrokeThickness="1" 
+                                      HorizontalAlignment="Center"
+                                      Y1="0"
+                                      Y2="100"
+                                      Visibility="Visible" />
+                            </Grid>
+                        </Border>
+                    </Popup>
+
+                    <!-- New popup specifically for NudgeVerticalLine -->
+                    <Popup Name="NudgePopupVideoFrameImage"
+                       IsOpen="False"
+                       Placement="MousePoint"
+                       PlacementTarget="{Binding ElementName=NudgeVerticalLine}"
+                       HorizontalOffset="0"
+                       StaysOpen="False">
+                        <Border BorderBrush="Black" BorderThickness="2"
+                                MouseDown="NudgePopup_MouseDown">
+                            <Grid>
+                                <Image Name="NudgeFrameImage" Width="100" Height="100"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
+                                <!-- Bottom-right resize handle -->
+                                <Thumb Name="NudgeResizeThumb" Width="10" Height="10"
+                                      HorizontalAlignment="Right"
+                                      VerticalAlignment="Bottom"
+                                      Background="Gray"
+                                      DragDelta="NudgeResizeThumb_DragDelta"/>
+                                <Line Name="NudgeDivider" Stroke="{Binding SelectedColorName}" StrokeThickness="1" 
                                       HorizontalAlignment="Center"
                                       Y1="0"
                                       Y2="100"
