@@ -306,7 +306,7 @@
                 </StackPanel>
 
 
-                <Button  Grid.Column="1" Grid.Row="6" 
+                <Button  Name="WallClockStart" Grid.Column="1" Grid.Row="6" 
                              Content="Set Event WallClock Start"  Click="ShowPopup">
                         <Button.Style>
                             <Style TargetType="Button">
@@ -327,8 +327,8 @@
                             </Style>
                         </Button.Style>
                     </Button>
-                        <Popup x:Name="DateTimePopup"
-                        PlacementTarget="{Binding ElementName=PickBtn}"
+                        <Popup x:Name="WatchClockDateTimePopup"
+                        PlacementTarget="{Binding ElementName=WallClockStart}"
                         Placement="Bottom"
                         StaysOpen="False"
                         AllowsTransparency="True">
@@ -447,7 +447,7 @@
                 <TextBlock Grid.Column="2" Grid.Row="5" Name="FinishTimeLabel"                TextAlignment="Right" Text="Finish Time: " FontWeight="Bold" Foreground="Blue"   Visibility="{Binding MyVisibility}"  />
                 <TextBox Grid.Column="3"   Grid.Row="5" Name="FinishTime" IsReadOnly="True"   Background="Beige" HorizontalAlignment="Left" Width="150"  Foreground="Purple" VerticalAlignment="Center" Text="" Visibility="{Binding MyVisibility}"  />
 
-<!-- Columns 2 and 3 END  ========================================================================================================================================================================================== -->
+                <!-- Columns 2 and 3 END  ========================================================================================================================================================================================== -->
 
 
                 <!-- Sliders -->
@@ -505,16 +505,7 @@
         Name="ViewerBorder"
         SizeChanged="ViewerBorder_SizeChanged"
         ClipToBounds="True">
-            <!--<ScrollViewer VerticalScrollBarVisibility="Auto" PanningMode="VerticalOnly">
-                <Canvas Name="ImageCanvas" Background="LightGray">
-                    <Image Name="StitchedImage" Stretch="Fill" 
-                MouseLeftButtonDown="StitchedImage_MouseLeftButtonDown"
-                    MouseMove="StitchedImage_MouseMove"
-                    MouseLeftButtonUp="StitchedImage_MouseLeftButtonUp" />
-                    <Line Name="VerticalLine" Stroke="Red" StrokeThickness="2" Visibility="Collapsed" />
-                    <TextBlock Name="TimeLabel" Background="Yellow" Foreground="Black" Visibility="Collapsed" />
-                </Canvas>
-            </ScrollViewer>-->
+
             <ScrollViewer VerticalScrollBarVisibility="Auto" PanningMode="VerticalOnly">
                 <Grid Name="ImageCanvas" Background="LightGray">
                     <Image Name="StitchedImage" 
@@ -531,13 +522,15 @@
                         MouseMove="StitchedImage_MouseMove"/>
                     <Line Name="VerticalLine" Stroke="Red" StrokeThickness="2" Visibility="Collapsed" />
                     <Line Name="StartVerticalLine" Stroke="{Binding SelectedColorName}" StrokeThickness="2" Visibility="Collapsed" />
+                    <Line Name="NudgeVerticalLine" Stroke="LawnGreen" StrokeThickness="2" Visibility="Collapsed" />
                     <TextBlock Name="TimeLabel"   Foreground="White" Visibility="Collapsed" />
 
-                    <Popup Name="Popup"
+                    <Popup Name="PopupVideoFrameImage"
                        IsOpen="False"
                        Placement="MousePoint"
-                       PlacementTarget="{Binding ElementName=StitchedImage}"
-		               StaysOpen="False">
+                       PlacementTarget="{Binding ElementName=NudgeVerticalLine}"
+                       HorizontalOffset="0"
+                       StaysOpen="False">
                         <Border BorderBrush="Black" BorderThickness="2"
 				            MouseDown="Popup_MouseDown">
                             <Grid>
@@ -545,7 +538,7 @@
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"/>
                                 <!-- Bottom-right resize handle -->
-                                <Thumb Width="10" Height="10"
+                                <Thumb Name="ResizeThumb" Width="10" Height="10"
                                 HorizontalAlignment="Right"
                                 VerticalAlignment="Bottom"
                                 Background="Gray"

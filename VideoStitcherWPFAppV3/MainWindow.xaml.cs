@@ -27,6 +27,8 @@ using System.Text.RegularExpressions;
 using OpenCvSharp;
 using System.Media;
 using System.Collections.Generic;
+using System.Windows.Shapes;
+using System.Security;
 //using OpenCvSharp;
 //using OpenCvSharp;
 
@@ -81,6 +83,7 @@ namespace PhotoTimingGui
         {
             VerticalLine.Visibility = Visibility.Collapsed; // Hide the vertical line
             StartVerticalLine.Visibility = Visibility.Collapsed; // Hide the start vertical line
+            NudgeVerticalLine.Visibility = Visibility.Collapsed;
             //OpenFileDialog openFileDialog = new OpenFileDialog
             //{
             //    Filter = "Image Files (*.png)|*.png"
@@ -112,6 +115,8 @@ namespace PhotoTimingGui
             { VerticalLine.Visibility = Visibility.Collapsed; }
             if (StartVerticalLine != null)
             { StartVerticalLine.Visibility = Visibility.Collapsed; }
+            if (NudgeVerticalLine != null)
+            { NudgeVerticalLine.Visibility = Visibility.Collapsed; }
             UpdateZoom();
         }
 
@@ -121,7 +126,8 @@ namespace PhotoTimingGui
             {  VerticalLine.Visibility = Visibility.Collapsed;}
             if (StartVerticalLine != null)
             { StartVerticalLine.Visibility = Visibility.Collapsed; }
-
+            if (NudgeVerticalLine != null)
+            { NudgeVerticalLine.Visibility = Visibility.Collapsed; }
             UpdateZoom();
         }
 
@@ -167,6 +173,8 @@ namespace PhotoTimingGui
             { VerticalLine.Visibility = Visibility.Collapsed; }
             if (StartVerticalLine != null)
             { StartVerticalLine.Visibility = Visibility.Collapsed; }
+            if (NudgeVerticalLine != null)
+            { NudgeVerticalLine.Visibility = Visibility.Collapsed; }
 
             if ((imageLoaded) || (StitchedImage == null))
                 return;
@@ -205,6 +213,8 @@ namespace PhotoTimingGui
             { VerticalLine.Visibility = Visibility.Collapsed; }
             if (StartVerticalLine != null)
             { StartVerticalLine.Visibility = Visibility.Collapsed; }
+            if (NudgeVerticalLine != null)
+            { NudgeVerticalLine.Visibility = Visibility.Collapsed; }
 
             if ((imageLoaded) || (StitchedImage == null))
                 return;
@@ -424,6 +434,12 @@ namespace PhotoTimingGui
 
         private void StitchButton_Click(object sender, RoutedEventArgs e)
         {
+            PopupVideoFrameImage.IsOpen = false; // Close the popup if it is open
+            WatchClockDateTimePopup.IsOpen = false;
+            StartVerticalLine.Visibility = Visibility.Collapsed;
+            VerticalLine.Visibility = Visibility.Collapsed;
+            TimeLabel.Visibility = Visibility.Collapsed;
+
             string videoFilePath = GetVideoPath();
             int axisHeight = (int)AxisHeightSlider.Value;
             int audioHeight = (int)AudioHeightSlider.Value;
@@ -636,7 +652,7 @@ namespace PhotoTimingGui
 
         private bool SetVerticalLine(System.Windows.Point position, System.Windows.Shapes.Line _VerticalLine)
         {
-            Popup.IsOpen = false;
+            PopupVideoFrameImage.IsOpen = false;
             if (_VerticalLine != null)
             { _VerticalLine.Visibility = Visibility.Collapsed; }
             TimeLabel.Visibility = Visibility.Collapsed;
@@ -692,9 +708,10 @@ namespace PhotoTimingGui
 
         private void StitchedImage_MouseButtonDown(object sender, MouseButtonEventArgs e)
         {
+            NudgeVerticalLine.Visibility = Visibility.Collapsed;
             if (!IsDataContext())
                 return;
-
+            horizOffset = 0;
             TimeLabel.Visibility = Visibility.Collapsed;
 
             System.Windows.Shapes.Line _VerticalLine = VerticalLine;
@@ -1112,28 +1129,34 @@ namespace PhotoTimingGui
                 bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
                 bitmapImage.EndInit();
             }
-
+            FrameImage.Source = bitmapImage;
             //StitchedImage.Source = bitmapImage;
             //if (StitchedImage.Source is BitmapSource bitmapx)
             //{
             //    System.Diagnostics.Debug.WriteLine($"Image Dimensions: {bitmapx.PixelWidth}x{bitmap.PixelHeight}");
             //}
             resize = false;
-            if (Popup.Width is double.NaN)
+            if (PopupVideoFrameImage.Width is double.NaN)
                 resize = true;
             if (resize)
             {
 
                 FrameImage.Width = 100;
-                FrameImage.Height = 100;
+                //FrameImage.Height = 100;
+                var width = FrameImage.Source.Width;
+                var height = FrameImage.Source.Height;
+                double ratio = height / width;
+                FrameImage.Height = ratio * FrameImage.Width + ResizeThumb.Height;
             }
-            Popup.Width = FrameImage.Width;
-            Popup.Height = FrameImage.Height;
+            PopupVideoFrameImage.Width = FrameImage.Width;
+            PopupVideoFrameImage.Height = FrameImage.Height;
+            PopupVideoFrameImage.HorizontalOffset = FrameImage.Width / 2;
             Divider.Y2 = FrameImage.Height;
-            FrameImage.Source = bitmapImage;
-            Popup.HorizontalOffset =  (int)(Popup.Width / 2); // GetPopupWidth();
-            Popup.VerticalOffset = 0;// (int)Popup.Height; /*GetTimeLabelMargin().Top + TimeLabel.ActualHeight +115;*/
-            Popup.IsOpen = true;
+           
+            //PopupVideoFrameImage.HorizontalOffset =  (int)(PopupVideoFrameImage.Width / 2); // GetPopupWidth();
+            //PopupVideoFrameImage.VerticalOffset = 0;// (int)PopupVideoFrameImage.Height; /*GetTimeLabelMargin().Top + TimeLabel.ActualHeight +115;*/
+
+            PopupVideoFrameImage.IsOpen = true;
             return;
         }
 
@@ -1213,6 +1236,10 @@ namespace PhotoTimingGui
             }
         }
 
+        double horizOffset = 0;
+        double horizOffsetz = 0;
+        double verticalOffset = 0;
+
         /// <summary>
         /// Nudge SelectedStartTime +/- by 1/100 second
         /// </summary>
@@ -1220,6 +1247,23 @@ namespace PhotoTimingGui
         /// <param name="e"></param>
         private void NudgeButton_Click(object sender, RoutedEventArgs e)
         {
+            var prevline = (StartVerticalLine.Visibility == Visibility.Visible)
+            ? StartVerticalLine
+            : (VerticalLine.Visibility == Visibility.Visible) ? VerticalLine
+            : (NudgeVerticalLine.Visibility == Visibility.Visible) ? NudgeVerticalLine : null;
+            if (prevline == null)
+                return;
+
+            if(prevline != NudgeVerticalLine)
+            {
+                prevline.Visibility = Visibility.Collapsed;
+                NudgeVerticalLine.X1 = prevline.X1;
+                NudgeVerticalLine.X2 = prevline.X2;
+                NudgeVerticalLine.Y1 = prevline.Y1;
+                NudgeVerticalLine.Y2 = prevline.Y2;
+                NudgeVerticalLine.Visibility = Visibility.Visible;
+                horizOffsetz = NudgeVerticalLine.X1;
+            }
             if (sender is Button button)
             {
                 string toolTip = button.ToolTip?.ToString() ?? "";
@@ -1228,6 +1272,11 @@ namespace PhotoTimingGui
                 else 
                     NudgeWC(toolTip);
             }
+            ImageCanvas.UpdateLayout();
+            NudgeVerticalLine.UpdateLayout();
+            horizOffset = NudgeVerticalLine.X1- horizOffsetz;
+
+            PositionPopupOverLine();
         }
 
         /// <summary>
@@ -1240,7 +1289,7 @@ namespace PhotoTimingGui
 
             if (toolTip == "")
                 return;
-            System.Windows.Shapes.Line _VerticalLine = VerticalLine;
+            System.Windows.Shapes.Line _VerticalLine = NudgeVerticalLine;
             TimeFromMode timeFromMode = GetTimeFromMode();
             double startTime = 0;
             bool isManualNotSelected = false;
@@ -1352,6 +1401,8 @@ namespace PhotoTimingGui
             
             _VerticalLine.Y2 = posY2; // Bottom of the image
 
+            horizOffset = posX- horizOffset;
+            verticalOffset = posY2; ;
             UpdateTimeLabel(posX,startTime,isLeft);
             if (GetShowVideoFramePopup())
                 DisplayFrame(frameNo, posX, false);
@@ -1414,26 +1465,28 @@ namespace PhotoTimingGui
 
         private void ResizeThumb_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
         {
-            var margin = Popup.Margin;
+            var margin = PopupVideoFrameImage.Margin;
 
             double prevWidth = FrameImage.Width;
-            double posx = Popup.HorizontalOffset - prevWidth;
-
+            double posx = PopupVideoFrameImage.HorizontalOffset - prevWidth;
+            var width = FrameImage.Source.Width;
+            var height = FrameImage.Source.Height;
+            double ratio = height / width;
             double newWidth = FrameImage.Width + e.HorizontalChange;
-            double newHeight = FrameImage.Height + e.VerticalChange;
+            double newHeight = ratio * FrameImage.Width + ResizeThumb.Height;
 
             // Ensure minimum size
             FrameImage.Width = Math.Max(newWidth, GetMinPopupWidth() / 2);
             FrameImage.Height = Math.Max(newHeight, GetMinPopupHeight() / 2);
-            Popup.Width = FrameImage.Width;
-            Popup.Height = FrameImage.Height;
+            PopupVideoFrameImage.Width = FrameImage.Width;
+            PopupVideoFrameImage.Height = FrameImage.Height;
             posx += FrameImage.Width; ;
-            Popup.HorizontalOffset = posx; // Update horizontal offset to keep the popup in place
+            PopupVideoFrameImage.HorizontalOffset = posx; // Update horizontal offset to keep the popup in place
 
             // Close popup if resized below 50px
             if (FrameImage.Width <= (GetMinPopupWidth() / 2) || FrameImage.Height <= (GetMinPopupHeight() / 2))
             {
-                Popup.IsOpen = false;
+                PopupVideoFrameImage.IsOpen = false;
             }
         }
 
@@ -1441,7 +1494,7 @@ namespace PhotoTimingGui
         {
             if (e.ClickCount == 2) // Detect double-click
             {
-                Popup.IsOpen = false; // Close popup
+                PopupVideoFrameImage.IsOpen = false; // Close popup
             }
         }
 
@@ -1491,7 +1544,7 @@ namespace PhotoTimingGui
         private void ShowPopup(object s, RoutedEventArgs e)
         {
             Dp.DisplayDate = DateTime.Now;       // reset default
-            DateTimePopup.IsOpen = true;
+            WatchClockDateTimePopup.IsOpen = true;
         }
 
         private void Ok_Click(object s, RoutedEventArgs e)
@@ -1520,12 +1573,12 @@ namespace PhotoTimingGui
                 this.WriteGLine(gunTime);
             }
 
-            DateTimePopup.IsOpen = false;
+            WatchClockDateTimePopup.IsOpen = false;
         }
 
         private void Cancel_Click(object s, RoutedEventArgs e)
         {
-            DateTimePopup.IsOpen = false;
+            WatchClockDateTimePopup.IsOpen = false;
         }
 
         private void About_Click(object sender, RoutedEventArgs e)
@@ -1567,6 +1620,51 @@ namespace PhotoTimingGui
             });
         }
 
-        ////////////////////////////////////////////////////////////////////////////////////////
+        private void PositionPopupOverLine1()
+        {
+            var line = (StartVerticalLine.Visibility == Visibility.Visible)
+                ? StartVerticalLine
+                : (VerticalLine.Visibility == Visibility.Visible) ? VerticalLine
+                : (NudgeVerticalLine.Visibility == Visibility.Visible) ? NudgeVerticalLine : null;
+
+
+            if (line == null) return;
+
+            var point = line.TransformToAncestor(ImageCanvas).Transform(new System.Windows.Point(0, 0));
+            PopupVideoFrameImage.HorizontalOffset = point.X - PopupVideoFrameImage.ActualWidth / 2;
+            PopupVideoFrameImage.VerticalOffset = point.Y - PopupVideoFrameImage.ActualHeight - 10;
+            PopupVideoFrameImage.IsOpen = true;
+        }
+
+        private void PositionPopupOverLine()
+        {
+            if (!IsDataContext())
+                return;
+
+            Line? lineToUse = NudgeVerticalLine;
+            if (NudgeVerticalLine?.Visibility != Visibility.Visible)
+                return;
+            if (lineToUse != null)
+            {
+
+                System.Windows.Point fakeMousePoint = new System.Windows.Point(horizOffset, 0); // arbitrarily chosen coordinates
+                var screenPoint = ImageCanvas.PointToScreen(fakeMousePoint);
+                var windowPoint = this.PointFromScreen(screenPoint);
+
+
+                if (DataContext is ViewModels.MyViewModel MyViewModel)
+                {
+                    PopupVideoFrameImage.HorizontalOffset = (int)Math.Round(windowPoint.X  ,0);
+                    if (PopupVideoFrameImage.VerticalOffset <= 0)
+                        PopupVideoFrameImage.VerticalOffset = 100;
+                    System.Diagnostics.Debug.WriteLine(horizOffset);
+                }
+
+                return;
+            }
+        }
+
     }
+
+    ////////////////////////////////////////////////////////////////////////////////////////
 }

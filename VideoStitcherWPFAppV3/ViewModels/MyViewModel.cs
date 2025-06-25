@@ -56,6 +56,20 @@ namespace PhotoTimingGui.ViewModels
             set { _GunTime = value; OnPropertyChanged(nameof(GunTime)); }
         }
 
+        private int _PopupVideoFrameImageX = 0;
+        public int PopupVideoFrameImageX
+        {
+            get => _PopupVideoFrameImageX;
+            set { _PopupVideoFrameImageX = value; OnPropertyChanged(nameof(PopupVideoFrameImageX)); }
+        }
+
+        private int _PopupVideoFrameImageY = 0;
+        public int PopupVideoFrameImageY
+        {
+            get => _PopupVideoFrameImageY;
+            set { _PopupVideoFrameImageY = value; OnPropertyChanged(nameof(PopupVideoFrameImageY)); }
+        }
+
         private int _GunTimeIndex = 0;
         public int GunTimeIndex
         {
@@ -90,7 +104,15 @@ namespace PhotoTimingGui.ViewModels
         public int MinPopupWidth
         {
             get => _PopupWidth;
-            set { _PopupWidth = value; OnPropertyChanged(nameof(MinPopupWidth)); }
+            set { _PopupWidth = value; 
+                OnPropertyChanged(nameof(MinPopupWidth));
+                OnPropertyChanged(nameof(PopupWidthHorizonatlOffset));
+            }
+        }
+
+        public int PopupWidthHorizonatlOffset
+        {
+            get  { return _PopupWidth / 2; }
         }
 
         public MyViewModel()
