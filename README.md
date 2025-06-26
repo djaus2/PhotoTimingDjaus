@@ -11,6 +11,8 @@ A simple phototiming app for Athletics etc where a finish line is filmed with sa
 
 ### Latest
 > **A work in progress:**
+- Popup image of frame is centered for mouse click on image (red) line, nudge line is green and image frame for it tracks that line but not centered.
+  - Double click on image frame hides it, single click enlarges frame x1.5, shift single click reduces frame by 1.5. If too small (about 50) is hidden
 - Zoom controls now work. Pan sliders don't though. Simplest: ***Just set the Auto Width and Height.***
 - Default TimeFrom mode is Manual. If Video Filename has DateTime string on end then that is interpreted as the Gun (race start) DateTime and set to WallClock mode.
   - eg ```qwerty1_GUN_2025-06-19 11--34--08.591_.mp4```     Pattern searched for with Regex is  
