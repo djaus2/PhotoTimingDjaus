@@ -12,9 +12,21 @@ using PhotoTimingDjaus;
 using PhotoTimingDjaus.Enums;// This is where TimeFromMode is defined
 using OpenCvSharp;
 using System.Text.Json;
+using static PhotoTimingGui.ViewModels.enums;
+using System.Windows.Controls.Primitives;
 
 namespace PhotoTimingGui.ViewModels
 {
+    public class enums
+    {
+        public enum NudgeFrameLocation
+        {
+            Left,
+            Center,
+            Right
+        }
+
+    }
     public class MyViewModel : INotifyPropertyChanged
     {
         private Scalar _gunColor = new Scalar(255, 255, 255, 1); // Default to white
@@ -26,23 +38,23 @@ namespace PhotoTimingGui.ViewModels
         private VideoDetectMode _videoDetectMode = VideoDetectMode.FromFlash;
 
         private string _VideoPathInput = "";
-        public string VideoPathInput { get => _VideoPathInput; 
-            set  { _VideoPathInput = value; OnPropertyChanged(nameof(VideoPathInput)); } }
+        public string VideoPathInput { get => _VideoPathInput;
+            set { _VideoPathInput = value; OnPropertyChanged(nameof(VideoPathInput)); } }
 
         private string _OutputPathInput = "";
-        public string OutputPathInput { get => _OutputPathInput; set  { _OutputPathInput = value; OnPropertyChanged(nameof(OutputPathInput)); } }
+        public string OutputPathInput { get => _OutputPathInput; set { _OutputPathInput = value; OnPropertyChanged(nameof(OutputPathInput)); } }
 
         private string _GunAudioPathInput = "";
-        public string GunAudioPathInput { get => _GunAudioPathInput; set  { _GunAudioPathInput = value; OnPropertyChanged(nameof(OutputPathInput)); } }
+        public string GunAudioPathInput { get => _GunAudioPathInput; set { _GunAudioPathInput = value; OnPropertyChanged(nameof(OutputPathInput)); } }
 
         public double _StartTimeInput = 0.0;
         public double StartTimeInput
-        { 
+        {
             get => _StartTimeInput;
             set { _StartTimeInput = value; OnPropertyChanged(nameof(StartTimeInput)); }
         }
 
-        private double _VideoLength =0;
+        private double _VideoLength = 0;
         public double VideoLength
         {
             get => _VideoLength;
@@ -91,7 +103,7 @@ namespace PhotoTimingGui.ViewModels
             get => _ShowVideoFramePopup;
             set { _ShowVideoFramePopup = value; OnPropertyChanged(nameof(ShowVideoFramePopup)); }
         }
- 
+
 
         private int _PopupHeight = 150;
         public int MinPopupHeight
@@ -104,7 +116,7 @@ namespace PhotoTimingGui.ViewModels
         public int MinPopupWidth
         {
             get => _PopupWidth;
-            set { _PopupWidth = value; 
+            set { _PopupWidth = value;
                 OnPropertyChanged(nameof(MinPopupWidth));
                 OnPropertyChanged(nameof(PopupWidthHorizonatlOffset));
             }
@@ -112,7 +124,7 @@ namespace PhotoTimingGui.ViewModels
 
         public int PopupWidthHorizonatlOffset
         {
-            get  { return _PopupWidth / 2; }
+            get { return _PopupWidth / 2; }
         }
 
         public MyViewModel()
@@ -141,11 +153,11 @@ namespace PhotoTimingGui.ViewModels
             get => _HasSelectedandShownGunLineToManualMode;
             set
             {
-                    if ((TimeFromMode != TimeFromMode.ManuallySelect) &&
-                        (TimeFromMode != TimeFromMode.WallClockSelect))
-                        return;
-                    _HasSelectedandShownGunLineToManualMode = value; // Set HasStitched to true when switching to manual mode
-                    OnPropertyChanged(nameof(HaveSelectedandShownGunLineToManualorWallClockMode));
+                if ((TimeFromMode != TimeFromMode.ManuallySelect) &&
+                    (TimeFromMode != TimeFromMode.WallClockSelect))
+                    return;
+                _HasSelectedandShownGunLineToManualMode = value; // Set HasStitched to true when switching to manual mode
+                OnPropertyChanged(nameof(HaveSelectedandShownGunLineToManualorWallClockMode));
             }
         }
 
@@ -192,7 +204,7 @@ namespace PhotoTimingGui.ViewModels
         private DateTime _EventStartWallClockDateTime = DateTime.MinValue;
         public DateTime EventStartWallClockDateTime
         {
-            get 
+            get
             {
                 DateTime dt = _EventStartWallClockDateTime;
                 return dt;
@@ -206,7 +218,7 @@ namespace PhotoTimingGui.ViewModels
             }
         }
 
-        private  DateTime _VideoCreationDate;
+        private DateTime _VideoCreationDate;
         public DateTime VideoCreationDate
         {
             get => _VideoCreationDate;
@@ -229,7 +241,7 @@ namespace PhotoTimingGui.ViewModels
 
         public TimeFromMode TimeFromMode
         {
-            get =>  _TimeFromMode;
+            get => _TimeFromMode;
             set
             {
                 _TimeFromMode = value;
@@ -345,7 +357,7 @@ namespace PhotoTimingGui.ViewModels
         public bool IsCyanSelected => string.Equals(_selectedColorName, "Cyan", StringComparison.OrdinalIgnoreCase);
         public bool IsMagentaSelected => string.Equals(_selectedColorName, "Magenta", StringComparison.OrdinalIgnoreCase);
         public bool IsWhiteSelected => string.Equals(_selectedColorName, "White", StringComparison.OrdinalIgnoreCase);
-        public bool IsBlackSelected => string.Equals(_selectedColorName, "Black", StringComparison.OrdinalIgnoreCase);      
+        public bool IsBlackSelected => string.Equals(_selectedColorName, "Black", StringComparison.OrdinalIgnoreCase);
         public bool FlashSelected => TimeFromMode.Equals(_TimeFromMode, TimeFromMode.FromGunViaVideo);
         public bool ManualSelected => TimeFromMode.Equals(_TimeFromMode, TimeFromMode.ManuallySelect);
 
@@ -404,6 +416,44 @@ namespace PhotoTimingGui.ViewModels
             }
         }
 
+
+
+            private PlacementMode _placement = PlacementMode.Bottom;
+            public PlacementMode PopupPlacement
+            {
+                get => _placement;
+                set
+                {
+                    if (_placement != value)
+                    {
+                        _placement = value;
+                        OnPropertyChanged(nameof(PopupPlacement));
+                    }
+                }
+            }
+
+            // Include INotifyPropertyChanged implementation...
+    
+        /*
+        public string NudgePlacement
+        {
+            get
+            {
+                return NudgeLocation switch
+                {
+                    NudgeFrameLocation.Left => "Left",
+                    NudgeFrameLocation.Center => "Center",
+                    NudgeFrameLocation.Right => "Right",
+                    _ => "Unknown"
+                };
+            }
+        }*/
+        //public ICommand NudgeLeftCommand => new RelayCommand(_ => NudgeFrame(NudgeFrameLocation.Left));
+
+        // INotifyPropertyChanged implementation
+
+
+
         public event PropertyChangedEventHandler? PropertyChanged;
         protected void OnPropertyChanged(string propertyName)
         {
@@ -452,5 +502,30 @@ namespace PhotoTimingGui.ViewModels
             return value?.Equals(true) == true ? parameter : Binding.DoNothing;
         }
     }
+
+    public class PlacementModeToBooleanConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is PlacementMode mode && parameter is string param)
+            {
+                return mode.ToString().Equals(param, StringComparison.OrdinalIgnoreCase);
+            }
+            return false;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if ((bool)value && parameter is string param &&
+                Enum.TryParse(typeof(PlacementMode), param, true, out var result))
+            {
+                return result;
+            }
+            return Binding.DoNothing;
+        }
+
+    }
+
+
 
 }

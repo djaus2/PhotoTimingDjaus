@@ -9,7 +9,9 @@
         xmlns:enums="clr-namespace:PhotoTimingDjaus.Enums;assembly=VideoEnums"
         KeyDown="ImageKeyDown"
         Title="Image Viewer">
+
     <Window.Resources>
+        <local:PlacementModeToBooleanConverter x:Key="PlacementConverter"/>
         <local:EnumToBooleanConverter x:Key="EnumConverter"/>
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
         <conv:HalfValueConverter x:Key="HalfValueConverter"/>
@@ -57,6 +59,7 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
+                    <RowDefinition />
                     <RowDefinition />
                     <RowDefinition />
                     <RowDefinition />
@@ -462,6 +465,30 @@
                     <TextBlock  Text="{Binding ElementName=AudioHeightSlider, Path=Value, Mode=OneWay}"  TextAlignment="Right" Width="50" />
                 </StackPanel>
 
+    
+
+
+
+
+
+                <StackPanel Grid.Row="8" Grid.Column="0" Orientation="Horizontal">
+
+                    <RadioButton Content="Left" 
+                 IsChecked="{Binding PopupPlacement, Converter={StaticResource PlacementConverter}, ConverterParameter=Right}"
+                 GroupName="PlacementChoice" Margin="5"/>
+
+                    <RadioButton Content="Center" 
+                 IsChecked="{Binding PopupPlacement, Converter={StaticResource PlacementConverter}, ConverterParameter=Center}"
+                 GroupName="PlacementChoice" Margin="5"/>
+
+                    <RadioButton Content="Right" 
+                 IsChecked="{Binding PopupPlacement, Converter={StaticResource PlacementConverter}, ConverterParameter=Left}"
+                 GroupName="PlacementChoice" Margin="5"/>
+                </StackPanel>
+<TextBlock Grid.Row="8" Grid.Column="1" Text="{Binding PopupPlacement}" FontWeight="Bold" FontStyle="Italic" Foreground="Blue" HorizontalAlignment="Left" Margin="0,0,10,0"/>
+
+
+
                 <Label Grid.Row="4" Grid.Column="0"  Content="Time From Mode: " FontWeight="Bold" FontStyle="Italic" Foreground="Blue"  HorizontalAlignment="Right" />
                 <Label Grid.Row="5" Grid.Column="0"  Content="Detect Flash: " FontWeight="Bold" FontStyle="Italic" Foreground="Blue" HorizontalAlignment="Right" />
                 <Label Grid.Row="4" Grid.Column="1"  Content="{Binding TimeFromMode}" FontWeight="Bold"  Foreground="Purple"  HorizontalAlignment="Left" />
@@ -555,9 +582,10 @@
                     <!-- New popup specifically for NudgeVerticalLine -->
                     <Popup Name="NudgePopupVideoFrameImage"
                        IsOpen="False"
-                       Placement="MousePoint"
-                       PlacementTarget="{Binding ElementName=NudgeVerticalLine}"
+                       Placement="{Binding PopupPlacement}"
+                       PlacementTarget="{Binding ElementName=StitchedImage}"
                        HorizontalOffset="0"
+                       VerticalOffset="0"
                        StaysOpen="False">
                         <Border BorderBrush="Black" BorderThickness="2"
                                 MouseDown="NudgePopup_MouseDown">

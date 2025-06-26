@@ -1198,7 +1198,7 @@ namespace PhotoTimingGui
                 var width = NudgeFrameImage.Source.Width;
                 var height = NudgeFrameImage.Source.Height;
                 double ratio = height / width;
-                FrameImage.Height = ratio * FrameImage.Width + ResizeThumb.Height;
+                NudgeFrameImage.Height = ratio * NudgeFrameImage.Width + ResizeThumb.Height;
             }
             NudgePopupVideoFrameImage.Width = NudgeFrameImage.Width;
             NudgePopupVideoFrameImage.Height = NudgeFrameImage.Height;
@@ -1329,6 +1329,7 @@ namespace PhotoTimingGui
             horizOffset = NudgeVerticalLine.X1- horizOffsetz;
 
             PositionPopupOverLine();
+            NudgePopupVideoFrameImage.UpdateLayout();
         }
 
         /// <summary>
@@ -1798,16 +1799,39 @@ namespace PhotoTimingGui
                 NudgeFrameImage.Height = ratio * NudgeFrameImage.Width;
                 NudgePopupVideoFrameImage.Width = NudgeFrameImage.Width;
                 NudgePopupVideoFrameImage.Height = NudgeFrameImage.Height + NudgeResizeThumb.Height;
-
-                System.Windows.Point fakeMousePoint = new System.Windows.Point(horizOffset, 0); // arbitrarily chosen coordinates
+                
+                System.Windows.Point fakeMousePoint = new System.Windows.Point(horizOffset+100+GetGunTime(), 0); // arbitrarily chosen coordinates
                 var screenPoint = ImageCanvas.PointToScreen(fakeMousePoint);
                 var windowPoint = this.PointFromScreen(screenPoint);
-
+                if (NudgePopupVideoFrameImage.VerticalOffset <= 0)
+                    NudgePopupVideoFrameImage.VerticalOffset = 100;
+                NudgePopupVideoFrameImage.HorizontalOffset = 0;
                 if (DataContext is ViewModels.MyViewModel MyViewModel)
                 {
-                    NudgePopupVideoFrameImage.HorizontalOffset = (int)Math.Round(windowPoint.X  ,0);
-                    if (NudgePopupVideoFrameImage.VerticalOffset <= 0)
-                        NudgePopupVideoFrameImage.VerticalOffset = 100;
+                    var mode = MyViewModel.PopupPlacement;
+
+                    switch (mode)
+                    {
+                        case PlacementMode.Left:
+                            NudgePopupVideoFrameImage.HorizontalOffset = -NudgePopupVideoFrameImage.Width;
+                            NudgePopupVideoFrameImage.VerticalOffset = 100;
+                            break;
+                        case PlacementMode.Right:
+                            NudgePopupVideoFrameImage.HorizontalOffset = NudgePopupVideoFrameImage.Width;
+                            NudgePopupVideoFrameImage.VerticalOffset = 100;
+                            break;
+                        case PlacementMode.Center:
+                            NudgePopupVideoFrameImage.HorizontalOffset = 0; // -NudgePopupVideoFrameImage.Width
+                            NudgePopupVideoFrameImage.VerticalOffset = 0;
+                            break;
+                        case PlacementMode.Bottom:
+                            NudgePopupVideoFrameImage.HorizontalOffset = 0; // -NudgePopupVideoFrameImage.Width
+                            NudgePopupVideoFrameImage.VerticalOffset = 0;
+                            break;
+                    }
+                    // -NudgePopupVideoFrameImage.Width; // -StitchedImage.ActualWidth/2;// 0; // (int)Math.Round(windowPoint.X  ,0);
+
+                    //NudgePopupVideoFrameImage.VerticalOffset = 0;
                     System.Diagnostics.Debug.WriteLine(horizOffset);
                 }
 
