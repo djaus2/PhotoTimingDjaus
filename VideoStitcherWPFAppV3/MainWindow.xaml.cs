@@ -1202,7 +1202,7 @@ namespace PhotoTimingGui
             }
             NudgePopupVideoFrameImage.Width = NudgeFrameImage.Width;
             NudgePopupVideoFrameImage.Height = NudgeFrameImage.Height;
-            NudgePopupVideoFrameImage.HorizontalOffset = NudgeFrameImage.Width / 2;
+            NudgePopupVideoFrameImage.HorizontalOffset = 0;// NudgeFrameImage.Width / 2;
             NudgeDivider.Y2 = NudgeFrameImage.Height;
 
             //PopupVideoFrameImage.HorizontalOffset =  (int)(PopupVideoFrameImage.Width / 2); // GetPopupWidth();
@@ -1810,14 +1810,16 @@ namespace PhotoTimingGui
                 {
                     var mode = MyViewModel.PopupPlacement;
 
+                    ratio = 1 / HorizontalZoomSlider.Value;
+
                     switch (mode)
                     {
                         case PlacementMode.Left:
-                            NudgePopupVideoFrameImage.HorizontalOffset = -NudgePopupVideoFrameImage.Width;
+                            NudgePopupVideoFrameImage.HorizontalOffset = -ratio * NudgePopupVideoFrameImage.Width ;
                             NudgePopupVideoFrameImage.VerticalOffset = 100;
                             break;
                         case PlacementMode.Right:
-                            NudgePopupVideoFrameImage.HorizontalOffset = NudgePopupVideoFrameImage.Width;
+                            NudgePopupVideoFrameImage.HorizontalOffset = ratio * NudgePopupVideoFrameImage.Width;
                             NudgePopupVideoFrameImage.VerticalOffset = 100;
                             break;
                         case PlacementMode.Center:
