@@ -1,6 +1,6 @@
 # PhotoTimingDjaus
 
-**Note that the WPF app will be renamed StitchInTimeWPF** Watch this space
+**WPF app has been renamed AthStitcher** 
 
 >> NB With Phone Video Capture: You need to enter the stitched image name and accept it, like a return. Om my phone I accept by pressing the tick bottom right of popup keyboard
 
@@ -8,9 +8,11 @@
 A simple phototiming app for Athletics etc where a finish line is filmed with say, a phone, and a stitched image is created by taking the middle vertical line of pixels from each video frame and stiching together the phototiming image. Previously has a similar app that used AForge.  Note that video FramesPerSecond are typically 30 so each line represents 0.033 of s second and hence this is the resolution of any timing. Commercial equipment would be to thousandths or tens of thousandths of a second.
 
 ## Recent
-
+### Status
+> **A work in progress:** But nearly there
 ### Latest
-> **A work in progress:**
+
+> WPF App HAS been renamed as **AthStitcher**
 - Popup image of frame is centered for mouse click on image (red) line, nudge line is green and image frame for it can be left, center or right wrt to Stitched Image, when Start has been determined. Nudge line for start (Manul Mode) is faulty (2Do)
   - Double click on image frame hides it, single click enlarges frame x1.5, shift single click reduces frame by 1.5. If too small (about 50) is hidden
   - ***Don't use Nudge when setting Guntime in Manual mode.*** Needs a fix.
