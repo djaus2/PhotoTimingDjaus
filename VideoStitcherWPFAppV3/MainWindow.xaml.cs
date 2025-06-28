@@ -29,6 +29,7 @@ using System.Media;
 using System.Collections.Generic;
 using System.Windows.Shapes;
 using System.Security;
+using AthStitcher.ViewModels;
 //using OpenCvSharp;
 //using OpenCvSharp;
 
@@ -51,11 +52,16 @@ namespace PhotoTimingGui
 
         //public Visibility MyVisibility { get; set; } = Visibility.Visible;
         private readonly DispatcherTimer _saveTimer;
+        private AthStitcherViewModel athStitcherViewModel;
+        AthStitcherViewModel viewModel { get; set; } = new AthStitcherViewModel();
 
         public MainWindow()
         {
             InitializeComponent();
-            LoadViewModel();
+            athStitcherViewModel = new AthStitcherViewModel();
+            this.DataContext = viewModel;
+            athStitcherViewModel.LoadViewModel();
+            this.DataContext = athStitcherViewModel.DataContext; // Set the DataContext to the AthStitchView instance
             //this.DataContext = new ViewModels.MyViewModel();
             Loaded += MainWindow_Loaded;
             _saveTimer = new DispatcherTimer
@@ -66,10 +72,10 @@ namespace PhotoTimingGui
             _saveTimer.Tick += (s, e) =>
             {
                 _saveTimer.Stop();
-                SaveViewModel();
+                athStitcherViewModel.SaveViewModel();
             };
 
-            if (this.DataContext is MyViewModel vm)
+            if (this.DataContext is AthStitcherModel vm)
             {
                 vm.PropertyChanged += (s, e) =>
                 {
@@ -88,7 +94,7 @@ namespace PhotoTimingGui
             //{
             //    Filter = "Image Files (*.png)|*.png"
             //};
-            string imageFilePath = GetOutputPath();
+            string imageFilePath = athStitcherViewModel.GetOutputPath();
             if (File.Exists(imageFilePath))
             {
                 // Load the selected image into the Image control
@@ -440,24 +446,24 @@ namespace PhotoTimingGui
             VerticalLine.Visibility = Visibility.Collapsed;
             TimeLabel.Visibility = Visibility.Collapsed;
 
-            string videoFilePath = GetVideoPath();
+            string videoFilePath = athStitcherViewModel.GetVideoPath();
             int axisHeight = (int)AxisHeightSlider.Value;
             int audioHeight = (int)AudioHeightSlider.Value;
-            TimeFromMode timeFromMode = GetTimeFromMode();
+            TimeFromMode timeFromMode = athStitcherViewModel.GetTimeFromMode();
             // Used by manully select mode, later
             // Need to get stitched image first
             // You can then set it.
-            SetSelectedStartTime(0);
+            athStitcherViewModel.SetSelectedStartTime(0);
             VerticalLine.Visibility = Visibility.Collapsed; // Hide the vertical line
             StartVerticalLine.Visibility = Visibility.Collapsed; // Hide the start vertical line
 
             // Show the busy indicator
             BusyIndicator.Visibility = Visibility.Visible;
             //MyVisibility = Visibility.Collapsed; ; // Hide the button
-            SetMyVisibility(Visibility.Collapsed);
+            athStitcherViewModel.SetMyVisibility(Visibility.Collapsed);
             Thread.Yield();
             DetectVideoFlash.ActionVideoAnalysis? actionVideoAnalysis = null;
-            VideoDetectMode videoDetectMode = GetVideoDetectMode();
+            VideoDetectMode videoDetectMode = athStitcherViewModel.GetVideoDetectMode();
             if (timeFromMode == TimeFromMode.FromButtonPress)
             {
                 // Nothing 2Do
@@ -475,7 +481,7 @@ namespace PhotoTimingGui
             // Validate inputs
             // Read inputs
             //string gunAudioPath = GunAudioPath();
-            string outputPath = GetOutputPath();
+            string outputPath = athStitcherViewModel.GetOutputPath();
 
 
             StitchButton.Width = 0;
@@ -505,28 +511,28 @@ namespace PhotoTimingGui
             }
             threshold = int.Parse(Threshold.Text);
 
-            DateTime? creationDate = DetectAudioFlash.FFMpegActions.GetVideoStart(GetVideoPath());
+            DateTime? creationDate = DetectAudioFlash.FFMpegActions.GetVideoStart(athStitcherViewModel.GetVideoPath());
             if (creationDate != null)
             {
-                SetVideoCreationDate(creationDate);
+                athStitcherViewModel.SetVideoCreationDate(creationDate);
             }
 
             //if (videoStitcher == null)
             //{
             videoStitcher = new PhotoTimingDjaus.VideoStitcher(
-                GetVideoPath(),
-                GetGunColor(),
-                GetOutputPath(),
-                GetSelectedStartTime(),
+                athStitcherViewModel.GetVideoPath(),
+                athStitcherViewModel.GetGunColor(),
+                athStitcherViewModel.GetOutputPath(),
+                athStitcherViewModel.GetSelectedStartTime(),
                 axisHeight,
                 audioHeight,
-                GetlevelImage(),
-                GetTimeFromMode(),
+                athStitcherViewModel.GetlevelImage(),
+                athStitcherViewModel.GetTimeFromMode(),
                 threshold);
             //}
 
-            string gunAudioPath = GetGunAudioPath();
-            videoDetectMode = GetVideoDetectMode();
+            string gunAudioPath = athStitcherViewModel.GetGunAudioPath();
+            videoDetectMode = athStitcherViewModel.GetVideoDetectMode();
 
             // Run the stitching process in a background thread
             BackgroundWorker worker = new BackgroundWorker();
@@ -571,16 +577,16 @@ namespace PhotoTimingGui
             worker.RunWorkerCompleted += (s, args) =>
             {
                 videoLength = videoStitcher.videoDuration;
-                SetVideoLength(videoLength);
-                SetGunTime(GunTimeDbl, GunTimeIndex); // Set the gun time in the ViewModel
+                athStitcherViewModel.SetVideoLength(videoLength);
+                athStitcherViewModel.SetGunTime(GunTimeDbl, GunTimeIndex); // Set the gun time in the ViewModel
 
-                SetVideoLength(videoLength);
+                athStitcherViewModel.SetVideoLength(videoLength);
 
                 // Hide the busy indicator
                 BusyIndicator.Visibility = Visibility.Collapsed;
 
                 // Display the stitched image
-                LoadStitchedImage(GetOutputPath());
+                LoadStitchedImage(athStitcherViewModel.GetOutputPath());
 
                 /*
                 if (File.Exists(GetOutputPath()))
@@ -627,19 +633,19 @@ namespace PhotoTimingGui
                     MessageBox.Show("Failed to create the stitched image.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }*/
                 //MyVisibility = Visibility.Visible;
-                SetMyVisibility(Visibility.Visible);
+                athStitcherViewModel.SetMyVisibility(Visibility.Visible);
                 //StitchButton.Visibility = Visibility.Visible; // Hide the button
                 StitchButton.Width = 200;
                 StitchButton.IsEnabled = true; // Re-enable the button
-                SetHasStitched();
+                athStitcherViewModel.SetHasStitched();
                 if (timeFromMode == TimeFromMode.WallClockSelect)
                 {
                     //If the wall clock start time is not set,
                     //.. thatis its is DateTime.MinValue
                     // set it to the video creation date
-                    if (GetEventWallClockStartTime() == DateTime.MinValue)
+                    if (athStitcherViewModel.GetEventWallClockStartTime() == DateTime.MinValue)
                     {
-                        SetEventWallClockStartTime(GetVideoCreationDate());
+                        athStitcherViewModel.SetEventWallClockStartTime(athStitcherViewModel.GetVideoCreationDate());
                     }
                     
                 }
@@ -680,10 +686,10 @@ namespace PhotoTimingGui
                 //if clicked after video ends hide line and text at mouse position
             }
 
-            videoLength = GetVideoLength();
+            videoLength = athStitcherViewModel.GetVideoLength();
             double timeFromVideoStart = (posX / stitchedImageVirtualWidth) * videoLength;
             System.Diagnostics.Debug.WriteLine($"DOWN -- tim {timeFromVideoStart} = (posX {posX}/ sivw {stitchedImageVirtualWidth})* videoLength {videoLength}");
-            double gunTime = GetGunTime();
+            double gunTime = athStitcherViewModel.GetGunTime();
             if (timeFromVideoStart < gunTime)
             {
                 //Before gun so hide line
@@ -709,7 +715,7 @@ namespace PhotoTimingGui
         private void StitchedImage_MouseButtonDown(object sender, MouseButtonEventArgs e)
         {
             NudgeVerticalLine.Visibility = Visibility.Collapsed;
-            if (!IsDataContext())
+            if (!athStitcherViewModel.IsDataContext())
                 return;
             horizOffset = 0;
             TimeLabel.Visibility = Visibility.Collapsed;
@@ -719,10 +725,10 @@ namespace PhotoTimingGui
             bool isLeft = (e.LeftButton == MouseButtonState.Pressed);
             if (isLeft)
             {
-                if (!Get_HasStitched())
+                if (!athStitcherViewModel.Get_HasStitched())
                     return;
                 // Left button for Manuual Mode only if guntime has been set
-                if (!Get_HaveSelectedandShownGunLineinManualorWallClockMode())
+                if (!athStitcherViewModel.Get_HaveSelectedandShownGunLineinManualorWallClockMode())
                     return;
                 _VerticalLine = VerticalLine;
             }
@@ -730,12 +736,12 @@ namespace PhotoTimingGui
             {
                 if (!(e.RightButton == MouseButtonState.Pressed))
                     return;
-                if (!Get_HasStitched())
+                if (!athStitcherViewModel.Get_HasStitched())
                     return;
-                if (!ManuallySelectMode())
+                if (!athStitcherViewModel.ManuallySelectMode())
                     return;
 
-                if (HasSelectedandShownGunLineToManualMode())
+                if (athStitcherViewModel.HasSelectedandShownGunLineToManualMode())
                     return;
 
                 _VerticalLine = StartVerticalLine;
@@ -758,7 +764,7 @@ namespace PhotoTimingGui
 
         private void StitchedImage_MouseMove(object sender, MouseEventArgs e)
         {
-            if (!IsDataContext())
+            if (!athStitcherViewModel.IsDataContext())
                 return;
             //Jeteson quickly
             if ((!(e.LeftButton == MouseButtonState.Pressed)) && !(e.RightButton == MouseButtonState.Pressed))
@@ -804,7 +810,7 @@ namespace PhotoTimingGui
 
                 double posX = position.X;
 
-                if (GetShowVideoFramePopup())
+                if (athStitcherViewModel.GetShowVideoFramePopup())
                     DisplayFrame(frameNo, posX);
             }
             StitchedImage.ReleaseMouseCapture();
@@ -813,10 +819,10 @@ namespace PhotoTimingGui
 
         private void UpdateTimeLabel(double positionX, double timeFromVideoStart, bool isLeftButton = true)
         {
-            if (!IsDataContext())
+            if (!athStitcherViewModel.IsDataContext())
                 return;
 
-            var margin = GetTimeLabelMargin();
+            var margin = athStitcherViewModel.GetTimeLabelMargin();
             margin.Left += positionX;
             TimeLabel.Margin = margin;
 
@@ -838,22 +844,22 @@ namespace PhotoTimingGui
                 return;
             }
             // Example total duration of the stitched video
-            double durationInSeconds = GetVideoLength(); // Replace with the actual duration of your stitched image
+            double durationInSeconds = athStitcherViewModel.GetVideoLength(); // Replace with the actual duration of your stitched image
 
             // Set default visibility at start to visible for controls
             //Add any other defaults here.
 
             double gunTime = 0;
             //With WallClock and Manual need to select gun time first
-            if ((GetTimeFromMode() != TimeFromMode.WallClockSelect) &&
-                    (GetTimeFromMode() != TimeFromMode.ManuallySelect))
+            if ((athStitcherViewModel.GetTimeFromMode() != TimeFromMode.WallClockSelect) &&
+                    (athStitcherViewModel.GetTimeFromMode() != TimeFromMode.ManuallySelect))
             {
                 // Get the gun time from the ViewModel
-                gunTime = GetGunTime(); // Get the gun time from the ViewModel
+                gunTime = athStitcherViewModel.GetGunTime(); // Get the gun time from the ViewModel
             }
-            else if (this.Get_HaveSelectedandShownGunLineinManualorWallClockMode())
+            else if (athStitcherViewModel.Get_HaveSelectedandShownGunLineinManualorWallClockMode())
             { 
-                gunTime = GetGunTime(); // Get the gun time from the ViewModel
+                gunTime = athStitcherViewModel.GetGunTime(); // Get the gun time from the ViewModel
             }
             double timeFromGunStart = timeFromVideoStart - gunTime; // Calculate time from gun start
             frameNo = (int)(timeFromVideoStart * Fps); // Assuming 30 FPS, adjust as needed
@@ -877,7 +883,7 @@ namespace PhotoTimingGui
 
                     // Set default visibility at start to visble for controls
                     //Add any other defaults here.
-                    SetSelectedStartTime(timeFromGunStart);
+                    athStitcherViewModel.SetSelectedStartTime(timeFromGunStart);
                 }
             }
             else
@@ -906,7 +912,7 @@ namespace PhotoTimingGui
         /// <param name="e"></param>
         private void OpenMp4File_Click(object sender, RoutedEventArgs e)
         {
-            string videoFilePath = GetVideoPath();
+            string videoFilePath = athStitcherViewModel.GetVideoPath();
             OpenFileDialog openFileDialog;
             if (File.Exists(videoFilePath))
             {
@@ -939,7 +945,7 @@ namespace PhotoTimingGui
             if (openFileDialog.ShowDialog() == true)
             {
                 videoFilePath = openFileDialog.FileName;
-                SetVideoPath(videoFilePath);
+                athStitcherViewModel.SetVideoPath(videoFilePath);
                 //string pattern = @"_GUN_(\d{2}--\d{2}--\d{2}\.\d{3})_\.mp4$";
                 string pattern = @"_GUN_(\d{4}-\d{2}-\d{2} \d{2}--\d{2}--\d{2}\.\d{3})_\.mp4$";
 
@@ -955,14 +961,14 @@ namespace PhotoTimingGui
 
                     DateTime gunDateTime = DateTime.ParseExact(normalized, "yyyy-MM-dd HH:mm:ss.fff", null);
                     Console.WriteLine($"Parsed DateTime: {gunDateTime}");
-                    SetEventWallClockStartTime(gunDateTime);
-                    SetTimeFromMode(TimeFromMode.WallClockSelect); // Set the mode to WallClockSelect
+                    athStitcherViewModel.SetEventWallClockStartTime(gunDateTime);
+                    athStitcherViewModel.SetTimeFromMode(TimeFromMode.WallClockSelect); // Set the mode to WallClockSelect
                 }
                 else
                 {
                     Console.WriteLine("No match found.");
-                    SetEventWallClockStartTime(DateTime.MinValue);
-                    SetTimeFromMode(TimeFromMode.ManuallySelect); // Set the mode to WallClockSelect
+                    athStitcherViewModel.SetEventWallClockStartTime(DateTime.MinValue);
+                    athStitcherViewModel.SetTimeFromMode(TimeFromMode.ManuallySelect); // Set the mode to WallClockSelect
                 }
             }
         }
@@ -974,7 +980,7 @@ namespace PhotoTimingGui
         /// <param name="e"></param>
         private void OpenPngFile_Click(object sender, RoutedEventArgs e)
         {
-            string OutputFilePath = GetOutputPath();
+            string OutputFilePath = athStitcherViewModel.GetOutputPath();
             OpenFileDialog openFileDialog;
             if (File.Exists(OutputFilePath))
             {
@@ -1007,7 +1013,7 @@ namespace PhotoTimingGui
             if (openFileDialog.ShowDialog() == true)
             {
                 OutputFilePath = openFileDialog.FileName;
-                SetOutputPath(OutputFilePath); // Update the ViewModel with the new path
+                athStitcherViewModel.SetOutputPath(OutputFilePath); // Update the ViewModel with the new path
                 if (File.Exists(OutputFilePath))
                 {
                     LoadImageButton_Click(null, null);
@@ -1026,7 +1032,7 @@ namespace PhotoTimingGui
         /// <param name="e"></param>
         private void OpenGunAudioTextFile_Click(object sender, RoutedEventArgs e)
         {
-            string GunAudioPathInput = GetGunAudioPath();
+            string GunAudioPathInput = athStitcherViewModel.GetGunAudioPath();
             OpenFileDialog openFileDialog;
             if (File.Exists(GunAudioPathInput))
             {
@@ -1059,7 +1065,7 @@ namespace PhotoTimingGui
             if (openFileDialog.ShowDialog() == true)
             {
                 GunAudioPathInput = openFileDialog.FileName;
-                SetGunAudioPath(GunAudioPathInput); // Update the ViewModel with the new path
+                athStitcherViewModel.SetGunAudioPath(GunAudioPathInput); // Update the ViewModel with the new path
             }
         }
 
@@ -1074,7 +1080,7 @@ namespace PhotoTimingGui
         {
             if (sender is MenuItem menuItem && menuItem.Tag is TimeFromMode timeMode)
             {
-                SetTimeFromMode(timeMode);
+                athStitcherViewModel.SetTimeFromMode(timeMode);
             }
         }
 
@@ -1089,7 +1095,7 @@ namespace PhotoTimingGui
             if (sender is MenuItem menuItem && menuItem.Tag is VideoDetectMode detectMode)
             {
                 // Update the view model's VideoDetectMode property.
-                SetVideoDetectMode(detectMode);
+                athStitcherViewModel.SetVideoDetectMode(detectMode);
             }
         }
 
@@ -1105,7 +1111,7 @@ namespace PhotoTimingGui
         /// <param name="e"></param>
         private void SaveViewModel_Click(object sender, RoutedEventArgs e)
         {
-            SaveViewModel();
+            athStitcherViewModel.SaveViewModel();
         }
 
         private void DisplayFrame(int frameNo, double posX, bool resize = true)
@@ -1238,15 +1244,15 @@ namespace PhotoTimingGui
         }
         private void WriteGunLineButton_Click(object sender, RoutedEventArgs e)
         {
-            if (!IsDataContext())
+            if (!athStitcherViewModel.IsDataContext())
                 return;
-            selectedStartTime = this.GetSelectedStartTime();
+            selectedStartTime = athStitcherViewModel.GetSelectedStartTime();
             WriteGLine(selectedStartTime);
         }
 
         private void WriteGLine(double guntime, int gunTimeIndex = -1)
         {
-            if (!IsDataContext())
+            if (!athStitcherViewModel.IsDataContext())
                 return;
 
             // Hide lines
@@ -1255,34 +1261,34 @@ namespace PhotoTimingGui
             TimeLabel.Visibility = Visibility.Collapsed;
 
             //selectedStartTime = this.GetSelectedStartTime();
-            string outputPath = GetOutputPath();
+            string outputPath = athStitcherViewModel.GetOutputPath();
             // Only write line if non zero start time is selected
             if (guntime != 0)
             {
                 if (videoStitcher == null)
                 {
                     videoStitcher = new PhotoTimingDjaus.VideoStitcher(
-                       GetVideoPath(),
-                       GetGunColor(),
-                       GetOutputPath(),
+                       athStitcherViewModel.GetVideoPath(),
+                       athStitcherViewModel.GetGunColor(),
+                       athStitcherViewModel.GetOutputPath(),
                        guntime,
                        100, //axisHeight,
                        100, //audioHeight,
-                       GetlevelImage(),
-                       GetTimeFromMode(),
+                       athStitcherViewModel.GetlevelImage(),
+                       athStitcherViewModel.GetTimeFromMode(),
                        threshold);
                 }
 
                 if (gunTimeIndex <= 0)
-                    gunTimeIndex = videoStitcher.AddGunLine(guntime, GetGunColor());
+                    gunTimeIndex = videoStitcher.AddGunLine(guntime, athStitcherViewModel.GetGunColor());
 
-                LoadStitchedImage(GetOutputPath());
+                LoadStitchedImage(athStitcherViewModel.GetOutputPath());
 
-                SetGunTime(guntime, gunTimeIndex);
-                Set_HaveSelectedandShownGunLineinManualorWallClockMode(true);
-                var a = Get_HasStitched();
-                var b = Get_HaveSelectedandShownGunLineinManualorWallClockMode();
-                var c = GetTimeFromMode();
+                athStitcherViewModel.SetGunTime(guntime, gunTimeIndex);
+                athStitcherViewModel.Set_HaveSelectedandShownGunLineinManualorWallClockMode(true);
+                var a = athStitcherViewModel.Get_HasStitched();
+                var b = athStitcherViewModel.Get_HaveSelectedandShownGunLineinManualorWallClockMode();
+                var c = athStitcherViewModel.GetTimeFromMode();
 
                 MessageBox.Show("Stitched image successfully updated and displayed!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
             }
@@ -1343,18 +1349,18 @@ namespace PhotoTimingGui
             if (toolTip == "")
                 return;
             System.Windows.Shapes.Line _VerticalLine = NudgeVerticalLine;
-            TimeFromMode timeFromMode = GetTimeFromMode();
+            TimeFromMode timeFromMode = athStitcherViewModel.GetTimeFromMode();
             double startTime = 0;
             bool isManualNotSelected = false;
             bool isLeft = true;
             double posX;
             if (timeFromMode == TimeFromMode.ManuallySelect)
             {
-                var hsnshwngunline = Get_HaveSelectedandShownGunLineinManualorWallClockMode();
+                var hsnshwngunline = athStitcherViewModel.Get_HaveSelectedandShownGunLineinManualorWallClockMode();
                 if (!hsnshwngunline)
                 {
                     _VerticalLine = StartVerticalLine; // Use the start line for manual mode
-                    selectedStartTime = this.GetSelectedStartTime();
+                    selectedStartTime = athStitcherViewModel.GetSelectedStartTime();
                     startTime = selectedStartTime;
                     isManualNotSelected = true;
                     isLeft = false;
@@ -1376,7 +1382,7 @@ namespace PhotoTimingGui
             posX = _VerticalLine.X1;
             double oneFrame = 1 / Fps;
             double oneSecNoFrames = Fps;
-            videoLength = GetVideoLength();
+            videoLength = athStitcherViewModel.GetVideoLength();
             int numFrames = (int)(videoLength * Fps);
             double posXPrev = posX;
             if (toolTip == "Back")
@@ -1435,7 +1441,7 @@ namespace PhotoTimingGui
             }
 
             startTime = (posX / stitchedImageVirtualWidth) * videoLength;
-            GunTimeDbl = GetGunTime(); // Get the gun time from the ViewModel
+            GunTimeDbl = athStitcherViewModel.GetGunTime(); // Get the gun time from the ViewModel
             if (startTime < GunTimeDbl)
                 return;
 
@@ -1443,7 +1449,7 @@ namespace PhotoTimingGui
             string formattedTime = $"{startTime}";                                                                                                      // Display the calculated time
             TimeLabel.Visibility = Visibility.Visible;
             TimeLabel.Text = $"{startTime:F2} sec";
-            var margin = GetTimeLabelMargin();
+            var margin = athStitcherViewModel.GetTimeLabelMargin();
             margin.Left += posX;
             TimeLabel.Margin = margin;
 
@@ -1457,7 +1463,7 @@ namespace PhotoTimingGui
             horizOffset = posX- horizOffset;
             verticalOffset = posY2; ;
             UpdateTimeLabel(posX,startTime,isLeft);
-            if (GetShowVideoFramePopup())
+            if (athStitcherViewModel.GetShowVideoFramePopup())
                 NudgeDisplayFrame(frameNo, posX, false);
         }
 
@@ -1471,10 +1477,10 @@ namespace PhotoTimingGui
 
             if (toolTip == "")
                 return;
-            TimeFromMode timeFromMode = GetTimeFromMode();
+            TimeFromMode timeFromMode = athStitcherViewModel.GetTimeFromMode();
             if (timeFromMode != TimeFromMode.WallClockSelect)
                 return;
-            TimeSpan eventStartWallClockTimeofDay = this.GetEventWallClockStartTimeofDay();
+            TimeSpan eventStartWallClockTimeofDay = athStitcherViewModel.GetEventWallClockStartTimeofDay();
             var WClockTime = eventStartWallClockTimeofDay;
 
             TimeSpan oneSec = new TimeSpan(0, 0, 0, 1);
@@ -1513,7 +1519,7 @@ namespace PhotoTimingGui
                 // No change in time, so do not update
                 return;
             }
-            SetEventWallClockStartTimeofDay(eventStartWallClockTimeofDay);
+            athStitcherViewModel.SetEventWallClockStartTimeofDay(eventStartWallClockTimeofDay);
         }
 
         private void ResizeThumb_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
@@ -1529,15 +1535,15 @@ namespace PhotoTimingGui
             double newHeight = ratio * FrameImage.Width + ResizeThumb.Height;
 
             // Ensure minimum size
-            FrameImage.Width = Math.Max(newWidth, GetMinPopupWidth() / 2);
-            FrameImage.Height = Math.Max(newHeight, GetMinPopupHeight() / 2);
+            FrameImage.Width = Math.Max(newWidth, athStitcherViewModel.GetMinPopupWidth() / 2);
+            FrameImage.Height = Math.Max(newHeight, athStitcherViewModel.GetMinPopupHeight() / 2);
             PopupVideoFrameImage.Width = FrameImage.Width;
             PopupVideoFrameImage.Height = FrameImage.Height;
             posx += FrameImage.Width; ;
             PopupVideoFrameImage.HorizontalOffset = posx; // Update horizontal offset to keep the popup in place
 
             // Close popup if resized below 50px
-            if (FrameImage.Width <= (GetMinPopupWidth() / 2) || FrameImage.Height <= (GetMinPopupHeight() / 2))
+            if (FrameImage.Width <= (athStitcherViewModel.GetMinPopupWidth() / 2) || FrameImage.Height <= (athStitcherViewModel.GetMinPopupHeight() / 2))
             {
                 PopupVideoFrameImage.IsOpen = false;
             }
@@ -1556,15 +1562,15 @@ namespace PhotoTimingGui
             double newHeight = ratio * NudgeFrameImage.Width + ResizeThumb.Height;
 
             // Ensure minimum size
-            NudgeFrameImage.Width = Math.Max(newWidth, GetMinPopupWidth() / 2);
-            NudgeFrameImage.Height = Math.Max(newHeight, GetMinPopupHeight() / 2);
+            NudgeFrameImage.Width = Math.Max(newWidth, athStitcherViewModel.GetMinPopupWidth() / 2);
+            NudgeFrameImage.Height = Math.Max(newHeight, athStitcherViewModel.GetMinPopupHeight() / 2);
             NudgePopupVideoFrameImage.Width = FrameImage.Width;
             NudgePopupVideoFrameImage.Height = FrameImage.Height;
             posx += NudgeFrameImage.Width; ;
             NudgePopupVideoFrameImage.HorizontalOffset = posx; // Update horizontal offset to keep the popup in place
 
             // Close popup if resized below 50px
-            if (NudgeFrameImage.Width <= (GetMinPopupWidth() / 2) || NudgeFrameImage.Height <= (GetMinPopupHeight() / 2))
+            if (NudgeFrameImage.Width <= (athStitcherViewModel.GetMinPopupWidth() / 2) || NudgeFrameImage.Height <= (athStitcherViewModel.GetMinPopupHeight() / 2))
             {
                 NudgePopupVideoFrameImage.IsOpen = false;
             }
@@ -1581,7 +1587,7 @@ namespace PhotoTimingGui
                     FrameImage.Height /= 1.5;
                     PopupVideoFrameImage.Width /= 1.5;
                     PopupVideoFrameImage.Height /= 1.5;
-                    if (FrameImage.Width < GetMinPopupWidth() / 2 || FrameImage.Height < GetMinPopupHeight() / 2)
+                    if (FrameImage.Width < athStitcherViewModel.GetMinPopupWidth() / 2 || FrameImage.Height < athStitcherViewModel.GetMinPopupHeight() / 2)
                     {
                         PopupVideoFrameImage.IsOpen = false; // Close popup if too small
                     }
@@ -1611,7 +1617,7 @@ namespace PhotoTimingGui
                     NudgeFrameImage.Height /= 1.5;
                     NudgePopupVideoFrameImage.Width /= 1.5;
                     NudgePopupVideoFrameImage.Height /= 1.5;
-                    if (NudgeFrameImage.Width < GetMinPopupWidth() / 2 || NudgeFrameImage.Height < GetMinPopupHeight() / 2)
+                    if (NudgeFrameImage.Width < athStitcherViewModel.GetMinPopupWidth() / 2 || NudgeFrameImage.Height < athStitcherViewModel.GetMinPopupHeight() / 2)
                     {
                         NudgePopupVideoFrameImage.IsOpen = false; // Close popup if too small
                     }
@@ -1632,9 +1638,9 @@ namespace PhotoTimingGui
 
         private void ImageKeyDown(object sender, KeyEventArgs e)
         {
-            if (!IsDataContext())
+            if (!athStitcherViewModel.IsDataContext())
                 return;
-            if (!Get_HasStitched())
+            if (!athStitcherViewModel.Get_HasStitched())
                 return;
             // Check if the pressed key is Escape
             bool shift = false;
@@ -1681,7 +1687,7 @@ namespace PhotoTimingGui
 
         private void Ok_Click(object s, RoutedEventArgs e)
         {
-            if (DataContext is ViewModels.MyViewModel viewModel)
+            if (DataContext is ViewModels.AthStitcherModel viewModel)
             {
 
                 var dt = viewModel.EventStartWallClockDateTime;
@@ -1692,14 +1698,14 @@ namespace PhotoTimingGui
                 if (videoStitcher == null)
                 {
                     videoStitcher = new PhotoTimingDjaus.VideoStitcher(
-                        GetVideoPath(),
-                        GetGunColor(),
-                        GetOutputPath(),
-                        GetSelectedStartTime(),
+                        athStitcherViewModel.GetVideoPath(),
+                        athStitcherViewModel.GetGunColor(),
+                        athStitcherViewModel.GetOutputPath(),
+                        athStitcherViewModel.GetSelectedStartTime(),
                         100, //axisHeight,
                         100, //audioHeight,
-                        GetlevelImage(),
-                        GetTimeFromMode(),
+                        athStitcherViewModel.GetlevelImage(),
+                        athStitcherViewModel.GetTimeFromMode(),
                         threshold);
                 }
                 this.WriteGLine(gunTime);
@@ -1770,7 +1776,7 @@ namespace PhotoTimingGui
 
         private void PositionPopupOverLine(bool resize = false)
         {
-            if (!IsDataContext())
+            if (!athStitcherViewModel.IsDataContext())
                 return;
 
             Line? lineToUse = NudgeVerticalLine;
@@ -1781,7 +1787,7 @@ namespace PhotoTimingGui
                 if (lineToUse.Visibility != Visibility.Visible)
                     return;
 
-                if(NudgePopupVideoFrameImage.Width < this.GetMinPopupWidth()/2)
+                if(NudgePopupVideoFrameImage.Width < athStitcherViewModel.GetMinPopupWidth()/2)
                 {
                     resize = true;
                 }
@@ -1800,13 +1806,13 @@ namespace PhotoTimingGui
                 NudgePopupVideoFrameImage.Width = NudgeFrameImage.Width;
                 NudgePopupVideoFrameImage.Height = NudgeFrameImage.Height + NudgeResizeThumb.Height;
                 
-                System.Windows.Point fakeMousePoint = new System.Windows.Point(horizOffset+100+GetGunTime(), 0); // arbitrarily chosen coordinates
+                System.Windows.Point fakeMousePoint = new System.Windows.Point(horizOffset+100+ athStitcherViewModel.GetGunTime(), 0); // arbitrarily chosen coordinates
                 var screenPoint = ImageCanvas.PointToScreen(fakeMousePoint);
                 var windowPoint = this.PointFromScreen(screenPoint);
                 if (NudgePopupVideoFrameImage.VerticalOffset <= 0)
                     NudgePopupVideoFrameImage.VerticalOffset = 100;
                 NudgePopupVideoFrameImage.HorizontalOffset = 0;
-                if (DataContext is ViewModels.MyViewModel MyViewModel)
+                if (DataContext is ViewModels.AthStitcherModel MyViewModel)
                 {
                     var mode = MyViewModel.PopupPlacement;
 

@@ -33,9 +33,9 @@
                 </Style.Triggers>
             </Style>
         </Window.Resources>
-        <Window.DataContext>
+        <!-- Window.DataContext>
         <local:MyViewModel/>
-    </Window.DataContext>
+    </Window.DataContext -->
     
     
 

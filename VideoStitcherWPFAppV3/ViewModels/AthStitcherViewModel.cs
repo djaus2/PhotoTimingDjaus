@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -13,10 +14,27 @@ using System.Windows.Forms;
 using System.Windows.Media.TextFormatting;
 using System.Windows.Navigation;
 
-namespace PhotoTimingGui
+namespace AthStitcher.ViewModels
 {
-    public partial class MainWindow
+    internal class AthStitcherViewModel
     {
+        internal AthStitcherModel DataContext { get; set; } = new AthStitcherModel();
+
+        internal AthStitcherViewModel( )
+        {
+
+        }
+
+        public void GetAddr(object obj)
+        {
+            GCHandle handle = GCHandle.Alloc(obj, GCHandleType.Pinned);
+            nint address = GCHandle.ToIntPtr(handle);
+
+            System.Diagnostics.Debug.WriteLine($"Address: {address}");
+
+            handle.Free();
+        }
+
         /// <summary>
         /// Save the properties of the ViewModel to application settings.
         /// Automatically called on property change via PropertyChanged event.
@@ -24,35 +42,35 @@ namespace PhotoTimingGui
         /// </summary>
         public void SaveViewModel()
         {
-            MyViewModel viewModel = (this.DataContext as MyViewModel) ?? new MyViewModel(); // Ensure viewModel is not null, otherwise create a new instance
-            string json = JsonSerializer.Serialize(viewModel);
-            VideoStitcherWPFAppV3.Properties.Settings.Default.SavedViewModel = json;
-            VideoStitcherWPFAppV3.Properties.Settings.Default.Save(); // Persist settings
+            //MyViewModel viewModel = (this.DataContext as MyViewModel) ?? new MyViewModel(); // Ensure viewModel is not null, otherwise create a new instance
+            string json = JsonSerializer.Serialize(DataContext);// viewModel);
+            Properties.Settings.Default.SavedViewModel = json;
+            Properties.Settings.Default.Save(); // Persist settings
         }
 
         /// <summary>
         /// Load the ViewModel from saved settings at startup.
         /// </summary>
-        public void LoadViewModel()
+        public AthStitcherModel LoadViewModel()
         {
-            string json = VideoStitcherWPFAppV3.Properties.Settings.Default.SavedViewModel;
+            string json = Properties.Settings.Default.SavedViewModel;
             if (!string.IsNullOrEmpty(json))
             {
                 try
                 {
-                    this.DataContext = JsonSerializer.Deserialize<MyViewModel>(json) ?? new MyViewModel();
+                    DataContext = JsonSerializer.Deserialize<AthStitcherModel>(json) ?? new AthStitcherModel();
                 }
                 catch (Exception)
                 {
                     /// If in error reset
-                    this.DataContext = new MyViewModel();
+                    DataContext = new AthStitcherModel();
                 }
             }
             else
             {
-                this.DataContext = new MyViewModel();
+                DataContext = new AthStitcherModel();
             }
-            if (this.DataContext is MyViewModel viewModel)
+            if (DataContext is AthStitcherModel viewModel)
             {
                 // Set default visibility at start to visble for controls
                 //Add any other defaults here.
@@ -65,11 +83,12 @@ namespace PhotoTimingGui
                 viewModel.GunColor = new OpenCvSharp.Scalar(255, 255, 255, 1); // Default gun color White
                 viewModel.SelectedColorName = "White"; // Default color name
             }
+            return DataContext; // Return the ViewModel instance
         }
 
         public void SetSelectedStartTime(double selectedStartTime)
         {
-            if (this.DataContext is MyViewModel viewModel)
+            if (DataContext is AthStitcherModel viewModel)
             {
                 //selectedStartTime = viewModel.StartTimeInput; // Get the current start time from the ViewModel
 
@@ -79,7 +98,7 @@ namespace PhotoTimingGui
 
         public double GetSelectedStartTime()
         {
-            if (this.DataContext is MyViewModel viewModel)
+            if (DataContext is AthStitcherModel viewModel)
             {
                 double selectedStartTime = viewModel.StartTimeInput; // Get the current start time from the ViewModel
 
@@ -90,7 +109,7 @@ namespace PhotoTimingGui
 
         public void SetHasStitched()
         {
-            if (this.DataContext is MyViewModel viewModel)
+            if (DataContext is AthStitcherModel viewModel)
             {
                 viewModel.HasStitched = true;
                 viewModel.HaveSelectedandShownGunLineToManualorWallClockMode = false;
@@ -99,7 +118,7 @@ namespace PhotoTimingGui
 
         public bool Get_HasStitched()
         {
-            if (this.DataContext is MyViewModel viewModel)
+            if (DataContext is AthStitcherModel viewModel)
             {
                 if (viewModel.HasStitched)
                     return true;
@@ -109,7 +128,7 @@ namespace PhotoTimingGui
 
         public bool GetlevelImage()
         {
-            if (this.DataContext is MyViewModel viewModel)
+            if (DataContext is AthStitcherModel viewModel)
             {
                 if (viewModel.ShowLevelImage)
                     return true;
@@ -119,7 +138,7 @@ namespace PhotoTimingGui
 
         public bool SetlevelImage(bool showLevelImage)
         {
-            if (this.DataContext is MyViewModel viewModel)
+            if (DataContext is AthStitcherModel viewModel)
             {
                 viewModel.ShowLevelImage = showLevelImage;
                 return true; // Successfully set the state
@@ -129,7 +148,7 @@ namespace PhotoTimingGui
 
         public bool ManuallySelectMode()
         {
-            if (this.DataContext is MyViewModel viewModel)
+            if (DataContext is AthStitcherModel viewModel)
             {
                 if (viewModel.TimeFromMode == TimeFromMode.ManuallySelect)
                     return true;
@@ -139,7 +158,7 @@ namespace PhotoTimingGui
 
         public bool HasSelectedandShownGunLineToManualMode()
         {
-            if (this.DataContext is MyViewModel viewModel)
+            if (DataContext is AthStitcherModel viewModel)
             {
                 if (viewModel.HaveSelectedandShownGunLineToManualorWallClockMode)
                     return true;
@@ -149,12 +168,12 @@ namespace PhotoTimingGui
 
         public bool IsDataContext()
         {
-            return this.DataContext is MyViewModel;
+            return DataContext is AthStitcherModel;
         }
 
         public void SetVideoPath(string videoPath)
         {
-            if (this.DataContext is MyViewModel viewModel)
+            if (DataContext is AthStitcherModel viewModel)
             {
                 viewModel.VideoPathInput = videoPath;
             }
@@ -162,7 +181,7 @@ namespace PhotoTimingGui
 
         public string GetVideoPath()
         {
-            if (this.DataContext is MyViewModel viewModel)
+            if (DataContext is AthStitcherModel viewModel)
             {
                 return viewModel.VideoPathInput; // Get the current video path from the ViewModel
             }
@@ -171,7 +190,7 @@ namespace PhotoTimingGui
 
         public void SetEventWallClockStart(DateTime start)
         {
-            if (this.DataContext is MyViewModel viewModel)
+            if (DataContext is AthStitcherModel viewModel)
             {
                 viewModel.EventStartWallClockDateTime = start;
             }
@@ -179,7 +198,7 @@ namespace PhotoTimingGui
 
         public DateTime GetEventWallClockStart()
         {
-            if (this.DataContext is MyViewModel viewModel)
+            if (DataContext is AthStitcherModel viewModel)
             {
                 return viewModel.EventStartWallClockDateTime; // Get the current video path from the ViewModel
             }
@@ -188,7 +207,7 @@ namespace PhotoTimingGui
 
         public void SetEventWallClockStartTimeofDay(TimeSpan ts)
         {
-            if (this.DataContext is MyViewModel viewModel)
+            if (DataContext is AthStitcherModel viewModel)
             {
                 string tsStr = $"{ts.Hours:D2}:{ts.Minutes:D2}:{ts.Seconds:D2}.{ts.Milliseconds:d3}";
                 viewModel.EventStartWallClockTimeofDay = tsStr;
@@ -197,7 +216,7 @@ namespace PhotoTimingGui
 
         public TimeSpan GetEventWallClockStartTimeofDay()
         {
-            if (this.DataContext is MyViewModel viewModel)
+            if (DataContext is AthStitcherModel viewModel)
             {
                 return TimeSpan.Parse(viewModel.EventStartWallClockTimeofDay); // Get the current video path from the ViewModel
             }
@@ -206,7 +225,7 @@ namespace PhotoTimingGui
 
         public void SetOutputPath(string outputPath)
         {
-            if (this.DataContext is MyViewModel viewModel)
+            if (DataContext is AthStitcherModel viewModel)
             {
                 viewModel.OutputPathInput = outputPath;
             }
@@ -214,7 +233,7 @@ namespace PhotoTimingGui
 
         public string GetOutputPath()
         {
-            if (this.DataContext is MyViewModel viewModel)
+            if (DataContext is AthStitcherModel viewModel)
             {
                 return viewModel.OutputPathInput; // Get the current output path from the ViewModel
             }
@@ -223,7 +242,7 @@ namespace PhotoTimingGui
 
         public void SetGunAudioPath(string GunAudioPathInput)
         {
-            if (this.DataContext is MyViewModel viewModel)
+            if (DataContext is AthStitcherModel viewModel)
             {
                 viewModel.GunAudioPathInput = GunAudioPathInput;
             }
@@ -231,26 +250,26 @@ namespace PhotoTimingGui
 
         public string GetGunAudioPath()
         {
-            if (this.DataContext is MyViewModel viewModel)
+            if (DataContext is AthStitcherModel viewModel)
             {
                 return viewModel.GunAudioPathInput; // Get the current gun audio path from the ViewModel
             }
             return string.Empty; // Default value if DataContext is not set or GunAudioPathInput is not available
         }
 
-        // Method to access the ViewModel and set the MyVisibility property
-        private void SetMyVisibility(Visibility visibility)
+        // Fix for CS8121: Correcting the type in the pattern matching checks
+        internal void SetMyVisibility(Visibility visibility)
         {
-            if (DataContext is ViewModels.MyViewModel viewModel)
+            if (DataContext is AthStitcherModel viewModel) // Corrected type from AthStitcherModel to AthStitcherModel
             {
                 viewModel.MyVisibility = visibility;
             }
         }
 
         // Method to access the ViewModel and get the MyVisibility property
-        private Visibility GetMyVisibility()
+        internal Visibility GetMyVisibility()
         {
-            if (DataContext is ViewModels.MyViewModel viewModel)
+            if (DataContext is AthStitcherModel viewModel) // Corrected type from AthStitcherModel to AthStitcherModel
             {
                 return viewModel.MyVisibility;
             }
@@ -258,18 +277,18 @@ namespace PhotoTimingGui
         }
 
         // Method to access the ViewModel and set the TimeFromMode property
-        private void SetTimeFromMode(TimeFromMode timeFromMode)
+        internal void SetTimeFromMode(TimeFromMode timeFromMode)
         {
-            if (DataContext is ViewModels.MyViewModel viewModel)
+            if (DataContext is AthStitcherModel viewModel) // Corrected type from AthStitcherModel to AthStitcherModel
             {
                 viewModel.TimeFromMode = timeFromMode;
             }
         }
 
         // Method to access the ViewModel and get the TimeFromMode property
-        private TimeFromMode GetTimeFromMode()
+        internal TimeFromMode GetTimeFromMode()
         {
-            if (DataContext is ViewModels.MyViewModel viewModel)
+            if (DataContext is AthStitcherModel viewModel) // Corrected type from AthStitcherModel to AthStitcherModel
             {
                 return viewModel.TimeFromMode;
             }
@@ -277,27 +296,27 @@ namespace PhotoTimingGui
         }
 
 
-        private void SetVideoDetectMode(VideoDetectMode videoDetectMode)
+        internal void SetVideoDetectMode(VideoDetectMode videoDetectMode)
         {
-            if (DataContext is ViewModels.MyViewModel viewModel)
+            if (DataContext is AthStitcherModel viewModel) // Corrected type from AthStitcherModel to AthStitcherModel
             {
                 viewModel.VideoDetectMode = videoDetectMode;
             }
         }
 
         // Method to access the ViewModel and get the TimeFromMode property
-        private VideoDetectMode GetVideoDetectMode()
+        internal VideoDetectMode GetVideoDetectMode()
         {
-            if (DataContext is ViewModels.MyViewModel viewModel)
+            if (DataContext is AthStitcherModel viewModel) // Corrected type from AthStitcherModel to AthStitcherModel
             {
                 return viewModel.VideoDetectMode;
             }
             return VideoDetectMode.FromFlash; // Default value if ViewModel is not available
         }
 
-        private void Set_HaveSelectedandShownGunLineinManualorWallClockMode(bool state)
+        internal void Set_HaveSelectedandShownGunLineinManualorWallClockMode(bool state)
         {
-            if (DataContext is ViewModels.MyViewModel viewModel)
+            if (DataContext is AthStitcherModel viewModel) // Corrected type from AthStitcherModel to AthStitcherModel
             {
                 viewModel.HaveSelectedandShownGunLineToManualorWallClockMode = state;
                 return; // Successfully set the state
@@ -305,47 +324,46 @@ namespace PhotoTimingGui
             return; // Failed to set the state, DataContext is not available
         }
 
-        private bool Get_HaveSelectedandShownGunLineinManualorWallClockMode()
+        internal bool Get_HaveSelectedandShownGunLineinManualorWallClockMode()
         {
-            if (DataContext is ViewModels.MyViewModel viewModel)
+            if (DataContext is AthStitcherModel viewModel) // Corrected type from AthStitcherModel to AthStitcherModel
             {
-                if((viewModel.TimeFromMode!= TimeFromMode.ManuallySelect) &&
-                        (viewModel.TimeFromMode != TimeFromMode.WallClockSelect))
+                if (viewModel.TimeFromMode != TimeFromMode.ManuallySelect &&
+                    viewModel.TimeFromMode != TimeFromMode.WallClockSelect)
                     return true;
                 return viewModel.HaveSelectedandShownGunLineToManualorWallClockMode;
             }
             return false;
-
         }
 
-        private void SetGunColor(OpenCvSharp.Scalar gunColor)
+        internal void SetGunColor(OpenCvSharp.Scalar gunColor)
         {
-            if (DataContext is ViewModels.MyViewModel viewModel)
+            if (DataContext is AthStitcherModel viewModel)
             {
                 viewModel.GunColor = gunColor;
             }
         }
 
-        private OpenCvSharp.Scalar GetGunColor()
+        internal OpenCvSharp.Scalar GetGunColor()
         {
-            if (DataContext is ViewModels.MyViewModel viewModel)
+            if (DataContext is AthStitcherModel viewModel)
             {
                 return viewModel.GunColor; // Get the current gun color from the ViewModel
             }
             return new OpenCvSharp.Scalar(255, 255, 255, 1); // Default color White if DataContext is not set or GunColor is not available
         }
 
-        private void SetVideoLength(double videoLength)
+        internal void SetVideoLength(double videoLength)
         {
-            if (DataContext is ViewModels.MyViewModel viewModel)
+            if (DataContext is AthStitcherModel viewModel)
             {
                 viewModel.VideoLength = videoLength;
             }
         }
 
-        private double GetVideoLength()
+        internal double GetVideoLength()
         {
-            if (DataContext is ViewModels.MyViewModel viewModel)
+            if (DataContext is AthStitcherModel viewModel)
             {
                 double videoLength = viewModel.VideoLength;
                 return videoLength;
@@ -353,22 +371,22 @@ namespace PhotoTimingGui
             return 0;
         }
 
-        private void SetGunTime(double guntime, int gunTimeIndex)
+        internal void SetGunTime(double guntime, int gunTimeIndex)
         {
-            if (DataContext is ViewModels.MyViewModel viewModel)
+            if (DataContext is AthStitcherModel viewModel)
             {
                 // Gun time can be before video starts for WallClock mode
                 var mode = viewModel.TimeFromMode;
-                if (((guntime >= 0) || (mode == TimeFromMode.WallClockSelect)) && (guntime < viewModel.VideoLength))
+                if ((guntime >= 0 || mode == TimeFromMode.WallClockSelect) && guntime < viewModel.VideoLength)
                 {
                     viewModel.GunTime = guntime;
                     viewModel.GunTimeIndex = gunTimeIndex; // Set the index of the gun time
                 }
             }
         }
-        private double GetGunTime()
+        internal double GetGunTime()
         {
-            if (DataContext is ViewModels.MyViewModel viewModel)
+            if (DataContext is AthStitcherModel viewModel)
             {
                 var gunTime = viewModel.GunTime;
                 return gunTime;
@@ -376,9 +394,9 @@ namespace PhotoTimingGui
             return 0;
         }
 
-        private int GetGunTimeIndex()
+        internal int GetGunTimeIndex()
         {
-            if (DataContext is ViewModels.MyViewModel viewModel)
+            if (DataContext is AthStitcherModel viewModel)
             {
                 var gunTimeIndex = viewModel.GunTimeIndex;
                 return gunTimeIndex;
@@ -386,9 +404,9 @@ namespace PhotoTimingGui
             return 0;
         }
 
-        private int GetMinPopupHeight()
+        internal int GetMinPopupHeight()
         {
-            if (DataContext is ViewModels.MyViewModel viewModel)
+            if (DataContext is AthStitcherModel viewModel)
             {
                 var minPopupHeight = viewModel.MinPopupHeight;
                 return minPopupHeight;
@@ -396,9 +414,9 @@ namespace PhotoTimingGui
             return 0;
         }
 
-        private int GetMinPopupWidth()
+        internal int GetMinPopupWidth()
         {
-            if (DataContext is ViewModels.MyViewModel viewModel)
+            if (DataContext is AthStitcherModel viewModel)
             {
                 var minPopupWidth = viewModel.MinPopupWidth;
                 return minPopupWidth;
@@ -406,18 +424,18 @@ namespace PhotoTimingGui
             return 0;
         }
 
-        private Thickness GetTimeLabelMargin()
+        internal Thickness GetTimeLabelMargin()
         {
-            if (DataContext is ViewModels.MyViewModel viewModel)
+            if (DataContext is AthStitcherModel viewModel)
             {
                 return viewModel.TimeLabelMargin;
             }
             return new Thickness(0); // Default value if DataContext is not set or Thickness is not available
         }
 
-        private bool GetShowVideoFramePopup()
+        internal bool GetShowVideoFramePopup()
         {
-            if (DataContext is ViewModels.MyViewModel viewModel)
+            if (DataContext is AthStitcherModel viewModel)
             {
  
                 bool show = viewModel.ShowVideoFramePopup;
@@ -426,18 +444,18 @@ namespace PhotoTimingGui
             return false; // Default value if DataContext is not set or ShowVideoFramePopup is not available
         }
 
-        private void SetVideoCreationDate(DateTime? creationDate)
+        internal void SetVideoCreationDate(DateTime? creationDate)
         {
-            if (DataContext is ViewModels.MyViewModel viewModel)
+            if (DataContext is AthStitcherModel viewModel)
             {
 
                 viewModel. VideoCreationDate = creationDate?? DateTime.MaxValue;
             }
         }
 
-        private DateTime GetVideoCreationDate()
+        internal DateTime GetVideoCreationDate()
         {
-            if (DataContext is ViewModels.MyViewModel viewModel)
+            if (DataContext is AthStitcherModel viewModel)
             {
 
                 return viewModel.VideoCreationDate;
@@ -445,18 +463,18 @@ namespace PhotoTimingGui
             return DateTime.MinValue;
         }
         //SetEventWallClockStartTime
-        private void SetEventWallClockStartTime(DateTime start)
+        internal void SetEventWallClockStartTime(DateTime start)
         {
-            if (DataContext is ViewModels.MyViewModel viewModel)
+            if (DataContext is AthStitcherModel viewModel)
             {
 
                 viewModel.EventStartWallClockDateTime = start;
             }
         }
 
-        private DateTime GetEventWallClockStartTime()
+        internal DateTime GetEventWallClockStartTime()
         {
-            if (DataContext is ViewModels.MyViewModel viewModel)
+            if (DataContext is AthStitcherModel viewModel)
             {
 
                 return viewModel.EventStartWallClockDateTime;

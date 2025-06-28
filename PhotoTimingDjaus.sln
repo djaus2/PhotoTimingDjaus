@@ -5,7 +5,7 @@ VisualStudioVersion = 17.13.35825.156
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhotoTimingDjaus", "PhotoTimingDjaus\PhotoTimingDjaus.csproj", "{E4BC8DB3-0857-4B31-97E9-8376BB6CE124}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VideoStitcherWPFAppV3", "VideoStitcherWPFAppV3\VideoStitcherWPFAppV3.csproj", "{898547B9-461D-7F05-3838-DF1EE59AF6D2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AthStitcher", "VideoStitcherWPFAppV3\AthStitcher.csproj", "{898547B9-461D-7F05-3838-DF1EE59AF6D2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StitchInTimeMaui", "StitchInTime\StitchInTimeMaui.csproj", "{ECE00AFD-8C9A-4B7F-8D4B-7767F11D4997}"
 EndProject

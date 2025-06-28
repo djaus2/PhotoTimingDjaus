@@ -27,7 +27,7 @@ namespace PhotoTimingGui.ViewModels
         }
 
     }
-    public class MyViewModel : INotifyPropertyChanged
+    public class AthStitcherModel : INotifyPropertyChanged
     {
         private Scalar _gunColor = new Scalar(255, 255, 255, 1); // Default to white
         private ICommand _setColorCommand;
@@ -36,6 +36,7 @@ namespace PhotoTimingGui.ViewModels
         private Visibility _myVisibility = Visibility.Visible;
         private TimeFromMode _TimeFromMode;
         private VideoDetectMode _videoDetectMode = VideoDetectMode.FromFlash;
+
 
         private string _VideoPathInput = "";
         public string VideoPathInput { get => _VideoPathInput;
@@ -127,7 +128,7 @@ namespace PhotoTimingGui.ViewModels
             get { return _PopupWidth / 2; }
         }
 
-        public MyViewModel()
+        public AthStitcherModel()
         {
             _setColorCommand = new RelayCommand(SetColor);
         }
