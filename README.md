@@ -9,13 +9,15 @@ A simple phototiming app for Athletics etc where a finish line is filmed with sa
 
 ## Recent
 ### Status
-> **A work in progress:** But nearly there
+> ~~**A work in progress:** But nearly there~~  Is usable now.
+
 ### Latest
 
 > WPF App HAS been renamed as **AthStitcher**
-- Popup image of frame is centered for mouse click on image (red) line, nudge line is green and image frame for it can be left, center or right wrt to Stitched Image, when Start has been determined. Nudge line for start (Manul Mode) is faulty (2Do)
+- Popup image of frame is centered for mouse click on image (red) line, if start has been determined.
+  - Nudge line is green and image frame for it can be left, center or right wrt to Stitched Image when start time has been determined/set.
+  - For **Manual mode**, the Gun line (selected color) is nudged until accepted.
   - Double click on image frame hides it, single click enlarges frame x1.5, shift single click reduces frame by 1.5. If too small (about 50) is hidden
-  - ***Don't use Nudge when setting Guntime in Manual mode.*** Needs a fix.
 - Zoom controls now work. Pan sliders don't though. Simplest: ***Just set the Auto Width and Height.***
 - Default TimeFrom mode is Manual. If Video Filename has DateTime string on end then that is interpreted as the Gun (race start) DateTime and set to WallClock mode.
   - eg ```qwerty1_GUN_2025-06-19 11--34--08.591_.mp4```     Pattern searched for with Regex is  
@@ -43,11 +45,13 @@ The WPF app has been updated to calculate time from gun.  The guntime is taken f
     - For Manul Mode Times are from video start, _but are from gun time(line) for other modes_.
 
 ## 2Do
-- None of the image expansions work.
+- Rewrite this README.
+- Remove dead code _(commented out code)_
+- Take all image width ratios from horizonatal zoom slider.
 
 ## Features to add
-- On mouse click, show image frame at that point.
-
+- Truncate video at start(gun) time.
+  - Code is writen in one of teh libraries
 
 
 > Currently looking at adding the video capture to the app like what was done in the previous app. Can only get the launching of the inbuilt phone video app to take video; not to orchestarte it, thus far. 
@@ -75,7 +79,7 @@ Have posted a blog post wrt GitHub Pilot strengths and weakness in creating this
 
 
 ## Apps
-- **PhotoTimingDjaus**
+- **AthStitcher**
   - A Console app that does the image stiching.
     - Originally called by VideoSticher apps to do such but that functionality is separate library.
 - **VideoStitcherWPFAppV3** .. Use this
