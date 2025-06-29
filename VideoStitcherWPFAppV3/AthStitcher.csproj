@@ -6,6 +6,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
+    <ApplicationIcon>athstitcher.ico</ApplicationIcon>
   </PropertyGroup>
   
     <ItemGroup>
@@ -18,6 +19,8 @@
   <ItemGroup>
         <!-- SVGs are from https://www.svgrepo.com/ -->
     <!-- SVG Licenses: https://www.svgrepo.com/page/licensing/ -->    
+    <None Remove="athstitcher.ico" />    
+    <None Remove="athstitcher.png" />    
     <None Remove="Resources\Images\cancelvid.svg" />
     <None Remove="Resources\Images\crosshairs.svg" />
     <None Remove="Resources\Images\dotnet_athletics.jpg" />
@@ -29,6 +32,11 @@
     <None Remove="Resources\Images\previousprevious.svg" />
     <None Remove="Resources\Images\startvid.svg" />
     <None Remove="Resources\Images\stopvid.svg" />
+  </ItemGroup>
+  
+
+  <ItemGroup>
+    <Content Include="athstitcher.ico" />
   </ItemGroup>
 
 
@@ -110,6 +118,10 @@
     <Resource Include="Resources\svgimages\previoussec.svg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <SplashScreen Include="athstitcher.png" />
   </ItemGroup>
 
   <ItemGroup>
