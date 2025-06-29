@@ -1345,9 +1345,12 @@ namespace PhotoTimingGui
         /// <param name="e"></param>
         private void Nudge(string toolTip)
         {
+
             PopupVideoFrameImage.IsOpen = false;
             if (toolTip == "")
                 return;
+            StartVerticalLine.Visibility = Visibility.Collapsed;
+            VerticalLine.Visibility = Visibility.Collapsed;
             System.Windows.Shapes.Line _VerticalLine = NudgeVerticalLine;
             TimeFromMode timeFromMode = athStitcherViewModel.GetTimeFromMode();
             double startTime = 0;
@@ -1360,14 +1363,17 @@ namespace PhotoTimingGui
                 if (!hsnshwngunline)
                 {
                     _VerticalLine = StartVerticalLine; // Use the start line for manual mode
+                    _VerticalLine.Visibility = Visibility.Visible;
+                    NudgeVerticalLine.Visibility = Visibility.Collapsed;
                     selectedStartTime = athStitcherViewModel.GetSelectedStartTime();
                     startTime = selectedStartTime;
                     isManualNotSelected = true;
                     isLeft = false;
                 }
             }
-            if (_VerticalLine.Visibility == Visibility.Collapsed)
-                return;
+            //if (_VerticalLine.Visibility == Visibility.Collapsed)
+            //_VerticalLine.Visibility = Visibility.Visible;
+            ////return;
             double horizontalScale = 1;
             double verticalScale = 1;
             if (StitchedImage.LayoutTransform is ScaleTransform transform)
@@ -1780,6 +1786,17 @@ namespace PhotoTimingGui
                 return;
 
             Line? lineToUse = NudgeVerticalLine;
+            if(NudgeVerticalLine.Visibility== Visibility.Collapsed)
+            {
+                if(StartVerticalLine.Visibility== Visibility.Visible)
+                {
+                    lineToUse = StartVerticalLine;
+                }
+                else
+                {
+                    return;
+                }
+            }
             
 
             if (lineToUse != null)
