@@ -46,6 +46,8 @@ The WPF app has been updated to calculate time from gun.  The guntime is taken f
 
 ## 2Do
 - Rewrite this README.
+- Remove dead code _(commented out code)_
+- Take all image width ratios from horizonatal zoom slider.
 
 ## Features to add
 - Truncate video at start(gun) time.
