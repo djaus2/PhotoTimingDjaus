@@ -14,7 +14,7 @@ A simple phototiming app for Athletics etc where a finish line is filmed with sa
 ### Latest
 
 > WPF App HAS been renamed as **AthStitcher**
-- Added simple App **SplashScreen* (iamge in root and SplashScreen property)
+- Added simple App **SplashScreen** (Image in root and SplashScreen property)
   - And App icon. Used Gimpy to create as 256x256 in root of project and set as Content _(no Copy property)_. Then add as App Icon in project properties.
 - Popup image of frame is centered for mouse click on image (red) line, if start has been determined.
   - Nudge line is green and image frame for it can be left, center or right wrt to Stitched Image when start time has been determined/set.
