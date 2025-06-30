@@ -221,7 +221,21 @@ namespace PhotoTimingDjaus
                 GunTimeIndex = (int)Math.Round(selectedStartTime * Fps);
                 return GunTime;
             }
-            return 0; // Return a tuple with zero values if no valid gun time is found
+            else if (timeFromMode == TimeFromMode.WallClockSelect)
+            {   
+                if(double.TryParse(_guninfoPath, out double dblSelectedStartTime))
+                {
+                    GunTime = dblSelectedStartTime;
+                    GunTimeIndex = (int)Math.Round(GunTime * Fps);
+                    return GunTime;
+                }
+            }
+            else
+            {
+                Console.WriteLine("Invalid timeFromMode specified.");
+
+            }
+                return 0; // Return a tuple with zero values if no valid gun time is found
         }
 
         // Main method to start the stitching process
@@ -398,6 +412,10 @@ namespace PhotoTimingDjaus
                 {
                     Cv2.Line(stitchedImage, new Point(GunTimeIndex, 0), new Point(GunTimeIndex, stitchedHeight), GunTimeColor); // White line
                 }
+                else if (timeFromMode == TimeFromMode.WallClockSelect)
+                {
+                    Cv2.Line(stitchedImage, new Point(GunTimeIndex, 0), new Point(GunTimeIndex, stitchedHeight), GunTimeColor); // White line
+                }
             }
 
             PreviousStitchedImage = stitchedImage;
@@ -417,6 +435,7 @@ namespace PhotoTimingDjaus
             int _GunTimeIndex = (int)Math.Round(_GunTimeDbl * Fps);
             if (PreviousStitchedImage == null)
             {
+                PreviousStitchedImage = new Mat();
                 Console.WriteLine("No stitched image available to add gun line.");
                 return 0;
             }

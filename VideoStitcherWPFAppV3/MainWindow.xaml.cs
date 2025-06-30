@@ -105,7 +105,7 @@ namespace PhotoTimingGui
                 // Save the original dimensions of the image
                 ImageCanvas.Width = bitmap.PixelWidth;
                 ImageCanvas.Height = bitmap.PixelHeight;
-                //ImageCanvas.HorizontalAlignment = HorizontalAlignment.Left;
+                ImageCanvas.HorizontalAlignment = HorizontalAlignment.Left;
                 imageLoaded = true;
             }
             else
@@ -124,17 +124,25 @@ namespace PhotoTimingGui
             { StartVerticalLine.Visibility = Visibility.Collapsed; }
             if (NudgeVerticalLine != null)
             { NudgeVerticalLine.Visibility = Visibility.Collapsed; }
+            if(TimeLabel != null)
+                { TimeLabel.Visibility = Visibility.Collapsed; }
             UpdateZoom();
         }
 
         private void VerticalZoomSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            if(VerticalLine != null)
-            {  VerticalLine.Visibility = Visibility.Collapsed;}
+            if (VerticalLine != null)
+            { VerticalLine.Visibility = Visibility.Collapsed; }
             if (StartVerticalLine != null)
             { StartVerticalLine.Visibility = Visibility.Collapsed; }
             if (NudgeVerticalLine != null)
             { NudgeVerticalLine.Visibility = Visibility.Collapsed; }
+            if (TimeLabel != null)
+            { TimeLabel.Visibility = Visibility.Collapsed; }
+            if (NudgePopupVideoFrameImage != null)
+            { NudgePopupVideoFrameImage.Visibility = Visibility.Collapsed; }
+            if (PopupVideoFrameImage != null)
+            { PopupVideoFrameImage.IsOpen = false; }
             UpdateZoom();
         }
 
@@ -182,9 +190,18 @@ namespace PhotoTimingGui
             { StartVerticalLine.Visibility = Visibility.Collapsed; }
             if (NudgeVerticalLine != null)
             { NudgeVerticalLine.Visibility = Visibility.Collapsed; }
+            if (TimeLabel != null)
+            { TimeLabel.Visibility = Visibility.Collapsed; }
+            if (NudgePopupVideoFrameImage != null)
+            { NudgePopupVideoFrameImage.Visibility = Visibility.Collapsed; }
+            if (PopupVideoFrameImage != null)
+            { PopupVideoFrameImage.IsOpen = false; }
 
-            if ((imageLoaded) || (StitchedImage == null))
-                return;
+            if (!(imageLoaded))
+            {
+                if (StitchedImage == null)
+                    return;
+            }
             if (HorizontalZoomSlider == null)
                 return;
             if (VerticalZoomSlider == null)
@@ -222,9 +239,18 @@ namespace PhotoTimingGui
             { StartVerticalLine.Visibility = Visibility.Collapsed; }
             if (NudgeVerticalLine != null)
             { NudgeVerticalLine.Visibility = Visibility.Collapsed; }
+            if (TimeLabel != null)
+            { TimeLabel.Visibility = Visibility.Collapsed; }
+            if (NudgePopupVideoFrameImage != null)
+            { NudgePopupVideoFrameImage.Visibility = Visibility.Collapsed; }
+            if (PopupVideoFrameImage != null)
+            { PopupVideoFrameImage.IsOpen = false; }
 
-            if ((imageLoaded) || (StitchedImage == null))
-                return;
+            if (!(imageLoaded))
+            {
+                if (StitchedImage == null)
+                    return;
+            }
             if (HorizontalZoomSlider == null)
                 return;
             if (VerticalZoomSlider == null)
@@ -242,9 +268,11 @@ namespace PhotoTimingGui
             { VerticalLine.Visibility = Visibility.Collapsed; }
             if (StartVerticalLine != null)
             { StartVerticalLine.Visibility = Visibility.Collapsed; }
-
-            if ((imageLoaded) || (StitchedImage == null))
-                return;
+            if (!(imageLoaded))
+            {
+                if (StitchedImage == null)
+                    return;
+            }
             if (HorizontalZoomSlider == null)
                 return;
             if (VerticalZoomSlider == null)
@@ -276,8 +304,11 @@ namespace PhotoTimingGui
 
         private void AutoScaleHeightCheckbox_Unchecked(object sender, RoutedEventArgs e)
         {
-            if ((imageLoaded) || (StitchedImage == null))
-                return;
+            if (!(imageLoaded))
+            {
+                if (StitchedImage == null)
+                    return;
+            }
             if (HorizontalZoomSlider == null)
                 return;
             if (VerticalZoomSlider == null)
@@ -290,8 +321,11 @@ namespace PhotoTimingGui
 
         private void UpdatePan()
         {
-            if ((imageLoaded) || (StitchedImage == null))
-                return;
+            if (!(imageLoaded))
+            {
+                if (StitchedImage == null)
+                    return;
+            }
             if (HorizontalZoomSlider == null)
                 return;
             if (VerticalZoomSlider == null)
@@ -306,8 +340,11 @@ namespace PhotoTimingGui
 
         private void UpdateZoom()
         {
-            if ((imageLoaded) || (StitchedImage == null))
-                return;
+            if (!(imageLoaded))
+            { 
+                if (StitchedImage == null)
+                    return;
+            }
             if (HorizontalZoomSlider == null)
                 return;
             if (VerticalZoomSlider == null)
@@ -483,8 +520,12 @@ namespace PhotoTimingGui
             // Read inputs
             //string gunAudioPath = GunAudioPath();
             string outputPath = athStitcherViewModel.GetOutputPath();
-
-
+            while (outputPath.Contains("_start_",StringComparison.OrdinalIgnoreCase))
+            {
+                outputPath = outputPath.Substring(0, outputPath.IndexOf("_Start_", StringComparison.OrdinalIgnoreCase));
+                outputPath = $"{outputPath}.png";
+            }
+            athStitcherViewModel.SetOutputPath(outputPath);
             StitchButton.Width = 0;
             StitchButton.IsEnabled = false; // Disable the button to prevent multiple clicks
                                             // Validate inputs
@@ -568,6 +609,13 @@ namespace PhotoTimingGui
                     var xx = videoStitcher.GetGunTimenFrameIndex(gunAudioPath);
                     GunTimeDbl = 0;
                     GunTimeIndex = 0;// videoStitcher.GunTimeIndex;
+                }
+                else if (timeFromMode == TimeFromMode.WallClockSelect)
+                {
+                    //Need next to get video length
+                    //GunTimeDbl = 0.7;// videoStitcher.GetGunTimenFrameIndex(gunAudioPath);
+                    //GunTimeDbl = videoStitcher.GetGunTimenFrameIndex($"{ GunTimeDbl}");
+                    //GunTimeIndex = videoStitcher.GunTimeIndex;
                 }
 
 
@@ -987,17 +1035,13 @@ namespace PhotoTimingGui
                         }
                     }
                 }
-                /*imagePath = Regex.Replace(videoFilePath, wallClockPattern,".png", RegexOptions.IgnoreCase);
-                imagePath = Regex.Replace(videoFilePath, gunPattern, ".png", RegexOptions.IgnoreCase);
-                imagePath = Regex.Replace(videoFilePath, flashPattern, ".png", RegexOptions.IgnoreCase);
-                imagePath = Regex.Replace(videoFilePath, manualPattern, ".png", RegexOptions.IgnoreCase);
-
-                string imagePath = videoFilePath.Replace(".mp4",".png",StringComparison.OrdinalIgnoreCase);
-                imagePath = imagePath.Replace("_WALL_", "", StringComparison.OrdinalIgnoreCase);
-                imagePath = imagePath.Replace("_GUN", "", StringComparison.OrdinalIgnoreCase);
-                imagePath = imagePath.Replace("_FLASH", "", StringComparison.OrdinalIgnoreCase);*/
                 athStitcherViewModel.SetOutputPath(imagePath);
                 StitchButton_Click(this, e);
+                if(athStitcherViewModel.GetTimeFromMode() == TimeFromMode.WallClockSelect)
+                {
+                    //Ok_Click(this, e);
+                }
+
             }
         }
 
