@@ -30,6 +30,7 @@ using System.Collections.Generic;
 using System.Windows.Shapes;
 using System.Security;
 using AthStitcher.ViewModels;
+using PhotoTimingDjausLib;
 //using OpenCvSharp;
 //using OpenCvSharp;
 
@@ -104,7 +105,7 @@ namespace PhotoTimingGui
                 // Save the original dimensions of the image
                 ImageCanvas.Width = bitmap.PixelWidth;
                 ImageCanvas.Height = bitmap.PixelHeight;
-
+                //ImageCanvas.HorizontalAlignment = HorizontalAlignment.Left;
                 imageLoaded = true;
             }
             else
@@ -438,7 +439,7 @@ namespace PhotoTimingGui
             UpdateZoom();
         }
 
-        private void StitchButton_Click(object sender, RoutedEventArgs e)
+        private  void StitchButton_Click(object sender, RoutedEventArgs e)
         {
             PopupVideoFrameImage.IsOpen = false; // Close the popup if it is open
             WatchClockDateTimePopup.IsOpen = false;
@@ -571,70 +572,43 @@ namespace PhotoTimingGui
 
 
                 videoStitcher.Stitch();
+                // Add metadata to the stitched image
 
             };
 
-            worker.RunWorkerCompleted += (s, args) =>
+            worker.RunWorkerCompleted += async (s, args) =>
             {
+
+                string imagepath =  PngMetadataHelper.AppendGunTimeImageFilename(athStitcherViewModel.GetOutputPath(), GunTimeDbl);
+                if(!string.IsNullOrEmpty(imagepath))
+                {
+                    athStitcherViewModel.SetOutputPath(imagepath);
+                }
+                else
+                {
+                    MessageBox.Show("Failed to append gun time to image filename.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    StitchButton.IsEnabled = true; // Re-enable the button
+                    return;
+                }
+
                 videoLength = videoStitcher.videoDuration;
                 athStitcherViewModel.SetVideoLength(videoLength);
                 athStitcherViewModel.SetGunTime(GunTimeDbl, GunTimeIndex); // Set the gun time in the ViewModel
 
                 athStitcherViewModel.SetVideoLength(videoLength);
 
-                // Hide the busy indicator
-                BusyIndicator.Visibility = Visibility.Collapsed;
+
+
+                
+
+                    // Hide the busy indicator
+                    BusyIndicator.Visibility = Visibility.Collapsed;
 
                 // Display the stitched image
                 LoadStitchedImage(athStitcherViewModel.GetOutputPath());
 
-                /*
-                if (File.Exists(GetOutputPath()))
-                {
-                    var bitmap = new BitmapImage();
-                    bitmap.BeginInit();
-                    bitmap.UriSource = new Uri(outputPath, UriKind.Absolute);
-                    bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                    bitmap.EndInit();
-                    /*if (timeFromMode == TimeFromMode.FromButtonPress)
-                    {
-                        GunTimeDbl = 0;
-                    }
-                    else if (timeFromMode == TimeFromMode.FromGunviaAudio)
-                    {
-                        GunTimeDbl = videoStitcher.GunTime;
-                    }
-                    else if (timeFromMode == TimeFromMode.FromGunViaVideo)
-                    {
-                        if (actionVideoAnalysis == null)
-                        {
-                            MessageBox.Show("ActionVideoAnalysis is not initialized.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                            return;
-                        }
-                        GunTimeIndex = actionVideoAnalysis.GunTimeIndex;
-                        GunTimeDbl = actionVideoAnalysis.GunTime;
-                    }
-                    
-                    
-
-                    StitchedImage.LayoutTransform = null;
-                    StitchedImage.Source = bitmap;
-                    if (StitchedImage.Source is BitmapSource bitmapx)
-                    {
-                        System.Diagnostics.Debug.WriteLine($"Image Dimensions: {bitmapx.PixelWidth}x{bitmap.PixelHeight}");
-                    }
-                
-                    //Details.Visibility = Visibility.Collapsed;
-                    //Scrolls.Visibility = Visibility.Collapsed;
-                    MessageBox.Show("Stitched image successfully created and displayed!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-                }
-                else
-                {
-                    MessageBox.Show("Failed to create the stitched image.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }*/
-                //MyVisibility = Visibility.Visible;
                 athStitcherViewModel.SetMyVisibility(Visibility.Visible);
-                //StitchButton.Visibility = Visibility.Visible; // Hide the button
+
                 StitchButton.Width = 200;
                 StitchButton.IsEnabled = true; // Re-enable the button
                 athStitcherViewModel.SetHasStitched();
@@ -917,13 +891,13 @@ namespace PhotoTimingGui
             if (File.Exists(videoFilePath))
             {
                 string? initialDirectory = System.IO.Path.GetDirectoryName(videoFilePath);
-                if (!string.IsNullOrEmpty(initialDirectory) && !Directory.Exists(initialDirectory))
+                if (!string.IsNullOrEmpty(initialDirectory) && Directory.Exists(initialDirectory))
                 {
                     openFileDialog = new OpenFileDialog
                     {
                         Filter = "MP4 Files (*.mp4)|*.mp4",
                         InitialDirectory = initialDirectory, // Set the folder
-                        FileName = videoFilePath
+                        FileName = System.IO.Path.GetFileName(videoFilePath) //videoFilePath
                     };
                 }
                 else
@@ -1039,13 +1013,13 @@ namespace PhotoTimingGui
             if (File.Exists(OutputFilePath))
             {
                 string? initialDirectory = System.IO.Path.GetDirectoryName(OutputFilePath);
-                if (!string.IsNullOrEmpty(initialDirectory) && !Directory.Exists(initialDirectory))
+                if (!string.IsNullOrEmpty(initialDirectory) && Directory.Exists(initialDirectory))
                 {
                     openFileDialog = new OpenFileDialog
                     {
                         Filter = "PNG Files (*.png)|*.png",
                         InitialDirectory = initialDirectory, // Set the folder
-                        FileName = OutputFilePath
+                        FileName = System.IO.Path.GetFileName(OutputFilePath) //OutputFilePath
                     };
                 }
                 else
@@ -1071,6 +1045,24 @@ namespace PhotoTimingGui
                 if (File.Exists(OutputFilePath))
                 {
                     LoadImageButton_Click(null, null);
+                    // If the file name contains "_Start_", set the time from mode to ManuallySelect
+                    if (OutputFilePath.Contains("_Start_", StringComparison.OrdinalIgnoreCase))
+                    {
+                        //using System.Text.RegularExpressions;
+                        //var match = Regex.Match(OutputFilePath, @"[-+]?\d*\.\d+|\d+");
+                        var match = Regex.Match(OutputFilePath, @"_start_([-+]?\d*\.?\d+)", RegexOptions.IgnoreCase);
+                        if (match.Success)
+                        {
+                            var numberString = match.Groups[1].Value; // just the numeric portion
+                            if (double.TryParse(numberString, out double dbl))
+                            {
+                                athStitcherViewModel.SetGunTime(dbl, 0); // Set the gun time in the ViewModel
+                                athStitcherViewModel.SetTimeFromMode(TimeFromMode.ManuallySelect);
+                                athStitcherViewModel.SetHasStitched();
+                                athStitcherViewModel.Set_HaveSelectedandShownGunLineinManualorWallClockMode(true);
+                            }
+                        }
+                    }
                 }
                 else
                 {
@@ -1091,13 +1083,13 @@ namespace PhotoTimingGui
             if (File.Exists(GunAudioPathInput))
             {
                 string? initialDirectory = System.IO.Path.GetDirectoryName(GunAudioPathInput);
-                if (!string.IsNullOrEmpty(initialDirectory) && !Directory.Exists(initialDirectory))
+                if (!string.IsNullOrEmpty(initialDirectory) && Directory.Exists(initialDirectory))
                 {
                     openFileDialog = new OpenFileDialog
                     {
                         Filter = "TXT Files (*.txt)|*.txt",
                         InitialDirectory = initialDirectory, // Set the folder
-                        FileName = GunAudioPathInput
+                        FileName = System.IO.Path.GetFileName(GunAudioPathInput)
                     };
                 }
                 else
@@ -1981,6 +1973,8 @@ namespace PhotoTimingGui
                 }
             }
         }
+
+
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////

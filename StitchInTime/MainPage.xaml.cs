@@ -11,7 +11,7 @@ namespace StitchInTime
     public partial class MainPage : ContentPage
     {
 
-        string videoPathInit = @"C:\Users\david\OneDrive\Documents\Camtasia\MVPRenewal\MVPRenewal.mp4";
+        string videoPathInit = @"C:\temp.mp4";
         string outputPathInit = @"stitchup.png";
         int startTimeSecondsInit = 0;
         string videoPath { get => videoPathInit; set => videoPathInit = value; }
