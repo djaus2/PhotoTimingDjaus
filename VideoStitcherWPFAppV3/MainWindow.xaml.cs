@@ -947,11 +947,20 @@ namespace PhotoTimingGui
                 videoFilePath = openFileDialog.FileName;
                 athStitcherViewModel.SetVideoPath(videoFilePath);
                 //string pattern = @"_GUN_(\d{2}--\d{2}--\d{2}\.\d{3})_\.mp4$";
-                string pattern = @"_GUN_(\d{4}-\d{2}-\d{2} \d{2}--\d{2}--\d{2}\.\d{3})_\.mp4$";
+                string wallClockPattern = @"_WALL_(\d{4}-\d{2}-\d{2} \d{2}--\d{2}--\d{2}\.\d{3})_\.mp4$";
+                string gunPattern = @"_GUN\.mp4$";
+                string flashPattern = @"_FLASH\.mp4$";
+                string manualPattern = @"_MAN\.mp4$";
 
-                Match match = Regex.Match(videoFilePath, pattern);
+                string imagePath = Regex.Replace(videoFilePath, ".mp4", ".png", RegexOptions.IgnoreCase);
+
+                // Match the video file path against the patterns
+                //WallClock in filename
+                Match match = Regex.Match(videoFilePath, wallClockPattern,RegexOptions.IgnoreCase);
                 if (match.Success)
                 {
+                    imagePath = Regex.Replace(videoFilePath, wallClockPattern, ".png", RegexOptions.IgnoreCase);
+
                     string gunTimeString = match.Groups[1].Value;
 
                     // Normalize by replacing "--" with ":" in time portion
@@ -966,10 +975,55 @@ namespace PhotoTimingGui
                 }
                 else
                 {
-                    Console.WriteLine("No match found.");
-                    athStitcherViewModel.SetEventWallClockStartTime(DateTime.MinValue);
-                    athStitcherViewModel.SetTimeFromMode(TimeFromMode.ManuallySelect); // Set the mode to WallClockSelect
+                    // Format: <Filename>_gun.mp4 or <Filename>_gun.mp4 etc.
+                    match = Regex.Match(videoFilePath, gunPattern, RegexOptions.IgnoreCase);
+                    if (match.Success)
+                    {
+                        imagePath = Regex.Replace(videoFilePath, gunPattern, ".png", RegexOptions.IgnoreCase);
+                        athStitcherViewModel.SetTimeFromMode(TimeFromMode.FromGunviaAudio); // Set the mode to WallClockSelect
+                    }
+                    else
+                    {
+                        match = Regex.Match(videoFilePath, flashPattern, RegexOptions.IgnoreCase);
+                        if (match.Success)
+                        {
+                            imagePath = Regex.Replace(videoFilePath, flashPattern, ".png", RegexOptions.IgnoreCase);
+                            athStitcherViewModel.SetTimeFromMode(TimeFromMode.FromGunViaVideo); // Set the mode to WallClockSelect
+                        }
+                        else
+                        {
+                            // Format: <Filename>_flash.mp4 or <Filename>_flash.mp4 etc.
+                            match = Regex.Match(videoFilePath, manualPattern, RegexOptions.IgnoreCase);
+                            if (match.Success)
+                            {
+                                imagePath = Regex.Replace(videoFilePath, manualPattern, ".png", RegexOptions.IgnoreCase);
+                                DateTime videoCreationDate = athStitcherViewModel.GetVideoCreationDate();
+                                athStitcherViewModel.SetEventWallClockStartTime(videoCreationDate);
+                                athStitcherViewModel.SetTimeFromMode(TimeFromMode.ManuallySelect); // Set the mode to WallClockSelect
+                            }
+                            else
+                            {
+                                // No match found, suse what was eslected on the Menu
+                                Console.WriteLine($"No match found.");
+                                
+                                imagePath = Regex.Replace(videoFilePath, ".mp4", ".png", RegexOptions.IgnoreCase);
+                                DateTime videoCreationDate = athStitcherViewModel.GetVideoCreationDate();
+                                athStitcherViewModel.SetEventWallClockStartTime(videoCreationDate);
+                            }
+                        }
+                    }
                 }
+                /*imagePath = Regex.Replace(videoFilePath, wallClockPattern,".png", RegexOptions.IgnoreCase);
+                imagePath = Regex.Replace(videoFilePath, gunPattern, ".png", RegexOptions.IgnoreCase);
+                imagePath = Regex.Replace(videoFilePath, flashPattern, ".png", RegexOptions.IgnoreCase);
+                imagePath = Regex.Replace(videoFilePath, manualPattern, ".png", RegexOptions.IgnoreCase);
+
+                string imagePath = videoFilePath.Replace(".mp4",".png",StringComparison.OrdinalIgnoreCase);
+                imagePath = imagePath.Replace("_WALL_", "", StringComparison.OrdinalIgnoreCase);
+                imagePath = imagePath.Replace("_GUN", "", StringComparison.OrdinalIgnoreCase);
+                imagePath = imagePath.Replace("_FLASH", "", StringComparison.OrdinalIgnoreCase);*/
+                athStitcherViewModel.SetOutputPath(imagePath);
+                StitchButton_Click(this, e);
             }
         }
 
@@ -1864,6 +1918,69 @@ namespace PhotoTimingGui
             }
         }
 
+        private void TruncateandSelectVideoFile_Click(object sender, RoutedEventArgs e)
+        {
+            string videoFilePath = athStitcherViewModel.GetVideoPath();
+            OpenFileDialog openFileDialog;
+            if (File.Exists(videoFilePath))
+            {
+                string? initialDirectory = System.IO.Path.GetDirectoryName(videoFilePath);
+                if (!string.IsNullOrEmpty(initialDirectory) && !Directory.Exists(initialDirectory))
+                {
+                    openFileDialog = new OpenFileDialog
+                    {
+                        Filter = "MP4 Files (*.mp4)|*.mp4",
+                        InitialDirectory = initialDirectory, // Set the folder
+                        FileName = videoFilePath
+                    };
+                }
+                else
+                {
+                    openFileDialog = new OpenFileDialog
+                    {
+                        Filter = "MP4 Files (*.mp4)|*.mp4",
+
+                    };
+                }
+            }
+            else
+            {
+                openFileDialog = new OpenFileDialog
+                {
+                    Filter = "MP4 Files (*.mp4)|*.mp4",
+                };
+            }
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                videoFilePath = openFileDialog.FileName;
+                athStitcherViewModel.SetVideoPath(videoFilePath);
+                //string pattern = @"_GUN_(\d{2}--\d{2}--\d{2}\.\d{3})_\.mp4$";
+                string pattern = @"_GUN_(\d{4}-\d{2}-\d{2} \d{2}--\d{2}--\d{2}\.\d{3})_\.mp4$";
+
+                Match match = Regex.Match(videoFilePath, pattern);
+                if (match.Success)
+                {
+                    string gunTimeString = match.Groups[1].Value;
+
+                    // Normalize by replacing "--" with ":" in time portion
+                    int timeStartIndex = gunTimeString.IndexOf(' ') + 1;
+                    string normalized = gunTimeString.Substring(0, timeStartIndex) +
+                                        gunTimeString.Substring(timeStartIndex).Replace("--", ":");
+
+                    DateTime gunDateTime = DateTime.ParseExact(normalized, "yyyy-MM-dd HH:mm:ss.fff", null);
+                    Console.WriteLine($"Parsed DateTime: {gunDateTime}");
+                    athStitcherViewModel.SetEventWallClockStartTime(gunDateTime);
+                    athStitcherViewModel.SetTimeFromMode(TimeFromMode.WallClockSelect); // Set the mode to WallClockSelect
+                }
+                else
+                {
+                    Console.WriteLine("No match found.");
+                    athStitcherViewModel.SetEventWallClockStartTime(DateTime.MinValue);
+                    athStitcherViewModel.SetTimeFromMode(TimeFromMode.ManuallySelect); // Set the mode to WallClockSelect
+                }
+            }
+        }
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////
