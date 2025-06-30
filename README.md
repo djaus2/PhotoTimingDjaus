@@ -13,7 +13,7 @@ A simple phototiming app for Athletics etc where a finish line is filmed with sa
 
 ### Latest
 - WPF File-Open is Open is now "Open Video File and Stitch".
-  - Looks at filename and determines type of video, stitches and determines start time. Filename patters:
+  - Looks at filename and determines type of video, stitches and determines start time. Filename patterns:
 ```cs
   wallClockPattern = @"_WALL_(\d{4}-\d{2}-\d{2} \d{2}--\d{2}--\d{2}\.\d{3})_\.mp4$"; <-- A DateTime string (sort of)
   gunPattern = @"_GUN\.mp4$";
