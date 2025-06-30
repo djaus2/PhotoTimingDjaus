@@ -12,8 +12,16 @@ A simple phototiming app for Athletics etc where a finish line is filmed with sa
 > ~~**A work in progress:** But nearly there~~  Is usable now.
 
 ### Latest
+- WPF File-Open is Open is now "Open Video File and Stitch".
+  - Looks at filename and determines type of video, stitches and determines start time. Filename patters:
+```cs
+  wallClockPattern = @"_WALL_(\d{4}-\d{2}-\d{2} \d{2}--\d{2}--\d{2}\.\d{3})_\.mp4$"; <-- A DateTime string (sort of)
+  gunPattern = @"_GUN\.mp4$";
+  flashPattern = @"_FLASH\.mp4$";
+  manualPattern = @"_MAN\.mp4$";
+```
 
-> WPF App HAS been renamed as **AthStitcher**
+- WPF App HAS been renamed as **AthStitcher**
 - Added simple App **SplashScreen** (Image in root and SplashScreen property)
   - And App icon. Used Gimpy to create as 256x256 in root of project and set as Content _(no Copy property)_. Then add as App Icon in project properties.
 - Popup image of frame is centered for mouse click on image (red) line, if start has been determined.
