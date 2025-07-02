@@ -25,7 +25,7 @@ A simple phototiming app for Athletics etc where a finish line is filmed with sa
   manualPattern = @"_MAN\.mp4$";
 ```
 
-- WPF App HAS been renamed as **AthStitcher**
+- WPF App HAS been renamed as **AthStitcher**  <-- And the project folder has now been renamed to that.
 - Added simple App **SplashScreen** (Image in root and SplashScreen property)
   - And App icon. Used Gimpy to create as 256x256 in root of project and set as Content _(no Copy property)_. Then add as App Icon in project properties.
 - Popup image of frame is centered for mouse click on image (red) line, if start has been determined.
