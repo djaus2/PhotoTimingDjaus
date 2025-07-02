@@ -1414,10 +1414,12 @@ namespace PhotoTimingGui
                        threshold);
                 }
 
+                outputPath = PngMetadataHelper.AppendGunTimeImageFilename(outputPath, guntime);
+                athStitcherViewModel.SetOutputPath(outputPath);
                 if (gunTimeIndex <= 0)
-                    gunTimeIndex = videoStitcher.AddGunLine(guntime, athStitcherViewModel.GetGunColor());
+                    gunTimeIndex = videoStitcher.AddGunLine(guntime, athStitcherViewModel.GetGunColor(), outputPath);
 
-                LoadStitchedImage(athStitcherViewModel.GetOutputPath());
+                LoadStitchedImage(outputPath);
 
                 athStitcherViewModel.SetGunTime(guntime, gunTimeIndex);
                 athStitcherViewModel.Set_HaveSelectedandShownGunLineinManualorWallClockMode(true);

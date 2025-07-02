@@ -27,6 +27,11 @@ namespace PhotoTimingDjausLib
             {
                 throw new System.IO.FileNotFoundException($"The specified video file does not exist: {imagePath}");
             }
+            if (imagePath.Contains("_Start_", StringComparison.OrdinalIgnoreCase))
+            {
+                imagePath = imagePath.Substring(0, imagePath.IndexOf("_Start_", StringComparison.OrdinalIgnoreCase));
+                imagePath = $"{imagePath}.png";
+            }
             string gunTimeString = gunTime.ToString("F3");
 
             //gunTimeString = gunTimeString.Replace(":", "--");

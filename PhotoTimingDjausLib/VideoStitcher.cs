@@ -85,6 +85,22 @@ namespace PhotoTimingDjaus
         public System.Drawing.Bitmap GetNthFrame(int frameIndex)
         {
             using var capture = new VideoCapture(videoFilePath);
+            if(capture.FrameCount==0)
+            {
+                throw new Exception($"No frames in video capture");
+            }
+
+            if (frameIndex> (capture.FrameCount-1))
+            {
+                frameIndex = frameIndex - 1;
+            }
+            else if(frameIndex < 0)
+            {
+                if(capture.FrameCount>0)
+                {
+                    frameIndex = 0;
+                }
+            }
             DebugLogCaller($"frame: {frameIndex}");
             // Set the frame position
             capture.Set(VideoCaptureProperties.PosFrames, frameIndex);
@@ -429,8 +445,12 @@ namespace PhotoTimingDjaus
 
         Mat? PreviousStitchedImage = null;
         int PreviousStitchedImageHeight = 0;
-        public int AddGunLine(double _GunTimeDbl, Scalar _gunTimeColor)
+        public int AddGunLine(double _GunTimeDbl, Scalar _gunTimeColor, string _outputPath = "")
         {
+            if (!(string.IsNullOrEmpty(_outputPath)))
+            {
+                outputFilePath = _outputPath; // Use the existing output path
+            }
             this.GunTimeColor = _gunTimeColor;
             int _GunTimeIndex = (int)Math.Round(_GunTimeDbl * Fps);
             if (PreviousStitchedImage == null)
