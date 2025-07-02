@@ -9,7 +9,9 @@ A simple phototiming app for Athletics etc where a finish line is filmed with sa
 
 ## Recent
 ### Status
-> ~~**A work in progress:** But nearly there~~  Is usable now.
+> All good now except fpr some WallClock isuues:
+  - Gunline for WallClock doesn't show once commited but can measure times form it.
+  - If loaded as WallClock (with guntime as part of filename) doesn't auto set gunline from video filename.
 
 ### Latest
 - WPF File-Open is Open is now "Open Video File and Stitch".
