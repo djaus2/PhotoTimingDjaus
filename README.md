@@ -2,14 +2,14 @@
 
 **WPF app has been renamed AthStitcher** 
 
->> NB With Phone Video Capture: You need to enter the stitched image name and accept it, like a return. Om my phone I accept by pressing the tick bottom right of popup keyboard
+>> NB With Phone Video Capture: You need to enter the stitched image name and accept it, like a return. On my phone I accept by pressing the tick bottom right of popup keyboard
 
 ## About
-A simple phototiming app for Athletics etc where a finish line is filmed with say, a phone, and a stitched image is created by taking the middle vertical line of pixels from each video frame and stiching together the phototiming image. Previously has a similar app that used AForge.  Note that video FramesPerSecond are typically 30 so each line represents 0.033 of s second and hence this is the resolution of any timing. Commercial equipment would be to thousandths or tens of thousandths of a second.
+A simple phototiming app for Athletics etc where a finish line is filmed with say, a phone, and a stitched image is created by taking the middle vertical line of pixels from each video frame and stiching together the phototiming image. Previously had a similar app that used AForge.  Note that video FramesPerSecond are typically 30 so each line represents 0.033 of second and hence this is the resolution of any timing. Commercial equipment would be to thousandths or tens of thousandths of a second. _Can now set to 60 Fps if phone supports that._
 
 ## Recent
 ### Status
-> All good now except fpr some WallClock isuues:
+> All good now except fpr some WallClock issues:
   - Gunline for WallClock doesn't show once commited when using the Stitch button  but can measure times form it.
     - But if File->Load and Stitch as WallClock (with guntime as part of filename) does auto set gunline from video and shows it.
 
@@ -25,7 +25,7 @@ A simple phototiming app for Athletics etc where a finish line is filmed with sa
   manualPattern = @"_MAN\.mp4$";
 ```
 
-- WPF App HAS been renamed as **AthStitcher**
+- WPF App HAS been renamed as **AthStitcher**  <-- And the project folder has now been renamed to that.
 - Added simple App **SplashScreen** (Image in root and SplashScreen property)
   - And App icon. Used Gimpy to create as 256x256 in root of project and set as Content _(no Copy property)_. Then add as App Icon in project properties.
 - Popup image of frame is centered for mouse click on image (red) line, if start has been determined.
@@ -53,10 +53,10 @@ The WPF app has been updated to calculate time from gun.  The guntime is taken f
 - Can select **Manual Mode**
   - Stitch image then
   - Select "Start Time" from stitched image with mouse using right click and drag
-  - Then Button to set this as GunTime and write its line
-    - That button is only visible when in Manual mode, and image is stitched in that mode and gun line not drawn.
-  - ***2Do*** Then make all Left Click timings relative to that.
-    - For Manul Mode Times are from video start, _but are from gun time(line) for other modes_.
+    - Can nudge as well. (It's green line)
+  - Then [Accept Gun Line] button to set this as GunTime and write its line
+    - That button is only visible when in Manual mode, and image is stitched in that mode
+    - But gun line not currently drawn but timings are relevant to where it shoul show. (2Do)
 
 ## 2Do
 - Rewrite this README.
@@ -64,12 +64,9 @@ The WPF app has been updated to calculate time from gun.  The guntime is taken f
 - Take all image width ratios from horizonatal zoom slider.
 
 ## Features to add
-- Truncate video at start(gun) time.
-  - Code is writen in one of teh libraries
+- Truncate video option at start(gun) time.
+  - Code is writen.
 
-
-> Currently looking at adding the video capture to the app like what was done in the previous app. Can only get the launching of the inbuilt phone video app to take video; not to orchestarte it, thus far. 
-One attempt at this is [djaus2/MauiMediaRecorderVideoSample-Android](https://github.com/djaus2/MauiMediaRecorderVideoSample-Android) which uses the MediaRecorder control.
 
 ## Comment
 
@@ -93,19 +90,22 @@ Have posted a blog post wrt GitHub Pilot strengths and weakness in creating this
 
 
 ## Apps
-- **AthStitcher**
+- **PhotoTimingDjaus**
   - A Console app that does the image stiching.
     - Originally called by VideoSticher apps to do such but that functionality is separate library.
-- **VideoStitcherWPFAppV3** .. Use this
+    - Currently unloaded as code hasn't been updated for code changes in library.
+- **AthStitcher** .. Use this
   - **This is a WPF app so runs on a Windows desktop.**
   - Uses PhotoTimingDjausLib _as above._
   - Can measure time for events using mouse click and drag on image.
-  - Set video file and press [Stitch Video]
+  - Set video file and press [Stitch Video], or load and stitch from File menu.
     - Generates stitched image file
     - Option to choose timing mode from:
       1. Video Start
-      2. Detect Start Gun audio
-      3.  Detect video flash _(Not yet imlemented)._
+      2. Manual Mode (Set start time wonce stitched)
+      3. WallClock Mode Set Wallclock time of race start and then work out times wrt this and video start.
+      4. Detect Start Gun audio
+      5.  Detect video flash _(Not yet imlemented)._
     - _(For 2.)_ Also extracts audio max volume (per audio fame) in dB v time text file from video, generates gun time
        - **Assumes video  recording is started before gun.**
       - Nb: Audio frames are not video frames.
