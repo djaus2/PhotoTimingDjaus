@@ -112,7 +112,7 @@ namespace AthStitcher.ViewModels
             if (DataContext is AthStitcherModel viewModel)
             {
                 viewModel.HasStitched = true;
-                viewModel.HaveSelectedandShownGunLineToManualorWallClockMode = false;
+                //viewModel.HaveSelectedandShownGunLineToManualorWallClockMode = false;
             }
         }
 

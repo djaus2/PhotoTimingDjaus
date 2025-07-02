@@ -144,7 +144,7 @@ namespace PhotoTimingGui.ViewModels
                 _HasStitched = value;
                 OnPropertyChanged(nameof(HasStitched));
                 OnPropertyChanged(nameof(HasNotStitched));
-                HaveSelectedandShownGunLineToManualorWallClockMode = false;
+                //HaveSelectedandShownGunLineToManualorWallClockMode = false;
             }
         }
 

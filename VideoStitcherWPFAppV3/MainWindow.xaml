@@ -68,8 +68,12 @@
                     <RowDefinition />
                     <RowDefinition />
                     <RowDefinition />
+                    <RowDefinition />
                 </Grid.RowDefinitions>
 
+                <CheckBox Grid.Row="9" Grid.Column="0" VerticalAlignment="Center" Name="HasStitched" HorizontalAlignment="Center" Content="HasStitched" IsChecked="{Binding HasStitched}" />
+                <CheckBox Grid.Row="9" Grid.Column="1" VerticalAlignment="Center" Name="HaveSelectedandShownGunLineToManualorWallClockMode" HorizontalAlignment="Center" Content="HaveSelectedandShownGunLineToManualorWallClockMode" IsChecked="{Binding HaveSelectedandShownGunLineToManualorWallClockMode}" />
+                <TextBlock Grid.Row="9" Grid.Column="2" Text="{Binding TimeFromMode}"/>
                 <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="5" Background="LightGray">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
@@ -338,8 +342,8 @@
                         StaysOpen="False"
                         AllowsTransparency="True">
 
-
-                        <Border Background="White" 
+                            
+                    <Border Background="White" 
                         BorderBrush="Gray" 
                         BorderThickness="1" 
                         Padding="8">
