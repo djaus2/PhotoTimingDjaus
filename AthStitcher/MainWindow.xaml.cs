@@ -65,6 +65,7 @@ namespace PhotoTimingGui
             athStitcherViewModel = new AthStitcherViewModel();
             this.DataContext = viewModel;
             athStitcherViewModel.LoadViewModel();
+
             this.DataContext = athStitcherViewModel.DataContext; // Set the DataContext to the AthStitchView instance
             //this.DataContext = new ViewModels.MyViewModel();
             Loaded += MainWindow_Loaded;
@@ -87,7 +88,9 @@ namespace PhotoTimingGui
                     _saveTimer.Start();
                 };
             }
+
         }
+
         bool imageLoaded = false;
         private void LoadImageButton_Click(object sender, RoutedEventArgs e)
         {
@@ -479,65 +482,280 @@ namespace PhotoTimingGui
             UpdateZoom();
         }
 
+        bool SkipMetaCheck = false;
         private void StitchButton_Click(object sender, RoutedEventArgs e)
         {
+            
             // If using Stitch Button then reset some properties
             athStitcherViewModel.Set_HaveSelectedandShownGunLineinManualorWallClockMode(false); // Reset the flag for manual or wall clock mode 
             var vidStart = athStitcherViewModel.GetVideoCreationDate();
             athStitcherViewModel.SetEventWallClockStart(vidStart); // Reset the flag for manual or wall clock mode
+            var Mode = athStitcherViewModel.GetTimeFromMode();
+            //If press Stitch button and WallClaock mode then allow to check for embedded WallClock gun time.
+            if(Mode != TimeFromMode.WallClockSelect)
+                SkipMetaCheck = true;
             StitchVideo();
         }
 
         private void StitchVideo()
-        { 
-            PopupVideoFrameImage.IsOpen = false; // Close the popup if it is open
-            WatchClockDateTimePopup.IsOpen = false;
-            StartVerticalLine.Visibility = Visibility.Collapsed;
-            VerticalLine.Visibility = Visibility.Collapsed;
-            TimeLabel.Visibility = Visibility.Collapsed;
+        {
+            //Default for WallClock Mode
+            DateTime? creationDate = DetectAudioFlash.FFMpegActions.GetVideoStart(athStitcherViewModel.GetVideoPath());
+            if (creationDate != null)
+            {
+                athStitcherViewModel.SetVideoCreationDate(creationDate);
+            }
+            DateTime videoCreationDate = athStitcherViewModel.GetVideoCreationDate();
+            athStitcherViewModel.SetEventWallClockStartTime(videoCreationDate);
 
+            if (!SkipMetaCheck)
+            {
+                var videoFn = athStitcherViewModel.GetVideoPath();
+                if (string.IsNullOrEmpty(videoFn) || !File.Exists(videoFn))
+                {
+                    MessageBox.Show("Please select a valid video file before stitching.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                if (Regex.IsMatch(videoFn, @"_[a-zA-Z]+_", RegexOptions.IgnoreCase))
+                {   // If the video filename contains a gun time or start time
+
+                    // Previous versioon had WallClock guntime embedded in filename
+                    // Parse for it and set it the file's meta data.
+                    // Then remove it from the filename.
+                    if (videoFn.Contains("_WALLCLOCK_", StringComparison.OrdinalIgnoreCase))
+                    {
+                        string pattern = @"_WALLCLOCK_(\d{4}-\d{2}-\d{2} \d{2}--\d{2}--\d{2}\.\d{3})_\.mp4$";
+
+                        Match match = Regex.Match(videoFn, pattern);
+                        if (match.Success)
+                        {
+                            string gunTimeString = match.Groups[1].Value;
+
+                            // Normalize by replacing "--" with ":" in time portion
+                            int timeStartIndex = gunTimeString.IndexOf(' ') + 1;
+                            string normalized = gunTimeString.Substring(0, timeStartIndex) +
+                                                gunTimeString.Substring(timeStartIndex).Replace("--", ":");
+
+                            DateTime gunDateTime = DateTime.ParseExact(normalized, "yyyy-MM-dd HH:mm:ss.fff", null);
+                            PngMetadataHelper.SetMetaInfo(videoFn, "GUNWC", $"GunTime:{gunDateTime:yyyy-MM-dd HH:mm:ss.fff}").GetAwaiter().GetResult();
+                        }
+                        var videoFn2 = videoFn.Substring(0, videoFn.IndexOf("_GUN_", StringComparison.OrdinalIgnoreCase)) + "N.mp4";
+                        if (File.Exists(videoFn2))
+                        {
+                            // Delete the original video file with _Start_ suffix
+                            try
+                            {
+                                File.Delete(videoFn2);
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine($"Delete failed: {ex.Message}");
+                            }
+
+                        }
+                        File.Copy(videoFn, videoFn2); // Rename the video file to remove the _Start_ suffix
+                        athStitcherViewModel.SetVideoPath(videoFn2);
+                    }
+                    else if (videoFn.Contains("_MANUAL_", StringComparison.OrdinalIgnoreCase))
+                    {
+                        PngMetadataHelper.SetMetaInfo(videoFn, "MANUAL", $"").GetAwaiter().GetResult();
+                        var videoFn2 = videoFn.Substring(0, videoFn.IndexOf("_MANUAL_", StringComparison.OrdinalIgnoreCase)) + "N.mp4";
+                        if (File.Exists(videoFn2))
+                        {
+                            // Delete the original video file with _Start_ suffix
+                            try
+                            {
+                                File.Delete(videoFn2);
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine($"Delete failed: {ex.Message}");
+                            }
+
+                        }
+                        File.Copy(videoFn, videoFn2); // Rename the video file to remove the _Start_ suffix
+                        athStitcherViewModel.SetVideoPath(videoFn2);
+                    }
+                    else if (videoFn.Contains("_VIDEOSTART_", StringComparison.OrdinalIgnoreCase))
+                    {
+                        PngMetadataHelper.SetMetaInfo(videoFn, "VIDEOSTART", $"").GetAwaiter().GetResult();
+                        var videoFn2 = videoFn.Substring(0, videoFn.IndexOf("_VIDEOSTART_", StringComparison.OrdinalIgnoreCase)) + "N.mp4";
+                        if (File.Exists(videoFn2))
+                        {
+                            // Delete the original video file with _Start_ suffix
+                            try
+                            {
+                                File.Delete(videoFn2);
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine($"Delete failed: {ex.Message}");
+                            }
+
+                        }
+                        File.Copy(videoFn, videoFn2); // Rename the video file to remove the _Start_ suffix
+                        athStitcherViewModel.SetVideoPath(videoFn2);
+                    }
+                    else if (videoFn.Contains("_GUNSOUND_", StringComparison.OrdinalIgnoreCase))
+                    {
+                        PngMetadataHelper.SetMetaInfo(videoFn, "GUNSOUND", $"").GetAwaiter().GetResult();
+                        var videoFn2 = videoFn.Substring(0, videoFn.IndexOf("_GUNSOUND_", StringComparison.OrdinalIgnoreCase)) + "N.mp4";
+                        if (File.Exists(videoFn2))
+                        {
+                            // Delete the original video file with _Start_ suffix
+                            try
+                            {
+                                File.Delete(videoFn2);
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine($"Delete failed: {ex.Message}");
+                            }
+
+                        }
+                        File.Copy(videoFn, videoFn2); // Rename the video file to remove the _Start_ suffix
+                        athStitcherViewModel.SetVideoPath(videoFn2);
+                    }
+                    else if (videoFn.Contains("_GUNFLASH_", StringComparison.OrdinalIgnoreCase))
+                    {
+                        PngMetadataHelper.SetMetaInfo(videoFn, "GUNFLASH", $"").GetAwaiter().GetResult();
+                        var videoFn2 = videoFn.Substring(0, videoFn.IndexOf("_GUNFLASH_", StringComparison.OrdinalIgnoreCase)) + "N.mp4";
+                        if (File.Exists(videoFn2))
+                        {
+                            // Delete the original video file with _Start_ suffix
+                            try
+                            {
+                                File.Delete(videoFn2);
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine($"Delete failed: {ex.Message}");
+                            }
+
+                        }
+                        File.Copy(videoFn, videoFn2); // Rename the video file to remove the _Start_ suffix
+                        athStitcherViewModel.SetVideoPath(videoFn2);
+                    }
+
+                    
+                }
+
+                // Check for embedded Gun Time
+                var xx = athStitcherViewModel.GetVideoPath();
+                var wt2 = PngMetadataHelper.GetMetaInfo(athStitcherViewModel.GetVideoPath()).GetAwaiter();
+                while (!wt2.IsCompleted)
+                {
+                    Thread.Sleep(1000); // Wait for the metadata to be retrieved
+                }
+                var metaInfo = wt2.GetResult(); // Wait for the metadata to be retrieved
+                if (metaInfo != null)
+                {
+                    if (metaInfo.Item1.Contains("WALLCLOCK", StringComparison.OrdinalIgnoreCase))
+                    {
+                        string dt = metaInfo.Item2;
+                        if (string.IsNullOrEmpty(dt))
+                        {
+                            if (DateTime.TryParse(dt, out DateTime dat))
+                            {
+                                athStitcherViewModel.SetEventWallClockStart(dat);
+                                athStitcherViewModel.SetTimeFromMode(TimeFromMode.WallClockSelect);
+                            }
+                        }
+                    }
+                    else if (metaInfo.Item1.Contains("MANUAL", StringComparison.OrdinalIgnoreCase))
+                    {
+                        athStitcherViewModel.SetTimeFromMode(TimeFromMode.ManuallySelect);
+                    }
+                    else if (metaInfo.Item1.Contains("VIDEOSTART", StringComparison.OrdinalIgnoreCase))
+                    {
+                        athStitcherViewModel.SetTimeFromMode(TimeFromMode.FromVideoStart);
+                    }
+                    else if (metaInfo.Item1.Contains("GUNSOUND", StringComparison.OrdinalIgnoreCase))
+                    {
+                        athStitcherViewModel.SetTimeFromMode(TimeFromMode.FromGunSound);
+                    }
+                    else if (metaInfo.Item1.Contains("GUNFLASH", StringComparison.OrdinalIgnoreCase))
+                    {
+                        athStitcherViewModel.SetTimeFromMode(TimeFromMode.FromGunFlash);
+                    }
+                    else
+                    {
+                        // Default to FromVideoStart if no specific metadata is found
+                        athStitcherViewModel.SetTimeFromMode(TimeFromMode.FromVideoStart);
+                    }
+                }             
+            }
+
+            // Get info needed by videoStitcher but as properties of the ViewModel can get at its constructor
             string videoFilePath = athStitcherViewModel.GetVideoPath();
             int axisHeight = (int)AxisHeightSlider.Value;
             int audioHeight = (int)AudioHeightSlider.Value;
             TimeFromMode timeFromMode = athStitcherViewModel.GetTimeFromMode();
+            if (!File.Exists(videoFilePath))
+            {
+                MessageBox.Show("The specified video file does not exist.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                StitchButton.IsEnabled = true;
+                return;
+            }
+
+            //Another tidyup. Gun info was stored in Image fiilename
+            // Remove any _Start_ or _gun_ from the output path
+            string outputPath = athStitcherViewModel.GetOutputPath();
+            while (outputPath.Contains("_start_", StringComparison.OrdinalIgnoreCase))
+            {
+                outputPath = outputPath.Substring(0, outputPath.IndexOf("_Start_", StringComparison.OrdinalIgnoreCase));
+                outputPath = $"{outputPath}.png";
+            }
+            while (outputPath.Contains("_gun_", StringComparison.OrdinalIgnoreCase))
+            {
+                outputPath = outputPath.Substring(0, outputPath.IndexOf("_gun_", StringComparison.OrdinalIgnoreCase));
+                outputPath = $"{outputPath}.png";
+            }
+            athStitcherViewModel.SetOutputPath(outputPath);
+
+            // Hide all transient UI elements
+            PopupVideoFrameImage.IsOpen = false; // Close the popup if it is open
+            WatchClockDateTimePopup.IsOpen = false;
+            StartVerticalLine.Visibility = Visibility.Collapsed;
+            VerticalLine.Visibility = Visibility.Collapsed;
+            NudgeVerticalLine.Visibility = Visibility.Collapsed; // Hide the nudge vertical line
+            TimeLabel.Visibility = Visibility.Collapsed;
+            // Hide the other UI elements (ie Excluding Stitched iamge)
+            athStitcherViewModel.SetMyVisibility(Visibility.Collapsed);
+            Thread.Yield();
+
+
             // Used by manully select mode, later
             // Need to get stitched image first
             // You can then set it.
             athStitcherViewModel.SetSelectedStartTime(0);
-            VerticalLine.Visibility = Visibility.Collapsed; // Hide the vertical line
-            StartVerticalLine.Visibility = Visibility.Collapsed; // Hide the start vertical line
-            NudgeVerticalLine.Visibility = Visibility.Collapsed; // Hide the nudge vertical line
-            // Show the busy indicator
+
+             // Show the busy indicator
             BusyIndicator.Visibility = Visibility.Visible;
-            //MyVisibility = Visibility.Collapsed; ; // Hide the button
-            athStitcherViewModel.SetMyVisibility(Visibility.Collapsed);
-            Thread.Yield();
+
+            // More setup
             DetectVideoFlash.ActionVideoAnalysis? actionVideoAnalysis = null;
             VideoDetectMode videoDetectMode = athStitcherViewModel.GetVideoDetectMode();
-            if (timeFromMode == TimeFromMode.FromButtonPress)
+            if (timeFromMode == TimeFromMode.FromVideoStart)
             {
                 // Nothing 2Do
             }
-            else if (timeFromMode == TimeFromMode.FromGunviaAudio)
+            else if (timeFromMode == TimeFromMode.FromGunSound)
             {
                 //DetectVideoFlash.FFMpegActions.Filterdata(videoFilePath, guninfoFilePath);
             }
-            else if (timeFromMode == TimeFromMode.FromGunViaVideo)
+            else if (timeFromMode == TimeFromMode.FromGunFlash)
             {
             }
             else if (timeFromMode == TimeFromMode.ManuallySelect)
             {
                 var start = athStitcherViewModel.GetEventWallClockStartTime();
             }
-            // Validate inputs
+            // Validate 
             // Read inputs
             //string gunAudioPath = GunAudioPath();
-            string outputPath = athStitcherViewModel.GetOutputPath();
-            while (outputPath.Contains("_start_",StringComparison.OrdinalIgnoreCase))
-            {
-                outputPath = outputPath.Substring(0, outputPath.IndexOf("_Start_", StringComparison.OrdinalIgnoreCase));
-                outputPath = $"{outputPath}.png";
-            }
+
             athStitcherViewModel.SetOutputPath(outputPath);
             StitchButton.Width = 0;
             StitchButton.IsEnabled = false; // Disable the button to prevent multiple clicks
@@ -548,12 +766,7 @@ namespace PhotoTimingGui
                 //return;
             }
 
-            if (!File.Exists(videoFilePath))
-            {
-                MessageBox.Show("The specified video file does not exist.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                StitchButton.IsEnabled = true;
-                return;
-            }
+
 
 
 
@@ -566,14 +779,7 @@ namespace PhotoTimingGui
             }
             threshold = int.Parse(Threshold.Text);
 
-            DateTime? creationDate = DetectAudioFlash.FFMpegActions.GetVideoStart(athStitcherViewModel.GetVideoPath());
-            if (creationDate != null)
-            {
-                athStitcherViewModel.SetVideoCreationDate(creationDate);
-            }
 
-            //if (videoStitcher == null)
-            //{
             videoStitcher = new PhotoTimingDjaus.VideoStitcher(
                 athStitcherViewModel.GetVideoPath(),
                 athStitcherViewModel.GetGunColor(),
@@ -584,7 +790,6 @@ namespace PhotoTimingGui
                 athStitcherViewModel.GetlevelImage(),
                 athStitcherViewModel.GetTimeFromMode(),
                 threshold);
-            //}
 
             string gunAudioPath = athStitcherViewModel.GetGunAudioPath();
             videoDetectMode = athStitcherViewModel.GetVideoDetectMode();
@@ -598,22 +803,22 @@ namespace PhotoTimingGui
             worker.DoWork += (s, args) =>
             {
                 //Determine guntime
-                if (HaveGotGunTime)
-                {
-                    HaveGotGunTime = false;
-                    if (timeFromMode == TimeFromMode.FromButtonPress)
+               // if (HaveGotGunTime)
+                //{
+                    //HaveGotGunTime = false;
+                    if (timeFromMode == TimeFromMode.FromVideoStart)
                     {
                         //Need next to get video length
                         var xx = videoStitcher.GetGunTimenFrameIndex(gunAudioPath);
                         GunTimeDbl = 0; // Default value when timing is from button press
                         GunTimeIndex = 0; // Default index when timing is from button press
                     }
-                    else if (timeFromMode == TimeFromMode.FromGunviaAudio)
+                    else if (timeFromMode == TimeFromMode.FromGunSound)
                     {
                         GunTimeDbl = videoStitcher.GetGunTimenFrameIndex(gunAudioPath);
                         GunTimeIndex = videoStitcher.GunTimeIndex;
                     }
-                    else if (timeFromMode == TimeFromMode.FromGunViaVideo)
+                    else if (timeFromMode == TimeFromMode.FromGunFlash)
                     {
                         GunTimeDbl = videoStitcher.GetGunTimenFrameIndex(gunAudioPath, videoDetectMode);
                         GunTimeIndex = videoStitcher.GunTimeIndex;
@@ -638,13 +843,13 @@ namespace PhotoTimingGui
                         athStitcherViewModel.SetGunTime(GunTimeDbl, GunTimeIndex);
                         athStitcherViewModel.Set_HaveSelectedandShownGunLineinManualorWallClockMode(true);
                     }
-                }
-                else
-                {
-                    //GunTimeDbl = 0; // Default value when timing is from button press
-                    //GunTimeIndex = 0; // Default index when timing is from button press
+                //}
+                //else
+                //{
+                //    //GunTimeDbl = 0; // Default value when timing is from button press
+                //    //GunTimeIndex = 0; // Default index when timing is from button press
 
-                }
+                //}
 
 
                 videoStitcher.Stitch();
@@ -655,17 +860,25 @@ namespace PhotoTimingGui
             worker.RunWorkerCompleted += async (s, args) =>
             {
 
-                string imagepath =  PngMetadataHelper.AppendGunTimeImageFilename(athStitcherViewModel.GetOutputPath(), GunTimeDbl);
-                if(!string.IsNullOrEmpty(imagepath))
+                //string imagepath =  PngMetadataHelper.AppendGunTimeImageFilename(athStitcherViewModel.GetOutputPath(), GunTimeDbl);
+                //string imagepath = athStitcherViewModel.GetOutputPath();
+                string videoStart = athStitcherViewModel.GetVideoCreationDateStr();
+                var wt = PngMetadataHelper.SetMetaInfo(athStitcherViewModel.GetOutputPath(), $"VideoStart:{videoStart}", $"Guntime:{GunTimeDbl}").GetAwaiter();
+                while (!wt.IsCompleted)
                 {
-                    athStitcherViewModel.SetOutputPath(imagepath);
+                    Thread.Sleep(1000); // Wait for the metadata to be set
                 }
-                else
+                wt.GetResult(); // Wait for the metadata to be set
+
+                //Next bit only for debugging
+                var wt2 = PngMetadataHelper.GetMetaInfo(athStitcherViewModel.GetOutputPath()).GetAwaiter();
+                while (!wt2.IsCompleted)
                 {
-                    MessageBox.Show("Failed to append gun time to image filename.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    StitchButton.IsEnabled = true; // Re-enable the button
-                    return;
+                    Thread.Sleep(1000); // Wait for the metadata to be retrieved
                 }
+                var metaInfo = wt2.GetResult(); // Wait for the metadata to be retrieved
+                                                //AddMetadataToPng(@"C:\temp\vid\cars\notwo.png", @"C:\temp\vid\cars\notwocpy.png", "XXX", "A TITLE").Wait();
+                
 
                 videoLength = videoStitcher.videoDuration;
                 athStitcherViewModel.SetVideoLength(videoLength);
@@ -1043,7 +1256,7 @@ namespace PhotoTimingGui
                     if (match.Success)
                     {
                         imagePath = Regex.Replace(videoFilePath, gunPattern, ".png", RegexOptions.IgnoreCase);
-                        athStitcherViewModel.SetTimeFromMode(TimeFromMode.FromGunviaAudio); // Set the mode to WallClockSelect
+                        athStitcherViewModel.SetTimeFromMode(TimeFromMode.FromGunSound); // Set the mode to WallClockSelect
                         HaveGotGunTime = true;
                     }
                     else
@@ -1052,7 +1265,7 @@ namespace PhotoTimingGui
                         if (match.Success)
                         {
                             imagePath = Regex.Replace(videoFilePath, flashPattern, ".png", RegexOptions.IgnoreCase);
-                            athStitcherViewModel.SetTimeFromMode(TimeFromMode.FromGunViaVideo); // Set the mode to WallClockSelect
+                            athStitcherViewModel.SetTimeFromMode(TimeFromMode.FromGunFlash); // Set the mode to WallClockSelect
                             HaveGotGunTime = true;
                         }
                         else
@@ -1081,6 +1294,7 @@ namespace PhotoTimingGui
                     }
                 }
                 athStitcherViewModel.SetOutputPath(imagePath);
+                SkipMetaCheck = false;
                 StitchVideo();
                 if(athStitcherViewModel.GetTimeFromMode() == TimeFromMode.WallClockSelect)
                 {

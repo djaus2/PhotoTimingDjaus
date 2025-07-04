@@ -43,7 +43,7 @@ namespace PhotoTimingDjaus
         bool _levelImage = false; // If true, the image is leveled to the bottom of the stitched image
 
         // Constructor to initialize the video stitcher parameters
-        public VideoStitcher(string videoPath, Scalar _gunTimeColor, string outputPath, double _selectedStartTime = 0, int _axisHeight = 100, int _audioHeight = 100, bool levelImage = false, TimeFromMode _timeFromMode = TimeFromMode.FromButtonPress, int _threshold=1000)
+        public VideoStitcher(string videoPath, Scalar _gunTimeColor, string outputPath, double _selectedStartTime = 0, int _axisHeight = 100, int _audioHeight = 100, bool levelImage = false, TimeFromMode _timeFromMode = TimeFromMode.FromVideoStart, int _threshold=1000)
         {
             this.videoFilePath = videoPath;
             this.outputFilePath = outputPath;
@@ -141,7 +141,7 @@ namespace PhotoTimingDjaus
                 videoDuration = videoFrameCount / capture.Fps; // Calculate total video duration in seconds
             }
 
-            if (timeFromMode == TimeFromMode.FromGunviaAudio)
+            if (timeFromMode == TimeFromMode.FromGunSound)
             {
                 DetectAudioFlash.FFMpegActions.Filterdata(videoFilePath, guninfoFilePath);
                 if (!File.Exists(guninfoFilePath))
@@ -191,7 +191,7 @@ namespace PhotoTimingDjaus
                 }
                 return GunTime; // Return the start frame index and time in seconds
             }
-            else if (timeFromMode == TimeFromMode.FromGunViaVideo)
+            else if (timeFromMode == TimeFromMode.FromGunFlash)
             {
                 DetectVideoFlash.ActionVideoAnalysis actionVideoAnalysis
                     = new DetectVideoFlash.ActionVideoAnalysis(videoFilePath, (VideoDetectMode)vm, threshold);
@@ -223,7 +223,7 @@ namespace PhotoTimingDjaus
 
                 return GunTime;
             }
-            else if (timeFromMode == TimeFromMode.FromButtonPress)
+            else if (timeFromMode == TimeFromMode.FromVideoStart)
             {
                 //Use video start
                 GunTime = 0;
@@ -264,11 +264,11 @@ namespace PhotoTimingDjaus
                 Console.WriteLine("Video file not found. Please ensure 'guninfo.txt' exists in 'C:\\temp\\vid\\'.");
                 return;
             }
-            if (timeFromMode == TimeFromMode.FromGunviaAudio)
+            if (timeFromMode == TimeFromMode.FromGunSound)
             {
  
             }
-            else if (timeFromMode== TimeFromMode.FromGunViaVideo)
+            else if (timeFromMode== TimeFromMode.FromGunFlash)
             {
 
             }
@@ -331,14 +331,14 @@ namespace PhotoTimingDjaus
 
             switch (timeFromMode)
             {
-                case TimeFromMode.FromButtonPress:
+                case TimeFromMode.FromVideoStart:
                 case TimeFromMode.ManuallySelect:
                     stitchedImage = new Mat(stitchedHeight + 1 + axisHeight, stitchedWidth, MatType.CV_8UC3, new Scalar(0, 0, 0)); // Extra 2 x 100 pixels for markers and audio graph
                     break;
-                case TimeFromMode.FromGunviaAudio:
+                case TimeFromMode.FromGunSound:
                     stitchedImage = new Mat(stitchedHeight + 1 + audioHeight + axisHeight, stitchedWidth, MatType.CV_8UC3, new Scalar(0, 0, 0)); // Extra 2 x 100 pixels for markers and audio graph
                     break;
-                case TimeFromMode.FromGunViaVideo:
+                case TimeFromMode.FromGunFlash:
                     stitchedImage = new Mat(stitchedHeight + 1 + audioHeight + axisHeight, stitchedWidth, MatType.CV_8UC3, new Scalar(0, 0, 0)); // Extra 2 x 100 pixels for markers and audio graph
                     break;
             }
@@ -389,7 +389,7 @@ namespace PhotoTimingDjaus
                 {
                     Cv2.Line(stitchedImage, new Point(i, stitchedHeight), new Point(i, stitchedHeight + (int)(0.12 * axisHeight)), new Scalar(255, 255, 255), 1); // White line
                 }
-                if (timeFromMode == TimeFromMode.FromGunviaAudio)
+                if (timeFromMode == TimeFromMode.FromGunSound)
                 {
                     int audioframe = (int)Math.Round(i * ratio);
                     int i2 = i;
@@ -401,7 +401,7 @@ namespace PhotoTimingDjaus
                     int audioframe2 = (int)Math.Round(i2 * ratio);
                     Cv2.Line(stitchedImage, new Point(i2, stitchedHeight + axisHeight + audioHeight - audioData[audioframe2]), new Point(i, stitchedHeight + axisHeight + audioHeight - audioData[audioframe]), new Scalar(0, 255, 255), 1); // Read line
                 }
-                else if (timeFromMode == TimeFromMode.FromGunViaVideo)
+                else if (timeFromMode == TimeFromMode.FromGunFlash)
                 {
                     int i2 = i;
                     if (i != 0)
@@ -416,11 +416,11 @@ namespace PhotoTimingDjaus
 
             if (GunTimeIndex != 0)
             {
-                if (timeFromMode == TimeFromMode.FromGunviaAudio)
+                if (timeFromMode == TimeFromMode.FromGunSound)
                 {
                     Cv2.Line(stitchedImage, new Point(GunTimeIndex, 0), new Point(GunTimeIndex, stitchedHeight), GunTimeColor); // White line
                 }
-                else if (timeFromMode == TimeFromMode.FromGunViaVideo)
+                else if (timeFromMode == TimeFromMode.FromGunFlash)
                 {
                     Cv2.Line(stitchedImage, new Point(GunTimeIndex, 0), new Point(GunTimeIndex, stitchedHeight), GunTimeColor); // White line
                 }

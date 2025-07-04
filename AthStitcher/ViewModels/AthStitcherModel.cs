@@ -359,7 +359,7 @@ namespace PhotoTimingGui.ViewModels
         public bool IsMagentaSelected => string.Equals(_selectedColorName, "Magenta", StringComparison.OrdinalIgnoreCase);
         public bool IsWhiteSelected => string.Equals(_selectedColorName, "White", StringComparison.OrdinalIgnoreCase);
         public bool IsBlackSelected => string.Equals(_selectedColorName, "Black", StringComparison.OrdinalIgnoreCase);
-        public bool FlashSelected => TimeFromMode.Equals(_TimeFromMode, TimeFromMode.FromGunViaVideo);
+        public bool FlashSelected => TimeFromMode.Equals(_TimeFromMode, TimeFromMode.FromGunFlash);
         public bool ManualSelected => TimeFromMode.Equals(_TimeFromMode, TimeFromMode.ManuallySelect);
 
         private void UpdateColorSelectionProperties()

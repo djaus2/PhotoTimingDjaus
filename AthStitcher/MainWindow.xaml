@@ -160,15 +160,15 @@
                                 <!-- Option 1: Button -->
                                 <MenuItem Header="Button" 
                   Click="TimeFromMode_Click"
-                  Tag="{x:Static enums:TimeFromMode.FromButtonPress}" />
+                  Tag="{x:Static enums:TimeFromMode.FromVideoStart}" />
                                 <!-- Option 2: Mic -->
                                 <MenuItem Header="Mic" 
                   Click="TimeFromMode_Click"
-                  Tag="{x:Static enums:TimeFromMode.FromGunviaAudio}" />
+                  Tag="{x:Static enums:TimeFromMode.FromGunSound}" />
                                 <!-- Option 3: Flash - with a side (sub) menu -->
                                 <MenuItem Header="Flash" 
                   Click="TimeFromMode_Click"
-                  Tag="{x:Static enums:TimeFromMode.FromGunViaVideo}">
+                  Tag="{x:Static enums:TimeFromMode.FromGunFlash}">
                                     <!-- Submenu Header (non-selectable) -->
                                     <MenuItem Header="Detect Flash:" 
                                       IsEnabled="False" 
@@ -515,7 +515,7 @@
                                 <!-- Make it Visible only when TimeFromMode == FromGunViaVideo -->
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding TimeFromMode}"
-                                 Value="{x:Static enums:TimeFromMode.FromGunViaVideo}">
+                                 Value="{x:Static enums:TimeFromMode.FromGunFlash}">
                                         <Setter Property="Visibility" Value="Visible"/>
                                     </DataTrigger>
                                 </Style.Triggers>

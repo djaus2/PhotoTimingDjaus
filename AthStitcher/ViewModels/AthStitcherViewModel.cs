@@ -292,7 +292,7 @@ namespace AthStitcher.ViewModels
             {
                 return viewModel.TimeFromMode;
             }
-            return TimeFromMode.FromButtonPress; // Default value if ViewModel is not available
+            return TimeFromMode.FromVideoStart; // Default value if ViewModel is not available
         }
 
 
@@ -461,6 +461,17 @@ namespace AthStitcher.ViewModels
                 return viewModel.VideoCreationDate;
             }
             return DateTime.MinValue;
+        }
+
+        internal string GetVideoCreationDateStr()
+        {
+            if (DataContext is AthStitcherModel viewModel)
+            {
+
+                DateTime dat =  viewModel.VideoCreationDate;
+                return dat.ToString("yyyy-MM-dd HH:mm:ss.fff");
+            }
+            return "";
         }
         //SetEventWallClockStartTime
         internal void SetEventWallClockStartTime(DateTime start)

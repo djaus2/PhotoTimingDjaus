@@ -13,6 +13,7 @@ using System.Runtime.Serialization;
 using System.Drawing;
 using System.Drawing.Imaging;
 using OpenCvSharp;
+using FFMpegCore.Builders.MetaData;
 
 namespace PhotoTimingDjausLib
 
@@ -111,6 +112,156 @@ namespace PhotoTimingDjausLib
                 return tempImage.PropertyItems.First();
             }
         }
+
+        public static async Task<bool> AddMetadataToPng(string inputPath, string outputPath, string comment = null, string title = null)
+        {
+            if (string.IsNullOrEmpty(inputPath) || string.IsNullOrEmpty(outputPath))
+                throw new ArgumentException("Input and output paths must be provided.");
+
+            var args = new List<string>();
+
+            if (!string.IsNullOrEmpty(title))
+                args.Add($"-metadata title=\"{title}\"");
+
+            if (!string.IsNullOrEmpty(comment))
+                args.Add($"-metadata comment=\"{comment}\"");
+
+            string customArgs = string.Join(" ", args);
+            customArgs = "-c copy -map_metadata 0 " + customArgs;
+
+            try
+            {
+                string tempPath = @"C:\Users\david\OneDrive\Documents\Downloads\ffmpeg-master-latest-win64-gpl-shared\ffmpeg-master-latest-win64-gpl-shared\bin";
+                string? currentPath = Environment.GetEnvironmentVariable("PATH");
+
+                if (!string.IsNullOrEmpty(currentPath))
+                {
+                    if (!currentPath.Split(';').Contains(tempPath))
+                    {
+                        Environment.SetEnvironmentVariable("PATH", currentPath + ";" + tempPath);
+                    }
+
+                    await FFMpegArguments
+                        .FromFileInput(inputPath)
+                        .OutputToFile(outputPath, overwrite: true, options => options
+                            .WithCustomArgument(customArgs))
+                        .ProcessAsynchronously();
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                // You can log or handle specific exceptions here
+                Console.WriteLine($"Metadata write failed: {ex.Message}");
+                return false;
+            }
+        }
+
+        public static async  Task<Tuple<string,string>?> GetMetaInfo(string filePath)
+        {
+            string tempPath = @"C:\temp\vid\exiftool-13.32_64\exiftool-13.32_64";//Need to download from https://exiftool.org/
+            if (!File.Exists(Path.Combine(tempPath, "exiftool(-k).exe")))
+            {
+                Console.WriteLine("ExifTool not found. Ensure it's extracted to the specified path.");
+                return null;
+            }
+            if (!File.Exists(filePath))
+            {
+                Console.WriteLine($"{filePath} not found.");
+                return null;
+            }
+
+            string? currentPath = Environment.GetEnvironmentVariable("PATH");
+
+            if (!string.IsNullOrEmpty(currentPath))
+            {
+                if (!currentPath.Split(';').Contains(tempPath))
+                {
+                    Environment.SetEnvironmentVariable("PATH", currentPath + ";" + tempPath);
+                }
+
+                //Need Nuget package: dotnet add package SharpExifTool
+                using var exiftool = new SharpExifTool.ExifTool();
+
+                // Read metadata
+                var metadata = await exiftool.ExtractAllMetadataAsync(filePath);
+
+                string title = metadata.FirstOrDefault(kvp => kvp.Key.Contains("Title", StringComparison.OrdinalIgnoreCase)).Value;
+                string comment = metadata.FirstOrDefault(kvp => kvp.Key.Contains("Comment", StringComparison.OrdinalIgnoreCase)).Value;
+                if (comment == null)
+                    comment = "";
+                if (string.IsNullOrEmpty(title))
+                {
+                    Console.WriteLine("No metadata found.");
+                    return null;
+                }
+
+                return new Tuple<string, string>(title, comment);
+            }
+            return null;
+
+        }
+
+        public static async Task<bool> SetMetaInfo(string filePath, string title, string meta)
+        {
+            string tempPath = @"C:\temp\vid\exiftool-13.32_64\exiftool-13.32_64";//Need to download from https://exiftool.org/
+            if (!File.Exists(Path.Combine(tempPath, "exiftool(-k).exe")))
+            {
+                Console.WriteLine("ExifTool not found. Ensure it's extracted to the specified path.");
+                return false;
+            }
+            if (!File.Exists(filePath))
+            {
+                Console.WriteLine($"{filePath} not found.");
+                return false;
+            }
+
+            string? currentPath = Environment.GetEnvironmentVariable("PATH");
+
+            if (!string.IsNullOrEmpty(currentPath))
+            {
+                if (!currentPath.Split(';').Contains(tempPath))
+                {
+                    Environment.SetEnvironmentVariable("PATH", currentPath + ";" + tempPath);
+                }
+
+                //Need Nuget package: dotnet add package SharpExifTool
+                using var exiftool = new SharpExifTool.ExifTool();
+
+
+                // Write metadata
+                await exiftool.WriteTagsAsync(filePath, new Dictionary<string, string>
+                {
+                    ["Title"] = title,
+                    ["Comment"] = meta
+                },true);
+
+                bool done = false;
+                do
+                {
+                    var metadata = await exiftool.ExtractAllMetadataAsync(filePath);
+                    if (metadata == null)
+                    {
+                        Thread.Sleep(1000);
+                    }
+                    else
+                    {
+                        if (metadata.Count() == 0)
+                        {
+                            Thread.Sleep(1000);
+                        }
+                        else
+                        {
+                            done = true;
+                        }
+                    }
+                } while(!done);
+            }
+            return true;
+
+        }
     }
+
 }
 
