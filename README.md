@@ -9,9 +9,9 @@ A simple phototiming app for Athletics etc where a finish line is filmed with sa
 
 ## Recent
 ### Status
-> All good now except fpr some WallClock issues:
-  - Gunline for WallClock doesn't show once commited when using the Stitch button  but can measure times form it.
-    - But if File->Load and Stitch as WallClock (with guntime as part of filename) does auto set gunline from video and shows it.
+> All good now!
+  - ~~Gunline for WallClock doesn't show once commited when using the Stitch button  but can measure times form it.~~
+    - ~~But if File->Load and Stitch as WallClock (with guntime as part of filename) does auto set gunline from video and shows it.~~
 
 ### Latest
 - WPF File-Open is Open is now "Open Video File and Stitch".
