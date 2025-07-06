@@ -74,6 +74,8 @@ The WPF app has been updated to calculate time from gun.  The guntime is taken f
 
 ## 2Do
 - Rewrite this README.
+- When loading stitched image get start time from meta info.
+ - Stitching embeds Video start WallClock time in Title and Gun time (WallClock) in Comment in stiutched image.
 - Remove dead code _(commented out code)_
 - Take all image width ratios from horizonatal zoom slider.
 
