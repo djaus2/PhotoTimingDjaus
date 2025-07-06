@@ -37,7 +37,7 @@ A simple phototiming app for Athletics etc where a finish line is filmed with sa
         WallClockSelect,
     }
 ```
-  - ~~2Do Match this with the phone video capture app.~~ _Not possible with teh oackage used to embedded metainfo in the video file on Android._
+  - ~~2Do Match this with the phone video capture app.~~ _Not possible with the package used to embedded metainfo in the video file on Android._
 
 - WPF App HAS been renamed as **AthStitcher**  <-- And the project folder has now been renamed to that.
 - Added simple App **SplashScreen** (Image in root and SplashScreen property)
