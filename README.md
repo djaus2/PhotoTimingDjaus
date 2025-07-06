@@ -19,11 +19,25 @@ A simple phototiming app for Athletics etc where a finish line is filmed with sa
     - If no match then opens according to menu selection.
     - Filename patterns:
 ```cs
-  wallClockPattern = @"_WALL_(\d{4}-\d{2}-\d{2} \d{2}--\d{2}--\d{2}\.\d{3})_\.mp4$"; <-- A DateTime string (sort of)
-  gunPattern = @"_GUN\.mp4$";
-  flashPattern = @"_FLASH\.mp4$";
-  manualPattern = @"_MAN\.mp4$";
+  wallClockPattern = @"_WALLCLOCK_(\d{4}-\d{2}-\d{2} \d{2}--\d{2}--\d{2}\.\d{3})_\.mp4$"; <-- A DateTime string (sort of)
+  gunPattern = @"_GUNSOUND_\.mp4$";
+  flashPattern = @"_GUNFLASH_\.mp4$";
+  manualPattern = @"_MANUAL_\.mp4$";
 ```
+- WPF app now recognizes those patterns and embedds the types as video title and for WallClock, the GunWallClcok time as teh Comment.
+- If use [Stitch] button this meta info is ignored and the selected TimeFromMode is used.
+  - Programmically the TimeFromMode names have changed:
+```cs
+    public enum TimeFromMode
+    {
+        FromVideoStart, //From start of video capture
+        FromGunSound, //From gun sound
+        FromGunFlash,  //From observed flash of gun on video
+        ManuallySelect, //Manually selected start time
+        WallClockSelect,
+    }
+```
+  - 2Do Match this with teh phone video capture app.
 
 - WPF App HAS been renamed as **AthStitcher**  <-- And the project folder has now been renamed to that.
 - Added simple App **SplashScreen** (Image in root and SplashScreen property)
