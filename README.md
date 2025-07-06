@@ -10,10 +10,9 @@ A simple phototiming app for Athletics etc where a finish line is filmed with sa
 ## Recent
 ### Status
 > All good now!
-  - ~~Gunline for WallClock doesn't show once commited when using the Stitch button  but can measure times form it.~~
-    - ~~But if File->Load and Stitch as WallClock (with guntime as part of filename) does auto set gunline from video and shows it.~~
 
 ### Latest
+- Sample app [djaus2/MauiMediaRecorderVideoAndroidApp](https://github.com/djaus2/MauiMediaRecorderVideoAndroidApp) has been updated to append TimeFromMode to Video filename.
 - WPF File-Open is Open is now "Open Video File and Stitch".
   - Looks at filename and determines type of video, stitches and determines start time.
     - If no match then opens according to menu selection.
