@@ -18,6 +18,7 @@ A simple phototiming app for Athletics etc where a finish line is filmed with sa
     - If no match then opens according to menu selection.
     - Filename patterns:
 ```cs
+  videoStart =  @"_VIDEOSTART_\.mp4$";  // Default
   wallClockPattern = @"_WALLCLOCK_(\d{4}-\d{2}-\d{2} \d{2}--\d{2}--\d{2}\.\d{3})_\.mp4$"; <-- A DateTime string (sort of)
   gunPattern = @"_GUNSOUND_\.mp4$";
   flashPattern = @"_GUNFLASH_\.mp4$";
