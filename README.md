@@ -10,15 +10,15 @@ A simple phototiming app for Athletics etc where a finish line is filmed with sa
 ## Recent
 ### Status
 > All good now!
-  - ~~Gunline for WallClock doesn't show once commited when using the Stitch button  but can measure times form it.~~
-    - ~~But if File->Load and Stitch as WallClock (with guntime as part of filename) does auto set gunline from video and shows it.~~
 
 ### Latest
+- Sample app [djaus2/MauiMediaRecorderVideoAndroidApp](https://github.com/djaus2/MauiMediaRecorderVideoAndroidApp) has been updated to append TimeFromMode to Video filename.
 - WPF File-Open is Open is now "Open Video File and Stitch".
   - Looks at filename and determines type of video, stitches and determines start time.
     - If no match then opens according to menu selection.
     - Filename patterns:
 ```cs
+  videoStart =  @"_VIDEOSTART_\.mp4$";  // Default
   wallClockPattern = @"_WALLCLOCK_(\d{4}-\d{2}-\d{2} \d{2}--\d{2}--\d{2}\.\d{3})_\.mp4$"; <-- A DateTime string (sort of)
   gunPattern = @"_GUNSOUND_\.mp4$";
   flashPattern = @"_GUNFLASH_\.mp4$";
@@ -37,7 +37,7 @@ A simple phototiming app for Athletics etc where a finish line is filmed with sa
         WallClockSelect,
     }
 ```
-  - 2Do Match this with teh phone video capture app.
+  - ~~2Do Match this with the phone video capture app.~~ _Not possible with the package used to embedded metainfo in the video file on Android._
 
 - WPF App HAS been renamed as **AthStitcher**  <-- And the project folder has now been renamed to that.
 - Added simple App **SplashScreen** (Image in root and SplashScreen property)
@@ -74,6 +74,8 @@ The WPF app has been updated to calculate time from gun.  The guntime is taken f
 
 ## 2Do
 - Rewrite this README.
+- When loading stitched image get start time from meta info.
+  - Stitching embeds Video start WallClock time in Title and Gun time (WallClock) in Comment in stitched image.
 - Remove dead code _(commented out code)_
 - Take all image width ratios from horizonatal zoom slider.
 
