@@ -540,7 +540,8 @@ namespace PhotoTimingGui
                             DateTime gunDateTime = DateTime.ParseExact(normalized, "yyyy-MM-dd HH:mm:ss.fff", null);
                             PngMetadataHelper.SetMetaInfo(videoFn, "GUNWC", $"GunTime:{gunDateTime:yyyy-MM-dd HH:mm:ss.fff}").GetAwaiter().GetResult();
                         }
-                        var videoFn2 = videoFn.Substring(0, videoFn.IndexOf("_GUN_", StringComparison.OrdinalIgnoreCase)) + "N.mp4";
+                        //Was _GUN_ removal:
+                        var videoFn2 = videoFn.Substring(0, videoFn.IndexOf("_WALLCLOCK_", StringComparison.OrdinalIgnoreCase)) + "N.mp4";
                         if (File.Exists(videoFn2))
                         {
                             // Delete the original video file with _Start_ suffix

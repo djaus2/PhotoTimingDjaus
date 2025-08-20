@@ -278,7 +278,7 @@ namespace DetectAudioFlash
         /// <param name="videoPath">The video capture file</param>
         /// <param name="guninfoPath">The structured sound frame number, PTS, frametime, and max volue file</param>
         /// <exception cref="ArgumentException"></exception>
-        public static void Filterdata(string videoPath, string guninfoPath)
+        public static void Filterdata(string videoPath, string guninfoPath) //, string guninfoPath1)
         {
 
             if (string.IsNullOrEmpty(videoPath))

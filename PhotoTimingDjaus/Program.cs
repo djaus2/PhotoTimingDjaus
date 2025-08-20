@@ -32,7 +32,7 @@ namespace PhotoTimingDjaus
             //video.Stitch();
             string guninfoTempPath = @"C:\temp\vid\guninfoTemp.txt";
             string guninfoPath = @"C:\temp\vid\guninfo.txt";
-            FFMpegActions.Filterdata(videoPath, guninfoTempPath, guninfoPath);
+            FFMpegActions.Filterdata(videoPath, guninfoTempPath);//,guninfoPath);
         }
     }
 }
