@@ -528,7 +528,7 @@
                     <Label>PopupPlacement: </Label>
                     <TextBlock Text="{Binding PopupPlacement}"  FontStyle="Italic" />
                 </StackPanel>
-                    <Button Grid.Row="8" Grid.Column="2" Grid.RowSpan="1" Name="StraightenLanesButton" VerticalAlignment="Center" HorizontalAlignment="Center"  Content="Straighten Lanes" Height="30" Width="150" Click="StraightenLanesButton_Click"  Visibility="{Binding HasStitched}" 
+                    <Button Grid.Row="8" Grid.Column="2" Grid.RowSpan="1" Name="StraightenLanesButton" VerticalAlignment="Center" HorizontalAlignment="Center"  Content="Straighten Lanes" Height="30" Width="150"  Visibility="{Binding HasStitched}" 
                         Foreground="Green" FontWeight="Bold" Background="LightCyan"/>
                 <Label Grid.Row="4" Grid.Column="0"  Content="Time From Mode: "  HorizontalAlignment="Right" />
                 <Label Grid.Row="5" Grid.Column="0"  Content="Detect Flash: " HorizontalAlignment="Right" />
