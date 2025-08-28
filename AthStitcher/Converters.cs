@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Data;
 
-namespace PhotoTimingGui.Converters
+namespace AthStitcherGUI.Converters
 {
     public class HalfValueConverter : IValueConverter
     {

@@ -12,10 +12,10 @@ using PhotoTimingDjaus;
 using PhotoTimingDjaus.Enums;// This is where TimeFromMode is defined
 using OpenCvSharp;
 using System.Text.Json;
-using static PhotoTimingGui.ViewModels.enums;
+using static AthStitcherGUI.ViewModels.enums;
 using System.Windows.Controls.Primitives;
 
-namespace PhotoTimingGui.ViewModels
+namespace AthStitcherGUI.ViewModels
 {
     public class enums
     {

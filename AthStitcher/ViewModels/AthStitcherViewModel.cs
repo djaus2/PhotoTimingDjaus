@@ -1,5 +1,6 @@
 ﻿using PhotoTimingDjaus.Enums;
-using PhotoTimingGui.ViewModels;
+using AthStitcher;
+using AthStitcherGUI.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -14,7 +15,8 @@ using System.Windows.Forms;
 using System.Windows.Media.TextFormatting;
 using System.Windows.Navigation;
 
-namespace AthStitcher.ViewModels
+
+namespace AthStitcherGUI.ViewModels
 {
     internal class AthStitcherViewModel
     {
@@ -44,8 +46,8 @@ namespace AthStitcher.ViewModels
         {
             //MyViewModel viewModel = (this.DataContext as MyViewModel) ?? new MyViewModel(); // Ensure viewModel is not null, otherwise create a new instance
             string json = JsonSerializer.Serialize(DataContext);// viewModel);
-            Properties.Settings.Default.SavedViewModel = json;
-            Properties.Settings.Default.Save(); // Persist settings
+            AthStitcher.Properties.Settings.Default.SavedViewModel = json;
+            AthStitcher.Properties.Settings.Default.Save(); // Persist settings
         }
 
         /// <summary>
@@ -53,7 +55,7 @@ namespace AthStitcher.ViewModels
         /// </summary>
         public AthStitcherModel LoadViewModel()
         {
-            string json = Properties.Settings.Default.SavedViewModel;
+            string json = AthStitcher.Properties.Settings.Default.SavedViewModel;
             if (!string.IsNullOrEmpty(json))
             {
                 try

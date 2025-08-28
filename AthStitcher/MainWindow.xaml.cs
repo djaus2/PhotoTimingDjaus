@@ -11,7 +11,7 @@ using PhotoTimingDjaus;
 using DetectAudioFlash;
 using PhotoTimingDjaus.Enums;
 using System.Diagnostics.Eventing.Reader;
-using PhotoTimingGui.ViewModels;
+using AthStitcherGUI.ViewModels;
 using System.Net.Sockets;
 using System.Text.Json;
 using System.Windows.Threading;
@@ -29,14 +29,14 @@ using System.Media;
 using System.Collections.Generic;
 using System.Windows.Shapes;
 using System.Security;
-using AthStitcher.ViewModels;
 using PhotoTimingDjausLib;
 using System.Globalization;
+using Microsoft.Extensions.DependencyInjection;
 //using OpenCvSharp;
 //using OpenCvSharp;
 
 
-namespace PhotoTimingGui
+namespace AthStitcherGUI
 {
 
     public partial class MainWindow : System.Windows.Window
@@ -2280,7 +2280,12 @@ namespace PhotoTimingGui
             }
         }
 
+        private void DownloadVideoButton_Click(object sender, RoutedEventArgs e)
+        {
+            
+            ((App)System.Windows.Application.Current).OpenGetVideoPage();
 
+        }
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////
