@@ -1657,6 +1657,7 @@ namespace AthStitcherGUI
         /// <param name="e"></param>
         private void NudgeButton_Click(object sender, RoutedEventArgs e)
         {
+            // Determine if have have a line to nudge, more particular if just clicked or nudged
             var prevline = (StartVerticalLine.Visibility == Visibility.Visible)
             ? StartVerticalLine
             : (VerticalLine.Visibility == Visibility.Visible) ? VerticalLine
@@ -1666,6 +1667,7 @@ namespace AthStitcherGUI
 
             if(prevline != NudgeVerticalLine)
             {
+                // Change to using the Nudge line
                 prevline.Visibility = Visibility.Collapsed;
                 NudgeVerticalLine.X1 = prevline.X1;
                 NudgeVerticalLine.X2 = prevline.X2;
