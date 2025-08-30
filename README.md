@@ -13,8 +13,8 @@ A simple phototiming app for Athletics etc where a finish line is filmed with sa
 
 ### Latest
 - AthStitcher: Download now menu item. Also improved Nudged video frame popup, Place Left, Middle or Right on app, or use previous (red line) video frame.
-- AthsStitcher: 1. Fixed where unable to click to right of previous click on iamge and be processed.
-- AthStitcher App: Now has download video over local TCP.
+- AthStitcher: Fixed where unable to click to right of previous click on iamge and be processed.
+- AthStitcher: App: Now has download video over local TCP.
 - Sample app [djaus2/MauiMediaRecorderVideoAndroidApp](https://github.com/djaus2/MauiMediaRecorderVideoAndroidApp) has been updated to append TimeFromMode to Video filename.
 - WPF File-Open is Open is now "Open Video File and Stitch".
   - Looks at filename and determines type of video, stitches and determines start time.
