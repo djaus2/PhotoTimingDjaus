@@ -12,6 +12,7 @@ A simple phototiming app for Athletics etc where a finish line is filmed with sa
 > All good now!
 
 ### Latest
+- AthStitcher: Improving UI for Video Frame Popups - Max popup Frame vertival  size, with vertical scrollbars when video frame image is bigger vertically.
 - AthStitcher: Download now menu item. Menu File-Done to return.
 - AthStitcher: Improved Nudged video frame popup, Place Left, Middle or Right on app, or use previous (red line) video frame.
 - AthStitcher: Fixed where unable to click to right of previous click on image and be processed.
