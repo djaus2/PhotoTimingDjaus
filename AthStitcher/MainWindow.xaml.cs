@@ -1514,14 +1514,24 @@ namespace AthStitcherGUI
                 double ratio = height / width;
                 FrameImage.Height = ratio * FrameImage.Width + ResizeThumb.Height;
             }
+            // Just incase ....
+            if (FrameImage.Height > ImageCanvas.Height)
+            {
+                FrameImage.Height = ImageCanvas.Height;
+                var width = FrameImage.Source.Width;
+                var height = FrameImage.Source.Height;
+                double ratio = width / height;
+                FrameImage.Width = ratio * FrameImage.Height;
+            }
             PopupVideoFrameImage.Width = FrameImage.Width;
             PopupVideoFrameImage.Height = FrameImage.Height;
             PopupVideoFrameImage.HorizontalOffset = FrameImage.Width / 2;
             Divider.Y2 = FrameImage.Height;
-           
+
             //PopupVideoFrameImage.HorizontalOffset =  (int)(PopupVideoFrameImage.Width / 2); // GetPopupWidth();
             //PopupVideoFrameImage.VerticalOffset = 0;// (int)PopupVideoFrameImage.Height; /*GetTimeLabelMargin().Top + TimeLabel.ActualHeight +115;*/
 
+            VideoFrameScrollbar.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
             PopupVideoFrameImage.IsOpen = true;
             return;
         }
@@ -1565,6 +1575,15 @@ namespace AthStitcherGUI
                 var height = NudgeFrameImage.Source.Height;
                 double ratio = height / width;
                 NudgeFrameImage.Height = ratio * NudgeFrameImage.Width + ResizeThumb.Height;
+            }
+            // Just incase ....
+            if(NudgeFrameImage.Height> ImageCanvas.Height)
+            {
+                NudgeFrameImage.Height=  ImageCanvas.Height;
+                var width = NudgeFrameImage.Source.Width;
+                var height = NudgeFrameImage.Source.Height;
+                double ratio = width / height;
+                NudgeFrameImage.Width = ratio * NudgeFrameImage.Height;
             }
             NudgePopupVideoFrameImage.Width = NudgeFrameImage.Width;
             NudgePopupVideoFrameImage.Height = NudgeFrameImage.Height;
@@ -1685,6 +1704,9 @@ namespace AthStitcherGUI
                 NudgeVerticalLine.Y2 = prevline.Y2;
                 NudgeVerticalLine.Visibility = Visibility.Visible;
                 horizOffsetz = NudgeVerticalLine.X1;
+                NudgePopupVideoFrameImage.Width = 100;
+                NudgePopupVideoFrameImage.Height = 100;
+                NudgeVideoFrameScrollbar.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
             }
             if (sender is Button button)
             {
@@ -1972,6 +1994,7 @@ namespace AthStitcherGUI
                     FrameImage.Height /= 1.5;
                     PopupVideoFrameImage.Width /= 1.5;
                     PopupVideoFrameImage.Height /= 1.5;
+                    VideoFrameScrollbar.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
                     if (FrameImage.Width < athStitcherViewModel.GetMinPopupWidth() / 2 || FrameImage.Height < athStitcherViewModel.GetMinPopupHeight() / 2)
                     {
                         PopupVideoFrameImage.IsOpen = false; // Close popup if too small
@@ -1979,10 +2002,18 @@ namespace AthStitcherGUI
                 }
                 else 
                 { 
-                    FrameImage.Width *= 1.5; // Close popup
+                    if (PopupVideoFrameImage.Height * 1.5 < ImageCanvas.Height)
+                    {
+                        VideoFrameScrollbar.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
+                        PopupVideoFrameImage.Width *= 1.5;
+                        PopupVideoFrameImage.Height *= 1.5;
+                    }
+                    else
+                    {
+                        VideoFrameScrollbar.VerticalScrollBarVisibility = ScrollBarVisibility.Visible;
+                    }
+                        FrameImage.Width *= 1.5; // Close popup
                     FrameImage.Height *= 1.5;
-                    PopupVideoFrameImage.Width *= 1.5;
-                    PopupVideoFrameImage.Height *= 1.5;
                 }
             }
             else if (e.ClickCount == 2) // Detect double-click
@@ -2002,21 +2033,36 @@ namespace AthStitcherGUI
                     NudgeFrameImage.Height /= 1.5;
                     NudgePopupVideoFrameImage.Width /= 1.5;
                     NudgePopupVideoFrameImage.Height /= 1.5;
+                    NudgeVideoFrameScrollbar.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
                     if (NudgeFrameImage.Width < athStitcherViewModel.GetMinPopupWidth() / 2 || NudgeFrameImage.Height < athStitcherViewModel.GetMinPopupHeight() / 2)
                     {
+                        double ratio = NudgePopupVideoFrameImage.Width / NudgePopupVideoFrameImage.Height;
+                        NudgePopupVideoFrameImage.Height = 100;
+                        NudgePopupVideoFrameImage.Width = 100 / ratio;
                         NudgePopupVideoFrameImage.IsOpen = false; // Close popup if too small
                     }
                 }
                 else
                 {
+                    if(NudgePopupVideoFrameImage.Height*1.5< ImageCanvas.Height)
+                    {
+                        NudgePopupVideoFrameImage.Width *= 1.5;
+                        NudgePopupVideoFrameImage.Height *= 1.5;
+                        NudgeVideoFrameScrollbar.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
+                    }
+                    else
+                    {
+                        NudgeVideoFrameScrollbar.VerticalScrollBarVisibility = ScrollBarVisibility.Visible;
+                    }
                     NudgeFrameImage.Width *= 1.5; // Close popup
                     NudgeFrameImage.Height *= 1.5;
-                    NudgePopupVideoFrameImage.Width *= 1.5;
-                    NudgePopupVideoFrameImage.Height *= 1.5;
                 }
             }
             else if (e.ClickCount == 2) // Detect double-click
             {
+                double ratio = NudgePopupVideoFrameImage.Width  /NudgePopupVideoFrameImage.Height;
+                NudgePopupVideoFrameImage.Height = 100;
+                NudgePopupVideoFrameImage.Width = 100 / ratio;
                 NudgePopupVideoFrameImage.IsOpen = false; // Close popup
             }
         }

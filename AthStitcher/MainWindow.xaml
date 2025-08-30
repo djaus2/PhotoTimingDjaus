@@ -602,22 +602,25 @@
                        StaysOpen="False">
                         <Border BorderBrush="Black" BorderThickness="2"
 				            MouseDown="Popup_MouseDown">
-                            <Grid>
-                                <Image Name="FrameImage" Width="100" Height="100"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"/>
-                                <!-- Bottom-right resize handle -->
-                                <Thumb Name="ResizeThumb" Width="10" Height="10"
-                                HorizontalAlignment="Right"
-                                VerticalAlignment="Bottom"
-                                Background="Gray"
-                                DragDelta="ResizeThumb_DragDelta"/>
-                                <Line Name="Divider" Stroke="{Binding SelectedColorName}" StrokeThickness="1" 
-                                      HorizontalAlignment="Center"
-                                      Y1="0"
-                                      Y2="100"
-                                      Visibility="Visible" />
-                            </Grid>
+                            <ScrollViewer VerticalScrollBarVisibility="Auto" PanningMode="VerticalOnly" x:Name="VideoFrameScrollbar" >
+                                <Grid MouseDown="Popup_MouseDown">
+                                
+                                        <Image Name="FrameImage" Width="100" Height="100"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"/>
+                                        <!-- Bottom-right resize handle -->
+                                        <Thumb Name="ResizeThumb" Width="10" Height="10"
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Bottom"
+                                    Background="Gray"
+                                    DragDelta="ResizeThumb_DragDelta"/>
+                                    <Line Name="Divider" Stroke="{Binding SelectedColorName}" StrokeThickness="1" 
+                                          HorizontalAlignment="Center"
+                                          Y1="0"
+                                          Y2="100"
+                                          Visibility="Visible" />
+                                </Grid>
+                            </ScrollViewer>
                         </Border>
                     </Popup>
 
@@ -631,22 +634,24 @@
                        StaysOpen="False">
                         <Border BorderBrush="Black" BorderThickness="2"
                                 MouseDown="NudgePopup_MouseDown">
-                            <Grid>
-                                <Image Name="NudgeFrameImage" Width="100" Height="100"
+                            <ScrollViewer VerticalScrollBarVisibility="Auto" PanningMode="VerticalOnly" x:Name="NudgeVideoFrameScrollbar">
+                                <Grid MouseDown="NudgePopup_MouseDown">
+                                    <Image Name="NudgeFrameImage" Width="100" Height="100"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"/>
-                                <!-- Bottom-right resize handle -->
-                                <Thumb Name="NudgeResizeThumb" Width="10" Height="10"
+                                    <!-- Bottom-right resize handle -->
+                                    <Thumb Name="NudgeResizeThumb" Width="10" Height="10"
                                       HorizontalAlignment="Right"
                                       VerticalAlignment="Bottom"
                                       Background="Gray"
                                       DragDelta="NudgeResizeThumb_DragDelta"/>
-                                <Line Name="NudgeDivider" Stroke="{Binding SelectedColorName}" StrokeThickness="1" 
+                                    <Line Name="NudgeDivider" Stroke="{Binding SelectedColorName}" StrokeThickness="1" 
                                       HorizontalAlignment="Center"
                                       Y1="0"
                                       Y2="100"
                                       Visibility="Visible" />
-                            </Grid>
+                                </Grid>
+                            </ScrollViewer>
                         </Border>
                     </Popup>
 
