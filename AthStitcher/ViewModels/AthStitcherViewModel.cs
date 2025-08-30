@@ -446,6 +446,18 @@ namespace AthStitcherGUI.ViewModels
             return false; // Default value if DataContext is not set or ShowVideoFramePopup is not available
         }
 
+        internal bool GetNudge_useVideoFrameratherthanNudgeFrame()
+        {
+            if (DataContext is AthStitcherModel viewModel)
+            {
+                if(!viewModel.ShowVideoFramePopup)
+                    return false;
+                bool show = viewModel.Nudge_useVideoFrameratherthanNudgeFrame;
+                return show;
+            }
+            return false; // Default value if DataContext is not set or ShowVideoFramePopup is not available
+        }
+
         internal void SetVideoCreationDate(DateTime? creationDate)
         {
             if (DataContext is AthStitcherModel viewModel)

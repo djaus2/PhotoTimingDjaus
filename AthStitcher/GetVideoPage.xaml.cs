@@ -29,6 +29,7 @@ namespace AthStitcherGUI
 
         private void ExitMenuItem_Click(object sender, RoutedEventArgs e)
         {
+            var result = VideoDownloadViewModel.CurrentDownloadFile;
             this.Close();
             // Use the alias to avoid ambiguity
            // WpfApplication.Current.Shutdown();

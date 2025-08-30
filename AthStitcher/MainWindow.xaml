@@ -118,6 +118,7 @@
                             FontStyle="Italic"
                             Foreground="Blue">
                                 <MenuItem Header="Open Video File and Stitch" Click="OpenMp4File_Click"/>
+                                <MenuItem Header="Download Video File and Stitch" Click="DownLoadMp4File_Click"/>
                                 <MenuItem Header="Load Image File" Click="OpenPngFile_Click"/>
                                 <MenuItem Header="Set Temp Gun Audio File" Click="OpenGunAudioTextFile_Click"/>
                                 <Separator/>
@@ -528,8 +529,8 @@
                     <Label>PopupPlacement: </Label>
                     <TextBlock Text="{Binding PopupPlacement}"  FontStyle="Italic" />
                 </StackPanel>
-                    <Button Grid.Row="8" Grid.Column="2" Grid.RowSpan="1" Name="DownLoadVideoButton" VerticalAlignment="Center" HorizontalAlignment="Center"  Content="Download Video" Height="30" Width="150"  Visibility="{Binding HasStitched}"  
-                        Foreground="Green" FontWeight="Bold" Background="LightCyan" Click="DownloadVideoButton_Click"/>
+                <CheckBox Grid.Row="8" Grid.Column="2" VerticalAlignment="Center"  Name="UseVideoFrame4Nudge"  Content="UseVideoFrame 4 Nudge" IsChecked="{Binding Nudge_useVideoFrameratherthanNudgeFrame}" />
+                
                 <Label Grid.Row="4" Grid.Column="0"  Content="Time From Mode: "  HorizontalAlignment="Right" />
                 <Label Grid.Row="5" Grid.Column="0"  Content="Detect Flash: " HorizontalAlignment="Right" />
                 <Label Grid.Row="4" Grid.Column="1"  Content="{Binding TimeFromMode}"  Foreground="Purple"  HorizontalAlignment="Left" />

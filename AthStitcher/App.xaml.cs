@@ -60,7 +60,7 @@ public partial class App : WpfApplication
             Configuration, 
             (IVideoDownloadService)GetVideoviewModel);
         getVideoPage.VideoDownloadViewModel = videoDownloadViewModel;
-        getVideoPage.Show();
+        getVideoPage.ShowDialog();
     }
 
     protected override void OnStartup(StartupEventArgs e)

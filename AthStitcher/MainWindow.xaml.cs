@@ -1306,6 +1306,16 @@ namespace AthStitcherGUI
         }
 
         /// <summary>
+        /// Select the MP4 file but not open it.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>DownLoadMp4File_Click
+        private void DownLoadMp4File_Click(object sender, RoutedEventArgs e)
+        {
+            ((App)System.Windows.Application.Current).OpenGetVideoPage();
+        }
+
+        /// <summary>
         /// Select the Stitched Video output PNG file and open if it exists.
         /// </summary>
         /// <param name="sender"></param>
@@ -1699,8 +1709,6 @@ namespace AthStitcherGUI
         /// <param name="e"></param>
         private void Nudge(string toolTip)
         {
-
-            PopupVideoFrameImage.IsOpen = false;
             if (toolTip == "")
                 return;
             StartVerticalLine.Visibility = Visibility.Collapsed;
@@ -1824,7 +1832,24 @@ namespace AthStitcherGUI
             verticalOffset = posY2; ;
             UpdateTimeLabel(posX,startTime,isLeft);
             if (athStitcherViewModel.GetShowVideoFramePopup())
-                NudgeDisplayFrame(frameNo, posX, false);
+            { 
+                if (athStitcherViewModel.GetNudge_useVideoFrameratherthanNudgeFrame())
+                {
+                    NudgePopupVideoFrameImage.IsOpen = false;
+                    DisplayFrame(frameNo, posX, false);
+                }
+                else
+                {
+                    if (PopupVideoFrameImage.IsOpen)
+                    {
+                        //Use same dimensions for popup iamge
+                        NudgeFrameImage.Width = FrameImage.Width;
+                        NudgeFrameImage.Height = FrameImage.Height;
+                        PopupVideoFrameImage.IsOpen = false;
+                    }
+                    NudgeDisplayFrame(frameNo, posX, false);
+                }
+            }
         }
 
         /// <summary>
@@ -2158,6 +2183,14 @@ namespace AthStitcherGUI
                 if (lineToUse.Visibility != Visibility.Visible)
                     return;
 
+                if (DataContext is ViewModels.AthStitcherModel viewModel)
+                {
+
+                    // Using previous VideoFrame context instead
+                    if (athStitcherViewModel.GetNudge_useVideoFrameratherthanNudgeFrame())
+                        return;
+                }
+
                 if(NudgePopupVideoFrameImage.Width < athStitcherViewModel.GetMinPopupWidth()/2)
                 {
                     resize = true;
@@ -2282,12 +2315,6 @@ namespace AthStitcherGUI
             }
         }
 
-        private void DownloadVideoButton_Click(object sender, RoutedEventArgs e)
-        {
-            
-            ((App)System.Windows.Application.Current).OpenGetVideoPage();
-
-        }
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////

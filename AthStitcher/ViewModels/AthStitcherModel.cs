@@ -104,6 +104,15 @@ namespace AthStitcherGUI.ViewModels
             get => _ShowVideoFramePopup;
             set { _ShowVideoFramePopup = value; OnPropertyChanged(nameof(ShowVideoFramePopup)); }
         }
+        
+
+        private bool _Nudge_useVideoFrameratherthanNudgeFrame = false;
+        public bool Nudge_useVideoFrameratherthanNudgeFrame
+        {
+            get => _Nudge_useVideoFrameratherthanNudgeFrame;
+            set { _Nudge_useVideoFrameratherthanNudgeFrame = value; OnPropertyChanged(nameof(Nudge_useVideoFrameratherthanNudgeFrame)); }
+        }
+
 
 
         private int _PopupHeight = 150;
