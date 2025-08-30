@@ -118,7 +118,7 @@
                             FontStyle="Italic"
                             Foreground="Blue">
                                 <MenuItem Header="Open Video File and Stitch" Click="OpenMp4File_Click"/>
-                                <MenuItem Header="Download Video File and Stitch" Click="DownLoadMp4File_Click"/>
+                                <MenuItem Header="Download Video from phone (only)" Click="DownLoadMp4File_Click"/>
                                 <MenuItem Header="Load Image File" Click="OpenPngFile_Click"/>
                                 <MenuItem Header="Set Temp Gun Audio File" Click="OpenGunAudioTextFile_Click"/>
                                 <Separator/>
