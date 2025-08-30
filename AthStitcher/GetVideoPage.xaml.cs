@@ -17,6 +17,9 @@ namespace AthStitcherGUI
         public GetVideoPage()
         {
             InitializeComponent();
+            this.WindowStyle = WindowStyle.None;
+            this.ResizeMode = ResizeMode.NoResize;
+
         }
 
         protected override void OnContentRendered(EventArgs e)
