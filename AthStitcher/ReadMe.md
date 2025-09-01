@@ -3,3 +3,5 @@
 ## The Android Maui Phone App
 
 [djaus2/AthsVideoRecording](https://github.com/djaus2/AthsVideoRecording)
+
+> See repository README for further info as well as the Android app README.
