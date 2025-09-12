@@ -9,9 +9,25 @@ A simple phototiming app for Athletics etc where a finish line is filmed with sa
 
 ## Recent
 ### Status
-> All good now!
+> All good, except uploads only work from phone from  app in **SendVideo**  in
+[TransferVideoOverTcp](https://github.com/djaus2/AthsVideoRecording) solution.  
+SendVideo is being updated for the  recent updates here and in [TransferVideoOverTcp/SendVideo](https://github.com/djaus2/TransferVideoOverTcp/tree/master/SendVideo).
+
 
 ### Latest
+- AthStitcher: Updated to .NET 9.0
+- AthStitcher: Download _(version2)_ video and meta info over TCP from phone app.
+  - Meta-info as json and uses that for filename, checksum etc.
+  - Filename is now un-embellished with meta-info.
+  - Embellished filename should still work though
+  - VideoEnums _(VideoEnums.Windows here)_ is now a Nuget Package. 
+    - There is a Windows version and an Android/Maui version
+- AthStitcher: Download _(version2)_ video and meta info over TCP from phone app.
+  - Meta-info as json and uses that for filename, checksum etc.
+  - Filename is now un-embellished with meta-info.
+  - Embellished filename should still work though
+  - VideoEnums _(VideoEnums.Windows here)_ is now a Nuget Package. 
+    - There is a Windows version and an Android/Maui version
 - AthStitcher: Improving UI for Video Frame Popups - Max popup Frame vertival  size, with vertical scrollbars when video frame image is bigger vertically.
 - AthStitcher: Download now menu item. Menu File-Done to return.
 - AthStitcher: Improved Nudged video frame popup, Place Left, Middle or Right on app, or use previous (red line) video frame.
