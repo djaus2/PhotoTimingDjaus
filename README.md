@@ -15,7 +15,7 @@ SendVideo is being updated for the  recent updates here and in [TransferVideoOve
 
 
 ### Latest
-- Athstitcher: Once a Video is downloaded along with its json file, the corresponding Json file can be edited: 
+- Athstitcher: Once a Video is downloaded along with its json file, the corresponding Json file can be directly edited: 
   - File-Edit Video File's Meta-Info.
 - AthStitcher: Updated to .NET 9.0
 - AthStitcher: Download _(version2)_ video and meta info over TCP from phone app.
