@@ -2414,6 +2414,12 @@ namespace AthStitcherGUI
                 MessageBox.Show($"Failed to open URL: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
+        private void EditMetaInfo_Click(object sender, RoutedEventArgs e)
+        {
+            var editor = new JsonEditorWindow();
+            editor.ShowDialog();
+        }
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////

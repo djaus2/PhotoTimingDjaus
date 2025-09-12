@@ -118,7 +118,10 @@
                             FontStyle="Italic"
                             Foreground="Blue">
                                 <MenuItem Header="Open Video File and Stitch" Click="OpenMp4File_Click"/>
+                                <Separator/>
                                 <MenuItem Header="Download Video from phone (only)" Click="DownLoadMp4File_Click"/>
+                                <MenuItem Header="Edit Video File's Meta-Info" Click="EditMetaInfo_Click"/>
+                                <Separator/>
                                 <MenuItem Header="Load Image File" Click="OpenPngFile_Click"/>
                                 <MenuItem Header="Set Temp Gun Audio File" Click="OpenGunAudioTextFile_Click"/>
                                 <MenuItem Header="Install Phone App on Phone (QR Code)" Click="QRCode_Click"/>
