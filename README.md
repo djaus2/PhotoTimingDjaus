@@ -21,9 +21,15 @@ SendVideo is being updated for the  recent updates here and in [TransferVideoOve
   - Filename is now un-embellished with meta-info.
   - Embellished filename should still work though
   - VideoEnums _(VideoEnums.Windows here)_ is now a Nuget Package. 
-    - There is a Windows version and an Android/Maui version
+    - There is a Windows version and an Android/Maui version.
 - AthStitcher: Improving UI for Video Frame Popups - Max popup Frame vertival  size, with vertical scrollbars when video frame image is bigger vertically.
 - AthStitcher: Download now menu item. Menu File-Done to return.
+  - Meta info _(as embellished filename)_ has video start time and gun time (if set)
+  - If no Gun time then Video start time is used as Gun time.
+  - _(Embellished)_ Video filename is _(such as)_: ```{originalfilename}_GUN_{guntime:yyyy-MM-dd HH--mm--ss.fff}_.mp4```
+  - Stitched image filename is set to: ```{originalfilename}_GUN_{guntime:yyyy-MM-dd HH--mm--ss.fff}_.png```
+  - If no Gun time then _VIDEOSTART_ is used instead of _GUN_ in filenames.
+  - WallClock time can be used as well if that is set in meta info.
 - AthStitcher: Improved Nudged video frame popup, Place Left, Middle or Right on app, or use previous (red line) video frame.
 - AthStitcher: Fixed where unable to click to right of previous click on image and be processed.
 - AthStitcher: App: Now has download video over local TCP.
