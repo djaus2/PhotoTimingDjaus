@@ -24,8 +24,10 @@ namespace AthStitcherGUI.ViewModels
 
         internal AthStitcherViewModel( )
         {
-
+            VideoInfo = null;
         }
+
+        public VideoInfo? VideoInfo { get; set; }
 
         public void GetAddr(object obj)
         {

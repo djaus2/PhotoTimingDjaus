@@ -1,9 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+  
+  <!-- This project no longer used.
+  
+  See Nuget package/s Sportronics.VideoEnums.Windows and Sportronics.VideoEnums (Android version)
+  https://www.nuget.org/packages/Sportronics.VideoEnums.Windows/ 
+  https://www.nuget.org/packages/Sportronics.VideoEnums/ 
+   
+  Sources:
+  https://github.com/djaus2/TransferVideoOverTcp/blob/master/VideoEnums.Windows/TimeFromMode.cs
+  https://github.com/djaus2/TransferVideoOverTcp/blob/master/VideoEnums/TimeFromMode.cs
+  -->
 
 </Project>

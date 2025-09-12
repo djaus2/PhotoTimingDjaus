@@ -6,7 +6,7 @@
         xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
         xmlns:local="clr-namespace:AthStitcherGUI.ViewModels"
         xmlns:conv="clr-namespace:AthStitcherGUI.Converters"
-        xmlns:enums="clr-namespace:PhotoTimingDjaus.Enums;assembly=VideoEnums"
+        xmlns:enums="clr-namespace:PhotoTimingDjaus.Enums;assembly=VideoEnums.Windows"
         KeyDown="ImageKeyDown"
         Title="Image Viewer">
 
@@ -121,6 +121,7 @@
                                 <MenuItem Header="Download Video from phone (only)" Click="DownLoadMp4File_Click"/>
                                 <MenuItem Header="Load Image File" Click="OpenPngFile_Click"/>
                                 <MenuItem Header="Set Temp Gun Audio File" Click="OpenGunAudioTextFile_Click"/>
+                                <MenuItem Header="Install Phone App on Phone (QR Code)" Click="QRCode_Click"/>
                                 <Separator/>
                                 <!-- MenuItem Header="Truncate Video from Gun Start" Click="TruncateandSelectVideoFile_Click"/ -->
                                 <Separator/>

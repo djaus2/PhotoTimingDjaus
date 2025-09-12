@@ -41,23 +41,18 @@
     <Content Include="athstitcher.ico" />
   </ItemGroup>
 
-  <!--From GetVideoWPFLibSampolele -->
+  <!--From GetVideoWPFLibSample -->
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
-    <PackageReference Include="Sportronics.GetVideoWPFLib" Version="1.2.1" />
-    <!-- PackageReference Include="Sportronics.GetVideoWPFLib" Version="1.1.0" / -->
   </ItemGroup>
 
-
-
-
-
-
   <ItemGroup>
+    <PackageReference Include="Sportronics.GetVideoWPFLib" Version="2.0.3" />
     <ProjectReference Include="..\DetectVideoFlash\DetectVideoFlash.csproj" />
     <ProjectReference Include="..\PhotoTimingDjausLib\PhotoTimingDjausLib.csproj" />
-    <ProjectReference Include="..\VideoEnums\VideoEnums.csproj" />
+    <PackageReference Include="Sportronics.VideoEnums.Windows" Version="2.0.3" />
+    <!-- ProjectReference Include="..\VideoEnums\VideoEnums.csproj" / -->
   </ItemGroup>
 
   <ItemGroup>

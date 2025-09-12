@@ -203,9 +203,20 @@ namespace PhotoTimingDjausLib
 
         }
 
+        /// <summary>
+        /// Write meta information, as title and comment to stitched image file
+        /// title stored as title string
+        /// meta stored as comment string
+        /// Need to get exiftool from https://exiftool.org/ as zip and extract
+        /// 2Do: Need to make configurable
+        /// </summary>
+        /// <param name="filePath">The stitched image filepath</param>
+        /// <param name="title">TimeFromMode</param>
+        /// <param name="meta">GunTime (WallClock)</param>
+        /// <returns></returns>
         public static async Task<bool> SetMetaInfo(string filePath, string title, string meta)
         {
-            string tempPath = @"C:\temp\vid\exiftool-13.32_64\exiftool-13.32_64";//Need to download from https://exiftool.org/
+            string tempPath = @"C:\temp\vid\exiftool-13.36_64\exiftool-13.36_64";//Need to download from https://exiftool.org/
             if (!File.Exists(Path.Combine(tempPath, "exiftool(-k).exe")))
             {
                 Console.WriteLine("ExifTool not found. Ensure it's extracted to the specified path.");
