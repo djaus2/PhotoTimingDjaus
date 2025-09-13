@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Windows.Data;
 using System.Windows.Media;
 
-namespace AthStitcherGUI.Convertors
+namespace AthStitcherGUI.Converters
 {
     public class BoolToBrushConverter : IValueConverter
     {

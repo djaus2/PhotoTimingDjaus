@@ -1,16 +1,40 @@
 using Newtonsoft.Json.Linq;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.IO;
 using System.Windows;
 using Microsoft.Win32;
 using AthStitcherGUI.ViewModels;
+using PhotoTimingDjaus.Enums;
 
 namespace AthStitcherGUI
 {
-    public partial class JsonEditorWindow : Window
+    public partial class JsonEditorWindow : Window, INotifyPropertyChanged
     {
+
         public ObservableCollection<JsonNodeViewModel> RootNodes { get; set; } = new();
-        private string _jsonFilePath = null;
+    private string? _jsonFilePath = null;
+
+
+        private VideoInfo? _videoInfo;
+        public VideoInfo? VideoInfo
+        {
+            get => _videoInfo;
+            set
+            {
+                if (!Equals(_videoInfo, value))
+                {
+                    _videoInfo = value;
+                    OnPropertyChanged(nameof(VideoInfo));
+                }
+            }
+        }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+        protected void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
 
         public JsonEditorWindow()
         {
@@ -32,6 +56,17 @@ namespace AthStitcherGUI
                     {
                         RootNodes.Add(ConvertJTokenToViewModel(prop.Name, prop.Value));
                     }
+                }
+
+                // Try to parse as VideoInfo for the GroupBox
+                try
+                {
+                    var vi = System.Text.Json.JsonSerializer.Deserialize<VideoInfo>(json);
+                    VideoInfo = vi;
+                }
+                catch
+                {
+                    VideoInfo = null;
                 }
             }
         }
@@ -137,6 +172,18 @@ namespace AthStitcherGUI
                 rootJson[node.Key] = ConvertViewModelToJToken(node);
             }
 
+            // If VideoInfo is present, serialize and merge it into the root JSON
+            if (VideoInfo != null)
+            {
+                // Use System.Text.Json to serialize VideoInfo to a string, then parse as JObject
+                var viJson = System.Text.Json.JsonSerializer.Serialize(VideoInfo);
+                var viObj = JObject.Parse(viJson);
+                foreach (var prop in viObj.Properties())
+                {
+                    rootJson[prop.Name] = prop.Value;
+                }
+            }
+
             File.WriteAllText(_jsonFilePath, rootJson.ToString(Newtonsoft.Json.Formatting.Indented));
             MessageBox.Show("JSON saved.");
             Close();
@@ -145,6 +192,28 @@ namespace AthStitcherGUI
         private void MenuCancel_Click(object sender, RoutedEventArgs e)
         {
             this.Close();
+        }
+
+        private void MenuSetGunTime_Click(object sender, RoutedEventArgs e)
+        {
+            double gtime = 0.0;
+            if (VideoInfo != null && VideoInfo.GunTime != DateTime.MinValue && VideoInfo.VideoStart != DateTime.MinValue)
+            {
+                gtime = (VideoInfo.GunTime - VideoInfo.VideoStart).TotalSeconds;
+            }
+
+            // Prompt for new gtime
+            var inputDialog = new GunTimeInputDialog(gtime);
+            if (inputDialog.ShowDialog() == true)
+            {
+                double newGTime = inputDialog.GunTimeSeconds;
+                if (VideoInfo != null && VideoInfo.VideoStart != DateTime.MinValue)
+                {
+                    var ts = TimeSpan.FromSeconds(newGTime);
+                    VideoInfo.GunTime = VideoInfo.VideoStart + ts;
+                    OnPropertyChanged(nameof(VideoInfo));
+                }
+            }
         }
     }
 }
