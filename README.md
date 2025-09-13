@@ -15,7 +15,7 @@ SendVideo is being updated for the  recent updates here and in [TransferVideoOve
 
 
 ### Latest
-- AthStitcher: Improved Json Editor for VideoInfo, VideoIfo databound and conditionals.
+- AthStitcher: Improved Json Editor for VideoInfo, VideoInfo databound and conditionals.
 - Athstitcher: Once a Video is downloaded along with its json file, the corresponding Json file can be directly edited: 
   - File-Edit Video File's Meta-Info.
 - AthStitcher: Updated to .NET 9.0
