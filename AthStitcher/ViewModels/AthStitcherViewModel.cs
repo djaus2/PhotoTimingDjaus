@@ -170,6 +170,7 @@ namespace AthStitcherGUI.ViewModels
             return false; // Default value if DataContext is not set or HaveSelectedandShownGunLineToManualMode is not available
         }
 
+
         public bool IsDataContext()
         {
             return DataContext is AthStitcherModel;

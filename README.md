@@ -15,7 +15,11 @@ SendVideo is being updated for the  recent updates here and in [TransferVideoOve
 
 
 ### Latest
-- AthStitcher: Improved Json Editor for VideoInfo, VideoInfo databound and conditionals.
+- AthStitcher: Works properly for Manual,FromVideoStart and WallClock modes, when using VideoInfo to pass metinfo rather than using embellished filename.
+  - Flash and GunSound 2Do. 
+  - Added some sample videos with their json files.  See <solution>\vid
+  - Copy contents to c:\temp\vid
+- AthStitcher: Improved Json Editor for VideoInfo, VideoIfo databound and conditionals.
 - Athstitcher: Once a Video is downloaded along with its json file, the corresponding Json file can be directly edited: 
   - File-Edit Video File's Meta-Info.
 - AthStitcher: Updated to .NET 9.0

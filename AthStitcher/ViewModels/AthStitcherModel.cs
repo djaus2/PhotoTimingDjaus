@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
@@ -163,9 +163,10 @@ namespace AthStitcherGUI.ViewModels
             get => _HasSelectedandShownGunLineToManualMode;
             set
             {
-                if ((TimeFromMode != TimeFromMode.ManuallySelect) &&
+                /*if ((TimeFromMode != TimeFromMode.ManuallySelect) &&
                     (TimeFromMode != TimeFromMode.WallClockSelect))
-                    return;
+                    return;*/
+                System.Diagnostics.Debug.WriteLine($"Setting HaveSelectedandShownGunLineToManualorWallClockMode to {value}");
                 _HasSelectedandShownGunLineToManualMode = value; // Set HasStitched to true when switching to manual mode
                 OnPropertyChanged(nameof(HaveSelectedandShownGunLineToManualorWallClockMode));
             }
@@ -257,6 +258,15 @@ namespace AthStitcherGUI.ViewModels
                 _TimeFromMode = value;
                 OnPropertyChanged(nameof(TimeFromMode));
                 HasStitched = false; // Reset HasStitched when TimeFromMode changes
+                // Set HaveSelectedandShownGunLineToManualorWallClockMode based on mode
+                if (value == TimeFromMode.WallClockSelect || value == TimeFromMode.FromVideoStart)
+                {
+                    HaveSelectedandShownGunLineToManualorWallClockMode = true;
+                }
+                else
+                {
+                    HaveSelectedandShownGunLineToManualorWallClockMode = false;
+                }
             }
         }
 
