@@ -15,7 +15,7 @@ SendVideo is being updated for the  recent updates here and in [TransferVideoOve
 
 
 ### Latest
-- AthStitcher: Works properly for Manual,FromVideoStart and WallClock modes, when using VideoInfo to pass metinfo rather than using embellished filename.
+- AthStitcher: V3.1.1 Works properly for Manual,FromVideoStart and WallClock modes, when using VideoInfo to pass meta-info rather than using embellished filename.
   - Flash and GunSound 2Do. 
   - Added some sample videos with their json files.  See <solution>\vid
   - Copy contents to c:\temp\vid
