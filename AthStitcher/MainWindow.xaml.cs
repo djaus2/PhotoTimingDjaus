@@ -1209,11 +1209,11 @@ namespace AthStitcherGUI
                 videoFilePath = openFileDialog.FileName;
                 athStitcherViewModel.SetVideoPath(videoFilePath);
                 //string pattern = @"_GUN_(\d{2}--\d{2}--\d{2}\.\d{3})_\.mp4$";
-                string wallClockPattern = @"_WALL_(\d{4}-\d{2}-\d{2} \d{2}--\d{2}--\d{2}\.\d{3})_\.mp4$";
-                string gunPattern = @"_GUN\.mp4$";
-                string flashPattern = @"_FLASH\.mp4$";
-                string manualPattern = @"_MAN\.mp4$";
-                string videoStartPattern = @"_VIDEOSTART\.mp4$";
+                string wallClockPattern = @"_WALLCLOCK_(\d{4}-\d{2}-\d{2} \d{2}--\d{2}--\d{2}\.\d{3})_\.mp4$";
+                string gunPattern = @"_GUNSOUND_\.mp4$";
+                string flashPattern = @"_GUNFLASH_\.mp4$";
+                string manualPattern = @"_MANUAL_\.mp4$";
+                string videoStartPattern = @"_VIDEOSTART_\.mp4$";
 
                 string imagePath = Regex.Replace(videoFilePath, ".mp4", ".png", RegexOptions.IgnoreCase);
                 athStitcherViewModel.SetGunTime(0, 0);
