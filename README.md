@@ -15,7 +15,7 @@ SendVideo is being updated for the  recent updates here and in [TransferVideoOve
 
 
 ### Latest
-- AthStitcher: V3.1.2 Fixed issue ats start of StitchVideo() where incorrect embellished filebane appendages were searched for, when VideoInfo json file is not being used.
+- AthStitcher: V3.1.2 Fixed issue at start of StitchVideo() where incorrect _embellished_ filename appendages were searched for, when VideoInfo json file is not being used.
   - Should be one of: ```_VIDEOSTART_, _GUNSOUND_, _GUNFLASH_, _MANUAL_, _WALLCLOCK_```
   - Not being processed later though (eg getting video sound)
 - AthStitcher: V3.1.1 Works properly for Manual,FromVideoStart and WallClock modes, when using VideoInfo to pass meta-info rather than using embellished filename.
