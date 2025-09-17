@@ -46,6 +46,29 @@ namespace DetectVideoFlash
                     throw new ArgumentException("Invalid video detect mode");
             }
         }
+
+        public int GetFrameBrightnessEdgeChangeIndex(List<int> videoBrightnessData)
+        {
+            int min = videoBrightnessData.Min();
+            int max = videoBrightnessData.Max();
+            double threshold = max / 3.0;
+
+            // Find the index of the first occurrence of the minimum value
+            int minIndex = videoBrightnessData.IndexOf(min);
+
+            // Search for the next value > threshold after minIndex
+            int resultIndex = -1;
+            for (int i = minIndex + 1; i < videoBrightnessData.Count; i++)
+            {
+                if (videoBrightnessData[i] > threshold)
+                {
+                    resultIndex = i;
+                    break;
+                }
+            }
+            return resultIndex;
+        }
+
         public void ProcessVideo()
         {
             ScanVideo();
@@ -54,10 +77,25 @@ namespace DetectVideoFlash
             int min;
             int median;
             average = (int)VideoBrightnessData.Average();
+            var amax = (int)VideoBrightnessData.Max();
+            var amin = (int)VideoBrightnessData.Min();
+            var sorted = VideoBrightnessData.OrderBy(x => x).ToList();
+            int amedian = sorted[sorted.Count / 2];
+
+            int indx = GetFrameBrightnessEdgeChangeIndex(VideoBrightnessData);
+
+            System.Diagnostics.Debug.WriteLine($"Edge: {indx}. {VideoBrightnessData[indx]}");
+            for (int i=0; i<10;i++)
+            {
+                int id = indx + i - 4;
+                System.Diagnostics.Debug.WriteLine($"About: {id}. {VideoBrightnessData[id]}");
+            }
+
             var ints2 = VideoBrightnessData.Select(x => x >= average? x-average:0).ToList();
             max = ints2.Max();
             min = ints2.Min();
             GunTimeIndex = ints2.FindIndex(x => x >= ints2.Max() / 100);
+            GunTimeIndex = indx;
             double fps = videoCapture.Get(VideoCaptureProperties.Fps);
             GunTime = GunTimeIndex / fps;
 

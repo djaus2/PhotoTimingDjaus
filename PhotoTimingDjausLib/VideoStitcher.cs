@@ -34,8 +34,9 @@ namespace PhotoTimingDjaus
         private double ratio = 1;  //The ratio of audio frames to video frames, used for stitching audio data with video frames
         ///////////////////////////////////////////////////////////////////
         private TimeFromMode timeFromMode;
-        
-        private int threshold = 1000; // max volume/Threshold for gun detection in audio, default is 1000      
+
+        private int thresholdRangeDivisor = 3; // Means set guntime for gunsound at where volume is first > 1/3 of range audio max to audio min     
+        //private int threshold = 1000; // max volume/Threshold for gun detection in audio, default is 1000      
         private Scalar GunTimeColor = new Scalar(255, 255, 255, 1); // White line
         int axisHeight = 100;  //Vertical height of time axis at bottom below stitched image
         int audioHeight = 100; // Vertical height of space for audio volume graph below axis.
@@ -52,7 +53,7 @@ namespace PhotoTimingDjaus
             this.axisHeight = _axisHeight;
             this._levelImage = levelImage;
             this.timeFromMode = _timeFromMode;
-            this.threshold = _threshold;
+            this.thresholdRangeDivisor = _threshold;
             this.GunTimeColor = _gunTimeColor;
             using (var capture = new VideoCapture(videoFilePath))
             {
@@ -149,30 +150,39 @@ namespace PhotoTimingDjaus
                     Console.WriteLine("Gun info file not found. Please ensure 'guninfo.txt' exists in 'C:\\temp\\vid\\'.");
                     return 0;
                 }
-                var data = File.ReadAllLines(guninfoFilePath)
+                var loudnessData = File.ReadAllLines(guninfoFilePath)
                     .Skip(1)
                    .Select(line => double.Parse(line.Split(',')[3])) // Extract RMS loudness
                    .ToArray();
 
-                var min = data.Min();
+                // Can get GunTime from index of loudness > threshold  then convert to video frame index
+                // Then use FPS
+                //OR
+                // From index of loudness > threshold  then get it from this next array:
+                var loudnessTimeData = File.ReadAllLines(guninfoFilePath)
+                    .Skip(1)
+                   .Select(line => double.Parse(line.Split(',')[2])) // Extract loudness times
+                   .ToArray();
 
-                var max = data.Max();
-
+                var min = loudnessData.Min();
+                var max = loudnessData.Max();
                 var range = max - min;
+                var loudnessCount = loudnessData.Count();
 
-                int Amp = 10;
+                int Amplitude = 10;
 
                 // Normalize the data to a range of 0-Amp
-                var normalizedData = data.Select(x => (double)(Amp * (x - min) / range)).ToArray();
-                var expData1 = normalizedData.Select(x => Math.Round(Math.Pow(x, 10), 0)).ToArray(); // Exponential scaling for better visibility
-                var maxx = expData1.Max();
-                audioData = expData1.Select(x => audioHeight * x / maxx).ToArray(); // Ensure no negative values
+                var normalizedLoudnessData = loudnessData.Select(x => (double)(Amplitude * (x - min) / range)).ToArray();
+                var exponentiatedData = normalizedLoudnessData.Select(x => Math.Round(Math.Pow(x, 10), 0)).ToArray(); // Exponential scaling for better visibility
+                var maxx = exponentiatedData.Max();
+                audioData = exponentiatedData.Select(x => audioHeight * x / maxx).ToArray(); // Ensure no negative values
 
                 var average = Math.Round(audioData
                 .OrderByDescending(n => n) // Sort in descending order
                 .Skip(20)                 // Skip the top 20 values
                 .Average(), 0);
-                double thresholdLevel = audioData.Max() / (threshold);
+
+                double thresholdLevel = audioData.Min() + (audioData.Max() - audioData.Min())/ (thresholdRangeDivisor);
 
                 // Find the index of the first value greater than or equal to the threshold
                 index = Array.FindIndex(audioData, x => x >= thresholdLevel);
@@ -184,6 +194,7 @@ namespace PhotoTimingDjaus
                 ratio = (double)FFMpegActions.numAudioFrames / videoFrameCount;
                 GunTimeIndex = (int)Math.Round(index / ratio);
                 GunTime = (double)GunTimeIndex / Fps; // Convert frame index to time in seconds
+                GunTime = Math.Round( loudnessTimeData[index],3);  //Using time from audio data
                 if (GunTime > videoDuration)
                 {
                     Console.WriteLine($"Error: Start time ({GunTime:F2} seconds) exceeds video duration ({videoDuration:F2} seconds).");
@@ -194,7 +205,7 @@ namespace PhotoTimingDjaus
             else if (timeFromMode == TimeFromMode.FromGunFlash)
             {
                 DetectVideoFlash.ActionVideoAnalysis actionVideoAnalysis
-                    = new DetectVideoFlash.ActionVideoAnalysis(videoFilePath, (VideoDetectMode)vm, threshold);
+                    = new DetectVideoFlash.ActionVideoAnalysis(videoFilePath, (VideoDetectMode)vm, thresholdRangeDivisor);
                 actionVideoAnalysis.ProcessVideo();
                 GunTime = actionVideoAnalysis.GunTime;
                 GunTimeIndex = actionVideoAnalysis.GunTimeIndex;
@@ -399,6 +410,8 @@ namespace PhotoTimingDjaus
 
                     }
                     int audioframe2 = (int)Math.Round(i2 * ratio);
+                    if (audioframe >= audioData.Count())
+                        audioframe = audioframe2;
                     Cv2.Line(stitchedImage, new Point(i2, stitchedHeight + axisHeight + audioHeight - audioData[audioframe2]), new Point(i, stitchedHeight + axisHeight + audioHeight - audioData[audioframe]), new Scalar(0, 255, 255), 1); // Read line
                 }
                 else if (timeFromMode == TimeFromMode.FromGunFlash)

@@ -84,8 +84,8 @@ namespace AthStitcherGUI.ViewModels
                 viewModel.StartTimeInput = 0.0; // Default start time
                 viewModel.HasStitched = false;
                 viewModel.HaveSelectedandShownGunLineToManualorWallClockMode = false;
-                viewModel.GunColor = new OpenCvSharp.Scalar(255, 255, 255, 1); // Default gun color White
-                viewModel.SelectedColorName = "White"; // Default color name
+                viewModel.GunColor = new OpenCvSharp.Scalar(0, 255, 0, 1); // Default gun color Green
+                viewModel.SelectedColorName = "Green"; // Default color name
             }
             return DataContext; // Return the ViewModel instance
         }

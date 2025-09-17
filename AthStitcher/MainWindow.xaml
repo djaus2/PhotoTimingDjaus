@@ -264,30 +264,30 @@
                         FontWeight="Bold"
                         Foreground="{Binding SelectedColorName}">
                         <Button.Style>
-                            <Style TargetType="Button">
-                                <!-- Default state -->
-                                <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style TargetType="Button">
+                            <!-- Default state -->
+                            <Setter Property="Visibility" Value="Collapsed"/>
 
-                                <!-- Make it Visible only when TimeFromMode == ManuallySelect -->
-                                <!-- Style.Triggers>
+                            <!-- Make it Visible only when TimeFromMode == ManuallySelect -->
+                            <!-- Style.Triggers>
                                     <DataTrigger Binding="{Binding TimeFromMode}"
                                         Value="{x:Static enums:TimeFromMode.ManuallySelect}">
                                         <Setter Property="Visibility" Value="Visible"/>
                                     </DataTrigger>
                                 </Style.Triggers -->
-                                <Style.Triggers>
-                                    <MultiDataTrigger>
-                                        <MultiDataTrigger.Conditions>
-                                            <Condition Binding="{Binding TimeFromMode}" 
+                            <Style.Triggers>
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding TimeFromMode}" 
                                                 Value="{x:Static enums:TimeFromMode.ManuallySelect}" />
-                                            <Condition Binding="{Binding HasStitched}" Value="True" />
-                                            <Condition Binding="{Binding HaveSelectedandShownGunLineToManualorWallClockMode}" Value="False" />
-                                        </MultiDataTrigger.Conditions>
-                                        <Setter Property="Visibility" Value="Visible"/>
-                                    </MultiDataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
+                                        <Condition Binding="{Binding HasStitched}" Value="True" />
+                                        <Condition Binding="{Binding HaveSelectedandShownGunLineToManualorWallClockMode}" Value="False" />
+                                    </MultiDataTrigger.Conditions>
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </MultiDataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
                     </Button>
 
                 <StackPanel Grid.Row="7" Grid.Column="3" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Left">
@@ -499,8 +499,8 @@
                 <TextBox Grid.Column="3"   Grid.Row="2" Name="VideoLength" IsReadOnly="True"  Background="Beige" HorizontalAlignment="Left" Width="150"  VerticalAlignment="Center" Text="{Binding VideoLength}" Visibility="{Binding MyVisibility}"  />
                 <TextBlock Grid.Column="2" Grid.Row="3" Name="GunTimeLabel"                   TextAlignment="Right" Text="Gun Time: "   Visibility="{Binding MyVisibility}"  />
                 <TextBox Grid.Column="3"   Grid.Row="3" Name="GunTime" IsReadOnly="True"      Background="Beige" HorizontalAlignment="Left" Width="150"  Text="{Binding GunTime}"   Visibility="{Binding MyVisibility}" />
-                <TextBlock Grid.Column="2" Grid.Row="4" Name="ThresholdLabel"                 TextAlignment="Right" Text="Audio Max /Threshold: "   Visibility="{Binding MyVisibility}"  />
-                <TextBox Grid.Column="3"   Grid.Row="4" Name="Threshold" IsReadOnly="False"   Background="Beige" HorizontalAlignment="Left"  Width="150" Text="1000"  Visibility="{Binding MyVisibility}" />
+                <TextBlock Grid.Column="2" Grid.Row="4" Name="ThresholdLabel"                 TextAlignment="Right" Text="Audio MaxMin Range Divisor: "   Visibility="{Binding MyVisibility}"  />
+                <TextBox Grid.Column="3"   Grid.Row="4" Name="Threshold" IsReadOnly="False"   Background="Beige" HorizontalAlignment="Left"  Width="150" Text="3"  Visibility="{Binding MyVisibility}" />
                 <TextBlock Grid.Column="2" Grid.Row="5" Name="FinishTimeLabel"                TextAlignment="Right" Text="Finish Time: " FontWeight="Bold" Foreground="Blue"   Visibility="{Binding MyVisibility}"  />
                 <TextBox Grid.Column="3"   Grid.Row="5" Name="FinishTime" IsReadOnly="True"   Background="Beige" HorizontalAlignment="Left" Width="150"  Foreground="Purple" VerticalAlignment="Center" Text="" Visibility="{Binding MyVisibility}"  />
 

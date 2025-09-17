@@ -305,6 +305,7 @@ namespace DetectAudioFlash
 
             // Write filtered lines to a new file
             File.WriteAllLines(guninfoPathRawFiltered, filteredLines);
+            int frameNumberNo = 0;
             List<string> filteredLines2 = new List<string> { "Frame,PTS,PTS_Time,Volume" };
             for (int i = 0; i < filteredLines.Count;)
             {
@@ -393,10 +394,14 @@ namespace DetectAudioFlash
                 else
                     continue;
                 
-                filteredLines2.Add($"{frameNumber},{pts},{pts_time},{volume}");
+                filteredLines2.Add($"{frameNumberNo++},{pts},{pts_time},{volume}");
             }
             numAudioFrames = filteredLines2.Count();
             File.WriteAllLines(guninfoPath, filteredLines2);
+            foreach (var lin in filteredLines2)
+            {
+                System.Diagnostics.Debug.WriteLine(lin);
+            }
             Console.WriteLine($"Filtered data saved to: {guninfoPath}");
            
         }
