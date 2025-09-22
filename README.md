@@ -16,7 +16,7 @@ SendVideo is being updated for the  recent updates here and in [TransferVideoOve
 
 ### Latest
 - AthStitcher: V3.2.0
-  - Can set download ExifTool, set location, unzip and even change its name(not advised).
+  - Can download ExifTool, set location, unzip and even change its name(not advised).
   - Fixed an issue wrt GUNSOUND mode where if no audio for part of track, audio processing is errant.
     - Come as "inf", which is tagged as NaN and is finally set as zero.
 - AthStitcher: V3.1.2 Fixed issue at start of StitchVideo() where incorrect _embellished_ filename appendages were searched for, when VideoInfo json file is not being used.
