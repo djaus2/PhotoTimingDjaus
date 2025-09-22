@@ -133,54 +133,73 @@
                                 <MenuItem Header="Exit" Command="ApplicationCommands.Close"/>
                             </MenuItem>
                         </Menu>
-                        <Menu >
-                            <MenuItem Header="Gun Time Line Color" 
+                        <Menu>
+                            <MenuItem Header="Settings"
+                                FontWeight="Bold" 
+                                FontStyle="Italic"
+                                Foreground="Blue">
+
+                                <MenuItem Header="ExifTool"
+                            FontWeight="Bold" 
+                            FontStyle="Italic"
+                            Foreground="Blue">
+                                    <MenuItem Header="About  ExifTool" Click="AboutExifTool"/>
+                                    <MenuItem Header="Get ExifTool Zip (Open browser)" Click="GetExifTool"/>
+                                    <MenuItem Header="Unzip ExifTool Download" Click="UnzipExifTool" />
+                                    <MenuItem Header="Set ExifTool Location (No need to add to Path)" Click="SetExifToolLocation"/>
+                                    <MenuItem Header="Set ExifTool Name (You shouldn't need to change)" Click="SetExifToolName"/>
+                                </MenuItem>
+
+                                <MenuItem Header="Gun Time Line Color" 
                             FontWeight="Bold" 
                             FontStyle="Italic"
                             Foreground="{Binding SelectedColorName}" >
-                                <!--Background="{Binding SelectedColorBackgroundName}" -->
-                                <MenuItem Header="Red" Command="{Binding SetColorCommand}" CommandParameter="Red">
-                                    <MenuItem.Icon>
-                                        <CheckBox IsChecked="{Binding IsRedSelected, Mode=OneWay}" IsHitTestVisible="False" />
-                                    </MenuItem.Icon>
-                                </MenuItem>
-                                <MenuItem Header="Green" Command="{Binding SetColorCommand}" CommandParameter="Green">
-                                    <MenuItem.Icon>
-                                        <CheckBox IsChecked="{Binding IsGreenSelected, Mode=OneWay}" IsHitTestVisible="False" />
-                                    </MenuItem.Icon>
-                                </MenuItem>
-                                <MenuItem Header="Blue" Command="{Binding SetColorCommand}" CommandParameter="Blue">
-                                    <MenuItem.Icon>
-                                        <CheckBox IsChecked="{Binding IsBlueSelected, Mode=OneWay}" IsHitTestVisible="False" />
-                                    </MenuItem.Icon>
-                                </MenuItem>
-                                <MenuItem Header="Yellow" Command="{Binding SetColorCommand}" CommandParameter="Yellow">
-                                    <MenuItem.Icon>
-                                        <CheckBox IsChecked="{Binding IsYellowSelected, Mode=OneWay}" IsHitTestVisible="False" />
-                                    </MenuItem.Icon>
-                                </MenuItem>
-                                <MenuItem Header="Cyan" Command="{Binding SetColorCommand}" CommandParameter="Cyan">
-                                    <MenuItem.Icon>
-                                        <CheckBox IsChecked="{Binding IsCyanSelected, Mode=OneWay}" IsHitTestVisible="False" />
-                                    </MenuItem.Icon>
-                                </MenuItem>
-                                <MenuItem Header="Magenta" Command="{Binding SetColorCommand}" CommandParameter="Magenta">
-                                    <MenuItem.Icon>
-                                        <CheckBox IsChecked="{Binding IsMagentaSelected, Mode=OneWay}" IsHitTestVisible="False" />
-                                    </MenuItem.Icon>
-                                </MenuItem>
-                                <MenuItem Header="White" Command="{Binding SetColorCommand}" CommandParameter="White">
-                                    <MenuItem.Icon>
-                                        <CheckBox IsChecked="{Binding IsWhiteSelected, Mode=OneWay}" IsHitTestVisible="False" />
-                                    </MenuItem.Icon>
-                                </MenuItem>
-                                <MenuItem Header="Black" Command="{Binding SetColorCommand}" CommandParameter="Black">
-                                    <MenuItem.Icon>
-                                        <CheckBox IsChecked="{Binding IsBlackSelected, Mode=OneWay}" IsHitTestVisible="False" />
-                                    </MenuItem.Icon>
+                                    <MenuItem Header="About  Gun Time Line Color" Click="AboutGunTimeLineColor"/>
+                                    <!--Background="{Binding SelectedColorBackgroundName}" -->
+                                    <MenuItem Header="Red" Command="{Binding SetColorCommand}" CommandParameter="Red">
+                                        <MenuItem.Icon>
+                                            <CheckBox IsChecked="{Binding IsRedSelected, Mode=OneWay}" IsHitTestVisible="False" />
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                    <MenuItem Header="Green" Command="{Binding SetColorCommand}" CommandParameter="Green">
+                                        <MenuItem.Icon>
+                                            <CheckBox IsChecked="{Binding IsGreenSelected, Mode=OneWay}" IsHitTestVisible="False" />
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                    <MenuItem Header="Blue" Command="{Binding SetColorCommand}" CommandParameter="Blue">
+                                        <MenuItem.Icon>
+                                            <CheckBox IsChecked="{Binding IsBlueSelected, Mode=OneWay}" IsHitTestVisible="False" />
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                    <MenuItem Header="Yellow" Command="{Binding SetColorCommand}" CommandParameter="Yellow">
+                                        <MenuItem.Icon>
+                                            <CheckBox IsChecked="{Binding IsYellowSelected, Mode=OneWay}" IsHitTestVisible="False" />
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                    <MenuItem Header="Cyan" Command="{Binding SetColorCommand}" CommandParameter="Cyan">
+                                        <MenuItem.Icon>
+                                            <CheckBox IsChecked="{Binding IsCyanSelected, Mode=OneWay}" IsHitTestVisible="False" />
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                    <MenuItem Header="Magenta" Command="{Binding SetColorCommand}" CommandParameter="Magenta">
+                                        <MenuItem.Icon>
+                                            <CheckBox IsChecked="{Binding IsMagentaSelected, Mode=OneWay}" IsHitTestVisible="False" />
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                    <MenuItem Header="White" Command="{Binding SetColorCommand}" CommandParameter="White">
+                                        <MenuItem.Icon>
+                                            <CheckBox IsChecked="{Binding IsWhiteSelected, Mode=OneWay}" IsHitTestVisible="False" />
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                    <MenuItem Header="Black" Command="{Binding SetColorCommand}" CommandParameter="Black">
+                                        <MenuItem.Icon>
+                                            <CheckBox IsChecked="{Binding IsBlackSelected, Mode=OneWay}" IsHitTestVisible="False" />
+                                        </MenuItem.Icon>
+                                    </MenuItem>
                                 </MenuItem>
                             </MenuItem>
                         </Menu>
+
                         <Menu Visibility="{Binding MyVisibility}">
                             <MenuItem Header="Time From Mode:" 
                               FontWeight="Bold" 

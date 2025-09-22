@@ -20,6 +20,7 @@ namespace PhotoTimingDjausLib
 {
     public static class PngMetadataHelper
     {
+        public static string exifToolPath { get; set; } = @"C:\temp\vid\exiftool-13.32_64\exiftool-13.32_64";//Need to download from https://exiftool.org/
 
         public static string AppendGunTimeImageFilename(string imagePath, double gunTime)
         {
@@ -160,7 +161,7 @@ namespace PhotoTimingDjausLib
 
         public static async  Task<Tuple<string,string>?> GetMetaInfo(string filePath)
         {
-            string tempPath = @"C:\temp\vid\exiftool-13.32_64\exiftool-13.32_64";//Need to download from https://exiftool.org/
+            string tempPath = exifToolPath;//Need to download from https://exiftool.org/
             if (!File.Exists(Path.Combine(tempPath, "exiftool(-k).exe")))
             {
                 Console.WriteLine("ExifTool not found. Ensure it's extracted to the specified path.");
@@ -203,6 +204,34 @@ namespace PhotoTimingDjausLib
 
         }
 
+        public static async Task ClearMetaInfo(string filePath)
+        {
+            string tempPath = exifToolPath;// @"C:\temp\vid\exiftool-13.36_64\exiftool-13.36_64";//Need to download from https://exiftool.org/
+            if (!File.Exists(Path.Combine(tempPath, "exiftool(-k).exe")))
+            {
+                Console.WriteLine("ExifTool not found. Ensure it's extracted to the specified path.");
+                return;
+            }
+            if (!File.Exists(filePath))
+            {
+                Console.WriteLine($"{filePath} not found.");
+                return;
+            }
+
+            string? currentPath = Environment.GetEnvironmentVariable("PATH");
+
+            if (!string.IsNullOrEmpty(currentPath))
+            {
+                if (!currentPath.Split(';').Contains(tempPath))
+                {
+                    Environment.SetEnvironmentVariable("PATH", currentPath + ";" + tempPath);
+                }
+
+                //Need Nuget package: dotnet add package SharpExifTool
+                using var exiftool = new SharpExifTool.ExifTool();
+                await exiftool.RemoveAllMetadataAsync(filePath);
+            }
+        }
         /// <summary>
         /// Write meta information, as title and comment to stitched image file
         /// title stored as title string
@@ -216,7 +245,7 @@ namespace PhotoTimingDjausLib
         /// <returns></returns>
         public static async Task<bool> SetMetaInfo(string filePath, string title, string meta)
         {
-            string tempPath = @"C:\temp\vid\exiftool-13.36_64\exiftool-13.36_64";//Need to download from https://exiftool.org/
+            string tempPath = exifToolPath;// @"C:\temp\vid\exiftool-13.36_64\exiftool-13.36_64";//Need to download from https://exiftool.org/
             if (!File.Exists(Path.Combine(tempPath, "exiftool(-k).exe")))
             {
                 Console.WriteLine("ExifTool not found. Ensure it's extracted to the specified path.");
@@ -240,7 +269,7 @@ namespace PhotoTimingDjausLib
                 //Need Nuget package: dotnet add package SharpExifTool
                 using var exiftool = new SharpExifTool.ExifTool();
 
-
+                
                 // Write metadata
                 await exiftool.WriteTagsAsync(filePath, new Dictionary<string, string>
                 {

@@ -510,6 +510,25 @@ namespace AthStitcherGUI.ViewModels
             return DateTime.MinValue;
         }
 
+        internal void SetExifToolFolder(string exifToolFolder)
+        {
+            if (DataContext is AthStitcherModel viewModel)
+            {
+
+                viewModel.ExifToolFolder = exifToolFolder;
+            }
+        }
+
+        internal string GetExifToolFolder()
+        {
+            if (DataContext is AthStitcherModel viewModel)
+            {
+
+                return viewModel.ExifToolFolder;
+            }
+            return "";
+        }
+
 
     }
 }

@@ -41,6 +41,9 @@ namespace AthStitcherGUI
 
     public partial class MainWindow : System.Windows.Window
     {
+        string _EXIFTOOL = "exiftool";
+        string _EXIFTOOLEXE = "exiftool(-k).exe";
+
         private PhotoTimingDjaus.VideoStitcher? videoStitcher = null;
         private int margin = 20;
         private double videoLength = 0;
@@ -67,8 +70,11 @@ namespace AthStitcherGUI
             athStitcherViewModel.LoadViewModel();
 
             this.DataContext = athStitcherViewModel.DataContext; // Set the DataContext to the AthStitchView instance
-            //this.DataContext = new ViewModels.MyViewModel();
-            Loaded += MainWindow_Loaded;
+            if (string.IsNullOrEmpty(athStitcherViewModel.DataContext.ExifTool))
+                athStitcherViewModel.DataContext.ExifTool = _EXIFTOOL;
+            if (string.IsNullOrEmpty(athStitcherViewModel.DataContext.ExifToolExe))
+                athStitcherViewModel.DataContext.ExifToolExe = _EXIFTOOLEXE;
+      
             _saveTimer = new DispatcherTimer
             {
                 //Save viewModel after 1 second of inactivity
@@ -655,9 +661,11 @@ namespace AthStitcherGUI
                         }
                         else
                         {
+                            PngMetadataHelper.ClearMetaInfo(athStitcherViewModel.GetGunAudioPath()).GetAwaiter().GetResult();
+                            MessageBox.Show("Invalid timing metadata found in video. Clearing so please restart.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
                             // Default to FromVideoStart if no specific metadata is found
-                            athStitcherViewModel.SetTimeFromMode(TimeFromMode.FromVideoStart);
-                            athStitcherViewModel.Set_HaveSelectedandShownGunLineinManualorWallClockMode(false); // Explicitly set for FromVideoStart mode
+                            //athStitcherViewModel.SetTimeFromMode(TimeFromMode.FromVideoStart);
+                            //athStitcherViewModel.Set_HaveSelectedandShownGunLineinManualorWallClockMode(false); // Explicitly set for FromVideoStart mode
                         }
                     }
                 }
@@ -822,7 +830,7 @@ namespace AthStitcherGUI
                 //}
 
 
-                videoStitcher.Stitch();
+                videoStitcher.Stitch(athStitcherViewModel.GetExifToolFolder());
                 // Add metadata to the stitched image
 
             };
@@ -2471,6 +2479,184 @@ namespace AthStitcherGUI
         {
             var editor = new JsonEditorWindow();
             editor.ShowDialog();
+        }
+
+        private void GetExifTool(object sender, RoutedEventArgs e)
+        {
+            // @"C:\temp\vid\exiftool-13.32_64\exiftool-13.32_64";//Need to download from https://exiftool.org/
+            string url = "https://exiftool.org/";
+            //MessageBox.Show($"Get exifTool URL:\n{url}", "Required Photo Finish Documentation", MessageBoxButton.OK, MessageBoxImage.Information);
+            var res = MessageBox.Show(
+                $"Get exifTool URL:\n{url}",
+                "Downl",
+                MessageBoxButton.OKCancel,
+                MessageBoxImage.Information
+            );
+            if (res != MessageBoxResult.OK)
+                return;
+            // Open the URL in the default browser
+            try
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = url,
+                    UseShellExecute = true
+                });
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to open URL: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+
+
+        private void UnzipExifTool(object sender, RoutedEventArgs e)
+        {
+            // Step 1: Select the ZIP file
+            var openFileDialog = new Microsoft.Win32.OpenFileDialog
+            {
+                Filter = "ZIP Files (*.zip)|*.zip",
+                Title = "Select the downloaded ZIP file"
+            };
+            if (openFileDialog.ShowDialog() != true)
+                return;
+
+            string zipPath = openFileDialog.FileName;
+            string zipFileName = System.IO.Path.GetFileName(zipPath);
+            string zipFileNameWithoutExt = System.IO.Path.GetFileNameWithoutExtension(zipFileName);
+
+
+            // Step 2: Select the destination folder
+            var folderDialog = new System.Windows.Forms.FolderBrowserDialog
+            {
+                Description = "Select the folder to extract the ZIP contents to"
+            };
+            if (folderDialog.ShowDialog() != System.Windows.Forms.DialogResult.OK || string.IsNullOrWhiteSpace(folderDialog.SelectedPath))
+                return;
+
+            string extractPath = folderDialog.SelectedPath;
+
+            // Step 3: Extract the ZIP file
+            try
+            {
+                System.IO.Compression.ZipFile.ExtractToDirectory(zipPath, extractPath, true);
+                MessageBox.Show($"ZIP extracted to:\n{extractPath}", "Extraction Complete", MessageBoxButton.OK, MessageBoxImage.Information);
+                var ExifTool = athStitcherViewModel.DataContext.ExifTool;
+                var ExifToolExe = athStitcherViewModel.DataContext.ExifToolExe;
+                var ExifToolFolder = athStitcherViewModel.DataContext.ExifToolFolder;
+                if (zipFileNameWithoutExt.StartsWith(ExifTool))
+                {
+                    // Check if exiftool(-k).exe exists in the extracted folder one or two deep
+                    string zipfilename = System.IO.Path.GetFileNameWithoutExtension(zipPath);
+                    string folder = Regex.Replace(zipfilename, @" \(\d+\)$", "");
+
+                    string extractedPath = System.IO.Path.Combine(extractPath, folder);
+                    string filePath = System.IO.Path.Combine(extractedPath, ExifToolExe);
+
+                    if (File.Exists(filePath))
+                    {
+                        ExifToolFolder = extractedPath;
+                    }
+                    else
+                    {
+                        string extracted2Path = System.IO.Path.Combine(extractedPath, folder);
+                        string filePath2 = System.IO.Path.Combine(extracted2Path, $"{ExifToolExe}");
+
+                        if (File.Exists(filePath2))
+                        {
+                            ExifToolFolder = $"{extracted2Path}";
+                        }
+                        else
+                        {
+                            MessageBox.Show($"Could not find {ExifToolExe} in the extracted folder.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                            return;
+                        }
+                    };
+                    athStitcherViewModel.SetExifToolFolder(ExifToolFolder);
+                    athStitcherViewModel.SaveViewModel();
+                    MessageBox.Show($"ExifTool folder set to:\n{ExifToolFolder}", "ExifTool Location", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to get/extract ZIP:\n{ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void SetExifToolLocation(object sender, RoutedEventArgs e)
+        {
+            var ExifTool = athStitcherViewModel.DataContext.ExifTool;
+            var ExifToolExe = athStitcherViewModel.DataContext.ExifToolExe;
+            var ExifToolFolder = athStitcherViewModel.DataContext.ExifToolFolder;
+
+            // Use Windows Forms FolderBrowserDialog for folder selection
+            var dialog = new System.Windows.Forms.FolderBrowserDialog
+            {
+                Description = "Select the folder containing exiftool.exe",
+                SelectedPath = ExifToolFolder // Set initial folder
+            };
+
+            // Show the dialog
+            System.Windows.Forms.DialogResult result = dialog.ShowDialog();
+
+            if (result == System.Windows.Forms.DialogResult.OK && !string.IsNullOrWhiteSpace(dialog.SelectedPath))
+            {
+                string extractedPath = dialog.SelectedPath;
+
+                    string filePath = System.IO.Path.Combine(extractedPath, ExifToolExe);
+                    if (File.Exists(filePath))
+                    {
+                        ExifToolFolder = extractedPath;
+                    }
+                    else
+                    {
+                        MessageBox.Show($"Could not find {ExifToolExe} in the selected folder.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    };
+
+                // You can store this path in your ViewModel, settings, or use it directly
+                MessageBox.Show($"ExifTool folder set to:\n{ExifToolFolder}", "ExifTool Location", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                // Example: Save to ViewModel (add a property if needed)
+                athStitcherViewModel.SetExifToolFolder(ExifToolFolder);
+                athStitcherViewModel.SaveViewModel();
+            }
+        }
+
+
+        private void AboutExifTool(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show( "Needed for storing meta-info with stitched iamge.", $"About XifTool", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        private void AboutGunTimeLineColor(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("Can set the color of the drawn line for the race start.", $"About Gun Time Line Color", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        private void SetExifToolName(object sender, RoutedEventArgs e)
+        {
+            string currentName = athStitcherViewModel.DataContext.ExifTool;
+            var dialog = new InputDialog(currentName) { Owner = this };
+            if (dialog.ShowDialog() == true)
+            {
+                string newName = dialog.InputText.Trim();
+                if (!string.IsNullOrEmpty(newName) && newName != currentName)
+                {
+                    athStitcherViewModel.DataContext.ExifTool = newName;
+                    athStitcherViewModel.SaveViewModel();
+                    MessageBox.Show($"ExifTool name changed to: {newName}", "ExifTool Name", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                string newExeName = dialog.InputText2.Trim();
+                if (!string.IsNullOrEmpty(newExeName) && newExeName != currentName)
+                {
+                    newExeName = $"{newExeName}.exe";
+                    athStitcherViewModel.DataContext.ExifToolExe = newExeName;
+                    athStitcherViewModel.SaveViewModel();
+                    MessageBox.Show($"ExifToolAppName name changed to: {newExeName}", "ExifTool App Name", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
         }
     }
 

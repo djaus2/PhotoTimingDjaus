@@ -46,6 +46,7 @@ namespace PhotoTimingDjaus
         // Constructor to initialize the video stitcher parameters
         public VideoStitcher(string videoPath, Scalar _gunTimeColor, string outputPath, double _selectedStartTime = 0, int _axisHeight = 100, int _audioHeight = 100, bool levelImage = false, TimeFromMode _timeFromMode = TimeFromMode.FromVideoStart, int _threshold=1000)
         {
+           
             this.videoFilePath = videoPath;
             this.outputFilePath = outputPath;
             this.selectedStartTime = _selectedStartTime;
@@ -163,17 +164,25 @@ namespace PhotoTimingDjaus
                     .Skip(1)
                    .Select(line => double.Parse(line.Split(',')[2])) // Extract loudness times
                    .ToArray();
-
-                var min = loudnessData.Min();
-                var max = loudnessData.Max();
+                var loundnessData2 = loudnessData.Where(x => !double.IsNaN(x)).ToArray();
+                var min = loundnessData2.Min();
+                var max = loundnessData2.Max();
                 var range = max - min;
                 var loudnessCount = loudnessData.Count();
 
                 int Amplitude = 10;
 
                 // Normalize the data to a range of 0-Amp
-                var normalizedLoudnessData = loudnessData.Select(x => (double)(Amplitude * (x - min) / range)).ToArray();
-                var exponentiatedData = normalizedLoudnessData.Select(x => Math.Round(Math.Pow(x, 10), 0)).ToArray(); // Exponential scaling for better visibility
+                //var normalizedLoudnessData = loudnessData.Select(x => (double)(Amplitude * (x - min) / range)).ToArray();
+
+                var normalizedLoudnessData = loudnessData
+    .Select(x => !double.IsNaN(x) ? (double)(Amplitude * (x - min) / range) : double.NaN)
+    .ToArray();
+                //var exponentiatedData = normalizedLoudnessData.Select(x => Math.Round(Math.Pow(x, 10), 0)).ToArray(); // Exponential scaling for better visibility
+                var exponentiatedData = normalizedLoudnessData
+    .Select(x => !double.IsNaN(x) ? Math.Round(Math.Pow(x, 10), 0) : 0)
+    .ToArray();
+
                 var maxx = exponentiatedData.Max();
                 audioData = exponentiatedData.Select(x => audioHeight * x / maxx).ToArray(); // Ensure no negative values
 
@@ -266,8 +275,9 @@ namespace PhotoTimingDjaus
         }
 
         // Main method to start the stitching process
-        public void Stitch()
+        public void Stitch(string ExifToolPath="")
         {
+            PngMetadataHelper.exifToolPath = ExifToolPath;
             PreviousStitchedImage = null;
             PreviousStitchedImageHeight = 0;
             if (!File.Exists(videoFilePath))
@@ -277,7 +287,7 @@ namespace PhotoTimingDjaus
             }
             if (timeFromMode == TimeFromMode.FromGunSound)
             {
- 
+                
             }
             else if (timeFromMode== TimeFromMode.FromGunFlash)
             {
@@ -411,7 +421,9 @@ namespace PhotoTimingDjaus
                     }
                     int audioframe2 = (int)Math.Round(i2 * ratio);
                     if (audioframe >= audioData.Count())
-                        audioframe = audioframe2;
+                        audioframe = audioData.Count() - 1;
+                    if (audioframe2 >= audioData.Count())
+                        audioframe2 = audioframe;
                     Cv2.Line(stitchedImage, new Point(i2, stitchedHeight + axisHeight + audioHeight - audioData[audioframe2]), new Point(i, stitchedHeight + axisHeight + audioHeight - audioData[audioframe]), new Scalar(0, 255, 255), 1); // Read line
                 }
                 else if (timeFromMode == TimeFromMode.FromGunFlash)

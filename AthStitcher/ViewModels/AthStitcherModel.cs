@@ -1,19 +1,20 @@
+using OpenCvSharp;
+using PhotoTimingDjaus;
+using PhotoTimingDjaus.Enums;// This is where TimeFromMode is defined
+using SharpExifTool;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Input;
-using PhotoTimingDjaus;
-using PhotoTimingDjaus.Enums;// This is where TimeFromMode is defined
-using OpenCvSharp;
-using System.Text.Json;
 using static AthStitcherGUI.ViewModels.enums;
-using System.Windows.Controls.Primitives;
 
 namespace AthStitcherGUI.ViewModels
 {
@@ -29,6 +30,9 @@ namespace AthStitcherGUI.ViewModels
     }
     public class AthStitcherModel : INotifyPropertyChanged
     {
+        const string EXIFTOOL = "exiftool";
+        const string EXIFTOOLEXE = "exiftool(-k).exe";
+
         private Scalar _gunColor = new Scalar(255, 255, 255, 1); // Default to white
         private ICommand _setColorCommand;
         private string _selectedColorName = "Black"; // Default color name
@@ -42,6 +46,19 @@ namespace AthStitcherGUI.ViewModels
         public string VideoPathInput { get => _VideoPathInput;
             set { _VideoPathInput = value; OnPropertyChanged(nameof(VideoPathInput)); } }
 
+        //ExifTool
+        private string _ExifTool = EXIFTOOL;
+        public string ExifTool { get => _ExifTool; set { _ExifTool = value; OnPropertyChanged(nameof(ExifTool)); } }
+
+        //ExifTool Folder
+        private string _ExifToolFolder = "";
+        public string ExifToolFolder { get => _ExifToolFolder; set { _ExifToolFolder = value; OnPropertyChanged(nameof(ExifToolFolder)); } }
+
+        //ExifTool Application
+        private string _ExifToolExe = EXIFTOOLEXE;
+        public string ExifToolExe { get => _ExifToolExe; set { _ExifToolExe = value; OnPropertyChanged(nameof(ExifToolExe)); } }
+
+        
         private string _OutputPathInput = "";
         public string OutputPathInput { get => _OutputPathInput; set { _OutputPathInput = value; OnPropertyChanged(nameof(OutputPathInput)); } }
 

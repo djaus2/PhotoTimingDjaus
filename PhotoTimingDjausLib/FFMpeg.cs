@@ -391,6 +391,10 @@ namespace DetectAudioFlash
                 {
                     volume = rmsLevel;
                 }
+                else if (string.Equals(info[1], "-inf", StringComparison.OrdinalIgnoreCase))
+                {
+                    volume = double.NaN;
+                }
                 else
                     continue;
                 
