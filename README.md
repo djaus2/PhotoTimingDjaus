@@ -19,6 +19,7 @@ SendVideo is being updated for the  recent updates here and in [TransferVideoOve
   - Can download ExifTool, set location, unzip and even change its name(not advised).
   - Fixed an issue wrt GUNSOUND mode where if no audio for part of track, audio processing is errant.
     - Is extracted from video as "inf", which is tagged as NaN and is finally set as zero.
+    - This is discussed in detail in the blog post: [Photo Timing Video: Video Stitching Further Update](https://davidjones.sportronics.com.au/appdev/_Photo_Timing_Video-Video_Stitching_Further_Update-appdev.html)
 - AthStitcher: V3.1.2 Fixed issue at start of StitchVideo() where incorrect _embellished_ filename appendages were searched for, when VideoInfo json file is not being used.
   - Should be one of: ```_VIDEOSTART_, _GUNSOUND_, _GUNFLASH_, _MANUAL_, _WALLCLOCK_```
   - Not being processed later though (eg getting video sound)
