@@ -1,0 +1,47 @@
+<Window x:Class="AthStitcherGUI.GetVideoPage"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:AthStitcherGUI"
+        xmlns:controls="clr-namespace:GetVideoWPFLib.Controls;assembly=GetVideoWPFLib"
+        Title="Video Download Page" Height="600" Width="800"
+        WindowStartupLocation="CenterScreen">
+    
+    <DockPanel>
+        <!-- Menu -->
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="_File">
+                <MenuItem Header="_Open Download Folder" Command="{Binding OpenDownloadFolderCommand}">
+                    <MenuItem.Icon>
+                        <TextBlock Text="📁" FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="_Refresh Files" Command="{Binding RefreshDownloadedFilesCommand}">
+                    <MenuItem.Icon>
+                        <TextBlock Text="🔄" FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <Separator/>
+                <MenuItem Header="Done" Click="ExitMenuItem_Click"/>
+            </MenuItem>
+            <MenuItem Header="_Help">
+                <MenuItem Header="_About" Click="AboutMenuItem_Click">
+                    <MenuItem.Icon>
+                        <TextBlock Text="ℹ" FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+            </MenuItem>
+        </Menu>
+
+        <Grid Margin="10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Video Download Control from GetVideoWPFLib -->
+            <controls:VideoDownloadControl 
+                Grid.Row="0" 
+                Margin="0"
+                ViewModel="{Binding VideoDownloadViewModel}"/>
+        </Grid>
+    </DockPanel>
+</Window>

@@ -1,0 +1,152 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <Version>3.2.0</Version>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <ApplicationIcon>athstitcher.ico</ApplicationIcon>
+  </PropertyGroup>
+  
+    <ItemGroup>
+    <!-- https://elinamllc.github.io/SharpVectors/ -->
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+    <PackageReference Include="Extended.Wpf.Toolkit" Version="4.7.25104.5739" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="SharpVectors.Wpf" Version="1.8.4.2" />
+  </ItemGroup>
+  
+
+  <ItemGroup>
+        <!-- SVGs are from https://www.svgrepo.com/ -->
+    <!-- SVG Licenses: https://www.svgrepo.com/page/licensing/ -->    
+    <None Remove="athstitcher.ico" />    
+    <None Remove="athstitcher.png" />    
+    <None Remove="Resources\Images\cancelvid.svg" />
+    <None Remove="Resources\Images\crosshairs.svg" />
+    <None Remove="Resources\Images\dotnet_athletics.jpg" />
+    <None Remove="Resources\Images\dotnet_bot.png" />
+    <None Remove="Resources\Images\github1.png" />
+    <None Remove="Resources\Images\nextvid.svg" />
+    <None Remove="Resources\Images\optionsvid.svg" />
+    <None Remove="Resources\Images\pausesvid.svg" />
+    <None Remove="Resources\Images\previousprevious.svg" />
+    <None Remove="Resources\Images\startvid.svg" />
+    <None Remove="Resources\Images\stopvid.svg" />
+  </ItemGroup>
+  
+
+  <ItemGroup>
+    <Content Include="athstitcher.ico" />
+  </ItemGroup>
+
+  <!--From GetVideoWPFLibSample -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- PackageReference Include="Sportronics.GetVideoWPFLib" Version="2.0.4" / -->
+    <ProjectReference Include="..\DetectVideoFlash\DetectVideoFlash.csproj" />
+    <ProjectReference Include="..\GetVideoWPFLib\GetVideoWPFLib.csproj" />
+    <ProjectReference Include="..\PhotoTimingDjausLib\PhotoTimingDjausLib.csproj" />
+    <PackageReference Include="Sportronics.VideoEnums.Windows" Version="2.0.3" />
+    <!-- ProjectReference Include="..\VideoEnums\VideoEnums.csproj" / -->
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\Images\cancelvid.svg">
+      <CopyToOutputDirectory></CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Images\crosshairs.svg">
+      <CopyToOutputDirectory></CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Images\dotnet_athletics.jpg">
+      <CopyToOutputDirectory></CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Images\dotnet_bot.png">
+      <CopyToOutputDirectory></CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Images\github1.png">
+      <CopyToOutputDirectory></CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Images\nextvid.svg">
+      <CopyToOutputDirectory></CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Images\optionsvid.svg">
+      <CopyToOutputDirectory></CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Images\pausesvid.svg">
+      <CopyToOutputDirectory></CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Images\previousprevious.svg" />
+    <Resource Include="Resources\Images\startvid.svg">
+      <CopyToOutputDirectory></CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Images\stopvid.svg">
+      <CopyToOutputDirectory></CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\svgimages\doublenext.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\svgimages\next1.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\svgimages\next2.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\svgimages\next3.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\svgimages\next4.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\svgimages\next.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\svgimages\next6.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\svgimages\nextalt.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\svgimages\doubleprevious.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\svgimages\nextsec.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\svgimages\previous.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\svgimages\previous2.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\svgimages\previoussec.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <SplashScreen Include="athstitcher.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Settings.Designer.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+
+</Project>

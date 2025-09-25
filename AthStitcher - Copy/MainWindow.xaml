@@ -1,0 +1,685 @@
+﻿<Window x:Class="AthStitcherGUI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:sys="clr-namespace:System;assembly=System.Runtime"
+        xmlns:svg="http://sharpvectors.codeplex.com/runtime/"
+        xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
+        xmlns:local="clr-namespace:AthStitcherGUI.ViewModels"
+        xmlns:conv="clr-namespace:AthStitcherGUI.Converters"
+        xmlns:enums="clr-namespace:PhotoTimingDjaus.Enums;assembly=VideoEnums.Windows"
+        KeyDown="ImageKeyDown"
+        Title="Image Viewer">
+
+    <Window.Resources>
+        <local:PlacementModeToBooleanConverter x:Key="PlacementConverter"/>
+        <local:EnumToBooleanConverter x:Key="EnumConverter"/>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+        <conv:HalfValueConverter x:Key="HalfValueConverter"/>
+        <Style TargetType="Menu">
+            <Setter Property="Background" Value="LightGray"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="0"/>
+        </Style>
+
+        <Style TargetType="MenuItem">
+                <Setter Property="Foreground" Value="Black"/>
+                <Setter Property="FontWeight" Value="Bold"/>
+                <Setter Property="Padding" Value="10,5"/>
+                <Style.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="Background" Value="DarkGray"/>
+                        <Setter Property="Foreground" Value="White"/>
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+
+        <Style TargetType="TextBlock">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="DarkSlateGray"/>
+            <Setter Property="Padding" Value="5"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+        </Style>
+        <Style TargetType="Label">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontStyle" Value="Italic"/>
+            <Setter Property="Foreground" Value="Blue"/>
+           
+            <Setter Property="Padding" Value="5"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+        </Style>
+        <Style TargetType="Slider">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+        </Style>
+        <Style TargetType="StackPanel">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+    </Window.Resources>
+        <!-- Window.DataContext>
+        <local:MyViewModel/>
+    </Window.DataContext -->
+
+    
+
+    <Grid>
+        <!-- Grid Layout with Two Sections -->
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" MinHeight="159" />
+            <!-- Controls at the top -->
+            <RowDefinition />
+            <!-- Expanding Image Viewer -->
+        </Grid.RowDefinitions>
+
+        <!-- Zoom and Pan Controls -->
+        <StackPanel Orientation="Vertical" Margin="10,10,10,10" Grid.Row="0" Visibility="{Binding MyVisibility}">
+            <Grid ShowGridLines="False" Margin="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+
+                <CheckBox Grid.Row="9" Grid.Column="0" VerticalAlignment="Center" Name="HasStitched" HorizontalAlignment="Center" Content="HasStitched" IsChecked="{Binding HasStitched}" />
+                <CheckBox Grid.Row="9" Grid.Column="1" Grid.ColumnSpan="2" VerticalAlignment="Center" Name="HaveSelectedandShownGunLineToManualorWallClockMode" HorizontalAlignment="Center" Content="HaveSelectedandShownGunLineToManualorWallClockMode" IsChecked="{Binding HaveSelectedandShownGunLineToManualorWallClockMode}" />
+                <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="6" Background="LightGray">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <!-- Left menus -->
+                        <ColumnDefinition Width="*" />
+                        <!-- Spacer -->
+                        <ColumnDefinition Width="Auto"/>
+                        <!-- Right menu -->
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Orientation="Horizontal" Grid.Column="0">
+                        <Menu >
+                            <MenuItem Header="File"
+                            FontWeight="Bold" 
+                            FontStyle="Italic"
+                            Foreground="Blue">
+                                <MenuItem Header="Open Video File and Stitch" Click="OpenMp4File_Click"/>
+                                <Separator/>
+                                <MenuItem Header="Download Video from phone (only)" Click="DownLoadMp4File_Click"/>
+                                <MenuItem Header="Edit Video File's Meta-Info" Click="EditMetaInfo_Click"/>
+                                <Separator/>
+                                <MenuItem Header="Load Image File" Click="OpenPngFile_Click"/>
+                                <MenuItem Header="Set Temp Gun Audio File" Click="OpenGunAudioTextFile_Click"/>
+                                <MenuItem Header="Install Phone App on Phone (QR Code)" Click="QRCode_Click"/>
+                                <Separator/>
+                                <!-- MenuItem Header="Truncate Video from Gun Start" Click="TruncateandSelectVideoFile_Click"/ -->
+                                <Separator/>
+                                <MenuItem Header="Save State" Click="SaveViewModel_Click"/>
+                                <Separator/>
+                                <MenuItem Header="Exit" Command="ApplicationCommands.Close"/>
+                            </MenuItem>
+                        </Menu>
+                        <Menu>
+                            <MenuItem Header="Settings"
+                                FontWeight="Bold" 
+                                FontStyle="Italic"
+                                Foreground="Blue">
+
+                                <MenuItem Header="ExifTool"
+                            FontWeight="Bold" 
+                            FontStyle="Italic"
+                            Foreground="Blue">
+                                    <MenuItem Header="About  ExifTool" Click="AboutExifTool"/>
+                                    <MenuItem Header="Get ExifTool Zip (Open browser)" Click="GetExifTool"/>
+                                    <MenuItem Header="Unzip ExifTool Download" Click="UnzipExifTool" />
+                                    <MenuItem Header="Set ExifTool Location (No need to add to Path)" Click="SetExifToolLocation"/>
+                                    <MenuItem Header="Set ExifTool Name (You shouldn't need to change)" Click="SetExifToolName"/>
+                                </MenuItem>
+
+                                <MenuItem Header="Gun Time Line Color" 
+                            FontWeight="Bold" 
+                            FontStyle="Italic"
+                            Foreground="{Binding SelectedColorName}" >
+                                    <MenuItem Header="About  Gun Time Line Color" Click="AboutGunTimeLineColor"/>
+                                    <!--Background="{Binding SelectedColorBackgroundName}" -->
+                                    <MenuItem Header="Red" Command="{Binding SetColorCommand}" CommandParameter="Red">
+                                        <MenuItem.Icon>
+                                            <CheckBox IsChecked="{Binding IsRedSelected, Mode=OneWay}" IsHitTestVisible="False" />
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                    <MenuItem Header="Green" Command="{Binding SetColorCommand}" CommandParameter="Green">
+                                        <MenuItem.Icon>
+                                            <CheckBox IsChecked="{Binding IsGreenSelected, Mode=OneWay}" IsHitTestVisible="False" />
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                    <MenuItem Header="Blue" Command="{Binding SetColorCommand}" CommandParameter="Blue">
+                                        <MenuItem.Icon>
+                                            <CheckBox IsChecked="{Binding IsBlueSelected, Mode=OneWay}" IsHitTestVisible="False" />
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                    <MenuItem Header="Yellow" Command="{Binding SetColorCommand}" CommandParameter="Yellow">
+                                        <MenuItem.Icon>
+                                            <CheckBox IsChecked="{Binding IsYellowSelected, Mode=OneWay}" IsHitTestVisible="False" />
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                    <MenuItem Header="Cyan" Command="{Binding SetColorCommand}" CommandParameter="Cyan">
+                                        <MenuItem.Icon>
+                                            <CheckBox IsChecked="{Binding IsCyanSelected, Mode=OneWay}" IsHitTestVisible="False" />
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                    <MenuItem Header="Magenta" Command="{Binding SetColorCommand}" CommandParameter="Magenta">
+                                        <MenuItem.Icon>
+                                            <CheckBox IsChecked="{Binding IsMagentaSelected, Mode=OneWay}" IsHitTestVisible="False" />
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                    <MenuItem Header="White" Command="{Binding SetColorCommand}" CommandParameter="White">
+                                        <MenuItem.Icon>
+                                            <CheckBox IsChecked="{Binding IsWhiteSelected, Mode=OneWay}" IsHitTestVisible="False" />
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                    <MenuItem Header="Black" Command="{Binding SetColorCommand}" CommandParameter="Black">
+                                        <MenuItem.Icon>
+                                            <CheckBox IsChecked="{Binding IsBlackSelected, Mode=OneWay}" IsHitTestVisible="False" />
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                </MenuItem>
+                            </MenuItem>
+                        </Menu>
+
+                        <Menu Visibility="{Binding MyVisibility}">
+                            <MenuItem Header="Time From Mode:" 
+                              FontWeight="Bold" 
+                              FontStyle="Italic"
+                              Foreground="Blue">
+                                <MenuItem Header="WallClock" 
+                  Click="TimeFromMode_Click"
+                  Tag="{x:Static enums:TimeFromMode.WallClockSelect}" />
+                                <!-- Option 1: Button -->
+                                <MenuItem Header="Button" 
+                  Click="TimeFromMode_Click"
+                  Tag="{x:Static enums:TimeFromMode.FromVideoStart}" />
+                                <!-- Option 2: Mic -->
+                                <MenuItem Header="Mic" 
+                  Click="TimeFromMode_Click"
+                  Tag="{x:Static enums:TimeFromMode.FromGunSound}" />
+                                <!-- Option 3: Flash - with a side (sub) menu -->
+                                <MenuItem Header="Flash" 
+                  Click="TimeFromMode_Click"
+                  Tag="{x:Static enums:TimeFromMode.FromGunFlash}">
+                                    <!-- Submenu Header (non-selectable) -->
+                                    <MenuItem Header="Detect Flash:" 
+                                      IsEnabled="False" 
+                                      FontWeight="Bold"
+                                      FontStyle="Italic"
+                                      Foreground="Purple"/>
+                                    <!-- Flash detection option 1 -->
+                                    <MenuItem Header="From Brightness Flash"
+                      Click="VideoDetectMode_Click"
+                      Tag="{x:Static enums:VideoDetectMode.FromFlash}" />
+                                    <!-- Flash detection option 2 -->
+                                    <!-- MenuItem Header="Detect Frame Change"  ERRANT
+                      Click="VideoDetectMode_Click"
+                      Tag="{x:Static enums:VideoDetectMode.FromFrameChange}" / -->
+                                </MenuItem>
+                                <!-- Option 4: Manual -->
+                                <MenuItem Header="Manual" 
+                  Click="TimeFromMode_Click"
+                  Tag="{x:Static enums:TimeFromMode.ManuallySelect}" />
+                            </MenuItem>
+
+                        </Menu>
+                    </StackPanel>
+
+                    <Menu Visibility="{Binding MyVisibility}" HorizontalAlignment="Right" Grid.Column="2">
+                        <MenuItem Header="Help" 
+                            FontWeight="Bold" 
+                            FontStyle="Italic"
+                            Foreground="Blue">
+                            <MenuItem Header="View Blog Site" Click="BlogSite_Click"/>
+                            <MenuItem Header="View Code Repository" Click="Repo_Click"/>
+                            <MenuItem Header="NuGet Android Phone Video Capture Package" Click="NuGet_Click"/>
+                            <MenuItem Header="Android App for NuGet Package Repository" Click="AndroidAppNuGet_Click"/>
+                            <MenuItem Header="" />
+                            <MenuItem Header="About" Click="About_Click"/>
+                        </MenuItem>
+                    </Menu>
+                    <!-- Last menu aligned right -->
+                </Grid>
+
+
+
+                <!-- File Paths -->
+                <TextBlock Grid.Row="1" Grid.Column="0"    Text="Video Path:" TextAlignment="Right"  />
+                <TextBox Grid.Row="1" Grid.Column="1"  Background="LightCyan"  Name="VideoPathInput" HorizontalAlignment="Left"  Margin="10,0,0,0" Width="180"  Text= "{Binding VideoPathInput, UpdateSourceTrigger=PropertyChanged}" />
+                <TextBlock Grid.Row="2" Grid.Column="0"  Text="Output Path:" TextAlignment="Right"  />
+                <TextBox Grid.Row="2" Grid.Column="1"  Background="LightCyan" Name="OutputPathInput" HorizontalAlignment="Left"  Margin="10,0,0,0"  Width="180"  Text="{Binding OutputPathInput, UpdateSourceTrigger=PropertyChanged}"   />
+                <TextBlock Grid.Row="3" Grid.Column="0"  Text="Gun Audio File Path:" TextAlignment="Right" />
+                <TextBox Grid.Row="3" Grid.Column="1"  Background="LightCyan" x:Name="GunAudioPathInput" HorizontalAlignment="Left" Margin="10,0,0,0" Width="180"   Text= "{Binding GunAudioPathInput, UpdateSourceTrigger=PropertyChanged}"  />
+
+
+    
+                <!-- ButtonsEtc. -->
+                <Button Grid.Row="6" Grid.Column="2" Grid.RowSpan="2" Name="StitchButton" VerticalAlignment="Center" HorizontalAlignment="Center"  Content="Stitch Video" Height="50" Width="200" Click="StitchButton_Click"  Visibility="{Binding MyVisibility}" 
+                        Foreground="Green" FontWeight="Bold" Background="LightPink"/>
+                <Button Grid.Row="6" Grid.Column="1" Name="WriteGunLine" 
+                        Click="WriteGunLineButton_Click"
+                        HorizontalAlignment="Center" VerticalAlignment="Top"
+                        Content="Accept Gun Line" 
+                        Width="150"  Height="20"                                                                                    
+                        FontWeight="Bold"
+                        Foreground="{Binding SelectedColorName}">
+                        <Button.Style>
+                        <Style TargetType="Button">
+                            <!-- Default state -->
+                            <Setter Property="Visibility" Value="Collapsed"/>
+
+                            <!-- Make it Visible only when TimeFromMode == ManuallySelect -->
+                            <!-- Style.Triggers>
+                                    <DataTrigger Binding="{Binding TimeFromMode}"
+                                        Value="{x:Static enums:TimeFromMode.ManuallySelect}">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers -->
+                            <Style.Triggers>
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding TimeFromMode}" 
+                                                Value="{x:Static enums:TimeFromMode.ManuallySelect}" />
+                                        <Condition Binding="{Binding HasStitched}" Value="True" />
+                                        <Condition Binding="{Binding HaveSelectedandShownGunLineToManualorWallClockMode}" Value="False" />
+                                    </MultiDataTrigger.Conditions>
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </MultiDataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                    </Button>
+
+                <StackPanel Grid.Row="7" Grid.Column="3" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Left">
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                            <!-- Default: hide the panel -->
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding HasStitched}"
+                                        Value="True">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StackPanel.Style>
+                    <Label Content="     " />
+                    <!-- The rest of your StackPanel content goes here -->
+
+                    <!-- Left Button (Back icon) -->
+                    <Button ToolTip="Back 1 sec" Click="NudgeButton_Click">
+                        <svgc:SvgViewbox Source="pack://application:,,,/Resources/svgimages/previoussec.svg"
+                                            Width="24" Height="24"/>
+                    </Button>
+                    <Button ToolTip="Back 5" Click="NudgeButton_Click">
+                        <svgc:SvgViewbox Source="pack://application:,,,/Resources/svgimages/doubleprevious.svg"
+                                            Width="24" Height="24"/>
+                    </Button>
+                    <Button ToolTip="Back" Click="NudgeButton_Click">
+                        <svgc:SvgViewbox Source="pack://application:,,,/Resources/svgimages/previous.svg"
+                                             Width="24" Height="24"/>
+                    </Button>
+
+                    <TextBlock Text=" Nudge Line " 
+                        FontWeight="Bold"
+                        Foreground="{Binding SelectedColorName}"
+                        Height="28"
+                        Margin="0"
+                        Background="LightGray"
+                        TextAlignment="Center"
+                        VerticalAlignment="Center"/>
+
+                    <!-- Right Button (Forward icon) -->
+                    <Button ToolTip="Forward" Click="NudgeButton_Click">
+                        <svgc:SvgViewbox Source="pack://application:,,,/Resources/svgimages/next.svg"
+                                             Width="24" Height="24"/>
+                    </Button>
+                    <Button ToolTip="Forward 5" Click="NudgeButton_Click">
+                        <svgc:SvgViewbox Source="pack://application:,,,/Resources/svgimages/doublenext.svg"
+                                             Width="24" Height="24"/>
+                    </Button>
+                    <Button ToolTip="Forward 1 sec" Click="NudgeButton_Click">
+                        <svgc:SvgViewbox Source="pack://application:,,,/Resources/svgimages/nextsec.svg"
+                                             Width="24" Height="24"/>
+                    </Button>
+
+
+                </StackPanel>
+
+
+                <Button  Name="WallClockStart" Grid.Column="1" Grid.Row="6" 
+                             Content="Set Event WallClock Start"  Click="ShowPopup">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <!-- Default: hide the panel -->
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding TimeFromMode}" 
+                                               Value="{x:Static enums:TimeFromMode.WallClockSelect}" />
+                                            <Condition Binding="{Binding HasStitched}" Value="True" />
+                                            <Condition Binding="{Binding HaveSelectedandShownGunLineToManualorWallClockMode}" 
+                                                  Value="False" />
+                                        </MultiDataTrigger.Conditions>
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </MultiDataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                        <Popup x:Name="WatchClockDateTimePopup"
+                        PlacementTarget="{Binding ElementName=WallClockStart}"
+                        Placement="Bottom"
+                        StaysOpen="False"
+                        AllowsTransparency="True">
+
+                            
+                    <Border Background="White" 
+                        BorderBrush="Gray" 
+                        BorderThickness="1" 
+                        Padding="8">
+                            <StackPanel>
+                                <!-- date -->
+                                <DatePicker x:Name="Dp"
+                 SelectedDate="{Binding EventStartWallClockDateTime}"/>
+                                <!-- time -->
+                                <TextBox x:Name="TbTime"
+                      Margin="0,4,0,0"
+                      Text="{Binding EventStartWallClockTimeofDay}"/>
+
+                                <StackPanel Orientation="Horizontal" 
+                 HorizontalAlignment="Right" 
+                 Margin="0,8,0,0">
+                                    <Button Content="OK" 
+                 Width="60" 
+                 Margin="0,0,4,0"
+                 Click="Ok_Click"/>
+                                    <Button Content="Cancel" 
+                 Width="60" 
+                 Click="Cancel_Click"/>
+                                </StackPanel>
+                            <StackPanel  Orientation="Horizontal" HorizontalAlignment="Center">
+                                <StackPanel.Style>
+                                    <Style TargetType="StackPanel">
+                                        <!-- Default: hide the panel -->
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding HasStitched}"
+                                       Value="True">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </StackPanel.Style>
+
+                                <!-- The rest of your StackPanel content goes here -->
+
+                                <!-- Left Button (Back icon) -->
+                                <Button ToolTip="WC Back 1 sec" Click="NudgeButton_Click">
+                                    <svgc:SvgViewbox Source="pack://application:,,,/Resources/svgimages/previoussec.svg"
+                                           Width="24" Height="24"/>
+                                </Button>
+                                <Button ToolTip="WC Back 5 Frames" Click="NudgeButton_Click">
+                                    <svgc:SvgViewbox Source="pack://application:,,,/Resources/svgimages/doubleprevious.svg"
+                                           Width="24" Height="24"/>
+                                </Button>
+                                <Button ToolTip="WC Back 1 Frame" Click="NudgeButton_Click">
+                                    <svgc:SvgViewbox Source="pack://application:,,,/Resources/svgimages/previous.svg"
+                                            Width="24" Height ="24"/>
+                                </Button>
+
+
+                                <!-- Right Button (Forward icon) -->
+                                <Button ToolTip="WC Forward 1 Frame" Click="NudgeButton_Click">
+                                    <svgc:SvgViewbox Source="pack://application:,,,/Resources/svgimages/next.svg"
+                                            Width="24" Height="24"/>
+                                </Button>
+                                <Button ToolTip="WC Forward 5 Frames" Click="NudgeButton_Click">
+                                    <svgc:SvgViewbox Source="pack://application:,,,/Resources/svgimages/doublenext.svg"
+                                            Width="24" Height="24"/>
+                                </Button>
+                                <Button ToolTip="WC Forward 1 sec" Click="NudgeButton_Click">
+                                    <svgc:SvgViewbox Source="pack://application:,,,/Resources/svgimages/nextsec.svg"
+                                            Width="24" Height="24"/>
+                                </Button>
+
+                            </StackPanel>
+
+
+                        </StackPanel>
+                        </Border>
+                    </Popup>
+
+
+
+                <!-- Button Grid.Row="6" Grid.Column="0" Name="LoadImageButton" HorizontalAlignment="Left" Content="Load Image" Width="150" Click="LoadImageButton_Click" Height="20" VerticalAlignment="Top" / -->
+                <!-- Button Grid.Row="7" Grid.Column="0" x:Name="FlashButton" HorizontalAlignment="Left"  Content="Detect Flash in Video" Width="150" Click="FlashButton_Click" VerticalAlignment="Center" Visibility="{Binding MyVisibility}"/ -->
+                <CheckBox Grid.Row="6" Grid.Column="1" VerticalAlignment="Center"  Name="AutoScaleHeightCheckbox" Content="Auto Scale to Height" Checked="AutoScaleHeightCheckbox_Checked" Unchecked="AutoScaleHeightCheckbox_Unchecked"/>
+                <CheckBox Grid.Row="7" Grid.Column="1" VerticalAlignment="Center"  Name="AutoScaleWidthCheckbox"  Content="Auto Scale to Width" Checked="AutoScaleWidthCheckbox_Checked" Unchecked="AutoScaleWidthCheckbox_Unchecked"/>
+                <CheckBox Grid.Row="7" Grid.Column="0" VerticalAlignment="Center"  Name="ShowVideoFrame" Content="Show Video Frame" IsChecked="{Binding ShowVideoFramePopup}" Visibility = "{Binding  HasStitched}" />
+                <CheckBox Grid.Row="6" Grid.Column="0" VerticalAlignment="Center"  Name="ShowLevelImage"  Content="Show Level Image" IsChecked="{Binding ShowLevelImage}" Visibility = "{Binding  HasNotStitched}" />
+
+
+                <!-- Sliders in Columns 4/5 ========================================================================================================================================================================================== -->
+
+                <!-- Zoom and Pan Sliders -->
+                <!-- Horizontal -->
+                <TextBlock Grid.Column="4" Grid.Row="1" Text="Horizontal Zoom:"/>
+                <Slider Grid.Column="5" Grid.Row="1" Name="HorizontalZoomSlider" Minimum="0.1" Maximum="5" Value="1" Width="150"   ValueChanged="HorizontalZoomSlider_ValueChanged"  />
+                <TextBlock Grid.Column="4" Grid.Row="2" Text="Horizontal Pan:"  />
+                <Slider Grid.Column="5" Grid.Row="2" Name="HorizontalPanSlider"  Minimum="0" Maximum="1" Value="0.5" Width="150"   ValueChanged="HorizontalPanSlider_ValueChanged" />
+                
+                <!-- Vertical -->
+                <TextBlock Grid.Column="4" Grid.Row="3" Text="Vertical Zoom:"  />
+                <Slider Grid.Column="5" Grid.Row="3" Name="VerticalZoomSlider"  Minimum="0.1" Maximum="5" Value="1" Width="150"   ValueChanged="VerticalZoomSlider_ValueChanged"/>
+                <TextBlock Grid.Column="4" Grid.Row="4" Text="Vertical Pan:"   />
+                <Slider Grid.Column="5" Grid.Row="4" Name="VerticalPanSlider"   Minimum="0" Maximum="1" Value="0.5" Width="150"   ValueChanged="VerticalPanSlider_ValueChanged" />
+
+                <!-- Axis Height -->
+                <TextBlock Grid.Column="4" Grid.Row="5" Text="Axis Height:"/>
+                <StackPanel Orientation="Horizontal" Grid.Row="5" Grid.Column="5">
+                    <Slider Name="AxisHeightSlider"  Minimum="0" Maximum="100" Value="100" TickFrequency="10" IsSnapToTickEnabled="True" Width="150"  ValueChanged="VerticalZoomSlider_ValueChanged" />
+                    <TextBlock Text="{Binding ElementName=AxisHeightSlider, Path=Value, Mode=OneWay}"  TextAlignment="Right" Width="50"  />
+                </StackPanel>
+                
+                <!-- Audio Height-->
+                <TextBlock Grid.Column="4" Grid.Row="6" Text="Audio Height:"  />
+                <StackPanel Orientation="Horizontal" Grid.Row="6" Grid.Column="5">
+                    <Slider  Name="AudioHeightSlider" Minimum="0" Maximum="100" Value="100" TickFrequency="10" IsSnapToTickEnabled="True" Width="150"   ValueChanged="VerticalPanSlider_ValueChanged"  />
+                    <TextBlock  Text="{Binding ElementName=AudioHeightSlider, Path=Value, Mode=OneWay}"  TextAlignment="Right" Width="50" />
+                </StackPanel>
+
+<!-- ========================================================================================================================================================================================================================= -->
+                
+                <!-- Output Data -->
+                <TextBlock Grid.Column="2" Grid.Row="1" Name="StartTimeInputLabel"            TextAlignment="Right" Text="Start Time (Seconds): "  />
+                <TextBox Grid.Column="3"   Grid.Row="1" Name="StartTimeInput"                 Background="Beige" HorizontalAlignment="Left"  Width="150"  IsReadOnly="True"  Text="{Binding StartTimeInput}"  />
+                <TextBlock Grid.Column="2" Grid.Row="2" Name="VideoLengthLabel"               TextAlignment="Right" Text="Video Length:" Visibility="{Binding MyVisibility}"   />
+                <TextBox Grid.Column="3"   Grid.Row="2" Name="VideoLength" IsReadOnly="True"  Background="Beige" HorizontalAlignment="Left" Width="150"  VerticalAlignment="Center" Text="{Binding VideoLength}" Visibility="{Binding MyVisibility}"  />
+                <TextBlock Grid.Column="2" Grid.Row="3" Name="GunTimeLabel"                   TextAlignment="Right" Text="Gun Time: "   Visibility="{Binding MyVisibility}"  />
+                <TextBox Grid.Column="3"   Grid.Row="3" Name="GunTime" IsReadOnly="True"      Background="Beige" HorizontalAlignment="Left" Width="150"  Text="{Binding GunTime}"   Visibility="{Binding MyVisibility}" />
+                <TextBlock Grid.Column="2" Grid.Row="4" Name="ThresholdLabel"                 TextAlignment="Right" Text="Audio MaxMin Range Divisor: "   Visibility="{Binding MyVisibility}"  />
+                <TextBox Grid.Column="3"   Grid.Row="4" Name="Threshold" IsReadOnly="False"   Background="Beige" HorizontalAlignment="Left"  Width="150" Text="3"  Visibility="{Binding MyVisibility}" />
+                <TextBlock Grid.Column="2" Grid.Row="5" Name="FinishTimeLabel"                TextAlignment="Right" Text="Finish Time: " FontWeight="Bold" Foreground="Blue"   Visibility="{Binding MyVisibility}"  />
+                <TextBox Grid.Column="3"   Grid.Row="5" Name="FinishTime" IsReadOnly="True"   Background="Beige" HorizontalAlignment="Left" Width="150"  Foreground="Purple" VerticalAlignment="Center" Text="" Visibility="{Binding MyVisibility}"  />
+
+                <!-- Columns 2 and 3 END  ========================================================================================================================================================================================== -->
+
+
+
+
+    
+
+
+
+
+
+                <StackPanel Grid.Row="8" Grid.Column="0" Orientation="Horizontal">
+
+                    <RadioButton Content="Left" 
+                 IsChecked="{Binding PopupPlacement, Converter={StaticResource PlacementConverter}, ConverterParameter=Right}"
+                 GroupName="PlacementChoice" Margin="5"/>
+
+                    <RadioButton Content="Center" 
+                 IsChecked="{Binding PopupPlacement, Converter={StaticResource PlacementConverter}, ConverterParameter=Center}"
+                 GroupName="PlacementChoice" Margin="5"/>
+
+                    <RadioButton Content="Right" 
+                 IsChecked="{Binding PopupPlacement, Converter={StaticResource PlacementConverter}, ConverterParameter=Left}"
+                 GroupName="PlacementChoice" Margin="5"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Grid.Row="8" Grid.Column="1" >
+                    <Label>PopupPlacement: </Label>
+                    <TextBlock Text="{Binding PopupPlacement}"  FontStyle="Italic" />
+                </StackPanel>
+                <CheckBox Grid.Row="8" Grid.Column="2" VerticalAlignment="Center"  Name="UseVideoFrame4Nudge"  Content="UseVideoFrame 4 Nudge" IsChecked="{Binding Nudge_useVideoFrameratherthanNudgeFrame}" />
+                
+                <Label Grid.Row="4" Grid.Column="0"  Content="Time From Mode: "  HorizontalAlignment="Right" />
+                <Label Grid.Row="5" Grid.Column="0"  Content="Detect Flash: " HorizontalAlignment="Right" />
+                <Label Grid.Row="4" Grid.Column="1"  Content="{Binding TimeFromMode}"  Foreground="Purple"  HorizontalAlignment="Left" />
+                <StackPanel Grid.Row="5"
+                    Grid.Column="1"
+                    Visibility="{Binding FlashSelected,
+                    Converter={StaticResource BoolToVis}}">
+
+                    <Label Content="{Binding VideoDetectMode}"
+                       FontWeight="Bold"
+                       Foreground="Purple"
+                       HorizontalAlignment="Left">      
+                        <Label.Style>
+                            <Style TargetType="Label">
+                                <!-- Default state -->
+                                <Setter Property="Visibility" Value="Collapsed"/>
+
+                                <!-- Make it Visible only when TimeFromMode == FromGunViaVideo -->
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding TimeFromMode}"
+                                 Value="{x:Static enums:TimeFromMode.FromGunFlash}">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Label.Style>
+                    </Label>
+                </StackPanel>
+
+
+    </Grid>
+        </StackPanel>
+        <ProgressBar  Name="BusyIndicator" Height="20" Width="150" IsIndeterminate="True" Visibility="Collapsed" Margin="10,0,0,0" VerticalAlignment="Center"  />
+
+        <!-- Responsive Image Viewer -->
+        <Border Grid.Row="1"
+        BorderBrush="Black"
+        BorderThickness="2"
+        Margin="20,0,20,20"
+        Padding="0"
+        Name="ViewerBorder"
+        SizeChanged="ViewerBorder_SizeChanged"
+        ClipToBounds="True">
+
+            <ScrollViewer VerticalScrollBarVisibility="Auto" PanningMode="VerticalOnly">
+                <Grid Name="ImageCanvas" Background="LightGray">
+                    <Image Name="StitchedImage" 
+                       Stretch="Uniform" 
+                       StretchDirection="DownOnly"
+                       VerticalAlignment="Top"
+                       HorizontalAlignment="Left"
+                        Height="{Binding ActualHeight-100, RelativeSource={RelativeSource AncestorType=Window}}" 
+                        Source="C:\temp\stitched_image.png"
+                        MouseLeftButtonDown="StitchedImage_MouseButtonDown"
+                        MouseLeftButtonUp="StitchedImage_MouseButtonUp"
+                        MouseRightButtonUp="StitchedImage_MouseButtonUp"
+                        MouseRightButtonDown="StitchedImage_MouseButtonDown"
+                        MouseMove="StitchedImage_MouseMove"/>
+                    <Line Name="VerticalLine" Stroke="Red" StrokeThickness="2" Visibility="Collapsed" />
+                    <Line Name="StartVerticalLine" Stroke="{Binding SelectedColorName}" StrokeThickness="2" Visibility="Collapsed" />
+                    <Line Name="NudgeVerticalLine" Stroke="LawnGreen" StrokeThickness="2" Visibility="Collapsed" />
+                    <TextBlock Name="TimeLabel"   Foreground="White" Visibility="Collapsed" />
+
+                    <Popup Name="PopupVideoFrameImage"
+                       IsOpen="False"
+                       Placement="MousePoint"
+                       PlacementTarget="{Binding ElementName=VerticalLine}"
+                       HorizontalOffset="0"
+                       StaysOpen="False">
+                        <Border BorderBrush="Black" BorderThickness="2"
+				            MouseDown="Popup_MouseDown">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto" PanningMode="VerticalOnly" x:Name="VideoFrameScrollbar" >
+                                <Grid MouseDown="Popup_MouseDown">
+                                
+                                        <Image Name="FrameImage" Width="100" Height="100"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"/>
+                                        <!-- Bottom-right resize handle -->
+                                        <Thumb Name="ResizeThumb" Width="10" Height="10"
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Bottom"
+                                    Background="Gray"
+                                    DragDelta="ResizeThumb_DragDelta"/>
+                                    <Line Name="Divider" Stroke="{Binding SelectedColorName}" StrokeThickness="1" 
+                                          HorizontalAlignment="Center"
+                                          Y1="0"
+                                          Y2="100"
+                                          Visibility="Visible" />
+                                </Grid>
+                            </ScrollViewer>
+                        </Border>
+                    </Popup>
+
+                    <!-- New popup specifically for NudgeVerticalLine -->
+                    <Popup Name="NudgePopupVideoFrameImage"
+                       IsOpen="False"
+                       Placement="{Binding PopupPlacement}"
+                       PlacementTarget="{Binding ElementName=StitchedImage}"
+                       HorizontalOffset="0"
+                       VerticalOffset="0"
+                       StaysOpen="False">
+                        <Border BorderBrush="Black" BorderThickness="2"
+                                MouseDown="NudgePopup_MouseDown">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto" PanningMode="VerticalOnly" x:Name="NudgeVideoFrameScrollbar">
+                                <Grid MouseDown="NudgePopup_MouseDown">
+                                    <Image Name="NudgeFrameImage" Width="100" Height="100"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
+                                    <!-- Bottom-right resize handle -->
+                                    <Thumb Name="NudgeResizeThumb" Width="10" Height="10"
+                                      HorizontalAlignment="Right"
+                                      VerticalAlignment="Bottom"
+                                      Background="Gray"
+                                      DragDelta="NudgeResizeThumb_DragDelta"/>
+                                    <Line Name="NudgeDivider" Stroke="{Binding SelectedColorName}" StrokeThickness="1" 
+                                      HorizontalAlignment="Center"
+                                      Y1="0"
+                                      Y2="100"
+                                      Visibility="Visible" />
+                                </Grid>
+                            </ScrollViewer>
+                        </Border>
+                    </Popup>
+
+                </Grid>
+            </ScrollViewer>
+        </Border>
+    </Grid>
+</Window>
