@@ -1,4 +1,4 @@
-﻿using AthStitcherGUI;
+using AthStitcherGUI;
 using System.Configuration;
 using System.Data;
 using System.Windows;
@@ -45,8 +45,11 @@ public partial class App : WpfApplication
         // Register GetVideoWPFLib services
         services.AddSingleton<IVideoDownloadService, VideoDownloadService>();
 
-        // Register view models
-        services.AddSingleton<VideoDownloadService>();
+        // Register wrapper view model used by AthStitcher GetVideo page
+        services.AddSingleton<AthStitcherGetVideoViewModel>(sp =>
+            new AthStitcherGetVideoViewModel(
+                sp.GetRequiredService<IConfiguration>(),
+                sp.GetRequiredService<IVideoDownloadService>()));
     }
 
     public IVideoDownloadService GetVideoviewModel { get; set; }
@@ -55,11 +58,9 @@ public partial class App : WpfApplication
     public void OpenGetVideoPage()
     {
         var getVideoPage = new GetVideoPage();
-        // Create a proper VideoDownloadViewModel instance
-        var videoDownloadViewModel = new VideoDownloadViewModel(
-            Configuration, 
-            (IVideoDownloadService)GetVideoviewModel);
-        getVideoPage.VideoDownloadViewModel = videoDownloadViewModel;
+        // Resolve the wrapper VM from DI; the control binds to its VideoDownloadViewModel property
+        var wrapperVm = _serviceProvider.GetRequiredService<AthStitcherGetVideoViewModel>();
+        getVideoPage.DataContext = wrapperVm;
         getVideoPage.ShowDialog();
     }
 
@@ -67,7 +68,8 @@ public partial class App : WpfApplication
     {
         base.OnStartup(e);
 
-        GetVideoviewModel = _serviceProvider.GetRequiredService<VideoDownloadService>();
+        // Resolve the video download service
+        GetVideoviewModel = _serviceProvider.GetRequiredService<IVideoDownloadService>();
         //GetVideoPage.VideoDownloadViewModel = GetVideoviewModel;
 
         // Create main window with view model from DI

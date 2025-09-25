@@ -8,6 +8,7 @@ using System.Windows.Media;
 
 // Add alias to avoid ambiguity between System.Windows.Forms.Application and System.Windows.Application
 using WpfApplication = System.Windows.Application;
+using AthStitcherGUI.ViewModels;
 
 namespace AthStitcherGUI
 {
@@ -22,17 +23,18 @@ namespace AthStitcherGUI
 
         }
 
-        protected override void OnContentRendered(EventArgs e)
-        {
-            base.OnContentRendered(e);
-            this.DataContext = VideoDownloadViewModel;  //My change here.
-        }
+        // DataContext is provided by the caller (App.OpenGetVideoPage) as the wrapper VM.
+        // No DataContext override is needed here.
 
 
 
         private void ExitMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            var result = VideoDownloadViewModel.CurrentDownloadFile;
+            string? result = null;
+            if (DataContext is AthStitcherGetVideoViewModel wrapperVm && wrapperVm.VideoDownloadViewModel != null)
+            {
+                result = wrapperVm.VideoDownloadViewModel.CurrentDownloadFile;
+            }
             this.Close();
             // Use the alias to avoid ambiguity
            // WpfApplication.Current.Shutdown();

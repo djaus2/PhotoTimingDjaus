@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net9.0-windows</TargetFramework>
-    <Version>3.2.0</Version>
+    <Version>3.3.0</Version>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
@@ -49,9 +49,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- PackageReference Include="Sportronics.GetVideoWPFLib" Version="2.0.4" / -->
+    <PackageReference Include="Sportronics.GetVideoWPFLib" Version="2.0.4" />
     <ProjectReference Include="..\DetectVideoFlash\DetectVideoFlash.csproj" />
-    <ProjectReference Include="..\GetVideoWPFLib\GetVideoWPFLib.csproj" />
+    <!-- ProjectReference Include="..\GetVideoWPFLib\GetVideoWPFLib.csproj" / -->
     <ProjectReference Include="..\PhotoTimingDjausLib\PhotoTimingDjausLib.csproj" />
     <PackageReference Include="Sportronics.VideoEnums.Windows" Version="2.0.3" />
     <!-- ProjectReference Include="..\VideoEnums\VideoEnums.csproj" / -->
