@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace GetVideoWPFLib.Services
 {
@@ -153,6 +154,40 @@ namespace GetVideoWPFLib.Services
             return Directory.GetFiles(downloadFolder, "*.mp4")
                 .Select(f => Path.GetFileName(f)!)
                 .ToArray();
+        }
+
+        public void ClearDownloadedFiles(string downloadFolder)
+        {
+            if (!Directory.Exists(downloadFolder))
+            {
+                return;
+            }
+            string msg = "Please confirm that you wish to delete the contents of the folder: {downloadFolder}";
+            MessageBoxResult result = System.Windows.MessageBox.Show(
+                msg,
+                "Confirmation",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Question
+            );
+
+            if (result == MessageBoxResult.Yes)
+            {
+
+                {
+                    foreach (var file in Directory.GetFiles(downloadFolder))
+                    {
+
+                        try
+                        {
+                            File.Delete(file);
+                        }
+                        catch
+                        {
+                            // Ignore any errors during deletion
+                        }
+                    }
+                }
+            }
         }
     }
 }

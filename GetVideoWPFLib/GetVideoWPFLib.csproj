@@ -19,7 +19,9 @@
     <PackageReference Include="CommunityToolkit.Mvvm" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
-    <PackageReference Include="Sportronics.DownloadVideoOverTcpLib" />
+    <ProjectReference Include="..\DownloadVideoOverTcpLib\DownloadVideoOverTcpLib.csproj" />
+    <!--PackageReference Include="Sportronics.DownloadVideoOverTcpLib" /-->
+    <!--ProjectReference Include="..\GetVideoWPFLib\GetVideoWPFLib.csproj" /-->
     <PackageReference Include="Sportronics.VideoEnums" />
   </ItemGroup>
 

@@ -47,8 +47,8 @@
                 <TextBlock Text="Local IP:" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Margin="0,0,10,5"/>
                 <TextBlock Text="{Binding LocalIpAddress}" Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" FontFamily="Consolas" Margin="0,0,0,5"/>
                 <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="2">
-                    <Button x:Name="BackButton" Width="60" Content="Back" Command="{Binding BackFromDownloadCommand}" Padding="10,5" Margin="0,0,5,0" ToolTip="Back but leave listening" />
-                    <Button x:Name="CloseButton" Width="60" Content="Close" Command="{Binding CloseDownloadCommand}" Padding="10,5" ToolTip="Close and stop listening"/>
+                    <Button x:Name="BackButton" Width="100" Content="Back" Command="{Binding BackFromDownloadCommand}" Margin="0,0,10,0" Padding="10,5" ToolTip="Back but leave listening" />
+                    <Button x:Name="CloseButton" Width="100" Content="Close" Command="{Binding CloseDownloadCommand}" Margin="0,0,10,0" Padding="10,5" ToolTip="Close and stop listening"/>
                 </StackPanel>
                 <TextBlock Text="Port:" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Margin="0,0,10,5"/>
                 <TextBox Text="{Binding Port}" Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Width="100" HorizontalAlignment="Left" Margin="0,0,0,5"/>
@@ -56,8 +56,8 @@
                 <TextBlock Text="Download Folder:" Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" Margin="0,0,10,0"/>
                 <TextBox Text="{Binding DownloadFolder}" Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" Margin="0,0,10,0"/>
                 <StackPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="2">
-                    <Button x:Name="SelectButton" Width="60" Content="Select..." Padding="10,5" Margin="0,0,5,0" ToolTip="Select a download folder"/>
-                    <Button x:Name="BrowseButton" Width="60" Content="Browse" Command="{Binding OpenDownloadFolderCommand}" Padding="10,5"/>
+                    <Button x:Name="SelectButton" Width="100" Content="Select..." Margin="0,0,10,0" Padding="10,5" ToolTip="Select a download folder"/>
+                    <Button x:Name="BrowseButton" Width="100" Content="Browse" Command="{Binding OpenDownloadFolderCommand}" Margin="0,0,10,0" Padding="10,5"/>
                 </StackPanel>
             </Grid>
         </GroupBox>
@@ -65,8 +65,8 @@
         <!-- Listening Control -->
         <GroupBox Header="Listening Control" Grid.Row="1" Margin="0,0,0,10">
             <StackPanel Orientation="Horizontal" Margin="10">
-                <Button Content="Start Listening" Command="{Binding StartListeningCommand}" Margin="0,0,10,0" Padding="10,5" IsEnabled="{Binding IsListening, Converter={StaticResource InverseBooleanConverter}}"/>
-                <Button Content="Stop Listening" Command="{Binding StopListeningCommand}" Margin="0,0,10,0" Padding="10,5" IsEnabled="{Binding IsListening}"/>
+                <Button Width="100" Content="Start Listening" Command="{Binding StartListeningCommand}" Margin="0,0,10,0" Padding="10,5" IsEnabled="{Binding IsListening, Converter={StaticResource InverseBooleanConverter}}"/>
+                <Button Width="100" Content="Stop Listening" Command="{Binding StopListeningCommand}" Margin="0,0,10,0" Padding="10,5" IsEnabled="{Binding IsListening}"/>
                 <TextBlock Text="Status: " VerticalAlignment="Center" Margin="10,0,5,0"/>
                 <TextBlock Text="{Binding IsListening, Converter={StaticResource BoolToListeningStatusConverter}}" VerticalAlignment="Center" FontWeight="Bold"/>
             </StackPanel>
@@ -80,15 +80,17 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <ListBox Grid.Row="0" ItemsSource="{Binding DownloadedFiles}" SelectionMode="Single" Margin="0,0,0,10">
+                <ListBox Grid.Row="0" ItemsSource="{Binding DownloadedFiles}" SelectionMode="Single"  Margin="0,0,0,10">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding}" FontFamily="Consolas"/>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
                 </ListBox>
-
-                <Button Grid.Row="1" Content="Refresh Files" Command="{Binding RefreshDownloadedFilesCommand}" HorizontalAlignment="Left" Padding="10,5"/>
+                <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="10">
+                    <Button Width="100"  Content="Refresh Files" Command="{Binding RefreshDownloadedFilesCommand}" HorizontalAlignment="Left" Margin="0,0,10,0" Padding="10,5"/>
+                    <Button Width="100" Content="Clear Files" Command="{Binding ClearDownloadedFilesCommand}" HorizontalAlignment="Left" Margin="0,0,10,0" Padding="10,5"/>
+                </StackPanel>
             </Grid>
         </GroupBox>
 

@@ -13,5 +13,6 @@ namespace GetVideoWPFLib.Services
         Task StartListeningAsync(string downloadFolder, int port, CancellationToken cancellationToken);
         void StopListening();
         string[] GetDownloadedFiles(string downloadFolder);
+        void ClearDownloadedFiles(string downloadFolder);
     }
 }

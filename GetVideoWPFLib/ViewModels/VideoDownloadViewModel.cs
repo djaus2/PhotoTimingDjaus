@@ -164,6 +164,30 @@ namespace GetVideoWPFLib.ViewModels
             }
         }
 
+        [RelayCommand]
+        private void ClearDownloadedFiles()
+        {
+            try
+            {
+                if (Directory.Exists(DownloadFolder))
+                { 
+                    _videoDownloadService.ClearDownloadedFiles(DownloadFolder);
+
+                    DownloadedFiles.Clear();
+                    StatusMessage = $"Cleared DownloadFolder: {DownloadFolder}";
+                }
+                else
+                {
+                    DownloadedFiles.Clear();
+                    StatusMessage = $"Download folder does not exist: {DownloadFolder}";
+                }
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = $"Error clearing files: {ex.Message}";
+            }
+        }
+
         // This method is left for the consumer to implement
         public virtual void BrowseDownloadFolder(string initialPath)
         {
