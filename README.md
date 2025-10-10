@@ -1,5 +1,7 @@
 # PhotoTimingDjaus
 
+## BIG CHANGES COMING. WATCH THIS SPACE!
+
 **WPF app has been renamed AthStitcher** 
 
 >> NB With Phone Video Capture: You need to enter the stitched image name and accept it, like a return. On my phone I accept by pressing the tick bottom right of popup keyboard
