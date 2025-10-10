@@ -3,7 +3,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:conv="clr-namespace:AthStitcherGUI.Converters"
     xmlns:sys="clr-namespace:System;assembly=mscorlib"
-    xmlns:enums="clr-namespace:PhotoTimingDjaus.Enums;assembly=VideoEnums.Windows"
+    xmlns:enums="clr-namespace:Sportronics.VideoEnums;assembly=VideoEnums"
     Title="Video File Meta-Info VideoInfo Json Editor" Height="600" Width="800">
     <Window.Resources>
     <conv:BoolToBrushConverter x:Key="BoolToBrushConverter" />

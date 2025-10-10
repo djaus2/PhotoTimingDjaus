@@ -6,7 +6,7 @@
         xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
         xmlns:local="clr-namespace:AthStitcherGUI.ViewModels"
         xmlns:conv="clr-namespace:AthStitcherGUI.Converters"
-        xmlns:enums="clr-namespace:PhotoTimingDjaus.Enums;assembly=VideoEnums.Windows"
+        xmlns:enums="clr-namespace:Sportronics.VideoEnums;assembly=VideoEnums"
         KeyDown="ImageKeyDown"
         Title="Image Viewer">
 

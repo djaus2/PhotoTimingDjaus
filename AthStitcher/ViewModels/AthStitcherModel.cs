@@ -1,6 +1,6 @@
 using OpenCvSharp;
 using PhotoTimingDjaus;
-using PhotoTimingDjaus.Enums;// This is where TimeFromMode is defined
+using Sportronics.VideoEnums;// This is where TimeFromMode is defined
 using SharpExifTool;
 using System;
 using System.Collections.Generic;

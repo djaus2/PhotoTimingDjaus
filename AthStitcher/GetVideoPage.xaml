@@ -6,27 +6,21 @@
         Title="Video Download Page" Height="600" Width="800"
         WindowStartupLocation="CenterScreen">
     
+    <Border BorderBrush="Black" BorderThickness="1" Margin="0">
     <DockPanel>
         <!-- Menu -->
         <Menu DockPanel.Dock="Top">
-            <MenuItem Header="_File">
-                <MenuItem Header="_Open Download Folder" Command="{Binding OpenDownloadFolderCommand}">
-                    <MenuItem.Icon>
-                        <TextBlock Text="📁" FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                    </MenuItem.Icon>
-                </MenuItem>
-                <MenuItem Header="_Refresh Files" Command="{Binding RefreshDownloadedFilesCommand}">
-                    <MenuItem.Icon>
-                        <TextBlock Text="🔄" FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                    </MenuItem.Icon>
-                </MenuItem>
-                <Separator/>
-                <MenuItem Header="Done" Click="ExitMenuItem_Click"/>
-            </MenuItem>
-            <MenuItem Header="_Help">
+            <Menu.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <DockPanel LastChildFill="False" />
+                </ItemsPanelTemplate>
+            </Menu.ItemsPanel>
+
+
+            <MenuItem Header="_Help" DockPanel.Dock="Right" FontWeight="Bold" FontStyle="Italic" Foreground="Purple">
                 <MenuItem Header="_About" Click="AboutMenuItem_Click">
                     <MenuItem.Icon>
-                        <TextBlock Text="ℹ" FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        <TextBlock Text=" " FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                     </MenuItem.Icon>
                 </MenuItem>
             </MenuItem>
@@ -44,4 +38,5 @@
                 ViewModel="{Binding VideoDownloadViewModel}"/>
         </Grid>
     </DockPanel>
+    </Border>
 </Window>

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageVersion Include="CommunityToolkit.Maui" Version="10.0.0" />
+    <PackageVersion Include="CommunityToolkit.Maui.Camera" Version="2.0.3" />
+    <PackageVersion Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+
+    <PackageVersion Include="Microsoft.Maui.Controls" Version="9.0.100" />
+    <PackageVersion Include="Microsoft.Maui.Controls.Compatibility" Version="9.0.60" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Debug" Version="9.0.4" />
+    <PackageVersion Include="Extended.Wpf.Toolkit" Version="4.7.25104.5739" />
+
+    <!-- AndroidX camera/lifecycle packages -->
+    <PackageVersion Include="Xamarin.AndroidX.Core" Version="1.16.0.1" />
+    <PackageVersion Include="Xamarin.AndroidX.AppCompat" Version="1.7.0.6" />
+    <PackageVersion Include="Xamarin.AndroidX.AppCompat.AppCompatResources" Version="1.7.0.6" />
+    <PackageVersion Include="Xamarin.AndroidX.Camera.Camera2" Version="1.4.2.1" />
+    <PackageVersion Include="Xamarin.AndroidX.Camera.Lifecycle" Version="1.4.2.1" />
+    <PackageVersion Include="Xamarin.AndroidX.Camera.Video" Version="1.4.2.1" />
+    <PackageVersion Include="Xamarin.AndroidX.Camera.View" Version="1.4.2.1" />
+    <PackageVersion Include="Xamarin.AndroidX.Camera.Core" Version="1.4.2.1" />
+    <PackageVersion Include="Xamarin.AndroidX.Lifecycle.Common" Version="2.8.7.3" />
+    <PackageVersion Include="Xamarin.AndroidX.Lifecycle.Common.Jvm" Version="2.8.7.3" />
+    <PackageVersion Include="Xamarin.AndroidX.Lifecycle.LiveData" Version="2.8.7.3" />
+    <PackageVersion Include="Xamarin.AndroidX.Lifecycle.LiveData.Core" Version="2.8.7.3" />
+    <PackageVersion Include="Xamarin.AndroidX.Lifecycle.LiveData.Core.Ktx" Version="2.8.7.3" />
+    <PackageVersion Include="Xamarin.AndroidX.Lifecycle.Process" Version="2.8.7.3" />
+    <PackageVersion Include="Xamarin.AndroidX.Lifecycle.Runtime" Version="2.8.7.3" />
+    <PackageVersion Include="Xamarin.AndroidX.Lifecycle.Runtime.Android" Version="2.8.7.3" />
+    <PackageVersion Include="Xamarin.AndroidX.Lifecycle.Runtime.Ktx" Version="2.8.7.3" />
+    <PackageVersion Include="Xamarin.AndroidX.Lifecycle.ViewModel" Version="2.8.7.3" />
+    <PackageVersion Include="Xamarin.AndroidX.Lifecycle.ViewModel.Android" Version="2.8.7.3" />
+    <PackageVersion Include="Xamarin.AndroidX.Lifecycle.ViewModel.Ktx" Version="2.8.7.3" />
+    <PackageVersion Include="Xamarin.AndroidX.Lifecycle.ViewModelSavedState" Version="2.8.7.3" />
+
+    <!-- App/library specific -->
+    <PackageVersion Include="Sportronics.MauiMediaRecorderVideoLib" Version="3.2.0" />
+    <PackageVersion Include="Sportronics.GetVideoWPFLib" Version="2.0.4" />
+    <PackageVersion Include="Sportronics.DownloadVideoOverTcpLib" Version="2.0.3" />
+    <PackageVersion Include="Sportronics.VideoEnums" Version="3.2.1" />
+
+    <!-- WPF/desktop + shared -->
+    <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageVersion Include="SharpVectors.Wpf" Version="1.8.4.2" />
+    <PackageVersion Include="OpenCvSharp4" Version="4.10.0.20241108" />
+    <PackageVersion Include="OpenCvSharp4.runtime.win" Version="4.10.0.20241108" />
+    <PackageVersion Include="OpenCvSharp4.Extensions" Version="4.10.0.20241108" />
+    <PackageVersion Include="FFMpegCore" Version="5.2.0" />
+    <PackageVersion Include="NAudio" Version="2.2.1" />
+    <PackageVersion Include="SharpExifTool" Version="12.87.0.1" />
+    <PackageVersion Include="Extended.Wpf.Toolkit" Version="5.0.0" />
+
+ 
+
+    <!-- Android ML/CV -->
+    <PackageVersion Include="Emgu.CV" Version="4.10.0.5680" />
+    <PackageVersion Include="Emgu.CV.runtime.maui.mini.android" Version="4.10.0.5680" />
+
+    <!--PackageVersion Include="Sportronics.DownloadVideoOverTcpLib" Version="2.0.3" / -->
+  </ItemGroup>
+  <PropertyGroup>
+    <NoWarn>XC0022;NU1507;NU1602;NU1604;NU1608;CS8600;CS8604;CS8767;CS8601;CS8602;CS8603;CS8618;CS8625;CA1422;CA1416;CS8625:</NoWarn>
+  </PropertyGroup>
+</Project>

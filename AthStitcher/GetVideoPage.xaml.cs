@@ -5,7 +5,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Media;
-
 // Add alias to avoid ambiguity between System.Windows.Forms.Application and System.Windows.Application
 using WpfApplication = System.Windows.Application;
 using AthStitcherGUI.ViewModels;
@@ -21,12 +20,41 @@ namespace AthStitcherGUI
             this.WindowStyle = WindowStyle.None;
             this.ResizeMode = ResizeMode.NoResize;
 
+            // Wire up event subscriptions after DataContext is available
+            this.Loaded += GetVideoPage_Loaded;
+            this.Closing += GetVideoPage_Closing;
         }
 
         // DataContext is provided by the caller (App.OpenGetVideoPage) as the wrapper VM.
         // No DataContext override is needed here.
 
+        private void GetVideoPage_Loaded(object sender, RoutedEventArgs e)
+        {
+            // Expect DataContext to be AthStitcherGetVideoViewModel with a VideoDownloadViewModel property
+            if (DataContext is AthStitcherGetVideoViewModel wrapperVm && wrapperVm.VideoDownloadViewModel != null)
+            {
+                // Subscribe once to propagate Back/Close requests to the Done action
+                wrapperVm.VideoDownloadViewModel.BackRequested += OnDownloadBackOrCloseRequested;
+                wrapperVm.VideoDownloadViewModel.CloseRequested += OnDownloadBackOrCloseRequested;
+            }
+        }
 
+        private void GetVideoPage_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (DataContext is AthStitcherGetVideoViewModel wrapperVm && wrapperVm.VideoDownloadViewModel != null)
+            {
+                // Persist the latest selected folder to shared state so MainWindow pickers use it
+                AthStitcherGUI.SharedAppState.SetGlobalFolder(wrapperVm.VideoDownloadViewModel.DownloadFolder);
+                wrapperVm.VideoDownloadViewModel.BackRequested -= OnDownloadBackOrCloseRequested;
+                wrapperVm.VideoDownloadViewModel.CloseRequested -= OnDownloadBackOrCloseRequested;
+            }
+        }
+
+        private void OnDownloadBackOrCloseRequested()
+        {
+            // Execute the same behavior as the File -> Done menu item
+            ExitMenuItem_Click(this, new RoutedEventArgs());
+        }
 
         private void ExitMenuItem_Click(object sender, RoutedEventArgs e)
         {

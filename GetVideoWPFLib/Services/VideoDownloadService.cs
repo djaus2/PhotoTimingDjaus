@@ -151,7 +151,7 @@ namespace GetVideoWPFLib.Services
             }
 
             return Directory.GetFiles(downloadFolder, "*.mp4")
-                .Select(Path.GetFileName)
+                .Select(f => Path.GetFileName(f)!)
                 .ToArray();
         }
     }

@@ -46,15 +46,18 @@
 
                 <TextBlock Text="Local IP:" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Margin="0,0,10,5"/>
                 <TextBlock Text="{Binding LocalIpAddress}" Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" FontFamily="Consolas" Margin="0,0,0,5"/>
-
+                <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="2">
+                    <Button x:Name="BackButton" Width="60" Content="Back" Command="{Binding BackFromDownloadCommand}" Padding="10,5" Margin="0,0,5,0" ToolTip="Back but leave listening" />
+                    <Button x:Name="CloseButton" Width="60" Content="Close" Command="{Binding CloseDownloadCommand}" Padding="10,5" ToolTip="Close and stop listening"/>
+                </StackPanel>
                 <TextBlock Text="Port:" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Margin="0,0,10,5"/>
                 <TextBox Text="{Binding Port}" Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Width="100" HorizontalAlignment="Left" Margin="0,0,0,5"/>
 
                 <TextBlock Text="Download Folder:" Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" Margin="0,0,10,0"/>
                 <TextBox Text="{Binding DownloadFolder}" Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" Margin="0,0,10,0"/>
                 <StackPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="2">
-                    <Button x:Name="SelectButton" Content="Select..." Padding="10,5" Margin="0,0,5,0" ToolTip="Select a download folder"/>
-                    <Button x:Name="BrowseButton" Content="Browse" Command="{Binding OpenDownloadFolderCommand}" Padding="10,5"/>
+                    <Button x:Name="SelectButton" Width="60" Content="Select..." Padding="10,5" Margin="0,0,5,0" ToolTip="Select a download folder"/>
+                    <Button x:Name="BrowseButton" Width="60" Content="Browse" Command="{Binding OpenDownloadFolderCommand}" Padding="10,5"/>
                 </StackPanel>
             </Grid>
         </GroupBox>
@@ -97,8 +100,8 @@
         </StatusBar>
     
         <!-- Video Download Busy Indicator Overlay -->
-        <Grid x:Name="PopUp" Grid.RowSpan="4" Background="#80000000" Visibility="{Binding IsVideoDownloading, Converter={StaticResource BooleanToVisibilityConverter}}" Panel.ZIndex="1000">
-            <Border Background="White" CornerRadius="10" Padding="30" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <Grid x:Name="PopUp" Grid.RowSpan="4" Background="#80000000" Visibility = "{Binding IsVideoDownloading, Converter={StaticResource BooleanToVisibilityConverter}}" Panel.ZIndex="1000">
+            <Border Background="White" CornerRadius="10" Padding="30" HorizontalAlignment="Center" VerticalAlignment="Center" BorderBrush="Black" BorderThickness="1">
                 <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
                     <!-- Spinning Circle -->
                     <Ellipse Width="60" Height="60" Margin="0,0,0,15">

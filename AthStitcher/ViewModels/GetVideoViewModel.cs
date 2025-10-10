@@ -47,6 +47,15 @@
                 // Create the VideoDownloadViewModel from the library
                 VideoDownloadViewModel = new VideoDownloadViewModel(_configuration, _videoDownloadService);
 
+                // If we have a persisted global folder, initialize the download folder from it
+                if (!string.IsNullOrWhiteSpace(AthStitcherGUI.SharedAppState.GlobalFolder)
+                    && Directory.Exists(AthStitcherGUI.SharedAppState.GlobalFolder))
+                {
+                    VideoDownloadViewModel.DownloadFolder = AthStitcherGUI.SharedAppState.GlobalFolder;
+                }
+                // Persist initial folder
+                AthStitcherGUI.SharedAppState.SetGlobalFolder(VideoDownloadViewModel.DownloadFolder);
+
                 // Subscribe to video download service events
                 _videoDownloadService.VideoDownloadStarted += OnVideoDownloadListening;
                 _videoDownloadService.VideoDownloadCompleted += OnVideoDownloadCompleted;
@@ -60,6 +69,8 @@
                 {
                     if (e.PropertyName == nameof(GetVideoWPFLib.ViewModels.VideoDownloadViewModel.DownloadFolder))
                     {
+                        // Update shared state so other UI parts can use this folder (persisted)
+                        AthStitcherGUI.SharedAppState.SetGlobalFolder(VideoDownloadViewModel.DownloadFolder);
                         SetupFileWatcher(VideoDownloadViewModel.DownloadFolder);
                         RefreshDownloadedFiles();
                     }

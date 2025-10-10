@@ -1,4 +1,4 @@
-﻿using PhotoTimingDjaus.Enums;
+﻿using Sportronics.VideoEnums;
 using AthStitcher;
 using AthStitcherGUI.ViewModels;
 using System;
@@ -257,6 +257,21 @@ namespace AthStitcherGUI.ViewModels
         {
             if (DataContext is AthStitcherModel viewModel)
             {
+                var gunpath = viewModel.GunAudioPathInput;
+                if(string.IsNullOrEmpty(gunpath))
+                {
+                    var vid = GetVideoPath();
+                    if(!string.IsNullOrEmpty(vid))
+                    {
+                        var dir = System.IO.Path.GetDirectoryName(vid);
+                        var file = System.IO.Path.GetFileNameWithoutExtension(vid);
+                        var gunfile = System.IO.Path.Combine(dir, file + "_gun.txt");
+                        viewModel.GunAudioPathInput = gunfile;
+                    }
+                    else
+                        viewModel.GunAudioPathInput = @"c:\temp\gun.txt";
+                    gunpath = viewModel.GunAudioPathInput;
+                }
                 return viewModel.GunAudioPathInput; // Get the current gun audio path from the ViewModel
             }
             return string.Empty; // Default value if DataContext is not set or GunAudioPathInput is not available

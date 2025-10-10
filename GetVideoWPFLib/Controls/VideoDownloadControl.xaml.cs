@@ -79,5 +79,7 @@ namespace GetVideoWPFLib.Controls
                 ViewModel.RefreshDownloadedFilesCommand.Execute(null);
             }
         }
+
+
     }
 }

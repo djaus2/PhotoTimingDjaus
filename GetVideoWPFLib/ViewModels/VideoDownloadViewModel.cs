@@ -22,6 +22,9 @@ namespace GetVideoWPFLib.ViewModels
         private FileSystemWatcher? _fileWatcher;
         private CancellationTokenSource? _cancellationTokenSource;
 
+        public event Action? BackRequested;
+        public event Action? CloseRequested;
+
         [ObservableProperty]
         private string _downloadFolder = @"C:\temp\vid";
 
@@ -256,6 +259,23 @@ namespace GetVideoWPFLib.ViewModels
             {
                 StatusMessage = $"Error setting up file watcher: {ex.Message}";
             }
+        }
+
+        [RelayCommand]
+        private void BackFromDownload()
+        {
+            // Do NOT stop listening; just signal the host to navigate back
+            BackRequested?.Invoke();
+        }
+
+        [RelayCommand]
+        private void CloseDownload()
+        {
+            // Stop listening and signal the host to close
+            _videoDownloadService.StopListening();
+            IsListening = false;
+            StatusMessage = "Listener stopped";
+            CloseRequested?.Invoke();
         }
     }
 }

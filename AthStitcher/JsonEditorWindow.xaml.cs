@@ -5,7 +5,7 @@ using System.IO;
 using System.Windows;
 using Microsoft.Win32;
 using AthStitcherGUI.ViewModels;
-using PhotoTimingDjaus.Enums;
+using Sportronics.VideoEnums;
 
 namespace AthStitcherGUI
 {
@@ -197,9 +197,11 @@ namespace AthStitcherGUI
         private void MenuSetGunTime_Click(object sender, RoutedEventArgs e)
         {
             double gtime = 0.0;
-            if (VideoInfo != null && VideoInfo.GunTime != DateTime.MinValue && VideoInfo.VideoStart != DateTime.MinValue)
+            if (VideoInfo != null 
+                && VideoInfo.GunTime != null && VideoInfo.VideoStart != null 
+                && VideoInfo.GunTime != DateTime.MinValue && VideoInfo.VideoStart != DateTime.MinValue)
             {
-                gtime = (VideoInfo.GunTime - VideoInfo.VideoStart).TotalSeconds;
+                gtime = (VideoInfo.GunTime!.Value - VideoInfo.VideoStart!.Value).TotalSeconds;
             }
 
             // Prompt for new gtime
@@ -207,10 +209,10 @@ namespace AthStitcherGUI
             if (inputDialog.ShowDialog() == true)
             {
                 double newGTime = inputDialog.GunTimeSeconds;
-                if (VideoInfo != null && VideoInfo.VideoStart != DateTime.MinValue)
+                if (VideoInfo != null && VideoInfo.VideoStart != null && VideoInfo.VideoStart != DateTime.MinValue)
                 {
                     var ts = TimeSpan.FromSeconds(newGTime);
-                    VideoInfo.GunTime = VideoInfo.VideoStart + ts;
+                    VideoInfo.GunTime = VideoInfo.VideoStart!.Value + ts;
                     OnPropertyChanged(nameof(VideoInfo));
                 }
             }

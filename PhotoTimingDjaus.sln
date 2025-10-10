@@ -17,10 +17,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DetectVideoFlash", "DetectV
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}"
 	ProjectSection(SolutionItems) = preProject
+		Directory.Packages.props = Directory.Packages.props
 		README.md = README.md
 	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VideoEnums", "VideoEnums\VideoEnums.csproj", "{4412B4E7-247F-4072-8AB6-9E708DE13598}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "vid", "vid", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
 	ProjectSection(SolutionItems) = preProject
@@ -39,6 +38,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "vid", "vid", "{02EA681E-C7D
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GetVideoWPFLib", "GetVideoWPFLib\GetVideoWPFLib.csproj", "{5E3D1EBB-75BE-5D77-2243-2AF9A25A7770}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DownloadVideoOverTcpLib", "DownloadVideoOverTcpLib\DownloadVideoOverTcpLib.csproj", "{B0A309A6-3B22-275D-2C56-DFA42ECB3C51}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -72,14 +73,14 @@ Global
 		{A9C61CC3-6D2E-4530-B8E9-976E22B6D529}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A9C61CC3-6D2E-4530-B8E9-976E22B6D529}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A9C61CC3-6D2E-4530-B8E9-976E22B6D529}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4412B4E7-247F-4072-8AB6-9E708DE13598}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4412B4E7-247F-4072-8AB6-9E708DE13598}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4412B4E7-247F-4072-8AB6-9E708DE13598}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4412B4E7-247F-4072-8AB6-9E708DE13598}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5E3D1EBB-75BE-5D77-2243-2AF9A25A7770}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5E3D1EBB-75BE-5D77-2243-2AF9A25A7770}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5E3D1EBB-75BE-5D77-2243-2AF9A25A7770}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5E3D1EBB-75BE-5D77-2243-2AF9A25A7770}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B0A309A6-3B22-275D-2C56-DFA42ECB3C51}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B0A309A6-3B22-275D-2C56-DFA42ECB3C51}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B0A309A6-3B22-275D-2C56-DFA42ECB3C51}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B0A309A6-3B22-275D-2C56-DFA42ECB3C51}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

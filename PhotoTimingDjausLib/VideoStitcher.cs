@@ -9,7 +9,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using static System.Runtime.InteropServices.JavaScript.JSType;
-using PhotoTimingDjaus.Enums; // Ensure this namespace is correct for TimeFromMode
+using Sportronics.VideoEnums; // Ensure this namespace is correct for TimeFromMode
 using OpenCvSharp.Extensions;
 using PhotoTimingDjausLib;
 using System.Diagnostics;

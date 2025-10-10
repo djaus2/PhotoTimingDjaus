@@ -8,7 +8,6 @@ using FFMpegCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Drawing.Imaging;
 using System.Runtime.Serialization;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -57,7 +56,12 @@ namespace PhotoTimingDjausLib
             {
                 // Create a property item (metadata) using a safer approach
                 //PropertyItem propItem = CreatePropertyItem();
+                //Type typeToInstantiate = typeof(PropertyItem);
+#if NET5_0_OR_GREATER
+                PropertyItem propItem = (PropertyItem) System.Runtime.CompilerServices.RuntimeHelpers.GetUninitializedObject(typeof(PropertyItem));
+#else
                 PropertyItem propItem = (PropertyItem)FormatterServices.GetUninitializedObject(typeof(PropertyItem));
+#endif
 
                 propItem.Id = 0x0320; // Property ID for Title
                 propItem.Type = 2;    // ASCII type
