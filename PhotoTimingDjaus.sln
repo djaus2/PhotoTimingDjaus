@@ -39,8 +39,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "vid", "vid", "{02EA681E-C7D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GetVideoWPFLib", "GetVideoWPFLib\GetVideoWPFLib.csproj", "{5E3D1EBB-75BE-5D77-2243-2AF9A25A7770}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DownloadVideoOverTcpLib", "DownloadVideoOverTcpLib\DownloadVideoOverTcpLib.csproj", "{B0A309A6-3B22-275D-2C56-DFA42ECB3C51}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -77,10 +75,6 @@ Global
 		{5E3D1EBB-75BE-5D77-2243-2AF9A25A7770}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5E3D1EBB-75BE-5D77-2243-2AF9A25A7770}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5E3D1EBB-75BE-5D77-2243-2AF9A25A7770}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B0A309A6-3B22-275D-2C56-DFA42ECB3C51}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B0A309A6-3B22-275D-2C56-DFA42ECB3C51}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B0A309A6-3B22-275D-2C56-DFA42ECB3C51}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B0A309A6-3B22-275D-2C56-DFA42ECB3C51}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
