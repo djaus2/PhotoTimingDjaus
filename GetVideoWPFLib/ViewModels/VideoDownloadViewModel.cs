@@ -23,6 +23,9 @@ namespace GetVideoWPFLib.ViewModels
         private CancellationTokenSource? _cancellationTokenSource;
 
         public event Action? BackRequested;
+        public event Action<string>? BackAndStitchRequested;
+        [ObservableProperty] 
+        private string? selectedDownloadedFile;
         public event Action? CloseRequested;
 
         [ObservableProperty]
@@ -290,6 +293,20 @@ namespace GetVideoWPFLib.ViewModels
         {
             // Do NOT stop listening; just signal the host to navigate back
             BackRequested?.Invoke();
+        }
+
+        [RelayCommand]
+        private void BackFromDownloadAndStitch()
+        {
+            // Do NOT stop listening; just signal the host to navigate back with the selected file
+            if (string.IsNullOrWhiteSpace(DownloadFolder) || string.IsNullOrWhiteSpace(SelectedDownloadedFile))
+                return;
+
+            var fullPath = System.IO.Path.Combine(DownloadFolder, SelectedDownloadedFile);
+            if (!System.IO.File.Exists(fullPath))
+                return;
+
+            BackAndStitchRequested?.Invoke(fullPath);
         }
 
         [RelayCommand]

@@ -14,5 +14,6 @@ namespace GetVideoWPFLib.Services
         void StopListening();
         string[] GetDownloadedFiles(string downloadFolder);
         void ClearDownloadedFiles(string downloadFolder);
+        void StitchSelectedVideo(string selectedFilePath);
     }
 }

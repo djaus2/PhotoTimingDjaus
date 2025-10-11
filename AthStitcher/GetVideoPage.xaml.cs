@@ -25,17 +25,34 @@ namespace AthStitcherGUI
             this.Closing += GetVideoPage_Closing;
         }
 
-        // DataContext is provided by the caller (App.OpenGetVideoPage) as the wrapper VM.
-        // No DataContext override is needed here.
+
+
+        private void OnBackAndStitchRequested(string fullPath)
+        {
+            // Call StitchMe on MainWindow
+            if (Application.Current?.MainWindow is MainWindow main)
+            {
+                main.StitchVideo(fullPath);
+            }
+
+            // Close this window; do NOT stop listening (handled by the VM logic)
+            this.Close();
+        }
 
         private void GetVideoPage_Loaded(object sender, RoutedEventArgs e)
         {
-            // Expect DataContext to be AthStitcherGetVideoViewModel with a VideoDownloadViewModel property
+            // Expect DataContext to be AthStitcherGetVideoViewModel with a VideoDownloadViewModel
             if (DataContext is AthStitcherGetVideoViewModel wrapperVm && wrapperVm.VideoDownloadViewModel != null)
             {
+                var vm = wrapperVm.VideoDownloadViewModel;
+
                 // Subscribe once to propagate Back/Close requests to the Done action
-                wrapperVm.VideoDownloadViewModel.BackRequested += OnDownloadBackOrCloseRequested;
-                wrapperVm.VideoDownloadViewModel.CloseRequested += OnDownloadBackOrCloseRequested;
+                vm.BackRequested += OnDownloadBackOrCloseRequested;
+                vm.CloseRequested += OnDownloadBackOrCloseRequested;
+
+                // Avoid double subscription on reload
+                vm.BackAndStitchRequested -= OnBackAndStitchRequested;
+                vm.BackAndStitchRequested += OnBackAndStitchRequested;
             }
         }
 
@@ -47,6 +64,7 @@ namespace AthStitcherGUI
                 AthStitcherGUI.SharedAppState.SetGlobalFolder(wrapperVm.VideoDownloadViewModel.DownloadFolder);
                 wrapperVm.VideoDownloadViewModel.BackRequested -= OnDownloadBackOrCloseRequested;
                 wrapperVm.VideoDownloadViewModel.CloseRequested -= OnDownloadBackOrCloseRequested;
+                wrapperVm.VideoDownloadViewModel.BackAndStitchRequested -= OnBackAndStitchRequested;
             }
         }
 

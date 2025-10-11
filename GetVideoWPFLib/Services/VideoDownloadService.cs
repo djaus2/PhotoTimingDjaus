@@ -189,5 +189,15 @@ namespace GetVideoWPFLib.Services
                 }
             }
         }
+        
+        public void StitchSelectedVideo(string selectedVideo)
+        {
+            if (!File.Exists(selectedVideo))
+            {
+                return;
+            }
+            // Call the external stitching process
+
+        }
     }
 }

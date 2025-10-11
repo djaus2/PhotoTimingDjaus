@@ -5,9 +5,9 @@ using Microsoft.Win32;
 using OpenCvSharp;
 using OpenCvSharp.Features2D;
 using PhotoTimingDjaus;
-using Sportronics.VideoEnums; //.Local;
 using PhotoTimingDjausLib;
 using SharpVectors.Converters;
+using Sportronics.VideoEnums; //.Local;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -25,8 +25,9 @@ using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
-using System.Windows.Documents;
+//using System.Windows.Forms;
 using System.Windows.Input;
+using System.Windows.Documents;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
@@ -709,7 +710,7 @@ namespace AthStitcherGUI
             Thread.Yield();
 
 
-            // Used by manully select mode, later
+            // Used by manually select mode, later
             // Need to get stitched image first
             // You can then set it.
             athStitcherViewModel.SetSelectedStartTime(0);
@@ -1247,199 +1248,393 @@ namespace AthStitcherGUI
                 if (openFileDialog.ShowDialog() == true)
                 {
                     videoFilePath = openFileDialog.FileName;
-                    athStitcherViewModel.SetVideoPath(videoFilePath);
-                    // Two-way: update shared folder from selected video file
-                    var selDir = System.IO.Path.GetDirectoryName(videoFilePath);
-                    if (!string.IsNullOrEmpty(selDir) && Directory.Exists(selDir))
-                    {
-                        AthStitcherGUI.SharedAppState.SetGlobalFolder(selDir);
-                    }
-                    //string pattern = @"_GUN_(\d{2}--\d{2}--\d{2}\.\d{3})_\.mp4$";
-                    string wallClockPattern = @"_WALLCLOCK_(\d{4}-\d{2}-\d{2} \d{2}--\d{2}--\d{2}\.\d{3})_\.mp4$";
-                    string gunPattern = @"_GUNSOUND_\.mp4$";
-                    string flashPattern = @"_GUNFLASH_\.mp4$";
-                    string manualPattern = @"_MANUAL_\.mp4$";
-                    string videoStartPattern = @"_VIDEOSTART_\.mp4$";
+                    StitchVideo(videoFilePath);
+                    //athStitcherViewModel.SetVideoPath(videoFilePath);
+                    //// Two-way: update shared folder from selected video file
+                    //var selDir = System.IO.Path.GetDirectoryName(videoFilePath);
+                    //if (!string.IsNullOrEmpty(selDir) && Directory.Exists(selDir))
+                    //{
+                    //    AthStitcherGUI.SharedAppState.SetGlobalFolder(selDir);
+                    //}
+                    ////string pattern = @"_GUN_(\d{2}--\d{2}--\d{2}\.\d{3})_\.mp4$";
+                    //string wallClockPattern = @"_WALLCLOCK_(\d{4}-\d{2}-\d{2} \d{2}--\d{2}--\d{2}\.\d{3})_\.mp4$";
+                    //string gunPattern = @"_GUNSOUND_\.mp4$";
+                    //string flashPattern = @"_GUNFLASH_\.mp4$";
+                    //string manualPattern = @"_MANUAL_\.mp4$";
+                    //string videoStartPattern = @"_VIDEOSTART_\.mp4$";
 
-                    string imagePath = Regex.Replace(videoFilePath, ".mp4", ".png", RegexOptions.IgnoreCase);
-                    athStitcherViewModel.SetGunTime(0, 0);
-                    HaveGotGunTime = false; // Reset the gun time flag
+                    //string imagePath = Regex.Replace(videoFilePath, ".mp4", ".png", RegexOptions.IgnoreCase);
+                    //athStitcherViewModel.SetGunTime(0, 0);
+                    //HaveGotGunTime = false; // Reset the gun time flag
 
-                    // Match the video file path against the patterns
-                    //WallClock in filename
-                    Match match = Regex.Match(videoFilePath, wallClockPattern, RegexOptions.IgnoreCase);
-                    if (match.Success)
-                    {
-                        imagePath = Regex.Replace(videoFilePath, wallClockPattern, ".png", RegexOptions.IgnoreCase);
+                    //// Match the video file path against the patterns
+                    ////WallClock in filename
+                    //Match match = Regex.Match(videoFilePath, wallClockPattern, RegexOptions.IgnoreCase);
+                    //if (match.Success)
+                    //{
+                    //    imagePath = Regex.Replace(videoFilePath, wallClockPattern, ".png", RegexOptions.IgnoreCase);
 
-                        string gunTimeString = match.Groups[1].Value;
+                    //    string gunTimeString = match.Groups[1].Value;
 
-                        // Normalize by replacing "--" with ":" in time portion
-                        int timeStartIndex = gunTimeString.IndexOf(' ') + 1;
-                        string normalized = gunTimeString.Substring(0, timeStartIndex) +
-                                            gunTimeString.Substring(timeStartIndex).Replace("--", ":");
+                    //    // Normalize by replacing "--" with ":" in time portion
+                    //    int timeStartIndex = gunTimeString.IndexOf(' ') + 1;
+                    //    string normalized = gunTimeString.Substring(0, timeStartIndex) +
+                    //                        gunTimeString.Substring(timeStartIndex).Replace("--", ":");
 
-                        if (DateTime.TryParseExact(normalized, "yyyy-MM-dd HH:mm:ss.fff", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime _gunDateTime))
-                        {
+                    //    if (DateTime.TryParseExact(normalized, "yyyy-MM-dd HH:mm:ss.fff", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime _gunDateTime))
+                    //    {
 
-                            Console.WriteLine($"Parsed DateTime: {_gunDateTime}");
-                            int ms = _gunDateTime.Millisecond; // returns 776
-                            Console.WriteLine($"ms part: {ms}");
+                    //        Console.WriteLine($"Parsed DateTime: {_gunDateTime}");
+                    //        int ms = _gunDateTime.Millisecond; // returns 776
+                    //        Console.WriteLine($"ms part: {ms}");
 
-                            athStitcherViewModel.SetEventWallClockStartTime(_gunDateTime);
-                            athStitcherViewModel.SetTimeFromMode(TimeFromMode.WallClockSelect);  // Set the mode to WallClockSelect
-                            HaveGotGunTime = true; // Set the flag to indicate gun time is set
-                        }
-                        else
-                        {
-                            MessageBox.Show($"Failed to parse date time from video file name: {videoFilePath}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    //        athStitcherViewModel.SetEventWallClockStartTime(_gunDateTime);
+                    //        athStitcherViewModel.SetTimeFromMode(TimeFromMode.WallClockSelect);  // Set the mode to WallClockSelect
+                    //        HaveGotGunTime = true; // Set the flag to indicate gun time is set
+                    //    }
+                    //    else
+                    //    {
+                    //        MessageBox.Show($"Failed to parse date time from video file name: {videoFilePath}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
 
-                        }
-                    }
-                    else
-                    {
-                        // Format: <Filename>_gun.mp4 or <Filename>_gun.mp4 etc.
-                        match = Regex.Match(videoFilePath, gunPattern, RegexOptions.IgnoreCase);
-                        if (match.Success)
-                        {
-                            imagePath = Regex.Replace(videoFilePath, gunPattern, ".png", RegexOptions.IgnoreCase);
-                            athStitcherViewModel.SetTimeFromMode(TimeFromMode.FromGunSound); // Set the mode to WallClockSelect
-                            HaveGotGunTime = true;
-                        }
-                        else
-                        {
-                            match = Regex.Match(videoFilePath, flashPattern, RegexOptions.IgnoreCase);
-                            if (match.Success)
-                            {
-                                imagePath = Regex.Replace(videoFilePath, flashPattern, ".png", RegexOptions.IgnoreCase);
-                                athStitcherViewModel.SetTimeFromMode(TimeFromMode.FromGunFlash); // Set the mode to WallClockSelect
-                                HaveGotGunTime = true;
-                            }
-                            else
-                            {
-                                match = Regex.Match(videoFilePath, videoStartPattern, RegexOptions.IgnoreCase);
-                                if (match.Success)
-                                {
-                                    imagePath = Regex.Replace(videoFilePath, videoStartPattern, ".png", RegexOptions.IgnoreCase);
-                                    athStitcherViewModel.SetTimeFromMode(TimeFromMode.FromVideoStart);
-                                    athStitcherViewModel.Set_HaveSelectedandShownGunLineinManualorWallClockMode(true); // Explicitly SET for FromVideoStart mode
-                                    HaveGotGunTime = true;
-                                }
-                                else
-                                {
-                                    // Format: <Filename>_flash.mp4 or <Filename>_flash.mp4 etc.
-                                    match = Regex.Match(videoFilePath, manualPattern, RegexOptions.IgnoreCase);
-                                    if (match.Success)
-                                    {
-                                        HaveGotGunTime = false;
-                                        imagePath = Regex.Replace(videoFilePath, manualPattern, ".png", RegexOptions.IgnoreCase);
-                                        DateTime videoCreationDate = athStitcherViewModel.GetVideoCreationDate();
-                                        athStitcherViewModel.SetEventWallClockStartTime(videoCreationDate);
-                                        athStitcherViewModel.SetTimeFromMode(TimeFromMode.ManuallySelect); // Set the mode to WallClockSelect
-                                    }
-                                    else
-                                    {
-                                        string jsonFilePath = Regex.Replace(videoFilePath, ".mp4", ".json", RegexOptions.IgnoreCase);
-                                        if (File.Exists(jsonFilePath))
-                                        {
-                                            string json = File.ReadAllText(jsonFilePath);
-                                            VideoInfo videoInfo = VideoInfo.CreateFromJson(json);
-                                            videoFilePath = openFileDialog.FileName;
-                                            athStitcherViewModel.VideoInfo = videoInfo;
-                                            // Store the VideoInfo object in the ViewModel
-                                            athStitcherViewModel.SetTimeFromMode(videoInfo.TimeFrom);
-                                            athStitcherViewModel.SetVideoCreationDate(videoInfo.VideoStart);
-                                            // If GunTime is not set (MinValue), fall back to VideoStart
-                                            // Guarantee non-null by defaulting to DateTime.MinValue
-                                            DateTime? eventStartCandidate = (videoInfo.GunTime == DateTime.MinValue)
-                                                ? videoInfo.VideoStart
-                                                : videoInfo.GunTime;
-                                            var eventStart = eventStartCandidate ?? DateTime.MinValue;
-                                            athStitcherViewModel.SetEventWallClockStart(eventStart);
-                                            HaveGotGunTime = false;
-                                            switch (videoInfo.TimeFrom)
-                                            {
-                                                case TimeFromMode.ManuallySelect:
-                                                    HaveGotGunTime = false;
-                                                    athStitcherViewModel.Set_HaveSelectedandShownGunLineinManualorWallClockMode(false);
-                                                    break;
-                                                case TimeFromMode.WallClockSelect:
-                                                    HaveGotGunTime = true;
-                                                    athStitcherViewModel.Set_HaveSelectedandShownGunLineinManualorWallClockMode(true);
-                                                    break;
-                                                case TimeFromMode.FromVideoStart:
-                                                    HaveGotGunTime = true;
-                                                    // Ensure a non-nullable DateTime is passed
-                                                    var vs = (videoInfo.VideoStart.HasValue && videoInfo.VideoStart.Value != DateTime.MinValue)
-                                                        ? videoInfo.VideoStart.Value
-                                                        : DateTime.MinValue;
-                                                    athStitcherViewModel.SetEventWallClockStart(vs);
-                                                    athStitcherViewModel.Set_HaveSelectedandShownGunLineinManualorWallClockMode(true);
-                                                    break;
-                                                case TimeFromMode.FromGunFlash:
-                                                    HaveGotGunTime = false;
-                                                    athStitcherViewModel.Set_HaveSelectedandShownGunLineinManualorWallClockMode(false);
-                                                    break;
-                                                case TimeFromMode.FromGunSound:
-                                                    HaveGotGunTime = false;
-                                                    athStitcherViewModel.Set_HaveSelectedandShownGunLineinManualorWallClockMode(false);
-                                                    break;
+                    //    }
+                    //}
+                    //else
+                    //{
+                    //    // Format: <Filename>_gun.mp4 or <Filename>_gun.mp4 etc.
+                    //    match = Regex.Match(videoFilePath, gunPattern, RegexOptions.IgnoreCase);
+                    //    if (match.Success)
+                    //    {
+                    //        imagePath = Regex.Replace(videoFilePath, gunPattern, ".png", RegexOptions.IgnoreCase);
+                    //        athStitcherViewModel.SetTimeFromMode(TimeFromMode.FromGunSound); // Set the mode to WallClockSelect
+                    //        HaveGotGunTime = true;
+                    //    }
+                    //    else
+                    //    {
+                    //        match = Regex.Match(videoFilePath, flashPattern, RegexOptions.IgnoreCase);
+                    //        if (match.Success)
+                    //        {
+                    //            imagePath = Regex.Replace(videoFilePath, flashPattern, ".png", RegexOptions.IgnoreCase);
+                    //            athStitcherViewModel.SetTimeFromMode(TimeFromMode.FromGunFlash); // Set the mode to WallClockSelect
+                    //            HaveGotGunTime = true;
+                    //        }
+                    //        else
+                    //        {
+                    //            match = Regex.Match(videoFilePath, videoStartPattern, RegexOptions.IgnoreCase);
+                    //            if (match.Success)
+                    //            {
+                    //                imagePath = Regex.Replace(videoFilePath, videoStartPattern, ".png", RegexOptions.IgnoreCase);
+                    //                athStitcherViewModel.SetTimeFromMode(TimeFromMode.FromVideoStart);
+                    //                athStitcherViewModel.Set_HaveSelectedandShownGunLineinManualorWallClockMode(true); // Explicitly SET for FromVideoStart mode
+                    //                HaveGotGunTime = true;
+                    //            }
+                    //            else
+                    //            {
+                    //                // Format: <Filename>_flash.mp4 or <Filename>_flash.mp4 etc.
+                    //                match = Regex.Match(videoFilePath, manualPattern, RegexOptions.IgnoreCase);
+                    //                if (match.Success)
+                    //                {
+                    //                    HaveGotGunTime = false;
+                    //                    imagePath = Regex.Replace(videoFilePath, manualPattern, ".png", RegexOptions.IgnoreCase);
+                    //                    DateTime videoCreationDate = athStitcherViewModel.GetVideoCreationDate();
+                    //                    athStitcherViewModel.SetEventWallClockStartTime(videoCreationDate);
+                    //                    athStitcherViewModel.SetTimeFromMode(TimeFromMode.ManuallySelect); // Set the mode to WallClockSelect
+                    //                }
+                    //                else
+                    //                {
+                    //                    string jsonFilePath = Regex.Replace(videoFilePath, ".mp4", ".json", RegexOptions.IgnoreCase);
+                    //                    if (File.Exists(jsonFilePath))
+                    //                    {
+                    //                        string json = File.ReadAllText(jsonFilePath);
+                    //                        VideoInfo videoInfo = VideoInfo.CreateFromJson(json);
+                    //                        videoFilePath = openFileDialog.FileName;
+                    //                        athStitcherViewModel.VideoInfo = videoInfo;
+                    //                        // Store the VideoInfo object in the ViewModel
+                    //                        athStitcherViewModel.SetTimeFromMode(videoInfo.TimeFrom);
+                    //                        athStitcherViewModel.SetVideoCreationDate(videoInfo.VideoStart);
+                    //                        // If GunTime is not set (MinValue), fall back to VideoStart
+                    //                        // Guarantee non-null by defaulting to DateTime.MinValue
+                    //                        DateTime? eventStartCandidate = (videoInfo.GunTime == DateTime.MinValue)
+                    //                            ? videoInfo.VideoStart
+                    //                            : videoInfo.GunTime;
+                    //                        var eventStart = eventStartCandidate ?? DateTime.MinValue;
+                    //                        athStitcherViewModel.SetEventWallClockStart(eventStart);
+                    //                        HaveGotGunTime = false;
+                    //                        switch (videoInfo.TimeFrom)
+                    //                        {
+                    //                            case TimeFromMode.ManuallySelect:
+                    //                                HaveGotGunTime = false;
+                    //                                athStitcherViewModel.Set_HaveSelectedandShownGunLineinManualorWallClockMode(false);
+                    //                                break;
+                    //                            case TimeFromMode.WallClockSelect:
+                    //                                HaveGotGunTime = true;
+                    //                                athStitcherViewModel.Set_HaveSelectedandShownGunLineinManualorWallClockMode(true);
+                    //                                break;
+                    //                            case TimeFromMode.FromVideoStart:
+                    //                                HaveGotGunTime = true;
+                    //                                // Ensure a non-nullable DateTime is passed
+                    //                                var vs = (videoInfo.VideoStart.HasValue && videoInfo.VideoStart.Value != DateTime.MinValue)
+                    //                                    ? videoInfo.VideoStart.Value
+                    //                                    : DateTime.MinValue;
+                    //                                athStitcherViewModel.SetEventWallClockStart(vs);
+                    //                                athStitcherViewModel.Set_HaveSelectedandShownGunLineinManualorWallClockMode(true);
+                    //                                break;
+                    //                            case TimeFromMode.FromGunFlash:
+                    //                                HaveGotGunTime = false;
+                    //                                athStitcherViewModel.Set_HaveSelectedandShownGunLineinManualorWallClockMode(false);
+                    //                                break;
+                    //                            case TimeFromMode.FromGunSound:
+                    //                                HaveGotGunTime = false;
+                    //                                athStitcherViewModel.Set_HaveSelectedandShownGunLineinManualorWallClockMode(false);
+                    //                                break;
 
-                                            }
-                                        }
-                                        else
-                                        {
-                                            HaveGotGunTime = false;
-                                            // No match found, suse what was eslected on the Menu
-                                            Console.WriteLine($"No match found.");
+                    //                        }
+                    //                    }
+                    //                    else
+                    //                    {
+                    //                        HaveGotGunTime = false;
+                    //                        // No match found, suse what was eslected on the Menu
+                    //                        Console.WriteLine($"No match found.");
 
-                                            imagePath = Regex.Replace(videoFilePath, ".mp4", ".png", RegexOptions.IgnoreCase);
-                                            DateTime videoCreationDate = athStitcherViewModel.GetVideoCreationDate();
-                                            // Set the mode to ManuallySelect
-                                            athStitcherViewModel.SetTimeFromMode(TimeFromMode.ManuallySelect);
-                                            athStitcherViewModel.SetVideoCreationDate(DateTime.MinValue);
-                                            athStitcherViewModel.SetEventWallClockStart(DateTime.MinValue);//GunTime Wallclock
-                                            VideoInfo videoInfo = new VideoInfo();
-                                            videoInfo.TimeFrom = TimeFromMode.ManuallySelect;
-                                            videoInfo.VideoStart = DateTime.MinValue;
-                                            videoInfo.GunTime = DateTime.MinValue;
-                                            athStitcherViewModel.VideoInfo = videoInfo;
-                                            athStitcherViewModel.Set_HaveSelectedandShownGunLineinManualorWallClockMode(false); // Explicitly reset for new ManuallySelect mode
+                    //                        imagePath = Regex.Replace(videoFilePath, ".mp4", ".png", RegexOptions.IgnoreCase);
+                    //                        DateTime videoCreationDate = athStitcherViewModel.GetVideoCreationDate();
+                    //                        // Set the mode to ManuallySelect
+                    //                        athStitcherViewModel.SetTimeFromMode(TimeFromMode.ManuallySelect);
+                    //                        athStitcherViewModel.SetVideoCreationDate(DateTime.MinValue);
+                    //                        athStitcherViewModel.SetEventWallClockStart(DateTime.MinValue);//GunTime Wallclock
+                    //                        VideoInfo videoInfo = new VideoInfo();
+                    //                        videoInfo.TimeFrom = TimeFromMode.ManuallySelect;
+                    //                        videoInfo.VideoStart = DateTime.MinValue;
+                    //                        videoInfo.GunTime = DateTime.MinValue;
+                    //                        athStitcherViewModel.VideoInfo = videoInfo;
+                    //                        athStitcherViewModel.Set_HaveSelectedandShownGunLineinManualorWallClockMode(false); // Explicitly reset for new ManuallySelect mode
 
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        // Store the VideoInfo object in the ViewModel
-                        athStitcherViewModel.SetOutputPath(imagePath);
-                        SkipMetaCheck = false;
-                        StitchVideo();
-                        // Explicitly set the checkbox state based on the TimeFromMode
-                        TimeFromMode currentMode = athStitcherViewModel.GetTimeFromMode();
-                        if (currentMode == TimeFromMode.WallClockSelect || currentMode == TimeFromMode.FromVideoStart)
-                        {
-                            viewModel.Set_HaveSelectedandShownGunLineinManualorWallClockMode(true);
-                        }
-                        else if (HaveGotGunTime)
-                        {
-                            viewModel.Set_HaveSelectedandShownGunLineinManualorWallClockMode(true);
-                        }
-                        else
-                        {
-                            viewModel.Set_HaveSelectedandShownGunLineinManualorWallClockMode(false);
-                        }
-                        if (athStitcherViewModel.GetTimeFromMode() == TimeFromMode.WallClockSelect)
-                        {
-                            //Ok_Click(this, e);
-                        }
+                    //                    }
+                    //                }
+                    //            }
+                    //        }
+                    //    }
+                    //    // Store the VideoInfo object in the ViewModel
+                    //    athStitcherViewModel.SetOutputPath(imagePath);
+                    //    SkipMetaCheck = false;
+                    //    StitchVideo();
+                    //    // Explicitly set the checkbox state based on the TimeFromMode
+                    //    TimeFromMode currentMode = athStitcherViewModel.GetTimeFromMode();
+                    //    if (currentMode == TimeFromMode.WallClockSelect || currentMode == TimeFromMode.FromVideoStart)
+                    //    {
+                    //        viewModel.Set_HaveSelectedandShownGunLineinManualorWallClockMode(true);
+                    //    }
+                    //    else if (HaveGotGunTime)
+                    //    {
+                    //        viewModel.Set_HaveSelectedandShownGunLineinManualorWallClockMode(true);
+                    //    }
+                    //    else
+                    //    {
+                    //        viewModel.Set_HaveSelectedandShownGunLineinManualorWallClockMode(false);
+                    //    }
+                    //    if (athStitcherViewModel.GetTimeFromMode() == TimeFromMode.WallClockSelect)
+                    //    {
+                    //        //Ok_Click(this, e);
+                    //    }
 
-                    }
+                    //}
                 }
             }
             finally
             {
                 Environment.CurrentDirectory = originalCwd;
+            }
+        }
+
+        public void StitchVideo(string videoFilePath)
+        {
+
+            athStitcherViewModel.SetVideoPath(videoFilePath);
+            // Two-way: update shared folder from selected video file
+            var selDir = System.IO.Path.GetDirectoryName(videoFilePath);
+            if (!string.IsNullOrEmpty(selDir) && Directory.Exists(selDir))
+            {
+                AthStitcherGUI.SharedAppState.SetGlobalFolder(selDir);
+            }
+            //string pattern = @"_GUN_(\d{2}--\d{2}--\d{2}\.\d{3})_\.mp4$";
+            string wallClockPattern = @"_WALLCLOCK_(\d{4}-\d{2}-\d{2} \d{2}--\d{2}--\d{2}\.\d{3})_\.mp4$";
+            string gunPattern = @"_GUNSOUND_\.mp4$";
+            string flashPattern = @"_GUNFLASH_\.mp4$";
+            string manualPattern = @"_MANUAL_\.mp4$";
+            string videoStartPattern = @"_VIDEOSTART_\.mp4$";
+
+            string imagePath = Regex.Replace(videoFilePath, ".mp4", ".png", RegexOptions.IgnoreCase);
+            athStitcherViewModel.SetGunTime(0, 0);
+            HaveGotGunTime = false; // Reset the gun time flag
+
+            // Match the video file path against the patterns
+            //WallClock in filename
+            Match match = Regex.Match(videoFilePath, wallClockPattern, RegexOptions.IgnoreCase);
+            if (match.Success)
+            {
+                imagePath = Regex.Replace(videoFilePath, wallClockPattern, ".png", RegexOptions.IgnoreCase);
+
+                string gunTimeString = match.Groups[1].Value;
+
+                // Normalize by replacing "--" with ":" in time portion
+                int timeStartIndex = gunTimeString.IndexOf(' ') + 1;
+                string normalized = gunTimeString.Substring(0, timeStartIndex) +
+                                    gunTimeString.Substring(timeStartIndex).Replace("--", ":");
+
+                if (DateTime.TryParseExact(normalized, "yyyy-MM-dd HH:mm:ss.fff", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime _gunDateTime))
+                {
+
+                    Console.WriteLine($"Parsed DateTime: {_gunDateTime}");
+                    int ms = _gunDateTime.Millisecond; // returns 776
+                    Console.WriteLine($"ms part: {ms}");
+
+                    athStitcherViewModel.SetEventWallClockStartTime(_gunDateTime);
+                    athStitcherViewModel.SetTimeFromMode(TimeFromMode.WallClockSelect);  // Set the mode to WallClockSelect
+                    HaveGotGunTime = true; // Set the flag to indicate gun time is set
+                }
+                else
+                {
+                    MessageBox.Show($"Failed to parse date time from video file name: {videoFilePath}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+
+                }
+            }
+            else
+            {
+                // Format: <Filename>_gun.mp4 or <Filename>_gun.mp4 etc.
+                match = Regex.Match(videoFilePath, gunPattern, RegexOptions.IgnoreCase);
+                if (match.Success)
+                {
+                    imagePath = Regex.Replace(videoFilePath, gunPattern, ".png", RegexOptions.IgnoreCase);
+                    athStitcherViewModel.SetTimeFromMode(TimeFromMode.FromGunSound); // Set the mode to WallClockSelect
+                    HaveGotGunTime = true;
+                }
+                else
+                {
+                    match = Regex.Match(videoFilePath, flashPattern, RegexOptions.IgnoreCase);
+                    if (match.Success)
+                    {
+                        imagePath = Regex.Replace(videoFilePath, flashPattern, ".png", RegexOptions.IgnoreCase);
+                        athStitcherViewModel.SetTimeFromMode(TimeFromMode.FromGunFlash); // Set the mode to WallClockSelect
+                        HaveGotGunTime = true;
+                    }
+                    else
+                    {
+                        match = Regex.Match(videoFilePath, videoStartPattern, RegexOptions.IgnoreCase);
+                        if (match.Success)
+                        {
+                            imagePath = Regex.Replace(videoFilePath, videoStartPattern, ".png", RegexOptions.IgnoreCase);
+                            athStitcherViewModel.SetTimeFromMode(TimeFromMode.FromVideoStart);
+                            athStitcherViewModel.Set_HaveSelectedandShownGunLineinManualorWallClockMode(true); // Explicitly SET for FromVideoStart mode
+                            HaveGotGunTime = true;
+                        }
+                        else
+                        {
+                            // Format: <Filename>_flash.mp4 or <Filename>_flash.mp4 etc.
+                            match = Regex.Match(videoFilePath, manualPattern, RegexOptions.IgnoreCase);
+                            if (match.Success)
+                            {
+                                HaveGotGunTime = false;
+                                imagePath = Regex.Replace(videoFilePath, manualPattern, ".png", RegexOptions.IgnoreCase);
+                                DateTime videoCreationDate = athStitcherViewModel.GetVideoCreationDate();
+                                athStitcherViewModel.SetEventWallClockStartTime(videoCreationDate);
+                                athStitcherViewModel.SetTimeFromMode(TimeFromMode.ManuallySelect); // Set the mode to WallClockSelect
+                            }
+                            else
+                            {
+                                string jsonFilePath = Regex.Replace(videoFilePath, ".mp4", ".json", RegexOptions.IgnoreCase);
+                                if (File.Exists(jsonFilePath))
+                                {
+                                    string json = File.ReadAllText(jsonFilePath);
+                                    VideoInfo videoInfo = VideoInfo.CreateFromJson(json);
+                                    ////videoFilePath = openFileDialog.FileName;
+                                    athStitcherViewModel.VideoInfo = videoInfo;
+                                    // Store the VideoInfo object in the ViewModel
+                                    athStitcherViewModel.SetTimeFromMode(videoInfo.TimeFrom);
+                                    athStitcherViewModel.SetVideoCreationDate(videoInfo.VideoStart);
+                                    // If GunTime is not set (MinValue), fall back to VideoStart
+                                    // Guarantee non-null by defaulting to DateTime.MinValue
+                                    DateTime? eventStartCandidate = (videoInfo.GunTime == DateTime.MinValue)
+                                        ? videoInfo.VideoStart
+                                        : videoInfo.GunTime;
+                                    var eventStart = eventStartCandidate ?? DateTime.MinValue;
+                                    athStitcherViewModel.SetEventWallClockStart(eventStart);
+                                    HaveGotGunTime = false;
+                                    switch (videoInfo.TimeFrom)
+                                    {
+                                        case TimeFromMode.ManuallySelect:
+                                            HaveGotGunTime = false;
+                                            athStitcherViewModel.Set_HaveSelectedandShownGunLineinManualorWallClockMode(false);
+                                            break;
+                                        case TimeFromMode.WallClockSelect:
+                                            HaveGotGunTime = true;
+                                            athStitcherViewModel.Set_HaveSelectedandShownGunLineinManualorWallClockMode(true);
+                                            break;
+                                        case TimeFromMode.FromVideoStart:
+                                            HaveGotGunTime = true;
+                                            // Ensure a non-nullable DateTime is passed
+                                            var vs = (videoInfo.VideoStart.HasValue && videoInfo.VideoStart.Value != DateTime.MinValue)
+                                                ? videoInfo.VideoStart.Value
+                                                : DateTime.MinValue;
+                                            athStitcherViewModel.SetEventWallClockStart(vs);
+                                            athStitcherViewModel.Set_HaveSelectedandShownGunLineinManualorWallClockMode(true);
+                                            break;
+                                        case TimeFromMode.FromGunFlash:
+                                            HaveGotGunTime = false;
+                                            athStitcherViewModel.Set_HaveSelectedandShownGunLineinManualorWallClockMode(false);
+                                            break;
+                                        case TimeFromMode.FromGunSound:
+                                            HaveGotGunTime = false;
+                                            athStitcherViewModel.Set_HaveSelectedandShownGunLineinManualorWallClockMode(false);
+                                            break;
+
+                                    }
+                                }
+                                else
+                                {
+                                    HaveGotGunTime = false;
+                                    // No match found, use what was selected on the Menu
+                                    Console.WriteLine($"No match found.");
+
+                                    imagePath = Regex.Replace(videoFilePath, ".mp4", ".png", RegexOptions.IgnoreCase);
+                                    DateTime videoCreationDate = athStitcherViewModel.GetVideoCreationDate();
+                                    // Set the mode to ManuallySelect
+                                    athStitcherViewModel.SetTimeFromMode(TimeFromMode.ManuallySelect);
+                                    athStitcherViewModel.SetVideoCreationDate(DateTime.MinValue);
+                                    athStitcherViewModel.SetEventWallClockStart(DateTime.MinValue);//GunTime Wallclock
+                                    VideoInfo videoInfo = new VideoInfo();
+                                    videoInfo.TimeFrom = TimeFromMode.ManuallySelect;
+                                    videoInfo.VideoStart = DateTime.MinValue;
+                                    videoInfo.GunTime = DateTime.MinValue;
+                                    athStitcherViewModel.VideoInfo = videoInfo;
+                                    athStitcherViewModel.Set_HaveSelectedandShownGunLineinManualorWallClockMode(false); // Explicitly reset for new ManuallySelect mode
+
+                                }
+                            }
+                        }
+                    }
+                }
+                // Store the VideoInfo object in the ViewModel
+                athStitcherViewModel.SetOutputPath(imagePath);
+                SkipMetaCheck = false;
+                StitchVideo();
+                // Explicitly set the checkbox state based on the TimeFromMode
+                TimeFromMode currentMode = athStitcherViewModel.GetTimeFromMode();
+                if (currentMode == TimeFromMode.WallClockSelect || currentMode == TimeFromMode.FromVideoStart)
+                {
+                    viewModel.Set_HaveSelectedandShownGunLineinManualorWallClockMode(true);
+                }
+                else if (HaveGotGunTime)
+                {
+                    viewModel.Set_HaveSelectedandShownGunLineinManualorWallClockMode(true);
+                }
+                else
+                {
+                    viewModel.Set_HaveSelectedandShownGunLineinManualorWallClockMode(false);
+                }
+                if (athStitcherViewModel.GetTimeFromMode() == TimeFromMode.WallClockSelect)
+                {
+                    //Ok_Click(this, e);
+                }
+
             }
         }
 
@@ -2678,23 +2873,43 @@ namespace AthStitcherGUI
                 Filter = "ZIP Files (*.zip)|*.zip",
                 Title = "Select the downloaded ZIP file"
             };
+
             if (openFileDialog.ShowDialog() != true)
+            {
+                MessageBox.Show($"No file selected", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
+            }
+            if (string.IsNullOrWhiteSpace(openFileDialog.FileName) || !File.Exists(openFileDialog.FileName))
+            {
+                MessageBox.Show($"Selected file does not exist (or blank):\n{openFileDialog.FileName}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
 
             string zipPath = openFileDialog.FileName;
             string zipFileName = System.IO.Path.GetFileName(zipPath);
             string zipFileNameWithoutExt = System.IO.Path.GetFileNameWithoutExtension(zipFileName);
-
+            var ExifToolFolder = athStitcherViewModel.DataContext.ExifToolFolder;
+            // If ExifToolFolder is not set or invalid, default to the directory of the ZIP file
+            if (string.IsNullOrWhiteSpace(ExifToolFolder) || !File.Exists(ExifToolFolder))
+            {
+                ExifToolFolder = System.IO.Path.GetDirectoryName(zipPath);
+            }
 
             // Step 2: Select the destination folder
-            var folderDialog = new System.Windows.Forms.FolderBrowserDialog
+            var folderDialog = new OpenFolderDialog
             {
-                Description = "Select the folder to extract the ZIP contents to"
+                Title = "Select the folder to extract the ZIP contents to",
+                InitialDirectory = ExifToolFolder // Set initial folder
             };
-            if (folderDialog.ShowDialog() != System.Windows.Forms.DialogResult.OK || string.IsNullOrWhiteSpace(folderDialog.SelectedPath))
+
+            // Show the dialog
+            if (!folderDialog.ShowDialog()!= true) return;
+
+            if (string.IsNullOrWhiteSpace(folderDialog.FolderName))
                 return;
 
-            string extractPath = folderDialog.SelectedPath;
+            string extractPath = folderDialog.FolderName;
 
             // Step 3: Extract the ZIP file
             try
@@ -2750,18 +2965,18 @@ namespace AthStitcherGUI
             var ExifToolFolder = athStitcherViewModel.DataContext.ExifToolFolder;
 
             // Use Windows Forms FolderBrowserDialog for folder selection
-            var dialog = new System.Windows.Forms.FolderBrowserDialog
+            var  dialog = new OpenFolderDialog
             {
-                Description = "Select the folder containing exiftool.exe",
-                SelectedPath = ExifToolFolder // Set initial folder
+                Title = "Select the folder containing exiftool.exe",
+                InitialDirectory = ExifToolFolder // Set initial folder
             };
 
             // Show the dialog
-            System.Windows.Forms.DialogResult result = dialog.ShowDialog();
-
-            if (result == System.Windows.Forms.DialogResult.OK && !string.IsNullOrWhiteSpace(dialog.SelectedPath))
+            if (dialog.ShowDialog() == true)
             {
-                string extractedPath = dialog.SelectedPath;
+                if (!string.IsNullOrWhiteSpace(dialog.FolderName))
+                {
+                    string extractedPath = dialog.FolderName;
 
                     string filePath = System.IO.Path.Combine(extractedPath, ExifToolExe);
                     if (File.Exists(filePath))
@@ -2772,14 +2987,16 @@ namespace AthStitcherGUI
                     {
                         MessageBox.Show($"Could not find {ExifToolExe} in the selected folder.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
-                    };
+                    }
+                    ;
 
-                // You can store this path in your ViewModel, settings, or use it directly
-                MessageBox.Show($"ExifTool folder set to:\n{ExifToolFolder}", "ExifTool Location", MessageBoxButton.OK, MessageBoxImage.Information);
+                    // You can store this path in your ViewModel, settings, or use it directly
+                    MessageBox.Show($"ExifTool folder set to:\n{ExifToolFolder}", "ExifTool Location", MessageBoxButton.OK, MessageBoxImage.Information);
 
-                // Example: Save to ViewModel (add a property if needed)
-                athStitcherViewModel.SetExifToolFolder(ExifToolFolder);
-                athStitcherViewModel.SaveViewModel();
+                    // Example: Save to ViewModel (add a property if needed)
+                    athStitcherViewModel.SetExifToolFolder(ExifToolFolder);
+                    athStitcherViewModel.SaveViewModel();
+                }
             }
         }
 
