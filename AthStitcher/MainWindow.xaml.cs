@@ -46,7 +46,7 @@ namespace AthStitcherGUI
         string _EXIFTOOLEXE = "exiftool(-k).exe";
 
         private PhotoTimingDjaus.VideoStitcher? videoStitcher = null;
-        private int margin = 20;
+        //private int margin = 20;
         private double videoLength = 0;
         private double selectedStartTime = 0; // Start time in seconds
         private string guninfoFilePath = @"C:\temp\vid\guninfo.txt";
@@ -842,20 +842,13 @@ namespace AthStitcherGUI
                 //string imagepath =  PngMetadataHelper.AppendGunTimeImageFilename(athStitcherViewModel.GetOutputPath(), GunTimeDbl);
                 //string imagepath = athStitcherViewModel.GetOutputPath();
                 string videoStart = athStitcherViewModel.GetVideoCreationDateStr();
-                var wt = PngMetadataHelper.SetMetaInfo(athStitcherViewModel.GetOutputPath(), $"VideoStart:{videoStart}", $"Guntime:{GunTimeDbl}").GetAwaiter();
-                while (!wt.IsCompleted)
-                {
-                    Thread.Sleep(1000); // Wait for the metadata to be set
-                }
-                wt.GetResult(); // Wait for the metadata to be set
+                await PngMetadataHelper.SetMetaInfo(
+                    athStitcherViewModel.GetOutputPath(),
+                    $"VideoStart:{videoStart}",
+                    $"Guntime:{GunTimeDbl}");
 
                 //Next bit only for debugging
-                var wt2 = PngMetadataHelper.GetMetaInfo(athStitcherViewModel.GetOutputPath()).GetAwaiter();
-                while (!wt2.IsCompleted)
-                {
-                    Thread.Sleep(1000); // Wait for the metadata to be retrieved
-                }
-                var metaInfo = wt2.GetResult(); // Wait for the metadata to be retrieved
+                var metaInfo = await PngMetadataHelper.GetMetaInfo(athStitcherViewModel.GetOutputPath()); // Wait for the metadata to be retrieved
                                                 //AddMetadataToPng(@"C:\temp\vid\cars\notwo.png", @"C:\temp\vid\cars\notwocpy.png", "XXX", "A TITLE").Wait();
                 
 
@@ -883,7 +876,7 @@ namespace AthStitcherGUI
                 if (timeFromMode == TimeFromMode.WallClockSelect)
                 {
                     //If the wall clock start time is not set,
-                    //.. thatis its is DateTime.MinValue
+                    //.. that is its is DateTime.MinValue
                     // set it to the video creation date
                     if (athStitcherViewModel.GetEventWallClockStartTime() == DateTime.MinValue)
                     {
