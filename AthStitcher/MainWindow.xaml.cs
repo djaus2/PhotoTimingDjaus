@@ -2918,7 +2918,7 @@ namespace AthStitcherGUI
                 MessageBox.Show($"ZIP extracted to:\n{extractPath}", "Extraction Complete", MessageBoxButton.OK, MessageBoxImage.Information);
                 var ExifTool = athStitcherViewModel.DataContext.ExifTool;
                 var ExifToolExe = athStitcherViewModel.DataContext.ExifToolExe;
-                var ExifToolFolder = athStitcherViewModel.DataContext.ExifToolFolder;
+                ////ExifToolFolder = athStitcherViewModel.DataContext.ExifToolFolder;
                 if (zipFileNameWithoutExt.StartsWith(ExifTool))
                 {
                     // Check if exiftool(-k).exe exists in the extracted folder one or two deep
