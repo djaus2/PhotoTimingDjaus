@@ -16,6 +16,9 @@ A simple ***Photo Timing/Photo Finish*** app for Athletics etc where a finish li
   - Download video now can click (and press button) or double click to select video and return and auto-Stitch
   - V4.0.0 (coming) will remove filename appendages for meta-info and use only json file for that.
     - i.e. Will remove embellished filename processing.
+    - The phone app has been updated to not append such embellishments, using json file only.
+    - _Also coming_ with phone app is auto send of recorded video once done.
+      - No code changes required here as already has TCP download functionality, which can continue when Downloads page not showing.
 - AthStitcher: V3.2.0
   - Can download ExifTool, set location, unzip and even change its name(not advised).
   - Fixed an issue wrt GUNSOUND mode where if no audio for part of track, audio processing is errant.
