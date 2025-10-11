@@ -1,22 +1,21 @@
 # PhotoTimingDjaus
 
-## BIG CHANGES COMING. WATCH THIS SPACE!
+## BIG CHANGES DONE!
 
-**WPF app has been renamed AthStitcher** 
-
->> NB With Phone Video Capture: You need to enter the stitched image name and accept it, like a return. On my phone I accept by pressing the tick bottom right of popup keyboard
 
 ## About
-A simple phototiming app for Athletics etc where a finish line is filmed with say, a phone, and a stitched image is created by taking the middle vertical line of pixels from each video frame and stiching together the phototiming image. Previously had a similar app that used AForge.  Note that video FramesPerSecond are typically 30 so each line represents 0.033 of second and hence this is the resolution of any timing. Commercial equipment would be to thousandths or tens of thousandths of a second. _Can now set to 60 Fps if phone supports that._
+A simple ***Photo Timing/Photo Finish*** app for Athletics etc where a finish line is filmed with say, a phone, and a stitched image is created by taking the middle vertical line of pixels from each video frame and stiching together the phototiming image. Previously had a similar app that used AForge.  Note that video FramesPerSecond are typically 30 so each line represents 0.033 of second and hence this is the resolution of any timing. Commercial equipment would be to thousandths or tens of thousandths of a second. _Can now set to 60 Fps if phone supports that._
 
 ## Recent
 ### Status
-> All good, except uploads only work from phone from  app in **SendVideo**  in
-[TransferVideoOverTcp](https://github.com/djaus2/AthsVideoRecording) solution.  
-SendVideo is being updated for the  recent updates here and in [TransferVideoOverTcp/SendVideo](https://github.com/djaus2/TransferVideoOverTcp/tree/master/SendVideo).
-
+> All good!
 
 ### Latest
+- AthStitcher: V3.9.9: All good
+  - Some tidy up and code improvements
+  - Download video now can click (and press button) or double click to select video and return and auto-Stitch
+  - V4.0.0 (comin) will remove filename appendages for meta-info and use only json file for that.
+    - i.e. Will remove embellished filename processing.
 - AthStitcher: V3.2.0
   - Can download ExifTool, set location, unzip and even change its name(not advised).
   - Fixed an issue wrt GUNSOUND mode where if no audio for part of track, audio processing is errant.

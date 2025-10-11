@@ -2,6 +2,7 @@ using GetVideoWPFLib.ViewModels;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
+using System.Windows.Input;
 
 namespace GetVideoWPFLib.Controls
 {
@@ -29,6 +30,22 @@ namespace GetVideoWPFLib.Controls
             }
         }
 
+        private void FileList_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            // Ensure we have a ViewModel
+            if (ViewModel == null && DataContext is VideoDownloadViewModel vm)
+            {
+                ViewModel = vm;
+            }
+
+            // Execute the existing command to stitch the selected file
+            var cmd = ViewModel?.BackFromDownloadAndStitchCommand;
+            if (cmd != null && cmd.CanExecute(null))
+            {
+                cmd.Execute(null);
+            }
+        }
+
         public VideoDownloadControl()
         {
             InitializeComponent();
@@ -39,6 +56,13 @@ namespace GetVideoWPFLib.Controls
             // Wire up the Browse button click event if not already done
             SelectButton.Click -= SelectButton_Click; // Remove any existing handlers
             SelectButton.Click += SelectButton_Click;
+
+            // Wire up double-click on the file list to trigger stitch selected
+            if (FileList != null)
+            {
+                FileList.MouseDoubleClick -= FileList_MouseDoubleClick;
+                FileList.MouseDoubleClick += FileList_MouseDoubleClick;
+            }
             
             // Ensure DataContext is set to ViewModel
             if (ViewModel != null && DataContext != ViewModel)

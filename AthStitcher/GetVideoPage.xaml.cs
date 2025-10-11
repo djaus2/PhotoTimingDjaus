@@ -53,6 +53,12 @@ namespace AthStitcherGUI
                 // Avoid double subscription on reload
                 vm.BackAndStitchRequested -= OnBackAndStitchRequested;
                 vm.BackAndStitchRequested += OnBackAndStitchRequested;
+
+                // Refresh the files list when the window loads (same as pressing the Refresh Files button)
+                if (vm.RefreshDownloadedFilesCommand != null && vm.RefreshDownloadedFilesCommand.CanExecute(null))
+                {
+                    vm.RefreshDownloadedFilesCommand.Execute(null);
+                }
             }
         }
 
