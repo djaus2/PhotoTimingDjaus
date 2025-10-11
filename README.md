@@ -14,7 +14,7 @@ A simple ***Photo Timing/Photo Finish*** app for Athletics etc where a finish li
 - AthStitcher: V3.9.9: All good
   - Some tidy up and code improvements
   - Download video now can click (and press button) or double click to select video and return and auto-Stitch
-  - V4.0.0 (comin) will remove filename appendages for meta-info and use only json file for that.
+  - V4.0.0 (coming) will remove filename appendages for meta-info and use only json file for that.
     - i.e. Will remove embellished filename processing.
 - AthStitcher: V3.2.0
   - Can download ExifTool, set location, unzip and even change its name(not advised).
