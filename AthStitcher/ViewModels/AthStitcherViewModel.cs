@@ -400,6 +400,19 @@ namespace AthStitcherGUI.ViewModels
                 if ((guntime >= 0 || mode == TimeFromMode.WallClockSelect) && guntime < viewModel.VideoLength)
                 {
                     viewModel.GunTime = guntime;
+                    // If VideoInfo is set, also update its VideoStart based on GunTime
+                    if (VideoInfo != null)
+                    {
+                        if (VideoInfo.VideoStart != null)
+                        { 
+                            if(VideoInfo.VideoStart != DateTime.MinValue)
+                            {
+                                    VideoInfo.VideoStart = VideoInfo.VideoStart.Value.AddMilliseconds(Math.Round(guntime * 1000, 0));
+                                    //VideoInfo.GunTime = guntime;//guntime is a double to add it to VideoInfo need to add it to VideoStart as DateTime.
+                            }
+                        }
+
+                    }
                     viewModel.GunTimeIndex = gunTimeIndex; // Set the index of the gun time
                 }
             }
