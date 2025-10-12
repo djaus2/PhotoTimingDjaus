@@ -16,7 +16,7 @@ A simple ***Photo Timing/Photo Finish*** app for Athletics etc where a finish li
     - i.e. Removed embellished filename processing.
     - The phone app has been updated to not append such embellishments, using json file only
     - Nb: If no Json file then assumed **FromVideoStart** mode.
--   - Needs som testing with various modes.
+-   - Needs some testing with various modes.
 - AthStitcher: V3.9.9: 
   - Some tidy up and code improvements
   - Download video now can click (and press button) or double click to select video and return and auto-Stitch.
