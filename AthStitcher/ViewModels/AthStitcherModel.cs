@@ -37,7 +37,29 @@ namespace AthStitcherGUI.ViewModels
         public double Result
         {
             get => _result;
-            set { _result = value; OnPropertyChanged(nameof(Result)); }
+            set { _result = value; OnPropertyChanged(nameof(Result)); OnPropertyChanged(nameof(ResultStr)); }
+        }
+
+        public string ResultStr
+        {
+            get
+            {
+                if (_result <= 0.0)
+                    return "";
+                else
+                    return _result.ToString("F3");
+            }
+            set
+            {
+                if(double.TryParse(value, out double parsedValue))
+                {
+                    Result = parsedValue;
+                }
+                else
+                {
+                    Result = 0.0; // or handle invalid input as needed
+                }
+            }
         }
 
         private string _name = string.Empty;

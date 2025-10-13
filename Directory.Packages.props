@@ -7,14 +7,13 @@
     <PackageVersion Include="CommunityToolkit.Maui" Version="10.0.0" />
     <PackageVersion Include="CommunityToolkit.Maui.Camera" Version="2.0.3" />
     <PackageVersion Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-
+    <PackageVersion Include="Microsoft.Data.Sqlite" Version="9.0.9" />
     <PackageVersion Include="Microsoft.Maui.Controls" Version="9.0.100" />
     <PackageVersion Include="Microsoft.Maui.Controls.Compatibility" Version="9.0.60" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="9.0.0" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Debug" Version="9.0.4" />
     <PackageVersion Include="Extended.Wpf.Toolkit" Version="4.7.25104.5739" />
-
     <!-- AndroidX camera/lifecycle packages -->
     <PackageVersion Include="Xamarin.AndroidX.Core" Version="1.16.0.1" />
     <PackageVersion Include="Xamarin.AndroidX.AppCompat" Version="1.7.0.6" />
@@ -37,13 +36,11 @@
     <PackageVersion Include="Xamarin.AndroidX.Lifecycle.ViewModel.Android" Version="2.8.7.3" />
     <PackageVersion Include="Xamarin.AndroidX.Lifecycle.ViewModel.Ktx" Version="2.8.7.3" />
     <PackageVersion Include="Xamarin.AndroidX.Lifecycle.ViewModelSavedState" Version="2.8.7.3" />
-
     <!-- App/library specific -->
     <PackageVersion Include="Sportronics.MauiMediaRecorderVideoLib" Version="3.2.0" />
     <PackageVersion Include="Sportronics.GetVideoWPFLib" Version="2.0.4" />
     <PackageVersion Include="Sportronics.DownloadVideoOverTcpLib" Version="2.0.3" />
     <PackageVersion Include="Sportronics.VideoEnums" Version="3.2.1" />
-
     <!-- WPF/desktop + shared -->
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageVersion Include="SharpVectors.Wpf" Version="1.8.4.2" />
@@ -54,13 +51,9 @@
     <PackageVersion Include="NAudio" Version="2.2.1" />
     <PackageVersion Include="SharpExifTool" Version="12.87.0.1" />
     <PackageVersion Include="Extended.Wpf.Toolkit" Version="5.0.0" />
-
- 
-
     <!-- Android ML/CV -->
     <PackageVersion Include="Emgu.CV" Version="4.10.0.5680" />
     <PackageVersion Include="Emgu.CV.runtime.maui.mini.android" Version="4.10.0.5680" />
-
     <!--PackageVersion Include="Sportronics.DownloadVideoOverTcpLib" Version="2.0.3" / -->
   </ItemGroup>
   <PropertyGroup>

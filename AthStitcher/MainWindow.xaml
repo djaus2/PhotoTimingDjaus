@@ -1,4 +1,4 @@
-﻿<Window x:Class="AthStitcherGUI.MainWindow"
+<Window x:Class="AthStitcherGUI.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:sys="clr-namespace:System;assembly=System.Runtime"
@@ -120,17 +120,18 @@
                                 <MenuItem Header="Open Video File and Stitch" Click="OpenMp4File_Click"/>
                                 <Separator/>
                                 <MenuItem Header="Download Video from phone (only)" Click="DownLoadMp4File_Click"/>
-                                <MenuItem Header="Edit Video File's Meta-Info" Click="EditMetaInfo_Click"/>
-                                <Separator/>
                                 <MenuItem Header="Load Image File" Click="OpenPngFile_Click"/>
                                 <MenuItem Header="Set Temp Gun Audio File" Click="OpenGunAudioTextFile_Click"/>
                                 <MenuItem Header="Install Phone App on Phone (QR Code)" Click="QRCode_Click"/>
                                 <Separator/>
+                                <MenuItem Header="Change Password..." Click="ChangePassword_Menu_Click"/>
+                                <MenuItem Header="Reset Admin Password..." Click="ResetAdminPassword_Menu_Click"/>
                                 <!-- MenuItem Header="Truncate Video from Gun Start" Click="TruncateandSelectVideoFile_Click"/ -->
                                 <Separator/>
                                 <MenuItem Header="Save State" Click="SaveViewModel_Click"/>
                                 <Separator/>
                                 <MenuItem Header="Exit" Command="ApplicationCommands.Close"/>
+{{ ... }}
                             </MenuItem>
                         </Menu>
                         <Menu>
@@ -556,7 +557,7 @@
             AutoGenerateColumns="False" CanUserAddRows="False">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Lane" Binding="{Binding LaneStr}" IsReadOnly="True" Width="120"/>
-                            <DataGridTextColumn Header="Result" Binding="{Binding Result, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=0.000}" Width="150"/>
+                            <DataGridTextColumn Header="Result" Binding="{Binding ResultStr, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="150"/>
                             <DataGridTextColumn Header="Name" Binding="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="220"/>
                         </DataGrid.Columns>
                     </DataGrid>

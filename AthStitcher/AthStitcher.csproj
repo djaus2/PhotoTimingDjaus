@@ -7,13 +7,15 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
-    <ApplicationIcon>athstitcher.ico</ApplicationIcon>
   </PropertyGroup>
-  
-    <ItemGroup>
+
+ 
+
+  <ItemGroup>
     <!-- https://elinamllc.github.io/SharpVectors/ -->
     <PackageReference Include="CommunityToolkit.Mvvm" />
     <PackageReference Include="Extended.Wpf.Toolkit" />
+    <PackageReference Include="Microsoft.Data.Sqlite" />
     <PackageReference Include="Newtonsoft.Json" />
     <PackageReference Include="SharpVectors.Wpf" />
   </ItemGroup>
@@ -53,7 +55,7 @@
     <ProjectReference Include="..\DetectVideoFlash\DetectVideoFlash.csproj" />
     <ProjectReference Include="..\GetVideoWPFLib\GetVideoWPFLib.csproj" />
     <ProjectReference Include="..\PhotoTimingDjausLib\PhotoTimingDjausLib.csproj" />
-    <PackageReference Include="Sportronics.VideoEnums"  />
+    <PackageReference Include="Sportronics.VideoEnums" />
   </ItemGroup>
 
   <ItemGroup>

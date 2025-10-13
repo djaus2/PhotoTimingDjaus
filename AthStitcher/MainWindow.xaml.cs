@@ -27,15 +27,20 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 //using System.Windows.Forms;
 using System.Windows.Input;
+using Microsoft.Win32;
 using System.Windows.Documents;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Threading;
-using static System.Net.Mime.MediaTypeNames;
 //using OpenCvSharp;
 //using OpenCvSharp;
 using Microsoft.VisualBasic;
+using AthStitcher.Data;
+using AthStitcher.Security;
+using AthStitcher.Views;
+using System.Data.Common;
+using System.Linq;
 
 
 namespace AthStitcherGUI
@@ -45,6 +50,8 @@ namespace AthStitcherGUI
     {
         string _EXIFTOOL = "exiftool";
         string _EXIFTOOLEXE = "exiftool(-k).exe";
+        // Temporary: force-create database on startup (set to false later)
+        private const bool CreateDatabaseOnStart = true;
 
         private PhotoTimingDjaus.VideoStitcher? videoStitcher = null;
         //private int margin = 20;
@@ -76,6 +83,24 @@ namespace AthStitcherGUI
             HaveGotGunTime = false;
             athStitcherViewModel = new AthStitcherViewModel();
             this.DataContext = viewModel;
+            // Capture mouse clicks to enable paste-on-click into Results grid
+            this.AddHandler(System.Windows.Controls.DataGrid.PreviewMouseLeftButtonDownEvent,
+                new System.Windows.Input.MouseButtonEventHandler(ResultsGrid_PreviewMouseLeftButtonDown), true);
+            // Initialize database and ensure Admin user exists
+            try
+            {
+                if (CreateDatabaseOnStart)
+                {
+                    DbInitializer.EnsureDatabase();
+                }
+                DbInitializer.Initialize();
+                SeedAdminIfMissing();
+                EnforceForcePasswordChangeIfNeeded();
+            }
+            catch (DbException ex)
+            {
+                MessageBox.Show($"Database initialization error: {ex.Message}", "Database", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
             athStitcherViewModel.LoadViewModel();
 
             this.DataContext = athStitcherViewModel.DataContext; // Set the DataContext to the AthStitchView instance
@@ -83,7 +108,7 @@ namespace AthStitcherGUI
                 athStitcherViewModel.DataContext.ExifTool = _EXIFTOOL;
             if (string.IsNullOrEmpty(athStitcherViewModel.DataContext.ExifToolExe))
                 athStitcherViewModel.DataContext.ExifToolExe = _EXIFTOOLEXE;
-      
+
             _saveTimer = new DispatcherTimer
             {
                 //Save viewModel after 1 second of inactivity
@@ -103,11 +128,223 @@ namespace AthStitcherGUI
                     _saveTimer.Start();
                 };
             }
-
-            // Wire up click-to-paste handlers for result cells
-            WireResultClickPasteHandlers();
-
         }
+
+        private void SeedAdminIfMissing()
+        {
+            using var conn = Db.CreateConnection();
+            var repo = new UserRepository();
+            if (!repo.AdminExists(conn))
+            {
+                string tempPwd = PasswordHasher.GenerateRandomPassword(24);
+                repo.CreateUser(conn, "admin", "Admin", tempPwd, true);
+                try
+                {
+                    System.Windows.Clipboard.SetText(tempPwd);
+                }
+                catch { }
+                MessageBox.Show($"Admin user created.\n\nUsername: admin\nTemporary Password (copied to clipboard):\n{tempPwd}\n\nYou will be asked to change it on first login.",
+                    "Admin Created", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
+
+        private void EnforceForcePasswordChangeIfNeeded()
+        {
+            using var conn = Db.CreateConnection();
+            var repo = new UserRepository();
+            var admin = repo.GetByUsername(conn, "admin");
+            if (admin != null && admin.ForceChange)
+            {
+                if (this.IsLoaded)
+                {
+                    ChangePasswordForUser("admin", requireCurrent: false);
+                }
+                else
+                {
+                    // Defer until window is shown to avoid Owner not shown exception
+                    this.Loaded += (_, __) => ChangePasswordForUser("admin", requireCurrent: false);
+                }
+            }
+        }
+
+        private void ChangePasswordForUser(string username, bool requireCurrent)
+        {
+            var dlg = new ChangePasswordDialog
+            {
+                Username = username
+            };
+            if (this.IsLoaded && this.IsVisible)
+            {
+                dlg.Owner = this;
+            }
+            if (dlg.ShowDialog() != true)
+                return;
+
+            using var conn = Db.CreateConnection();
+            var repo = new UserRepository();
+            var user = repo.GetByUsername(conn, username);
+            if (user == null)
+            {
+                MessageBox.Show($"User '{username}' not found.", "Change Password", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            if (requireCurrent)
+            {
+                if (!PasswordHasher.Verify(dlg.Current, user.Hash, user.Salt))
+                {
+                    MessageBox.Show("Current password is incorrect.", "Change Password", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+            }
+
+            if (repo.UpdatePassword(conn, user.Id, dlg.NewPwd))
+            {
+                MessageBox.Show("Password changed successfully.", "Change Password", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            else
+            {
+                MessageBox.Show("Failed to change password.", "Change Password", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        // Parse clipboard time text into seconds (supports ss.fff, m:ss.fff, h:mm:ss.fff)
+        private static bool TryParseTimeToSeconds(string text, out double seconds)
+        {
+            text = (text ?? string.Empty).Trim();
+            seconds = 0;
+            if (string.IsNullOrEmpty(text)) return false;
+
+            if (double.TryParse(text, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out seconds) ||
+                double.TryParse(text, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.CurrentCulture, out seconds))
+            {
+                return true;
+            }
+
+            var parts = text.Split(':');
+            if (parts.Length >= 2)
+            {
+                double total = 0;
+                if (!double.TryParse(parts[^1], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out double sec) &&
+                    !double.TryParse(parts[^1], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.CurrentCulture, out sec))
+                    return false;
+                total += sec;
+                int multiplier = 60;
+                for (int i = parts.Length - 2; i >= 0; i--)
+                {
+                    if (!int.TryParse(parts[i], out int unit)) return false;
+                    total += unit * multiplier;
+                    multiplier *= 60;
+                }
+                seconds = total;
+                return true;
+            }
+            return false;
+        }
+
+        // Handle paste-on-click into Results DataGrid Result column (DisplayIndex = 1)
+        private void ResultsGrid_PreviewMouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            // Only treat as a special paste if a new result is available from the image click
+            if (!_hasNewResultAvailable)
+                return;
+
+            // Find DataGridCell from visual tree
+            DependencyObject? dep = e.OriginalSource as DependencyObject;
+            while (dep != null && dep is not DataGridCell)
+            {
+                dep = VisualTreeHelper.GetParent(dep);
+            }
+            if (dep is not DataGridCell cell)
+                return;
+
+            // Only for the Result column
+            if (cell.Column?.DisplayIndex != 1)
+                return;
+
+            // Get row item
+            if (cell.DataContext is not AthStitcherGUI.ViewModels.LaneResult lr)
+                return;
+
+            // Read clipboard
+            string clip;
+            try
+            {
+                if (!Clipboard.ContainsText()) return;
+                clip = Clipboard.GetText();
+            }
+            catch
+            {
+                return;
+            }
+            if (!TryParseTimeToSeconds(clip, out double newSeconds)) return;
+
+            // If existing non-zero, confirm overwrite
+            double old = lr.Result;
+            if (old != 0.0)
+            {
+                var res = MessageBox.Show($"Overwrite existing result?\nOld: {old:0.000}\nNew: {newSeconds:0.000}",
+                    "Confirm Overwrite", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                if (res != MessageBoxResult.Yes) return;
+            }
+
+            // If we previously pasted into a different lane within the same result cycle, clear it
+            if (_currentResultLaneIndex.HasValue && _currentResultLaneIndex.Value != lr.Lane)
+            {
+                if (this.DataContext is AthStitcherGUI.ViewModels.AthStitcherModel vm)
+                {
+                    var prev = vm.Results.FirstOrDefault(x => x.Lane == _currentResultLaneIndex.Value);
+                    if (prev != null)
+                        prev.Result = 0.0; // clears (ResultStr will render blank)
+                }
+            }
+
+            // Set new value and record lane for this cycle
+            lr.Result = newSeconds;
+            _currentResultLaneIndex = lr.Lane;
+            // keep _hasNewResultAvailable = true to allow moving the result between lanes in this cycle
+            // let focus/edit continue
+        }
+
+        // Menu handler to invoke change password (wire from XAML MenuItem)
+        private void ChangePassword_Menu_Click(object sender, RoutedEventArgs e)
+        {
+            ChangePasswordForUser("admin", requireCurrent: true);
+        }
+
+        // Menu handler to reset admin password (one-time recovery)
+        private void ResetAdminPassword_Menu_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                using var conn = Db.CreateConnection();
+                var repo = new UserRepository();
+                var user = repo.GetByUsername(conn, "admin");
+                if (user == null)
+                {
+                    MessageBox.Show("Admin user not found.", "Reset Password", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                string tempPwd = AthStitcher.Security.PasswordHasher.GenerateRandomPassword(24);
+                if (repo.ResetPassword(conn, user.Id, tempPwd, forceChange: true))
+                {
+                    try { System.Windows.Clipboard.SetText(tempPwd); } catch { }
+                    MessageBox.Show($"Admin password reset.\n\nTemporary Password (copied to clipboard):\n{tempPwd}\n\nYou'll be asked to change it on next login.",
+                        "Reset Password", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                else
+                {
+                    MessageBox.Show("Failed to reset admin password.", "Reset Password", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error resetting password: {ex.Message}", "Reset Password", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        
 
         bool imageLoaded = false;
         private void LoadImageButton_Click(object sender, RoutedEventArgs e)
@@ -1172,7 +1409,7 @@ namespace AthStitcherGUI
             _isDragging = true;
         }
 
-        private void StitchedImage_MouseMove(object sender, MouseEventArgs e)
+        private void StitchedImage_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
         {
             if (!athStitcherViewModel.IsDataContext())
                 return;
@@ -2357,7 +2594,7 @@ namespace AthStitcherGUI
             }
         }
 
-        private void ImageKeyDown(object sender, KeyEventArgs e)
+        private void ImageKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
             if (!athStitcherViewModel.IsDataContext())
                 return;
