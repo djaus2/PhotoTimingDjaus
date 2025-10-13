@@ -1,23 +1,57 @@
 using OpenCvSharp;
-using PhotoTimingDjaus;
 using Sportronics.VideoEnums;// This is where TimeFromMode is defined
-using SharpExifTool;
-using System;
-using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Input;
-using static AthStitcherGUI.ViewModels.enums;
 
 namespace AthStitcherGUI.ViewModels
 {
+
+
+    public class LaneResult : INotifyPropertyChanged
+    {
+        private int _lane;
+        public int Lane
+        {
+            get => _lane;
+            set { _lane = value; OnPropertyChanged(nameof(Lane)); OnPropertyChanged(nameof(LaneStr)); }
+        }
+
+        public string LaneStr
+        {
+            get => $"Lane {_lane}";
+        }
+
+        private int _BibNumber = 0;
+        public int BibNumber
+        {
+            get => _BibNumber;
+            set { _BibNumber = value; OnPropertyChanged(nameof(BibNumber)); }
+        }
+
+        private double _result = 0.0;
+        public double Result
+        {
+            get => _result;
+            set { _result = value; OnPropertyChanged(nameof(Result)); }
+        }
+
+        private string _name = string.Empty;
+        public string Name
+        {
+            get => _name;
+            set { _name = value; OnPropertyChanged(nameof(Name)); }
+        }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+        protected void OnPropertyChanged(string propertyName)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
     public class enums
     {
         public enum NudgeFrameLocation
@@ -41,6 +75,39 @@ namespace AthStitcherGUI.ViewModels
         private TimeFromMode _TimeFromMode;
         private VideoDetectMode _videoDetectMode = VideoDetectMode.FromFlash;
 
+        public AthStitcherModel()
+        {
+            _setColorCommand = new RelayCommand(SetColor);
+            _results = new ObservableCollection<LaneResult>();
+            for (int i = MinLane; i <= MaxLane; i++)
+            {
+                _results.Add(new LaneResult { Lane = i, Result = 0.0, Name = string.Empty });
+            }
+            OnPropertyChanged(nameof(Results));
+        }
+
+        // Results list: lanes with result and name
+        private ObservableCollection<LaneResult> _results = new ObservableCollection<LaneResult>();
+        public ObservableCollection<LaneResult> Results
+        {
+            get => _results;
+            set { _results = value; OnPropertyChanged(nameof(Results)); }
+        }
+
+        private int _MinLane { get; set; } = 1;
+        public int MinLane
+        {
+            get => _MinLane;
+            set { _MinLane = value; OnPropertyChanged(nameof(MinLane)); }
+        }
+
+        private int _MaxLane { get; set; } = 8;
+        public int MaxLane
+        {
+            get =>  _MaxLane;
+            set { _MaxLane = value; OnPropertyChanged(nameof(MaxLane)); }
+        }
+
         private bool _ShowSliders { get; set; } = true;
         public bool ShowSliders
         {
@@ -54,8 +121,11 @@ namespace AthStitcherGUI.ViewModels
         }
 
         private string _VideoPathInput = "";
-        public string VideoPathInput { get => _VideoPathInput;
-            set { _VideoPathInput = value; OnPropertyChanged(nameof(VideoPathInput)); } }
+        public string VideoPathInput
+        {
+            get => _VideoPathInput;
+            set { _VideoPathInput = value; OnPropertyChanged(nameof(VideoPathInput)); }
+        }
 
         //ExifTool
         private string _ExifTool = EXIFTOOL;
@@ -69,7 +139,7 @@ namespace AthStitcherGUI.ViewModels
         private string _ExifToolExe = EXIFTOOLEXE;
         public string ExifToolExe { get => _ExifToolExe; set { _ExifToolExe = value; OnPropertyChanged(nameof(ExifToolExe)); } }
 
-        
+
         private string _OutputPathInput = "";
         public string OutputPathInput { get => _OutputPathInput; set { _OutputPathInput = value; OnPropertyChanged(nameof(OutputPathInput)); } }
 
@@ -132,7 +202,7 @@ namespace AthStitcherGUI.ViewModels
             get => _ShowVideoFramePopup;
             set { _ShowVideoFramePopup = value; OnPropertyChanged(nameof(ShowVideoFramePopup)); }
         }
-        
+
 
         private bool _Nudge_useVideoFrameratherthanNudgeFrame = false;
         public bool Nudge_useVideoFrameratherthanNudgeFrame
@@ -154,7 +224,9 @@ namespace AthStitcherGUI.ViewModels
         public int MinPopupWidth
         {
             get => _PopupWidth;
-            set { _PopupWidth = value;
+            set
+            {
+                _PopupWidth = value;
                 OnPropertyChanged(nameof(MinPopupWidth));
                 OnPropertyChanged(nameof(PopupWidthHorizonatlOffset));
             }
@@ -165,10 +237,7 @@ namespace AthStitcherGUI.ViewModels
             get { return _PopupWidth / 2; }
         }
 
-        public AthStitcherModel()
-        {
-            _setColorCommand = new RelayCommand(SetColor);
-        }
+
 
         public bool HasNotStitched => !_HasStitched; // Inverse of HasStitched
 
@@ -466,22 +535,22 @@ namespace AthStitcherGUI.ViewModels
 
 
 
-            private PlacementMode _placement = PlacementMode.Bottom;
-            public PlacementMode PopupPlacement
+        private PlacementMode _placement = PlacementMode.Bottom;
+        public PlacementMode PopupPlacement
+        {
+            get => _placement;
+            set
             {
-                get => _placement;
-                set
+                if (_placement != value)
                 {
-                    if (_placement != value)
-                    {
-                        _placement = value;
-                        OnPropertyChanged(nameof(PopupPlacement));
-                    }
+                    _placement = value;
+                    OnPropertyChanged(nameof(PopupPlacement));
                 }
             }
+        }
 
-            // Include INotifyPropertyChanged implementation...
-    
+        // Include INotifyPropertyChanged implementation...
+
         /*
         public string NudgePlacement
         {

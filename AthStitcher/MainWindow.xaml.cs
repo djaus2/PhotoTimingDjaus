@@ -35,6 +35,7 @@ using System.Windows.Threading;
 using static System.Net.Mime.MediaTypeNames;
 //using OpenCvSharp;
 //using OpenCvSharp;
+using Microsoft.VisualBasic;
 
 
 namespace AthStitcherGUI
@@ -2913,6 +2914,50 @@ namespace AthStitcherGUI
         private void Show_Sliders_Button_Click(object sender, RoutedEventArgs e)
         {
             athStitcherViewModel.SetShowSliders(true);
+        }
+
+        private void New_Event_Button_Click(object sender, RoutedEventArgs e)
+        {
+            var res = MessageBox.Show("Start a new event? This will clear all current data.", "New Event", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
+            if (res == MessageBoxResult.OK)
+            {
+                // Get current defaults
+                int minLane = 1;
+                int maxLane = 8;
+                if (athStitcherViewModel?.DataContext is AthStitcherModel vm)
+                {
+                    minLane = vm.MinLane;
+                    maxLane = vm.MaxLane;
+                }
+
+                string defaultCsv = $"{minLane},{maxLane}";
+                string input = Interaction.InputBox(
+                    "Enter lane range as min,max (between 1 and 10, with min < max):",
+                    "Set Lane Range",
+                    defaultCsv);
+
+                // Treat cancel or empty as abort (no changes)
+                if (string.IsNullOrWhiteSpace(input))
+                    return;
+
+                var m = Regex.Match(input, @"^\s*(\d+)\s*,\s*(\d+)\s*$");
+                if (!m.Success ||
+                    !int.TryParse(m.Groups[1].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out int newMin) ||
+                    !int.TryParse(m.Groups[2].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out int newMax) ||
+                    newMin < 1 || newMax > 10 || newMin >= newMax)
+                {
+                    MessageBox.Show(
+                        "Invalid input. Please enter two integers between 1 and 10 separated by a comma, with min < max. Example: 1,8",
+                        "Invalid Lane Range",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
+                    return;
+                }
+
+                // Apply and rebuild
+                athStitcherViewModel.SetMaxMinLans($"{newMin},{newMax}");
+                athStitcherViewModel.NewEvent();
+            }
         }
     }
 

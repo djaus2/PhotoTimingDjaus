@@ -113,6 +113,69 @@ namespace AthStitcherGUI.ViewModels
             return 0.0; // Default value if DataContext is not set or StartTimeInput is not available
         }
 
+        public void NewEvent()
+        {
+            if (DataContext is AthStitcherModel viewModel)  //AthStitcherModel .Results
+            {
+                //viewModel.StartTimeInput = 0.0; // Default start time
+                //viewModel.HasStitched = false;
+                //viewModel.HaveSelectedandShownGunLineToManualorWallClockMode = false;
+                //viewModel.GunTime = 0.0; // Reset the gun time to 0 before saving
+                //viewModel.GunTimeIndex = 0; // Reset the gun time index to 0 before saving
+                viewModel.Results = new System.Collections.ObjectModel.ObservableCollection<LaneResult>();
+                int min = viewModel.MinLane;
+                int max = viewModel.MaxLane;
+                for (int lane = min; lane <= max; lane++)
+                {
+                    LaneResult lr = new LaneResult
+                    {
+                        Lane = lane,
+                        Name = string.Empty,
+                        BibNumber = 0,
+                        Result = 0.0,
+                    };
+                    viewModel.Results.Add(lr);
+                }
+            }
+        }
+
+        public void SetMaxMinLans(string maxmin)
+        {
+            if (DataContext is AthStitcherModel viewModel)
+            {
+                var parts = maxmin.Split(',');
+                if (parts.Length == 2 &&
+                    int.TryParse(parts[0], out int minLane) &&
+                    int.TryParse(parts[1], out int maxLane))
+                {
+                    viewModel.MinLane = minLane;
+                    viewModel.MaxLane = maxLane;
+                }
+            }
+        }
+
+        public double GetMaxLane()
+        {
+            if (DataContext is AthStitcherModel viewModel)
+            {
+                int max = viewModel.MaxLane; // Get the current start time from the ViewModel
+
+                return max;
+            }
+            return 8; 
+        }
+
+        public double GetMinLane()
+        {
+            if (DataContext is AthStitcherModel viewModel)
+            {
+                int min = viewModel.MinLane; // Get the current start time from the ViewModel
+
+                return min;
+            }
+            return 1; 
+        }
+
         public void SetShowSliders(bool showSliders)
         {
             if (DataContext is AthStitcherModel viewModel)

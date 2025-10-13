@@ -499,7 +499,6 @@
                         <RowDefinition />
                         <RowDefinition />
                     </Grid.RowDefinitions>
-                    <Button Grid.Column="0" Grid.Row="1" Content="Manage Results" Click="Hide_Sliders_Button_Click"    Width="90" HorizontalAlignment="Center" Background="Yellow" Foreground="Red"/>
                     <!-- Zoom and Pan Sliders -->
                     <!-- Horizontal -->
                     <TextBlock Grid.Column="0" Grid.Row="2" Text="Horizontal Zoom:"/>
@@ -530,65 +529,41 @@
                     </StackPanel>
                 </Grid>
 
-                <Grid x:Name="Results" Grid.Row="1" Grid.RowSpan="9" Grid.Column="4"  Grid.ColumnSpan="2" ShowGridLines="False" Margin="10"
+                <Grid x:Name="EventResults" Grid.Row="1" Grid.RowSpan="9" Grid.Column="4"  Grid.ColumnSpan="2" ShowGridLines="False" Margin="10"
                      Visibility="{Binding NotShowSliders,Converter={StaticResource BoolToVis}}">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="120"/>
-                        <ColumnDefinition Width="120"/>
-                        <ColumnDefinition Width="220"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition />
-                        <RowDefinition />
-                        <RowDefinition />
-                        <RowDefinition />
-                        <RowDefinition />
-                        <RowDefinition />
-                        <RowDefinition />
-                        <RowDefinition />
-                        <RowDefinition />
-                        <RowDefinition />
-                    </Grid.RowDefinitions>
-                    <Button Grid.Column="0" Grid.Row="0" Content="Show Sliders" Click="Show_Sliders_Button_Click"    Width="90" HorizontalAlignment="Center" Background="Red" Foreground="Yellow"/>
-                    <TextBlock Grid.Column="1" Grid.Row="0" Text="Result" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                    <TextBlock Grid.Column="2" Grid.Row="0" Text="Name" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                    <!-- Numbered entries 1..8 with editable textboxes for pasting values -->
-                    <TextBlock Grid.Column="0" Grid.Row="1" Text="Lane 1" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                    <TextBox   Grid.Column="1" Grid.Row="1" Name="Result1" Background="Beige" Width="150" HorizontalAlignment="Left"/>
-                    
-                    <TextBlock Grid.Column="0" Grid.Row="2" Text="Lane 2" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                    <TextBox   Grid.Column="1" Grid.Row="2" Name="Result2" Background="Beige" Width="150" HorizontalAlignment="Left"/>
+ 
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="120"/>
+                            <ColumnDefinition Width="120"/>
+                            <ColumnDefinition Width="220"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
 
-                    <TextBlock Grid.Column="0" Grid.Row="3" Text="Lane 3" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                    <TextBox   Grid.Column="1" Grid.Row="3" Name="Result3" Background="Beige" Width="150" HorizontalAlignment="Left"/>
+                        <!-- Header row -->
+                   
+                    <TextBlock Grid.Column="0" Grid.Row="0" HorizontalAlignment="Right" Text="No. Competitors:"/>
+                    <TextBlock Grid.Column="1" Grid.Row="0" HorizontalAlignment="Left" Text="{Binding Results.Count}"/>
 
-                    <TextBlock Grid.Column="0" Grid.Row="4" Text="Lane 4" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                    <TextBox   Grid.Column="1" Grid.Row="4" Name="Result4" Background="Beige" Width="150" HorizontalAlignment="Left"/>
+                    <!-- List row: choose one -->
+                    <!-- Option A: DataGrid (scrolls by default) -->
+                    <DataGrid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3"
+                              HorizontalScrollBarVisibility="Hidden"
+                              VerticalScrollBarVisibility="Auto"
+            ItemsSource="{Binding Results}"
+            AutoGenerateColumns="False" CanUserAddRows="False">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Lane" Binding="{Binding LaneStr}" IsReadOnly="True" Width="120"/>
+                            <DataGridTextColumn Header="Result" Binding="{Binding Result, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=0.000}" Width="150"/>
+                            <DataGridTextColumn Header="Name" Binding="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="220"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
 
-                    <TextBlock Grid.Column="0" Grid.Row="5" Text="Lane 5" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                    <TextBox   Grid.Column="1" Grid.Row="5" Name="Result5" Background="Beige" Width="150" HorizontalAlignment="Left"/>
 
-                    <TextBlock Grid.Column="0" Grid.Row="6" Text="Lane 6" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                    <TextBox   Grid.Column="1" Grid.Row="6" Name="Result6" Background="Beige" Width="150" HorizontalAlignment="Left"/>
 
-                    <TextBlock Grid.Column="0" Grid.Row="7" Text="Lane 7" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                    <TextBox   Grid.Column="1" Grid.Row="7" Name="Result7" Background="Beige" Width="150" HorizontalAlignment="Left"/>
 
-                    <TextBlock Grid.Column="0" Grid.Row="8" Text="Lane 8" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                    <TextBox   Grid.Column="1" Grid.Row="8" Name="Result8" Background="Beige" Width="150" HorizontalAlignment="Left"/>
-
-                    <TextBlock Grid.Column="0" Grid.Row="9" Text="Lane 9" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                    <TextBox   Grid.Column="1" Grid.Row="9" Name="Result9" Background="Beige" Width="150" HorizontalAlignment="Left"/>
-
-                    <TextBox Grid.Column="2" Grid.Row="1" Name="Name1"  Background="White" Width="220" HorizontalAlignment="Left"/>
-                    <TextBox Grid.Column="2" Grid.Row="2" Name="Name2"  Background="White" Width="220" HorizontalAlignment="Left"/>
-                    <TextBox Grid.Column="2" Grid.Row="3" Name="Name3"  Background="White" Width="220" HorizontalAlignment="Left"/>
-                    <TextBox Grid.Column="2" Grid.Row="4" Name="Name4"  Background="White" Width="220" HorizontalAlignment="Left"/>
-                    <TextBox Grid.Column="2" Grid.Row="5" Name="Name5"  Background="White" Width="220" HorizontalAlignment="Left"/>
-                    <TextBox Grid.Column="2" Grid.Row="6" Name="Name6"  Background="White" Width="220" HorizontalAlignment="Left"/>
-                    <TextBox Grid.Column="2" Grid.Row="7" Name="Name7"  Background="White" Width="220" HorizontalAlignment="Left"/>
-                    <TextBox Grid.Column="2" Grid.Row="8" Name="Name8"  Background="White" Width="220" HorizontalAlignment="Left"/>
-                    <TextBox Grid.Column="2" Grid.Row="9" Name="Name9"  Background="White" Width="220" HorizontalAlignment="Left"/>
                 </Grid>
 
                 <!-- ========================================================================================================================================================================================================================= -->
@@ -604,6 +579,9 @@
                 <TextBox Grid.Column="3"   Grid.Row="4" Name="Threshold" IsReadOnly="False"   Background="Beige" HorizontalAlignment="Left"  Width="150" Text="3"  Visibility="{Binding MyVisibility}" />
                 <TextBlock Grid.Column="2" Grid.Row="5" Name="FinishTimeLabel"                TextAlignment="Right" Text="Finish Time: " FontWeight="Bold" Foreground="Blue"   Visibility="{Binding MyVisibility}"  />
                 <TextBox Grid.Column="3"   Grid.Row="5" Name="FinishTime" IsReadOnly="True"   Background="Beige" HorizontalAlignment="Left" Width="150"  Foreground="Purple" VerticalAlignment="Center" Text="" Visibility="{Binding MyVisibility}"  />
+                <Button Grid.Column="3" Grid.Row="6" Content="Show Sliders" Click="Show_Sliders_Button_Click" Visibility="{Binding NotShowSliders,Converter={StaticResource BoolToVis}}" Width="90" HorizontalAlignment="Center" Background="Red" Foreground="Yellow" />
+                <Button Grid.Column="3" Grid.Row="6" Content="Manage Results" Click="Hide_Sliders_Button_Click" Visibility="{Binding ShowSliders,Converter={StaticResource BoolToVis}}"   Width="90" HorizontalAlignment="Center" Background="Yellow" Foreground="Red"/>
+                <Button Grid.Column="3" Grid.Row="7" Content="New Event" Click="New_Event_Button_Click" Visibility="{Binding NoShowSliders,Converter={StaticResource BoolToVis}}"  Width="90" HorizontalAlignment="Center" Background="LightGreen" Foreground="Purple"/>
 
                 <!-- Columns 2 and 3 END  ========================================================================================================================================================================================== -->
 
