@@ -41,6 +41,17 @@ namespace AthStitcherGUI.ViewModels
         private TimeFromMode _TimeFromMode;
         private VideoDetectMode _videoDetectMode = VideoDetectMode.FromFlash;
 
+        private bool _ShowSliders { get; set; } = true;
+        public bool ShowSliders
+        {
+            get => _ShowSliders;
+            set { _ShowSliders = value; OnPropertyChanged(nameof(ShowSliders)); OnPropertyChanged(nameof(NotShowSliders)); }
+        }
+
+        public bool NotShowSliders
+        {
+            get => !_ShowSliders;
+        }
 
         private string _VideoPathInput = "";
         public string VideoPathInput { get => _VideoPathInput;

@@ -62,6 +62,13 @@ namespace AthStitcherGUI
         AthStitcherViewModel viewModel { get; set; } = new AthStitcherViewModel();
         private bool HaveGotGunTime = false;
 
+        // Track last result lane index and whether we've pasted at least once
+        private int? _lastResultLaneIndex = null; // 1-based lane index from Result1..Result9
+        private bool _hasPastedAnyResult = false;
+        // Flags for current result lifecycle
+        private bool _hasNewResultAvailable = false;   // Set true when user releases on stitched image
+        private int? _currentResultLaneIndex = null;   // Where the current result is placed; cleared on new image click
+
         public MainWindow()
         {
             InitializeComponent();
@@ -95,6 +102,9 @@ namespace AthStitcherGUI
                     _saveTimer.Start();
                 };
             }
+
+            // Wire up click-to-paste handlers for result cells
+            WireResultClickPasteHandlers();
 
         }
 
@@ -487,6 +497,142 @@ namespace AthStitcherGUI
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             UpdateZoom();
+        }
+
+        /// <summary>
+        /// Attach a unified click handler to Result1..Result9 textboxes.
+        /// On click: get clipboard text, round to 3 decimals, paste into the clicked box.
+        /// </summary>
+        private void WireResultClickPasteHandlers()
+        {
+            for (int i = 1; i <= 9; i++)
+            {
+                var tb = this.FindName($"Result{i}") as TextBox;
+                if (tb != null)
+                {
+                    // Avoid multiple subscriptions if constructor gets re-entered (defensive)
+                    tb.PreviewMouseLeftButtonDown -= ResultBox_PreviewMouseLeftButtonDown;
+                    tb.PreviewMouseLeftButtonDown += ResultBox_PreviewMouseLeftButtonDown;
+                }
+            }
+        }
+
+        private void ResultBox_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is not TextBox tb)
+                return;
+
+            // Only allow paste if a fresh result (from image click) is available
+            if (!_hasNewResultAvailable)
+                return;
+
+            string clip = string.Empty;
+            try
+            {
+                if (Clipboard.ContainsText())
+                    clip = Clipboard.GetText()?.Trim() ?? string.Empty;
+            }
+            catch
+            {
+                // Clipboard can throw in some contexts; ignore and bail
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(clip))
+                return;
+
+            if (TryFormatRoundedTo3Decimals(clip, out string formatted))
+            {
+                // Determine current lane index from TextBox name (expects "ResultN")
+                int currentLane = ExtractLaneIndex(tb.Name);
+
+                // If this cell already has a different value, prompt to confirm replacement
+                string existing = tb.Text?.Trim() ?? string.Empty;
+                if (!string.IsNullOrEmpty(existing) && !string.Equals(existing, formatted, StringComparison.Ordinal))
+                {
+                    var result = MessageBox.Show(
+                        $"Replace existing value '{existing}' with '{formatted}'?",
+                        "Confirm Replace",
+                        MessageBoxButton.YesNo,
+                        MessageBoxImage.Question);
+                    if (result != MessageBoxResult.Yes)
+                    {
+                        e.Handled = true; // consume click without changing text
+                        return;
+                    }
+                }
+
+                // For the current result cycle: if moving to a different lane, clear previous cell
+                if (_currentResultLaneIndex.HasValue && _currentResultLaneIndex.Value != currentLane)
+                {
+                    var prevTb = this.FindName($"Result{_currentResultLaneIndex.Value}") as TextBox;
+                    if (prevTb != null && !ReferenceEquals(prevTb, tb))
+                    {
+                        prevTb.Clear();
+                    }
+                }
+
+                // Set new value
+                tb.Text = formatted;
+
+                // Update first-paste flag and lane indexes
+                if (!_hasPastedAnyResult)
+                {
+                    _hasPastedAnyResult = true;
+                    // First paste hook: add any one-time behavior here if needed
+                }
+                if (currentLane > 0)
+                {
+                    _currentResultLaneIndex = currentLane; // track within this result cycle
+                    _lastResultLaneIndex = currentLane;
+                }
+                e.Handled = true; // Prevent default text selection behavior
+            }
+        }
+
+        private static int ExtractLaneIndex(string? name)
+        {
+            if (string.IsNullOrWhiteSpace(name)) return -1;
+            const string prefix = "Result";
+            if (!name.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)) return -1;
+            var rest = name.Substring(prefix.Length);
+            if (int.TryParse(rest, NumberStyles.Integer, CultureInfo.InvariantCulture, out int idx))
+                return idx;
+            return -1;
+        }
+
+        private static bool TryFormatRoundedTo3Decimals(string input, out string formatted)
+        {
+            formatted = string.Empty;
+
+            // Try plain number (seconds)
+            if (double.TryParse(input, NumberStyles.Float, CultureInfo.InvariantCulture, out double d) ||
+                double.TryParse(input, NumberStyles.Float, CultureInfo.CurrentCulture, out d))
+            {
+                double r = Math.Round(d, 3, MidpointRounding.AwayFromZero);
+                formatted = r.ToString("0.000", CultureInfo.InvariantCulture);
+                return true;
+            }
+
+            // Try time format mm:ss[.fff]
+            // Accept forms like m:ss, mm:ss, m:ss.f, m:ss.ff, m:ss.fff
+            var parts = input.Split(':');
+            if (parts.Length == 2 && int.TryParse(parts[0], NumberStyles.Integer, CultureInfo.InvariantCulture, out int minutes))
+            {
+                string secPart = parts[1];
+                if (double.TryParse(secPart, NumberStyles.Float, CultureInfo.InvariantCulture, out double seconds) ||
+                    double.TryParse(secPart, NumberStyles.Float, CultureInfo.CurrentCulture, out seconds))
+                {
+                    double totalSeconds = minutes * 60 + seconds;
+                    totalSeconds = Math.Round(totalSeconds, 3, MidpointRounding.AwayFromZero);
+                    int mm = (int)(totalSeconds / 60);
+                    double ss = totalSeconds - mm * 60;
+                    formatted = string.Format(CultureInfo.InvariantCulture, "{0:D2}:{1:00.000}", mm, ss);
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         bool SkipMetaCheck = false;
@@ -1065,7 +1211,9 @@ namespace AthStitcherGUI
         private void StitchedImage_MouseButtonUp(object sender, MouseButtonEventArgs e)
         {
             _isDragging = false;
-
+            // A new result is now available to paste once into a lane
+            _hasNewResultAvailable = true;
+            _currentResultLaneIndex = null; // reset placement for new result cycle
             if ((VerticalLine.Visibility == Visibility.Visible) ||
                     (StartVerticalLine.Visibility == Visibility.Visible))
             {
@@ -2755,6 +2903,16 @@ namespace AthStitcherGUI
                     MessageBox.Show($"ExifToolAppName name changed to: {newExeName}", "ExifTool App Name", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             }
+        }
+
+        private void Hide_Sliders_Button_Click(object sender, RoutedEventArgs e)
+        {
+            athStitcherViewModel.SetShowSliders(false);
+        }
+
+        private void Show_Sliders_Button_Click(object sender, RoutedEventArgs e)
+        {
+            athStitcherViewModel.SetShowSliders(true);
         }
     }
 

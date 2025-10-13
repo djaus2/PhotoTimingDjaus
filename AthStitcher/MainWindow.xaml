@@ -481,35 +481,117 @@
 
 
                 <!-- Sliders in Columns 4/5 ========================================================================================================================================================================================== -->
+                <Grid Grid.Row="0" Grid.RowSpan="9" Grid.Column="4"  Grid.ColumnSpan="2" ShowGridLines="False" 
+                     Visibility="{Binding ShowSliders,Converter={StaticResource BoolToVis}}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="120"/>
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    <Button Grid.Column="0" Grid.Row="1" Content="Manage Results" Click="Hide_Sliders_Button_Click"    Width="90" HorizontalAlignment="Center" Background="Yellow" Foreground="Red"/>
+                    <!-- Zoom and Pan Sliders -->
+                    <!-- Horizontal -->
+                    <TextBlock Grid.Column="0" Grid.Row="2" Text="Horizontal Zoom:"/>
+                    <Slider    Grid.Column="1" Grid.Row="2" Name="HorizontalZoomSlider" Minimum="0.1" Maximum="5" Value="1" Width="150"   ValueChanged="HorizontalZoomSlider_ValueChanged"  />
+                    
+                    <TextBlock Grid.Column="0" Grid.Row="3" Text="Horizontal Pan:"  />
+                    <Slider    Grid.Column="1" Grid.Row="3" Name="HorizontalPanSlider"  Minimum="0" Maximum="1" Value="0.5" Width="150"   ValueChanged="HorizontalPanSlider_ValueChanged" />
 
-                <!-- Zoom and Pan Sliders -->
-                <!-- Horizontal -->
-                <TextBlock Grid.Column="4" Grid.Row="1" Text="Horizontal Zoom:"/>
-                <Slider Grid.Column="5" Grid.Row="1" Name="HorizontalZoomSlider" Minimum="0.1" Maximum="5" Value="1" Width="150"   ValueChanged="HorizontalZoomSlider_ValueChanged"  />
-                <TextBlock Grid.Column="4" Grid.Row="2" Text="Horizontal Pan:"  />
-                <Slider Grid.Column="5" Grid.Row="2" Name="HorizontalPanSlider"  Minimum="0" Maximum="1" Value="0.5" Width="150"   ValueChanged="HorizontalPanSlider_ValueChanged" />
-                
-                <!-- Vertical -->
-                <TextBlock Grid.Column="4" Grid.Row="3" Text="Vertical Zoom:"  />
-                <Slider Grid.Column="5" Grid.Row="3" Name="VerticalZoomSlider"  Minimum="0.1" Maximum="5" Value="1" Width="150"   ValueChanged="VerticalZoomSlider_ValueChanged"/>
-                <TextBlock Grid.Column="4" Grid.Row="4" Text="Vertical Pan:"   />
-                <Slider Grid.Column="5" Grid.Row="4" Name="VerticalPanSlider"   Minimum="0" Maximum="1" Value="0.5" Width="150"   ValueChanged="VerticalPanSlider_ValueChanged" />
+                    <!-- Vertical -->
+                    <TextBlock Grid.Column="0" Grid.Row="4" Text="Vertical Zoom:"  />
+                    <Slider    Grid.Column="1" Grid.Row="4" Name="VerticalZoomSlider"  Minimum="0.1" Maximum="5" Value="1" Width="150"   ValueChanged="VerticalZoomSlider_ValueChanged"/>
+                    
+                    <TextBlock Grid.Column="0" Grid.Row="5" Text="Vertical Pan:"   />
+                    <Slider    Grid.Column="1" Grid.Row="5" Name="VerticalPanSlider"   Minimum="0" Maximum="1" Value="0.5" Width="150"   ValueChanged="VerticalPanSlider_ValueChanged" />
 
-                <!-- Axis Height -->
-                <TextBlock Grid.Column="4" Grid.Row="5" Text="Axis Height:"/>
-                <StackPanel Orientation="Horizontal" Grid.Row="5" Grid.Column="5">
-                    <Slider Name="AxisHeightSlider"  Minimum="0" Maximum="100" Value="100" TickFrequency="10" IsSnapToTickEnabled="True" Width="150"  ValueChanged="VerticalZoomSlider_ValueChanged" />
-                    <TextBlock Text="{Binding ElementName=AxisHeightSlider, Path=Value, Mode=OneWay}"  TextAlignment="Right" Width="50"  />
-                </StackPanel>
-                
-                <!-- Audio Height-->
-                <TextBlock Grid.Column="4" Grid.Row="6" Text="Audio Height:"  />
-                <StackPanel Orientation="Horizontal" Grid.Row="6" Grid.Column="5">
-                    <Slider  Name="AudioHeightSlider" Minimum="0" Maximum="100" Value="100" TickFrequency="10" IsSnapToTickEnabled="True" Width="150"   ValueChanged="VerticalPanSlider_ValueChanged"  />
-                    <TextBlock  Text="{Binding ElementName=AudioHeightSlider, Path=Value, Mode=OneWay}"  TextAlignment="Right" Width="50" />
-                </StackPanel>
+                    <!-- Axis Height -->
+                    <TextBlock  Grid.Column="0" Grid.Row="6" Text="Axis Height:"/>
+                    <StackPanel Grid.Column="1" Grid.Row="6" Orientation="Horizontal"  >
+                        <Slider Name="AxisHeightSlider"  Minimum="0" Maximum="100" Value="100" TickFrequency="10" IsSnapToTickEnabled="True" Width="150"  ValueChanged="VerticalZoomSlider_ValueChanged" />
+                        <TextBlock Text="{Binding ElementName=AxisHeightSlider, Path=Value, Mode=OneWay}"  TextAlignment="Right" Width="50"  />
+                    </StackPanel>
 
-<!-- ========================================================================================================================================================================================================================= -->
+                    <!-- Audio Height-->
+                    <TextBlock  Grid.Column="0" Grid.Row="7" Text="Audio Height:"  />
+                    <StackPanel Grid.Column="1" Grid.Row="7" Orientation="Horizontal"  >
+                        <Slider  Name="AudioHeightSlider" Minimum="0" Maximum="100" Value="100" TickFrequency="10" IsSnapToTickEnabled="True" Width="150"   ValueChanged="VerticalPanSlider_ValueChanged"  />
+                        <TextBlock  Text="{Binding ElementName=AudioHeightSlider, Path=Value, Mode=OneWay}"  TextAlignment="Right" Width="50" />
+                    </StackPanel>
+                </Grid>
+
+                <Grid x:Name="Results" Grid.Row="1" Grid.RowSpan="9" Grid.Column="4"  Grid.ColumnSpan="2" ShowGridLines="False" Margin="10"
+                     Visibility="{Binding NotShowSliders,Converter={StaticResource BoolToVis}}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="120"/>
+                        <ColumnDefinition Width="120"/>
+                        <ColumnDefinition Width="220"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    <Button Grid.Column="0" Grid.Row="0" Content="Show Sliders" Click="Show_Sliders_Button_Click"    Width="90" HorizontalAlignment="Center" Background="Red" Foreground="Yellow"/>
+                    <TextBlock Grid.Column="1" Grid.Row="0" Text="Result" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="2" Grid.Row="0" Text="Name" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                    <!-- Numbered entries 1..8 with editable textboxes for pasting values -->
+                    <TextBlock Grid.Column="0" Grid.Row="1" Text="Lane 1" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                    <TextBox   Grid.Column="1" Grid.Row="1" Name="Result1" Background="Beige" Width="150" HorizontalAlignment="Left"/>
+                    
+                    <TextBlock Grid.Column="0" Grid.Row="2" Text="Lane 2" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                    <TextBox   Grid.Column="1" Grid.Row="2" Name="Result2" Background="Beige" Width="150" HorizontalAlignment="Left"/>
+
+                    <TextBlock Grid.Column="0" Grid.Row="3" Text="Lane 3" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                    <TextBox   Grid.Column="1" Grid.Row="3" Name="Result3" Background="Beige" Width="150" HorizontalAlignment="Left"/>
+
+                    <TextBlock Grid.Column="0" Grid.Row="4" Text="Lane 4" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                    <TextBox   Grid.Column="1" Grid.Row="4" Name="Result4" Background="Beige" Width="150" HorizontalAlignment="Left"/>
+
+                    <TextBlock Grid.Column="0" Grid.Row="5" Text="Lane 5" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                    <TextBox   Grid.Column="1" Grid.Row="5" Name="Result5" Background="Beige" Width="150" HorizontalAlignment="Left"/>
+
+                    <TextBlock Grid.Column="0" Grid.Row="6" Text="Lane 6" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                    <TextBox   Grid.Column="1" Grid.Row="6" Name="Result6" Background="Beige" Width="150" HorizontalAlignment="Left"/>
+
+                    <TextBlock Grid.Column="0" Grid.Row="7" Text="Lane 7" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                    <TextBox   Grid.Column="1" Grid.Row="7" Name="Result7" Background="Beige" Width="150" HorizontalAlignment="Left"/>
+
+                    <TextBlock Grid.Column="0" Grid.Row="8" Text="Lane 8" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                    <TextBox   Grid.Column="1" Grid.Row="8" Name="Result8" Background="Beige" Width="150" HorizontalAlignment="Left"/>
+
+                    <TextBlock Grid.Column="0" Grid.Row="9" Text="Lane 9" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                    <TextBox   Grid.Column="1" Grid.Row="9" Name="Result9" Background="Beige" Width="150" HorizontalAlignment="Left"/>
+
+                    <TextBox Grid.Column="2" Grid.Row="1" Name="Name1"  Background="White" Width="220" HorizontalAlignment="Left"/>
+                    <TextBox Grid.Column="2" Grid.Row="2" Name="Name2"  Background="White" Width="220" HorizontalAlignment="Left"/>
+                    <TextBox Grid.Column="2" Grid.Row="3" Name="Name3"  Background="White" Width="220" HorizontalAlignment="Left"/>
+                    <TextBox Grid.Column="2" Grid.Row="4" Name="Name4"  Background="White" Width="220" HorizontalAlignment="Left"/>
+                    <TextBox Grid.Column="2" Grid.Row="5" Name="Name5"  Background="White" Width="220" HorizontalAlignment="Left"/>
+                    <TextBox Grid.Column="2" Grid.Row="6" Name="Name6"  Background="White" Width="220" HorizontalAlignment="Left"/>
+                    <TextBox Grid.Column="2" Grid.Row="7" Name="Name7"  Background="White" Width="220" HorizontalAlignment="Left"/>
+                    <TextBox Grid.Column="2" Grid.Row="8" Name="Name8"  Background="White" Width="220" HorizontalAlignment="Left"/>
+                    <TextBox Grid.Column="2" Grid.Row="9" Name="Name9"  Background="White" Width="220" HorizontalAlignment="Left"/>
+                </Grid>
+
+                <!-- ========================================================================================================================================================================================================================= -->
                 
                 <!-- Output Data -->
                 <TextBlock Grid.Column="2" Grid.Row="1" Name="StartTimeInputLabel"            TextAlignment="Right" Text="Start Time (Seconds): "  />

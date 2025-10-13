@@ -29,6 +29,8 @@ namespace AthStitcherGUI.ViewModels
 
         public VideoInfo? VideoInfo { get; set; }
 
+
+
         public void GetAddr(object obj)
         {
             GCHandle handle = GCHandle.Alloc(obj, GCHandleType.Pinned);
@@ -109,6 +111,27 @@ namespace AthStitcherGUI.ViewModels
                 return selectedStartTime;
             }
             return 0.0; // Default value if DataContext is not set or StartTimeInput is not available
+        }
+
+        public void SetShowSliders(bool showSliders)
+        {
+            if (DataContext is AthStitcherModel viewModel)
+            {
+                //selectedStartTime = viewModel.StartTimeInput; // Get the current start time from the ViewModel
+
+                viewModel.ShowSliders = showSliders;
+            }
+        }
+
+        public bool GetShowSliders()
+        {
+            if (DataContext is AthStitcherModel viewModel)
+            {
+                bool showSliders = viewModel.ShowSliders; // Get the current start time from the ViewModel
+
+                return showSliders;
+            }
+            return true; 
         }
 
         public void SetHasStitched()
