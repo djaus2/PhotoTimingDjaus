@@ -11,11 +11,14 @@ A simple ***Photo Timing/Photo Finish*** app for Athletics etc where a finish li
 > All good!
 
 ### Latest
-- AthStitcher: Can record results against lanes and enter names
+- AthStitcher 4.1.0: Can record results against lanes and enter names
   - After a result has been determined, click in Result column for lane.
   - Can change lane by clicking in another which removes previous
   - Prompted if click in cell with previous result.
   - 2Do: Back end with a table/database.
+    - Now has backend list for results
+    - Can set first and last lanes 1..10 with min<max
+    - Simple matter now to create a database for meet, events and results
 - AthStitcher: V4.0.0 All ... good
   - Have removed filename appendages for meta-info and use only json VideoInfo file for that.
     - i.e. Removed embellished filename processing.
