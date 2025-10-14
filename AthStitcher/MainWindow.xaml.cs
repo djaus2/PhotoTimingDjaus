@@ -2,6 +2,7 @@ using AthStitcherGUI.ViewModels;
 using DetectAudioFlash;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Win32;
+using Microsoft.EntityFrameworkCore;
 using OpenCvSharp;
 using OpenCvSharp.Features2D;
 using PhotoTimingDjaus;
@@ -80,69 +81,112 @@ namespace AthStitcherGUI
         public MainWindow()
         {
             InitializeComponent();
-            HaveGotGunTime = false;
             athStitcherViewModel = new AthStitcherViewModel();
             this.DataContext = viewModel;
             // Capture mouse clicks to enable paste-on-click into Results grid
             this.AddHandler(System.Windows.Controls.DataGrid.PreviewMouseLeftButtonDownEvent,
                 new System.Windows.Input.MouseButtonEventHandler(ResultsGrid_PreviewMouseLeftButtonDown), true);
-            // Initialize database and ensure Admin user exists
+            // Initialize database via EF and ensure Admin user exists
             try
             {
-                if (CreateDatabaseOnStart)
+                this.DataContext = athStitcherViewModel.DataContext; // Set the DataContext to the AthStitchView instance
+                if (string.IsNullOrEmpty(athStitcherViewModel.DataContext.ExifTool))
+                    athStitcherViewModel.DataContext.ExifTool = _EXIFTOOL;
+                if (string.IsNullOrEmpty(athStitcherViewModel.DataContext.ExifToolExe))
+                    athStitcherViewModel.DataContext.ExifToolExe = _EXIFTOOLEXE;
+
+                _saveTimer = new DispatcherTimer
                 {
-                    DbInitializer.EnsureDatabase();
+                    //Save viewModel after 1 second of inactivity
+                    Interval = TimeSpan.FromMilliseconds(1000)
+                };
+                _saveTimer.Tick += (s, e) =>
+                {
+                    _saveTimer.Stop();
+                    athStitcherViewModel.SaveViewModel();
+                };
+
+                if (this.DataContext is AthStitcherModel vm)
+                {
+                    vm.PropertyChanged += (s, e) =>
+                    {
+                        _saveTimer.Stop();
+                        _saveTimer.Start();
+                    };
                 }
-                DbInitializer.Initialize();
+
+                // EF: create/update schema and seed admin
+                using var ctx = new AthStitcher.Data.AthStitcherDbContext();
+                ctx.Database.Migrate();
                 SeedAdminIfMissing();
                 EnforceForcePasswordChangeIfNeeded();
             }
-            catch (DbException ex)
+            catch (Exception ex)
             {
                 MessageBox.Show($"Database initialization error: {ex.Message}", "Database", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-            athStitcherViewModel.LoadViewModel();
+        }
 
-            this.DataContext = athStitcherViewModel.DataContext; // Set the DataContext to the AthStitchView instance
-            if (string.IsNullOrEmpty(athStitcherViewModel.DataContext.ExifTool))
-                athStitcherViewModel.DataContext.ExifTool = _EXIFTOOL;
-            if (string.IsNullOrEmpty(athStitcherViewModel.DataContext.ExifToolExe))
-                athStitcherViewModel.DataContext.ExifToolExe = _EXIFTOOLEXE;
+        // Menu handler to delete and recreate database (for schema changes during development)
+        private void DeleteAndRecreateDatabase_Menu_Click(object sender, RoutedEventArgs e)
+        {
+            var confirm = MessageBox.Show(
+                "This will delete the local AthStitcher database file and recreate it. Continue?",
+                "Delete Database",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+            if (confirm != MessageBoxResult.Yes)
+                return;
 
-            _saveTimer = new DispatcherTimer
+            try
             {
-                //Save viewModel after 1 second of inactivity
-                Interval = TimeSpan.FromMilliseconds(1000)
-            };
-            _saveTimer.Tick += (s, e) =>
-            {
-                _saveTimer.Stop();
-                athStitcherViewModel.SaveViewModel();
-            };
-
-            if (this.DataContext is AthStitcherModel vm)
-            {
-                vm.PropertyChanged += (s, e) =>
+                using var ctx = new AthStitcher.Data.AthStitcherDbContext();
+                if (!ctx.Database.EnsureDeleted())
                 {
-                    _saveTimer.Stop();
-                    _saveTimer.Start();
-                };
+                    // If ensure delete returns false or fails due to locks, try to drop all tables then continue
+                    try { ctx.Database.ExecuteSqlRaw("PRAGMA foreign_keys = OFF;"); }
+                    catch { }
+                    try
+                    {
+                        ctx.Database.ExecuteSqlRaw("DROP TABLE IF EXISTS Results;");
+                        ctx.Database.ExecuteSqlRaw("DROP TABLE IF EXISTS Events;");
+                        ctx.Database.ExecuteSqlRaw("DROP TABLE IF EXISTS Meets;");
+                        ctx.Database.ExecuteSqlRaw("DROP TABLE IF EXISTS Users;");
+                    }
+                    catch { }
+                    try { ctx.Database.ExecuteSqlRaw("PRAGMA foreign_keys = ON;"); }
+                    catch { }
+                }
+                ctx.Database.Migrate();
+                SeedAdminIfMissing();
+                MessageBox.Show("Database recreated successfully.", "Database", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to delete/recreate database: {ex.Message}", "Database Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         private void SeedAdminIfMissing()
         {
-            using var conn = Db.CreateConnection();
-            var repo = new UserRepository();
-            if (!repo.AdminExists(conn))
+            using var ctx = new AthStitcher.Data.AthStitcherDbContext();
+            var admin = ctx.Users.SingleOrDefault(u => u.Username == "admin");
+            if (admin == null)
             {
-                string tempPwd = PasswordHasher.GenerateRandomPassword(24);
-                repo.CreateUser(conn, "admin", "Admin", tempPwd, true);
-                try
+                string tempPwd = AthStitcher.Security.PasswordHasher.GenerateRandomPassword(24);
+                var (hash, salt) = AthStitcher.Security.PasswordHasher.HashPassword(tempPwd);
+                admin = new AthStitcher.Data.User
                 {
-                    System.Windows.Clipboard.SetText(tempPwd);
-                }
-                catch { }
+                    Username = "admin",
+                    PasswordHash = hash,
+                    PasswordSalt = salt,
+                    Role = "Admin",
+                    CreatedAt = DateTime.UtcNow,
+                    ForcePasswordChange = true
+                };
+                ctx.Users.Add(admin);
+                ctx.SaveChanges();
+                try { System.Windows.Clipboard.SetText(tempPwd); } catch { }
                 MessageBox.Show($"Admin user created.\n\nUsername: admin\nTemporary Password (copied to clipboard):\n{tempPwd}\n\nYou will be asked to change it on first login.",
                     "Admin Created", MessageBoxButton.OK, MessageBoxImage.Information);
             }
@@ -150,39 +194,25 @@ namespace AthStitcherGUI
 
         private void EnforceForcePasswordChangeIfNeeded()
         {
-            using var conn = Db.CreateConnection();
-            var repo = new UserRepository();
-            var admin = repo.GetByUsername(conn, "admin");
-            if (admin != null && admin.ForceChange)
+            using var ctx = new AthStitcher.Data.AthStitcherDbContext();
+            var admin = ctx.Users.SingleOrDefault(u => u.Username == "admin");
+            if (admin != null && admin.ForcePasswordChange)
             {
                 if (this.IsLoaded)
-                {
                     ChangePasswordForUser("admin", requireCurrent: false);
-                }
                 else
-                {
-                    // Defer until window is shown to avoid Owner not shown exception
                     this.Loaded += (_, __) => ChangePasswordForUser("admin", requireCurrent: false);
-                }
             }
         }
 
         private void ChangePasswordForUser(string username, bool requireCurrent)
         {
-            var dlg = new ChangePasswordDialog
-            {
-                Username = username
-            };
-            if (this.IsLoaded && this.IsVisible)
-            {
-                dlg.Owner = this;
-            }
-            if (dlg.ShowDialog() != true)
-                return;
+            var dlg = new ChangePasswordDialog { Username = username };
+            if (this.IsLoaded && this.IsVisible) dlg.Owner = this;
+            if (dlg.ShowDialog() != true) return;
 
-            using var conn = Db.CreateConnection();
-            var repo = new UserRepository();
-            var user = repo.GetByUsername(conn, username);
+            using var ctx = new AthStitcher.Data.AthStitcherDbContext();
+            var user = ctx.Users.SingleOrDefault(u => u.Username == username);
             if (user == null)
             {
                 MessageBox.Show($"User '{username}' not found.", "Change Password", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -191,21 +221,19 @@ namespace AthStitcherGUI
 
             if (requireCurrent)
             {
-                if (!PasswordHasher.Verify(dlg.Current, user.Hash, user.Salt))
+                if (!AthStitcher.Security.PasswordHasher.Verify(dlg.Current, user.PasswordHash, user.PasswordSalt))
                 {
                     MessageBox.Show("Current password is incorrect.", "Change Password", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
             }
 
-            if (repo.UpdatePassword(conn, user.Id, dlg.NewPwd))
-            {
-                MessageBox.Show("Password changed successfully.", "Change Password", MessageBoxButton.OK, MessageBoxImage.Information);
-            }
-            else
-            {
-                MessageBox.Show("Failed to change password.", "Change Password", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+            var (hash, salt) = AthStitcher.Security.PasswordHasher.HashPassword(dlg.NewPwd);
+            user.PasswordHash = hash;
+            user.PasswordSalt = salt;
+            user.ForcePasswordChange = false;
+            ctx.SaveChanges();
+            MessageBox.Show("Password changed successfully.", "Change Password", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         // Parse clipboard time text into seconds (supports ss.fff, m:ss.fff, h:mm:ss.fff)
@@ -3122,7 +3150,7 @@ namespace AthStitcherGUI
         private void SetExifToolName(object sender, RoutedEventArgs e)
         {
             string currentName = athStitcherViewModel.DataContext.ExifTool;
-            var dialog = new InputDialog(currentName) { Owner = this };
+            var dialog = new ExifToolNamingDialog(currentName) { Owner = this };
             if (dialog.ShowDialog() == true)
             {
                 string newName = dialog.InputText.Trim();
@@ -3195,6 +3223,11 @@ namespace AthStitcherGUI
                 athStitcherViewModel.SetMaxMinLans($"{newMin},{newMax}");
                 athStitcherViewModel.NewEvent();
             }
+        }
+
+        private void New_Meet_Button_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 

@@ -117,21 +117,25 @@
                             FontWeight="Bold" 
                             FontStyle="Italic"
                             Foreground="Blue">
+                                <MenuItem Background="Beige" Header="Video:" Foreground="Purple"/>
                                 <MenuItem Header="Open Video File and Stitch" Click="OpenMp4File_Click"/>
-                                <Separator/>
                                 <MenuItem Header="Download Video from phone (only)" Click="DownLoadMp4File_Click"/>
                                 <MenuItem Header="Load Image File" Click="OpenPngFile_Click"/>
                                 <MenuItem Header="Set Temp Gun Audio File" Click="OpenGunAudioTextFile_Click"/>
-                                <MenuItem Header="Install Phone App on Phone (QR Code)" Click="QRCode_Click"/>
                                 <Separator/>
-                                <MenuItem Header="Change Password..." Click="ChangePassword_Menu_Click"/>
-                                <MenuItem Header="Reset Admin Password..." Click="ResetAdminPassword_Menu_Click"/>
+                                <MenuItem Background="Beige" Header="Phone:" Foreground="Purple"/>
+                                <MenuItem Header="Install Phone App on Phone (QR Code) Needs an update." Click="QRCode_Click"/>
+                                <Separator/>
+                                <MenuItem Background="Beige" Header="DATABASE:" Foreground="Purple"/>
+                                <MenuItem  Header="Change Password" Click="ChangePassword_Menu_Click"/>
+                                <MenuItem  Header="Reset Admin Password..." Click="ResetAdminPassword_Menu_Click"/>
+                                <MenuItem  Header="Recreate" Click="DeleteAndRecreateDatabase_Menu_Click"/>
                                 <!-- MenuItem Header="Truncate Video from Gun Start" Click="TruncateandSelectVideoFile_Click"/ -->
                                 <Separator/>
+                                <MenuItem Background="Beige" Header="Other:" Foreground="Purple"/>
                                 <MenuItem Header="Save State" Click="SaveViewModel_Click"/>
                                 <Separator/>
                                 <MenuItem Header="Exit" Command="ApplicationCommands.Close"/>
-{{ ... }}
                             </MenuItem>
                         </Menu>
                         <Menu>
@@ -580,9 +584,10 @@
                 <TextBox Grid.Column="3"   Grid.Row="4" Name="Threshold" IsReadOnly="False"   Background="Beige" HorizontalAlignment="Left"  Width="150" Text="3"  Visibility="{Binding MyVisibility}" />
                 <TextBlock Grid.Column="2" Grid.Row="5" Name="FinishTimeLabel"                TextAlignment="Right" Text="Finish Time: " FontWeight="Bold" Foreground="Blue"   Visibility="{Binding MyVisibility}"  />
                 <TextBox Grid.Column="3"   Grid.Row="5" Name="FinishTime" IsReadOnly="True"   Background="Beige" HorizontalAlignment="Left" Width="150"  Foreground="Purple" VerticalAlignment="Center" Text="" Visibility="{Binding MyVisibility}"  />
-                <Button Grid.Column="3" Grid.Row="6" Content="Show Sliders" Click="Show_Sliders_Button_Click" Visibility="{Binding NotShowSliders,Converter={StaticResource BoolToVis}}" Width="90" HorizontalAlignment="Center" Background="Red" Foreground="Yellow" />
-                <Button Grid.Column="3" Grid.Row="6" Content="Manage Results" Click="Hide_Sliders_Button_Click" Visibility="{Binding ShowSliders,Converter={StaticResource BoolToVis}}"   Width="90" HorizontalAlignment="Center" Background="Yellow" Foreground="Red"/>
-                <Button Grid.Column="3" Grid.Row="7" Content="New Event" Click="New_Event_Button_Click" Visibility="{Binding NoShowSliders,Converter={StaticResource BoolToVis}}"  Width="90" HorizontalAlignment="Center" Background="LightGreen" Foreground="Purple"/>
+                <Button Grid.Column="3" x:Name="ShowSlidersButton" Grid.Row="6" Content="Show Sliders"      Click="Show_Sliders_Button_Click" Visibility="{Binding NotShowSliders,Converter={StaticResource BoolToVis}}"  Width="150" HorizontalAlignment="Left" Background="Red" Foreground="Yellow" />
+                <Button Grid.Column="3" x:Name="ManageResultsButton" Grid.Row="6" Content="Manage Results" Click="Hide_Sliders_Button_Click" Visibility="{Binding ShowSliders,Converter={StaticResource BoolToVis}}"      Width="150" HorizontalAlignment="Left" Background="Yellow" Foreground="Red"/>
+                <Button Grid.Column="3" x:Name="NewEventButton" Grid.Row="8" Content="New Event"            Click="New_Event_Button_Click"    Visibility="{Binding NotShowSliders,Converter={StaticResource BoolToVis}}"  Width="150" HorizontalAlignment="Left" Background="LightGreen" Foreground="Purple"/>
+                <Button Grid.Column="3" x:Name="NewMeetButton" Grid.Row="9" Content="New Meet"              Click="New_Meet_Button_Click"     Visibility="{Binding NotShowSliders,Converter={StaticResource BoolToVis}}"  Width="150" HorizontalAlignment="Left" Background="Beige" Foreground="Black"/>
 
                 <!-- Columns 2 and 3 END  ========================================================================================================================================================================================== -->
 

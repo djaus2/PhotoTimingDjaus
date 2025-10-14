@@ -3,11 +3,11 @@ using System.Windows.Controls;
 
 namespace AthStitcherGUI
 {
-    public partial class InputDialog : Window
+    public partial class ExifToolNamingDialog : Window
     {
         public string InputText => InputTextBox.Text;
         public string InputText2 => InputTextBox2.Text;
-        public InputDialog(string initialText = "")
+        public ExifToolNamingDialog(string initialText = "")
         {
             InitializeComponent();
             InputTextBox.Text = initialText;
