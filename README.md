@@ -11,6 +11,9 @@ A simple ***Photo Timing/Photo Finish*** app for Athletics etc where a finish li
 > All good!
 
 ### Latest
+- AthStitcher
+  - Has SQLite DB with Meets,Events,Results tables. Not yet used 2Do
+  - Users table implemented. Can change password etc.
 - AthStitcher 4.1.0: Can record results against lanes and enter names
   - After a result has been determined, click in Result column for lane.
   - Can change lane by clicking in another which removes previous
