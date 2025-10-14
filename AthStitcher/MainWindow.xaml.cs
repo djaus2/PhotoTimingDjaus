@@ -3227,7 +3227,8 @@ namespace AthStitcherGUI
 
         private void New_Meet_Button_Click(object sender, RoutedEventArgs e)
         {
-
+            var dlg = new AthStitcher.Views.ManageMeetsDialog { Owner = this };
+            dlg.ShowDialog();
         }
     }
 
