@@ -11,10 +11,10 @@ A simple ***Photo Timing/Photo Finish*** app for Athletics etc where a finish li
 > All good!
 
 ### Latest
-- AthStitcher: (Work in progress)  Changing to Entity Framework for Sqlite DB coding.
+- AthStitcher:V4.2.0 (Some refinements required)  Changed to Entity Framework for Sqlite DB coding.
   - Meets ***Done***
-  - Events next
-  - Then Results
+  - Events **Done**
+  - Results **Done**  
 - AthStitcher
   - Has SQLite DB with Meets,Events,Results tables. Not yet used 2Do
   - Users table implemented. Can change password etc.

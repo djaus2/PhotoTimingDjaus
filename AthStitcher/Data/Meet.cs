@@ -13,6 +13,9 @@ namespace AthStitcher.Data
         public string Description { get; set; } = string.Empty;
         public DateTime? Date { get; set; }
         public string? Location { get; set; }
+
+        // Convenience: date-only string for UI bindings
+        public string DateStr => Date?.ToString("yyyy-MM-dd") ?? string.Empty;
     }
 
 }

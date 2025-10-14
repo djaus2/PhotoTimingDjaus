@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 
 namespace AthStitcher.Data
 {
@@ -14,17 +15,17 @@ namespace AthStitcher.Data
         public string? Description { get; set; }
         public int? Distance { get; set; }
         public int? HurdleSteepleHeight { get; set; }
-        public string? Sex { get; set; }
 
         public TrackType TrackType { get; set; } = TrackType.na;
         public Gender Gender { get; set; } = Gender.none;
         public AgeGrouping AgeGrouping { get; set; } = AgeGrouping.none;
-        public StandardAgeGroup? StandardAgeGroup { get; set; }
+        public UnderAgeGroup? UnderAgeGroup { get; set; }
         public MastersAgeGroup? MastersAgeGroup { get; set; }
 
-        public string? VideoFile { get; set; }
         public string? VideoInfoFile { get; set; }
-        public string? VideoImageFile { get; set; }
         public double? VideoStartOffsetSeconds { get; set; }
+
+        // Convenience: time-of-day string for UI bindings (12-hour with AM/PM)
+        public string TimeStr => Time?.ToString("h:mm tt", CultureInfo.CurrentCulture) ?? string.Empty;
     }
 }

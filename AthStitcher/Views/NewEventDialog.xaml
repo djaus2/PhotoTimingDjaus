@@ -1,0 +1,67 @@
+<Window x:Class="AthStitcher.Views.NewEventDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="New Event" SizeToContent="WidthAndHeight" ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner">
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="160"/>
+            <ColumnDefinition Width="240"/>
+        </Grid.ColumnDefinitions>
+
+        <TextBlock Grid.Row="0" Grid.Column="0" Margin="0,0,8,8" VerticalAlignment="Center" Text="Description:"/>
+        <TextBox x:Name="DescriptionBox" Grid.Row="0" Grid.Column="1" Margin="0,0,0,8"/>
+
+        <TextBlock Grid.Row="1" Grid.Column="0" Margin="0,0,8,8" VerticalAlignment="Center" Text="Event #:"/>
+        <TextBox x:Name="EventNumberBox" Grid.Row="1" Grid.Column="1" Margin="0,0,0,8"/>
+
+        <TextBlock Grid.Row="2" Grid.Column="0" Margin="0,0,8,8" VerticalAlignment="Center" Text="Heat #:"/>
+        <TextBox x:Name="HeatNumberBox" Grid.Row="2" Grid.Column="1" Margin="0,0,0,8"/>
+
+        <TextBlock Grid.Row="3" Grid.Column="0" Margin="0,0,8,8" VerticalAlignment="Center" Text="Distance:"/>
+        <TextBox x:Name="DistanceBox" Grid.Row="3" Grid.Column="1" Margin="0,0,0,8"/>
+
+        <TextBlock Grid.Row="4" Grid.Column="0" Margin="0,0,8,8" VerticalAlignment="Center" Text="Min Lane:"/>
+        <TextBox x:Name="MinLaneBox" Grid.Row="4" Grid.Column="1" Margin="0,0,0,8"/>
+
+        <TextBlock Grid.Row="5" Grid.Column="0" Margin="0,0,8,8" VerticalAlignment="Center" Text="Max Lane:"/>
+        <TextBox x:Name="MaxLaneBox" Grid.Row="5" Grid.Column="1" Margin="0,0,0,8"/>
+
+        <TextBlock Grid.Row="6" Grid.Column="0" Margin="0,0,8,8" VerticalAlignment="Center" Text="Time (HH:MM:SS[.fff]):"/>
+        <TextBox x:Name="TimeBox" Grid.Row="6" Grid.Column="1" Margin="0,0,0,8"/>
+
+        <TextBlock Grid.Row="7" Grid.Column="0" Margin="0,0,8,8" VerticalAlignment="Center" Text="Track Type:"/>
+        <ComboBox x:Name="TrackTypeBox" Grid.Row="7" Grid.Column="1" Margin="0,0,0,8"/>
+
+        <TextBlock Grid.Row="8" Grid.Column="0" Margin="0,0,8,8" VerticalAlignment="Center" Text="Gender:"/>
+        <ComboBox x:Name="GenderBox" Grid.Row="8" Grid.Column="1" Margin="0,0,0,8"/>
+
+        <TextBlock Grid.Row="9" Grid.Column="0" Margin="0,0,8,8" VerticalAlignment="Center" Text="Age Grouping:"/>
+        <ComboBox x:Name="AgeGroupingBox" Grid.Row="9" Grid.Column="1" Margin="0,0,0,8"/>
+
+        <TextBlock Grid.Row="10" Grid.Column="0" Margin="0,0,8,8" VerticalAlignment="Center" Text="Under Age Group:"/>
+        <ComboBox x:Name="StandardAgeGroupBox" Grid.Row="10" Grid.Column="1" Margin="0,0,0,8"/>
+
+        <TextBlock Grid.Row="11" Grid.Column="0" Margin="0,0,8,8" VerticalAlignment="Center" Text="Masters Age Group:"/>
+        <ComboBox x:Name="MastersAgeGroupBox" Grid.Row="11" Grid.Column="1" Margin="0,0,0,8"/>
+
+        <StackPanel Grid.Row="12" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
+            <Button Width="80" Margin="0,0,8,0" Content="OK" IsDefault="True" Click="Ok_Click"/>
+            <Button Width="80" Content="Cancel" IsCancel="True"/>
+        </StackPanel>
+    </Grid>
+</Window>

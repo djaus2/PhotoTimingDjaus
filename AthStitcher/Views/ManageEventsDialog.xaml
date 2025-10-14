@@ -1,0 +1,55 @@
+<Window x:Class="AthStitcher.Views.ManageEventsDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Manage Events" Height="460" Width="820"
+        WindowStartupLocation="CenterOwner">
+    <DockPanel>
+        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Margin="8">
+            <Button Width="90" Content="Done" Click="Done_Click" IsDefault="True"/>
+        </StackPanel>
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="8">
+            <Button Width="90" Content="Add" Click="Add_Click"/>
+            <TextBlock Margin="12,0,0,0" VerticalAlignment="Center" Text="Double-click a row to select / Edit button to modify" Foreground="Gray"/>
+        </StackPanel>
+        <!-- Filters row -->
+        <Grid DockPanel.Dock="Top" Margin="8,0,8,8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="160"/>
+                <ColumnDefinition Width="120"/>
+                <ColumnDefinition Width="220"/>
+            </Grid.ColumnDefinitions>
+            <TextBox x:Name="DescriptionFilter" Grid.Column="0" Margin="0,0,8,0"
+                     ToolTip="Filter description" TextChanged="Filter_TextChanged"/>
+            <TextBox x:Name="TimeFilter" Grid.Column="1" Margin="0,0,8,0"
+                     ToolTip="Filter time (e.g. 3:45 PM)" TextChanged="Filter_TextChanged"/>
+            <TextBox x:Name="DistanceFilter" Grid.Column="2"
+                     ToolTip="Filter distance" TextChanged="Filter_TextChanged"/>
+            <TextBlock Grid.Column="3" HorizontalAlignment="Left" VerticalAlignment="Center">
+                 <Run Text="&#x2190; "/>
+                <Bold>Filter</Bold>
+            </TextBlock>
+        </Grid>
+        <DataGrid x:Name="EventsGrid" Margin="8" AutoGenerateColumns="False" IsReadOnly="True"
+                  CanUserAddRows="False" CanUserDeleteRows="False" CanUserSortColumns="True"
+                  MouseDoubleClick="EventsGrid_MouseDoubleClick">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="#" Binding="{Binding EventNumber}" Width="60" SortMemberPath="EventNumber"/>
+                <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="*" SortMemberPath="Description"/>
+                <DataGridTextColumn Header="Heat" Binding="{Binding HeatNumber}" Width="70" SortMemberPath="HeatNumber"/>
+                <DataGridTextColumn Header="Distance" Binding="{Binding Distance}" Width="90" SortMemberPath="Distance"/>
+                <DataGridTextColumn Header="Time" Binding="{Binding TimeStr}" Width="140" SortMemberPath="Time"/>
+                <DataGridTemplateColumn Header="Actions" Width="160">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <Button Margin="0,0,8,0" Width="56" Content="Edit" Click="EditRow_Click"/>
+                                <Button Width="64" Content="Delete" Click="DeleteRow_Click"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+    </DockPanel>
+</Window>

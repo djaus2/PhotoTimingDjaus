@@ -8,7 +8,7 @@ namespace AthStitcher.Data
     public enum Gender { male, female, mixed, none=100 }
     public enum AgeGrouping { junior, open, masters, none=100 }
     public enum MastersAgeGroup { M30, M35, M40, M45, M50, M55, M60, M65, M70, M75, M80, M85, M90, M95, W30, W35, W40, W45, W50, W55, W60, W65, W70, W75, W80, W85, W90, W95, other=100 }
-    public enum StandardAgeGroup { U13, U14, U15, U16, U17, U18, U19, U20, Open, other=100 }
+    public enum UnderAgeGroup { U13, U14, U15, U16, U17, U18, U19, U20, other=100 }
     public enum LittleAthleticsAgeGroup { U6, U7, U8, U9, U10, U11, U12, other=100 }
 
 
@@ -67,13 +67,12 @@ CREATE TABLE IF NOT EXISTS Events (
   Description TEXT NULL,
   Distance INTEGER NULL,
   HurdleSteepleHeight INTEGER NULL,
-  Sex TEXT NULL,
   Gender INTEGER NOT NULL DEFAULT 100 CHECK (Gender IN (0,1,2,100)),
   AgeGrouping INTEGER NOT NULL DEFAULT 100 CHECK (AgeGrouping IN (0,1,2,100)),
   -- Applies only when AgeGrouping is junior (0) or open (1)
-  StandardAgeGroup INTEGER NULL CHECK (
-    (AgeGrouping IN (0,1) AND StandardAgeGroup IN (0,1,2,3,4,5,6,7,8,100))
-    OR (AgeGrouping NOT IN (0,1) AND (StandardAgeGroup IS NULL OR StandardAgeGroup = 100))
+  UnderAgeGroup INTEGER NULL CHECK (
+    (AgeGrouping IN (0,1) AND UnderAgeGroup IN (0,1,2,3,4,5,6,7,100))
+    OR (AgeGrouping NOT IN (0,1) AND (UnderAgeGroup IS NULL OR UnderAgeGroup = 100))
   ),
   -- Applies only when AgeGrouping is masters (2)
   MastersAgeGroup INTEGER NULL CHECK (
@@ -82,9 +81,7 @@ CREATE TABLE IF NOT EXISTS Events (
     OR (AgeGrouping <> 2 AND (MastersAgeGroup IS NULL OR MastersAgeGroup = 100))
   ),
   TrackType INTEGER NOT NULL DEFAULT 100 CHECK (TrackType IN (0,1,2,3,4,100)),
-  VideoFile TEXT NULL,
   VideoInfoFile TEXT NULL,
-  VideoImageFile TEXT NULL,
   VideoStartOffsetSeconds REAL NULL,
   FOREIGN KEY (MeetId) REFERENCES Meets(Id) ON DELETE CASCADE
 );";

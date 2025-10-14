@@ -34,6 +34,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using System.Threading.Tasks;
 //using OpenCvSharp;
 //using OpenCvSharp;
 using Microsoft.VisualBasic;
@@ -115,11 +116,28 @@ namespace AthStitcherGUI
                     };
                 }
 
-                // EF: create/update schema and seed admin
-                using var ctx = new AthStitcher.Data.AthStitcherDbContext();
-                ctx.Database.Migrate();
-                SeedAdminIfMissing();
-                EnforceForcePasswordChangeIfNeeded();
+                // Defer EF migration to after window loads, off UI thread to avoid startup hang
+                this.Loaded += async (_, __) =>
+                {
+                    try
+                    {
+                        await Task.Run(() =>
+                        {
+
+                            using var ctx = new AthStitcher.Data.AthStitcherDbContext();
+                            //ctx.Database.EnsureDeleted();
+                            ctx.Database.EnsureCreated();
+                            //ctx.Database.Migrate();
+                        });
+                        // Seeding uses short operations; OK on UI thread post-migrate
+                        SeedAdminIfMissing();
+                        EnforceForcePasswordChangeIfNeeded();
+                    }
+                    catch (Exception ex2)
+                    {
+                        MessageBox.Show($"Database initialization error: {ex2.Message}", "Database", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                };
             }
             catch (Exception ex)
             {
@@ -3183,52 +3201,49 @@ namespace AthStitcherGUI
 
         private void New_Event_Button_Click(object sender, RoutedEventArgs e)
         {
-            var res = MessageBox.Show("Start a new event? This will clear all current data.", "New Event", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
-            if (res == MessageBoxResult.OK)
+            if (this.DataContext is not AthStitcherGUI.ViewModels.AthStitcherModel vm)
+                return;
+
+            // Ensure a meet is selected first
+            if (vm.CurrentMeetId == null)
             {
-                // Get current defaults
-                int minLane = 1;
-                int maxLane = 8;
-                if (athStitcherViewModel?.DataContext is AthStitcherModel vm)
+                var pick = new AthStitcher.Views.ManageMeetsDialog { Owner = this };
+                var pickRes = pick.ShowDialog();
+                if (pickRes == true && pick.SelectedMeet != null)
                 {
-                    minLane = vm.MinLane;
-                    maxLane = vm.MaxLane;
+                    // Set full object to power XAML bindings like CurrentMeet.Description/Date
+                    vm.CurrentMeet = pick.SelectedMeet;
                 }
-
-                string defaultCsv = $"{minLane},{maxLane}";
-                string input = Interaction.InputBox(
-                    "Enter lane range as min,max (between 1 and 10, with min < max):",
-                    "Set Lane Range",
-                    defaultCsv);
-
-                // Treat cancel or empty as abort (no changes)
-                if (string.IsNullOrWhiteSpace(input))
-                    return;
-
-                var m = Regex.Match(input, @"^\s*(\d+)\s*,\s*(\d+)\s*$");
-                if (!m.Success ||
-                    !int.TryParse(m.Groups[1].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out int newMin) ||
-                    !int.TryParse(m.Groups[2].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out int newMax) ||
-                    newMin < 1 || newMax > 10 || newMin >= newMax)
+                else
                 {
-                    MessageBox.Show(
-                        "Invalid input. Please enter two integers between 1 and 10 separated by a comma, with min < max. Example: 1,8",
-                        "Invalid Lane Range",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Error);
+                    MessageBox.Show("Select a meet first.", "New Event", MessageBoxButton.OK, MessageBoxImage.Information);
                     return;
                 }
+            }
 
-                // Apply and rebuild
-                athStitcherViewModel.SetMaxMinLans($"{newMin},{newMax}");
-                athStitcherViewModel.NewEvent();
+            // Open Manage Events dialog for the current meet (like ManageMeets)
+            var dlg = new AthStitcher.Views.ManageEventsDialog(vm.CurrentMeetId!.Value) { Owner = this };
+            var result = dlg.ShowDialog();
+            if (result == true && dlg.SelectedEvent != null)
+            {
+                vm.CurrentEvent = dlg.SelectedEvent;
+                // Reset lanes/results to the event's lanes if needed (we don't store lanes per event yet; keep current)
+                athStitcherViewModel.SetShowSliders(true);
             }
         }
 
         private void New_Meet_Button_Click(object sender, RoutedEventArgs e)
         {
             var dlg = new AthStitcher.Views.ManageMeetsDialog { Owner = this };
-            dlg.ShowDialog();
+            var result = dlg.ShowDialog();
+            if (result == true && dlg.SelectedMeet != null)
+            {
+                // Set current meet object on ViewModel for XAML bindings
+                if (this.DataContext is AthStitcherGUI.ViewModels.AthStitcherModel vm)
+                {
+                    vm.CurrentMeet = dlg.SelectedMeet;
+                }
+            }
         }
     }
 

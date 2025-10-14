@@ -10,6 +10,7 @@ namespace AthStitcher.Views
 {
     public partial class ManageMeetsDialog : Window
     {
+        public Meet? SelectedMeet { get; private set; }
         public ManageMeetsDialog()
         {
             InitializeComponent();
@@ -162,13 +163,18 @@ namespace AthStitcher.Views
         {
             if (MeetsGrid.SelectedItem is Meet row)
             {
-                // reuse edit
-                EditRow_Click(new Button { DataContext = row }, new RoutedEventArgs());
+                SelectedMeet = row;
+                this.DialogResult = true;
+                this.Close();
             }
         }
 
         private void Done_Click(object sender, RoutedEventArgs e)
         {
+            if (MeetsGrid.SelectedItem is Meet row)
+            {
+                SelectedMeet = row;
+            }
             this.DialogResult = true;
             this.Close();
         }

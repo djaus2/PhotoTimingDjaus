@@ -399,6 +399,65 @@ namespace AthStitcherGUI.ViewModels
             }
         }
 
+        // Current meet selection (managed via ManageMeets dialog)
+        private int? _CurrentMeetId;
+        public int? CurrentMeetId
+        {
+            get => _CurrentMeetId;
+            set { _CurrentMeetId = value; OnPropertyChanged(nameof(CurrentMeetId)); }
+        }
+
+        private string _CurrentMeetDescription = string.Empty;
+        public string CurrentMeetDescription
+        {
+            get => _CurrentMeetDescription;
+            set { _CurrentMeetDescription = value; OnPropertyChanged(nameof(CurrentMeetDescription)); }
+        }
+
+        // Object reference for the selected Meet
+        private AthStitcher.Data.Meet? _CurrentMeet;
+        public AthStitcher.Data.Meet? CurrentMeet
+        {
+            get => _CurrentMeet;
+            set
+            {
+                _CurrentMeet = value;
+                // keep legacy fields in sync
+                CurrentMeetId = value?.Id;
+                CurrentMeetDescription = value?.Description ?? string.Empty;
+                OnPropertyChanged(nameof(CurrentMeet));
+            }
+        }
+
+        // Current event selection (set from an events UI)
+        private int? _CurrentEventId;
+        public int? CurrentEventId
+        {
+            get => _CurrentEventId;
+            set { _CurrentEventId = value; OnPropertyChanged(nameof(CurrentEventId)); }
+        }
+
+        private string _CurrentEventDescription = string.Empty;
+        public string CurrentEventDescription
+        {
+            get => _CurrentEventDescription;
+            set { _CurrentEventDescription = value; OnPropertyChanged(nameof(CurrentEventDescription)); }
+        }
+
+        // Object reference for the selected Event
+        private AthStitcher.Data.Event? _CurrentEvent;
+        public AthStitcher.Data.Event? CurrentEvent
+        {
+            get => _CurrentEvent;
+            set
+            {
+                _CurrentEvent = value;
+                CurrentEventId = value?.Id;
+                CurrentEventDescription = value?.Description ?? string.Empty;
+                OnPropertyChanged(nameof(CurrentEvent));
+            }
+        }
+
         public Scalar GunColor
         {
             get => _gunColor;

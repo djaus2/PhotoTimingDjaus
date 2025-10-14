@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using System;
 using System.IO;
 
@@ -14,7 +15,14 @@ namespace AthStitcher.Data
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             var dbPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "AthStitcher", "athstitcher.db");
-            optionsBuilder.UseSqlite($"Data Source={dbPath}");
+            var dir = Path.GetDirectoryName(dbPath);
+            if (!Directory.Exists(dir))
+            {
+                Directory.CreateDirectory(dir!);
+            }
+            optionsBuilder
+                .UseSqlite($"Data Source={dbPath}")
+                .ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning));
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -53,17 +61,14 @@ namespace AthStitcher.Data
                 e.Property(x => x.Description).IsRequired(false);
                 e.Property(x => x.Distance).IsRequired(false);
                 e.Property(x => x.HurdleSteepleHeight).IsRequired(false);
-                e.Property(x => x.Sex).IsRequired(false);
                 // enums as ints
                 e.Property(x => x.TrackType).HasConversion<int>().HasDefaultValue(TrackType.na).IsRequired();
                 e.Property(x => x.Gender).HasConversion<int>().HasDefaultValue(Gender.none).IsRequired();
                 e.Property(x => x.AgeGrouping).HasConversion<int>().HasDefaultValue(AgeGrouping.none).IsRequired();
-                e.Property(x => x.StandardAgeGroup).HasConversion<int>().IsRequired(false);
+                e.Property(x => x.UnderAgeGroup).HasConversion<int>().IsRequired(false);
                 e.Property(x => x.MastersAgeGroup).HasConversion<int>().IsRequired(false);
                 // video fields
-                e.Property(x => x.VideoFile).IsRequired(false);
                 e.Property(x => x.VideoInfoFile).IsRequired(false);
-                e.Property(x => x.VideoImageFile).IsRequired(false);
                 e.Property(x => x.VideoStartOffsetSeconds).IsRequired(false);
 
                 e.HasOne(x => x.Meet)
