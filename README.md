@@ -11,8 +11,8 @@ A simple ***Photo Timing/Photo Finish*** app for Athletics etc where a finish li
 > All good!
 
 ### Latest
-- AthStitcher: (Work in progress)  Changing to Enity Framework for Sqlite DB coding.
-  - Nearly done Meets
+- AthStitcher: (Work in progress)  Changing to Entity Framework for Sqlite DB coding.
+  - Meets ***Done***
   - Events next
   - Then Results
 - AthStitcher
