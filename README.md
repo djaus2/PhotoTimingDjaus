@@ -16,7 +16,6 @@ A simple ***Photo Timing/Photo Finish*** app for Athletics etc where a finish li
   - Events **Done**
   - Heats **Done**
   - Results **Done**  
-  - With selected event can next/previous through heats
   - Usage: 
     - Need to Create Meet/s,Event/s. 
       - With Event creation or Edit, prompted for number of heats.
