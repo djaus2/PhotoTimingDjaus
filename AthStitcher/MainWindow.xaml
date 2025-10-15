@@ -138,6 +138,21 @@
                                 <MenuItem Header="Exit" Command="ApplicationCommands.Close"/>
                             </MenuItem>
                         </Menu>
+                        <Menu >
+                            <MenuItem Header="Program"
+                                    FontWeight="Bold" 
+                                    FontStyle="Italic"
+                                    Foreground="Blue">
+                                <MenuItem Background="Beige" Header="Meets:" Foreground="Purple"/>
+                                <MenuItem Header="Meets" Click="New_Meet_Button_Click"/>
+                                <Separator/>
+                                <MenuItem Background="Beige" Header="Events:" Foreground="Purple"/>
+                                <MenuItem Header="Events" Click="New_Event_Button_Click"/>
+                                <Separator/>
+                                <MenuItem Background="Beige" Header="Heats:" Foreground="Purple"/>
+                                <MenuItem  Header="Add Heat to current Event" Click="AddHeat_Menu_Click"/>
+                            </MenuItem>
+                        </Menu>
                         <Menu>
                             <MenuItem Header="Settings"
                                 FontWeight="Bold" 
@@ -594,6 +609,25 @@
                     <Button x:Name="LoadResultsButton" Content="Load Results" Click="Load_Results_Button_Click" Width="70" HorizontalAlignment="Left" Background="LightBlue" Foreground="Black"/>"-->
                 <StackPanel Orientation="Horizontal" Grid.Column="3" Grid.Row="7" 
                             Visibility="{Binding NotShowSliders,Converter={StaticResource BoolToVis}}">
+                    <Button  x:Name="EventPrevButton"  Click="Prev_Event_Button_Click" 
+                             Width="50" HorizontalAlignment="Left" 
+                             Background="Beige" Foreground="Blue">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <svgc:SvgViewbox Source="pack://application:,,,/Resources/svgimages/previous.svg" Width="18" Height="18"/>
+                        </StackPanel>
+                    </Button>
+                    <TextBlock Text="Event" VerticalAlignment="Center" Width="50"/>
+                    <Button  x:Name="EventNextButton"  Click="Next_Event_Button_Click"  
+                             Width="50" HorizontalAlignment="Left" 
+                             Background="Beige" Foreground="Blue">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <svgc:SvgViewbox Source="pack://application:,,,/Resources/svgimages/next.svg" Width="18" Height="18"/>
+
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Grid.Column="3" Grid.Row="8" 
+                            Visibility="{Binding NotShowSliders,Converter={StaticResource BoolToVis}}">
                     <Button  x:Name="HeatPrevButton"  Click="Prev_Heat_Button_Click" 
                              Width="50" HorizontalAlignment="Left" 
                              Background="Beige" Foreground="Blue">
@@ -612,9 +646,9 @@
                     </Button>
                 </StackPanel>
                     
-                <Button Grid.Column="3" x:Name="EventButton" Grid.Row="8" Content="Events"            Click="New_Event_Button_Click"    Visibility="{Binding NotShowSliders,Converter={StaticResource BoolToVis}}"  Width="150" HorizontalAlignment="Left" Background="LightGreen" Foreground="Purple"/>
+                <!--Button Grid.Column="3" x:Name="EventButton" Grid.Row="8" Content="Events"            Click="New_Event_Button_Click"    Visibility="{Binding NotShowSliders,Converter={StaticResource BoolToVis}}"  Width="150" HorizontalAlignment="Left" Background="LightGreen" Foreground="Purple"/>
                 <Button Grid.Column="3" x:Name="MeetButton" Grid.Row="9" Content="Meets"              Click="New_Meet_Button_Click"     Visibility="{Binding NotShowSliders,Converter={StaticResource BoolToVis}}"  Width="150" HorizontalAlignment="Left" Background="Beige" Foreground="Black"/>
-
+                -->
                 <!-- Columns 2 and 3 END  ========================================================================================================================================================================================== -->
 
 

@@ -504,6 +504,98 @@ namespace AthStitcherGUI.ViewModels
         }
 
         // Advance to next heat for the CurrentEvent, wrapping back to 1 after the last heat
+        public void AdvanceEventNumber()
+        {
+            if (!CurrentMeetId.HasValue)
+                return;
+            if (!CurrentEventId.HasValue)
+                return;
+            try
+            {
+                // Get next event in chronological (Time) order ... may not be next Id!
+                using var ctx = new AthStitcherDbContext();
+                var meetId = CurrentMeetId!.Value;
+                var events = ctx.Events.Where(h => h.MeetId == meetId).OrderBy<AthStitcher.Data.Event, DateTime?>(e => e.Time);
+                if (!events.Any())
+                {
+                    // No events defined yet; nothing to do
+                    return;
+                }
+                var index = events.ToList().FindIndex(e => e.Id == CurrentEventId.Value);
+                if (index < 0)
+                {
+                    // Current event not found in meet; nothing to do
+                    return;
+                }
+                if (index >= events.Count())
+                {
+                    // Should not happen, but just in case
+                    index = 0;
+                }
+                else if (index == (events.Count() - 1))
+                {
+                    // At end so do nothing
+                    return;
+                }
+                index = (index + 1);
+                var nextEvent = events.ElementAt(index);
+                CurrentEvent = nextEvent;
+                CurrentEventId = nextEvent.Id;
+                CurrentHeatNumber = 1; // Reset heat number on event change
+            }
+            catch
+            {
+                // On any error, keep existing number
+            }
+        }
+
+        // Advance to next heat for the CurrentEvent, wrapping back to 1 after the last heat
+        public void DecrementEventNumber()
+        {
+            if (!CurrentMeetId.HasValue)
+                return;
+            if (!CurrentEventId.HasValue)
+                return;
+            try
+            {
+                // Get previous event in chronological (Time) order ... may not be prev Id!
+                using var ctx = new AthStitcherDbContext();
+                var meetId = CurrentMeetId!.Value;
+                var events = ctx.Events.Where(h => h.MeetId == meetId).OrderBy<AthStitcher.Data.Event, DateTime?>(e => e.Time);
+                if (!events.Any())
+                {
+                    // No events defined yet; nothing to do
+                    return;
+                }
+                var index = events.ToList().FindIndex(e => e.Id == CurrentEventId.Value);
+                if (index < 0)
+                {
+                    // Current event not found in meet; nothing to do
+                    return;
+                }
+                if (index >= events.Count())
+                {
+                    // Should not happen, but just in case
+                    index = 0;
+                }
+                else if (index == 0)
+                {
+                    // At start so do nothing
+                    return;
+                }
+                index = (index - 1);
+                var prevEvent = events.ElementAt(index);
+                CurrentEvent = prevEvent;
+                CurrentEventId = prevEvent.Id;
+                CurrentHeatNumber = 1; // Reset heat number on event change
+            }
+            catch
+            {
+                // On any error, keep existing number
+            }
+        }
+
+        // Advance to next heat for the CurrentEvent, wrapping back to 1 after the last heat
         public void AdvanceHeatNumber()
         {
             if (!CurrentEventId.HasValue)
@@ -565,6 +657,8 @@ namespace AthStitcherGUI.ViewModels
                     return;
                 }
                 CurrentHeatNumber = (CurrentHeatNumber >= maxHeatNo) ? 1 : (CurrentHeatNumber - 1);
+                if (CurrentHeatNumber < 1)
+                    CurrentHeatNumber = maxHeatNo;
             }
             catch
             {

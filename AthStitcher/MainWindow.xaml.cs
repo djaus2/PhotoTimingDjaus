@@ -3246,6 +3246,18 @@ namespace AthStitcherGUI
             }
         }
 
+        private void Next_Event_Button_Click(object sender, RoutedEventArgs e)
+        {
+            if (this.DataContext is AthStitcherGUI.ViewModels.AthStitcherModel vm)
+                vm.AdvanceEventNumber();
+        }
+
+        private void Prev_Event_Button_Click(object sender, RoutedEventArgs e)
+        {
+            if (this.DataContext is AthStitcherGUI.ViewModels.AthStitcherModel vm)
+                vm.DecrementEventNumber();
+        }
+
         private void Next_Heat_Button_Click(object sender, RoutedEventArgs e)
         {
             if (this.DataContext is AthStitcherGUI.ViewModels.AthStitcherModel vm)
@@ -3256,6 +3268,43 @@ namespace AthStitcherGUI
         {
             if (this.DataContext is AthStitcherGUI.ViewModels.AthStitcherModel vm)
                 vm.DecrementHeatNumber();
+        }
+
+        private void AddHeat_Menu_Click(object sender, RoutedEventArgs e)
+        {
+            if (this.DataContext is not AthStitcherGUI.ViewModels.AthStitcherModel vm)
+                return;
+            if (!vm.CurrentEventId.HasValue)
+            {
+                MessageBox.Show("Select an event first.", "Add Heat", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            try
+            {
+                using var ctx = new AthStitcher.Data.AthStitcherDbContext();
+                var eventId = vm.CurrentEventId!.Value;
+                // Determine next heat number
+                int nextHeatNo = 1;
+                var existingMax = ctx.Heats
+                    .Where(h => h.EventId == eventId)
+                    .Select(h => (int?)h.HeatNo)
+                    .Max();
+                if (existingMax.HasValue && existingMax.Value > 0)
+                    nextHeatNo = existingMax.Value + 1;
+
+                // Create and save new heat
+                var heat = new AthStitcher.Data.Heat { EventId = eventId, HeatNo = nextHeatNo };
+                ctx.Heats.Add(heat);
+                ctx.SaveChanges();
+
+                // Make it current in the VM
+                vm.CurrentHeatNumber = nextHeatNo;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to add heat: {ex.Message}", "Add Heat", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
     }
 
