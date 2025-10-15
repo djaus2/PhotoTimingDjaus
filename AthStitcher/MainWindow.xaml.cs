@@ -3245,6 +3245,18 @@ namespace AthStitcherGUI
                 }
             }
         }
+
+        private void Next_Heat_Button_Click(object sender, RoutedEventArgs e)
+        {
+            if (this.DataContext is AthStitcherGUI.ViewModels.AthStitcherModel vm)
+                vm.AdvanceHeatNumber();
+        }
+
+        private void Prev_Heat_Button_Click(object sender, RoutedEventArgs e)
+        {
+            if (this.DataContext is AthStitcherGUI.ViewModels.AthStitcherModel vm)
+                vm.DecrementHeatNumber();
+        }
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////

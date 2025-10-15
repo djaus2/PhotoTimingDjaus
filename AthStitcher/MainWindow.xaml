@@ -553,9 +553,7 @@
                     <TextBlock Grid.Column="1" Grid.Row="0" HorizontalAlignment="Left" Text="{Binding CurrentMeet.Description}"/>
                     <TextBlock Grid.Column="2" Grid.Row="0" HorizontalAlignment="Left" Text="{Binding CurrentMeet.DateStr}"/>
 
-                    <TextBlock Grid.Column="0" Grid.Row="1" HorizontalAlignment="Right" Text="Event:"/>
-                    <TextBlock Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left" Text="{Binding CurrentEvent.Description}"/>
-                    <TextBlock Grid.Column="2" Grid.Row="1" HorizontalAlignment="Left" Text="{Binding CurrentEvent.TimeStr}"/>
+                    <TextBlock Grid.Column="0" Grid.ColumnSpan="3"  Grid.Row="1" HorizontalAlignment="Left" Text="{Binding CurrentEventInfo }"/>
 
                     <!-- List row: choose one -->
                     <!-- Option A: DataGrid (scrolls by default) -->
@@ -591,6 +589,29 @@
                 <TextBox Grid.Column="3"   Grid.Row="5" Name="FinishTime" IsReadOnly="True"   Background="Beige" HorizontalAlignment="Left" Width="150"  Foreground="Purple" VerticalAlignment="Center" Text="" Visibility="{Binding MyVisibility}"  />
                 <Button Grid.Column="3" x:Name="ShowSlidersButton" Grid.Row="6" Content="Show Sliders"      Click="Show_Sliders_Button_Click" Visibility="{Binding NotShowSliders,Converter={StaticResource BoolToVis}}"  Width="150" HorizontalAlignment="Left" Background="Red" Foreground="Yellow" />
                 <Button Grid.Column="3" x:Name="ManageResultsButton" Grid.Row="6" Content="Manage Results" Click="Hide_Sliders_Button_Click" Visibility="{Binding ShowSliders,Converter={StaticResource BoolToVis}}"      Width="150" HorizontalAlignment="Left" Background="Yellow" Foreground="Red"/>
+                <!--<StackPanel Orientation="Horizontal" Grid.Column="3" Grid.Row="7" >
+                    <Button x:Name="SaveResultsButton" Content="Save Results" Click="Save_Results_Button_Click" Width="70" HorizontalAlignment="Left" Background="LightGreen" Foreground="Black" Margin="0,0,5,0"/>
+                    <Button x:Name="LoadResultsButton" Content="Load Results" Click="Load_Results_Button_Click" Width="70" HorizontalAlignment="Left" Background="LightBlue" Foreground="Black"/>"-->
+                <StackPanel Orientation="Horizontal" Grid.Column="3" Grid.Row="7" 
+                            Visibility="{Binding NotShowSliders,Converter={StaticResource BoolToVis}}">
+                    <Button  x:Name="HeatPrevButton"  Click="Prev_Heat_Button_Click" 
+                             Width="50" HorizontalAlignment="Left" 
+                             Background="Beige" Foreground="Blue">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <svgc:SvgViewbox Source="pack://application:,,,/Resources/svgimages/previous.svg" Width="18" Height="18"/>
+                        </StackPanel>
+                    </Button>
+                    <TextBlock Text="Heat" VerticalAlignment="Center" Width="50"/>
+                    <Button  x:Name="HeatNextButton"  Click="Next_Heat_Button_Click"  
+                             Width="50" HorizontalAlignment="Left" 
+                             Background="Beige" Foreground="Blue">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <svgc:SvgViewbox Source="pack://application:,,,/Resources/svgimages/next.svg" Width="18" Height="18"/>
+                            
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+                    
                 <Button Grid.Column="3" x:Name="EventButton" Grid.Row="8" Content="Events"            Click="New_Event_Button_Click"    Visibility="{Binding NotShowSliders,Converter={StaticResource BoolToVis}}"  Width="150" HorizontalAlignment="Left" Background="LightGreen" Foreground="Purple"/>
                 <Button Grid.Column="3" x:Name="MeetButton" Grid.Row="9" Content="Meets"              Click="New_Meet_Button_Click"     Visibility="{Binding NotShowSliders,Converter={StaticResource BoolToVis}}"  Width="150" HorizontalAlignment="Left" Background="Beige" Foreground="Black"/>
 

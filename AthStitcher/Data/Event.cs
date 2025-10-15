@@ -10,7 +10,6 @@ namespace AthStitcher.Data
         public Meet? Meet { get; set; }
 
         public int? EventNumber { get; set; }
-        public int? HeatNumber { get; set; }
         public DateTime? Time { get; set; }
         public string? Description { get; set; }
         public int? Distance { get; set; }

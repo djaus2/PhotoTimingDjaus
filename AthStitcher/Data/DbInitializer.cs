@@ -63,7 +63,6 @@ CREATE TABLE IF NOT EXISTS Events (
   MeetId INTEGER NOT NULL,
   Time TEXT NULL,
   EventNumber INTEGER NULL,
-  HeatNumber INTEGER NULL,
   Description TEXT NULL,
   Distance INTEGER NULL,
   HurdleSteepleHeight INTEGER NULL,
@@ -87,16 +86,27 @@ CREATE TABLE IF NOT EXISTS Events (
 );";
             cmd.ExecuteNonQuery();
 
+            // Heats (SQLite)
+            cmd.CommandText = @"
+CREATE TABLE IF NOT EXISTS Heats (
+  Id INTEGER PRIMARY KEY AUTOINCREMENT,
+  EventId INTEGER NOT NULL,
+  HeatNo INTEGER NOT NULL,
+  FOREIGN KEY (EventId) REFERENCES Events(Id) ON DELETE CASCADE,
+  CONSTRAINT UX_Heats_Event_HeatNo UNIQUE (EventId, HeatNo)
+);";
+            cmd.ExecuteNonQuery();
+
             // Results (SQLite)
             cmd.CommandText = @"
 CREATE TABLE IF NOT EXISTS Results (
   Id INTEGER PRIMARY KEY AUTOINCREMENT,
-  EventId INTEGER NOT NULL,
+  HeatId INTEGER NOT NULL,
   Lane INTEGER NULL,
   BibNumber INTEGER NULL,
   Name TEXT NULL,
   ResultSeconds REAL NULL,
-  FOREIGN KEY (EventId) REFERENCES Events(Id) ON DELETE CASCADE
+  FOREIGN KEY (HeatId) REFERENCES Heats(Id) ON DELETE CASCADE
 );";
             cmd.ExecuteNonQuery();
         }
@@ -111,7 +121,7 @@ CREATE TABLE IF NOT EXISTS Results (
             cmd.ExecuteNonQuery();
 
             // Drop child-first order
-            string[] tables = new[] { "Results", "Events", "Meets", "Users" };
+            string[] tables = new[] { "Results", "Heats", "Events", "Meets", "Users" };
             foreach (var t in tables)
             {
                 cmd.CommandText = $"DROP TABLE IF EXISTS {t};";

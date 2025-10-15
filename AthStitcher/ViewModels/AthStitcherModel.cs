@@ -1,4 +1,5 @@
 using OpenCvSharp;
+using AthStitcher.Data;
 using Sportronics.VideoEnums;// This is where TimeFromMode is defined
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -7,6 +8,7 @@ using System.Windows;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Input;
+using System.Linq;
 
 namespace AthStitcherGUI.ViewModels
 {
@@ -454,10 +456,122 @@ namespace AthStitcherGUI.ViewModels
                 _CurrentEvent = value;
                 CurrentEventId = value?.Id;
                 CurrentEventDescription = value?.Description ?? string.Empty;
+                // Reset heat number on event change
+                if (value != null)
+                    CurrentHeatNumber = 1;
                 OnPropertyChanged(nameof(CurrentEvent));
+                OnPropertyChanged(nameof(CurrentEventInfo));
             }
         }
 
+        // Current Heat number within the selected Event (1-based)
+        private int _CurrentHeatNumber = 1;
+        public int CurrentHeatNumber
+        {
+            get => _CurrentHeatNumber;
+            set { _CurrentHeatNumber = value; OnPropertyChanged(nameof(CurrentHeatNumber)); OnPropertyChanged(nameof(CurrentEventInfo)); }
+        }
+
+        // Read-only composed info for current event/heat
+        public string CurrentEventInfo
+        {
+            get
+            {
+                var e = CurrentEvent;
+                if (e == null)
+                {
+                    return $"Heat no:{CurrentHeatNumber}";
+                }
+                string numPart = e.EventNumber.HasValue ? $"{e.EventNumber.Value}" : string.Empty;
+                string desc = e.Description ?? string.Empty;
+                if(e.AgeGrouping == AgeGrouping.masters && e.MastersAgeGroup.HasValue)
+                {
+                    desc += $" {e.MastersAgeGroup.Value}";
+                }
+                else if(e.AgeGrouping == AgeGrouping.junior && e.UnderAgeGroup.HasValue)
+                {
+                    desc += $" {e.UnderAgeGroup.Value}";
+                }
+                else if(e.AgeGrouping != AgeGrouping.open)
+                {
+                    desc += $" {e.AgeGrouping}";
+                }
+                string age = e.AgeGrouping.ToString();
+                string time = e.Time?.ToString("h:mm tt", System.Globalization.CultureInfo.CurrentCulture) ?? string.Empty;
+                string prefix = string.IsNullOrEmpty(numPart) ? string.Empty : numPart + ". ";
+                return $"{time} Event: {prefix} {desc} {age} - Heat:{CurrentHeatNumber}";
+            }
+        }
+
+        // Advance to next heat for the CurrentEvent, wrapping back to 1 after the last heat
+        public void AdvanceHeatNumber()
+        {
+            if (!CurrentEventId.HasValue)
+                return;
+            try
+            {
+                using var ctx = new AthStitcherDbContext();
+                var eventId = CurrentEventId!.Value;
+                var heats = ctx.Heats.Where(h => h.EventId == eventId);
+                if (!heats.Any())
+                {
+                    // No heats defined yet; Add one with heat number 1
+                    ctx.Heats.Add(new Heat { EventId = eventId, HeatNo = 1 });
+                    ctx.SaveChanges();
+                }
+                var maxHeatNo = ctx.Heats
+                    .Where(h => h.EventId == eventId)
+                    .Select(h => h.HeatNo)
+                    //.DefaultIfEmpty(1)
+                    .Max();
+                if (maxHeatNo <= 0)
+                {
+                    // No heats defined yet; default to 1
+                    CurrentHeatNumber = 1;
+                    return;
+                }
+                CurrentHeatNumber = (CurrentHeatNumber >= maxHeatNo) ? 1 : (CurrentHeatNumber + 1);
+            }
+            catch
+            {
+                // On any error, keep existing number
+            }
+        }
+
+        public void DecrementHeatNumber()
+        {
+            if (!CurrentEventId.HasValue)
+                return;
+            try
+            {
+                using var ctx = new AthStitcherDbContext();
+                var eventId = CurrentEventId!.Value;
+                var heats = ctx.Heats.Where(h => h.EventId == eventId);
+                if (!heats.Any())
+                {
+                    // No heats defined yet; Add one with heat number 1
+                    ctx.Heats.Add(new Heat { EventId = eventId, HeatNo = 1 });
+                    ctx.SaveChanges();
+                }
+                var maxHeatNo = ctx.Heats
+                    .Where(h => h.EventId == eventId)
+                    .Select(h => h.HeatNo)
+                    //.DefaultIfEmpty(1)
+                    .Max();
+                if (maxHeatNo <= 0)
+                {
+                    // No heats defined yet; default to 1
+                    CurrentHeatNumber = 1;
+                    return;
+                }
+                CurrentHeatNumber = (CurrentHeatNumber >= maxHeatNo) ? 1 : (CurrentHeatNumber - 1);
+            }
+            catch
+            {
+                // On any error, keep existing number
+            }
+        }
+        
         public Scalar GunColor
         {
             get => _gunColor;

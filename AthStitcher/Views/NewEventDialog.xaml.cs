@@ -9,7 +9,6 @@ namespace AthStitcher.Views
     {
         public string? DescriptionValue { get; private set; }
         public int? EventNumberValue { get; private set; }
-        public int? HeatNumberValue { get; private set; }
         public int DistanceValue { get; private set; }
         public int MinLaneValue { get; private set; } = 1;
         public int MaxLaneValue { get; private set; } = 8;
@@ -51,7 +50,6 @@ namespace AthStitcher.Views
             // Pre-fill for edit callers
             DescriptionBox.Text = existing.Description ?? string.Empty;
             EventNumberValue = existing.EventNumber;
-            HeatNumberValue = existing.HeatNumber;
             DistanceValue = existing.Distance ?? 0;
             TimeBox.Text = existing.Time?.ToString("HH:mm:ss") ?? TimeBox.Text;
             TrackTypeBox.SelectedItem = existing.TrackType;
@@ -81,7 +79,6 @@ namespace AthStitcher.Views
             DistanceValue = dist;
 
             if (int.TryParse(EventNumberBox.Text, out var ev)) EventNumberValue = ev; else EventNumberValue = null;
-            if (int.TryParse(HeatNumberBox.Text, out var ht)) HeatNumberValue = ht; else HeatNumberValue = null;
 
             // Time only; date is from meet (use BaseDate if provided, else today)
             var tText = (TimeBox.Text ?? string.Empty).Trim();

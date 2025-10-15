@@ -10,6 +10,7 @@ namespace AthStitcher.Data
         public DbSet<User> Users { get; set; }
         public DbSet<Meet> Meets { get; set; }
         public DbSet<Event> Events { get; set; }
+        public DbSet<Heat> Heats { get; set; }
         public DbSet<Result> Results { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -40,6 +41,20 @@ namespace AthStitcher.Data
                 e.Property(x => x.ForcePasswordChange).HasDefaultValue(false).IsRequired();
             });
 
+            // Heats
+            modelBuilder.Entity<Heat>(h =>
+            {
+                h.ToTable("Heats");
+                h.HasKey(x => x.Id);
+                h.Property(x => x.HeatNo).IsRequired();
+                h.HasOne(x => x.Event)
+                 .WithMany()
+                 .HasForeignKey(x => x.EventId)
+                 .OnDelete(DeleteBehavior.Cascade);
+                // Unique per event
+                h.HasIndex(x => new { x.EventId, x.HeatNo }).IsUnique();
+            });
+
             // Meets
             modelBuilder.Entity<Meet>(e =>
             {
@@ -56,7 +71,6 @@ namespace AthStitcher.Data
                 e.ToTable("Events");
                 e.HasKey(x => x.Id);
                 e.Property(x => x.EventNumber).IsRequired(false);
-                e.Property(x => x.HeatNumber).IsRequired(false);
                 e.Property(x => x.Time).HasColumnType("TEXT").IsRequired(false); // stored as TEXT (ISO-8601)
                 e.Property(x => x.Description).IsRequired(false);
                 e.Property(x => x.Distance).IsRequired(false);
@@ -92,9 +106,9 @@ namespace AthStitcher.Data
                 e.Property(x => x.Name).IsRequired(false);
                 e.Property(x => x.ResultSeconds).IsRequired(false);
 
-                e.HasOne(x => x.Event)
+                e.HasOne(x => x.Heat)
                  .WithMany()
-                 .HasForeignKey(x => x.EventId)
+                 .HasForeignKey(x => x.HeatId)
                  .OnDelete(DeleteBehavior.Cascade);
             });
         }

@@ -29,8 +29,6 @@
         <TextBlock Grid.Row="1" Grid.Column="0" Margin="0,0,8,8" VerticalAlignment="Center" Text="Event #:"/>
         <TextBox x:Name="EventNumberBox" Grid.Row="1" Grid.Column="1" Margin="0,0,0,8"/>
 
-        <TextBlock Grid.Row="2" Grid.Column="0" Margin="0,0,8,8" VerticalAlignment="Center" Text="Heat #:"/>
-        <TextBox x:Name="HeatNumberBox" Grid.Row="2" Grid.Column="1" Margin="0,0,0,8"/>
 
         <TextBlock Grid.Row="3" Grid.Column="0" Margin="0,0,8,8" VerticalAlignment="Center" Text="Distance:"/>
         <TextBox x:Name="DistanceBox" Grid.Row="3" Grid.Column="1" Margin="0,0,0,8"/>

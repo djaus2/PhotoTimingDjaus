@@ -36,7 +36,6 @@
             <DataGrid.Columns>
                 <DataGridTextColumn Header="#" Binding="{Binding EventNumber}" Width="60" SortMemberPath="EventNumber"/>
                 <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="*" SortMemberPath="Description"/>
-                <DataGridTextColumn Header="Heat" Binding="{Binding HeatNumber}" Width="70" SortMemberPath="HeatNumber"/>
                 <DataGridTextColumn Header="Distance" Binding="{Binding Distance}" Width="90" SortMemberPath="Distance"/>
                 <DataGridTextColumn Header="Time" Binding="{Binding TimeStr}" Width="140" SortMemberPath="Time"/>
                 <DataGridTemplateColumn Header="Actions" Width="160">
