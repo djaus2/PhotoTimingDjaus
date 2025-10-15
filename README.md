@@ -22,7 +22,7 @@ A simple ***Photo Timing/Photo Finish*** app for Athletics etc where a finish li
     - Select Meet then Event. Starts at Heat 1
     - With selected event can next/previous through heats.
 - AthStitcher
-  - Has SQLite DB with Meets,Events,Results tables. Not yet used 2Do
+  - Has SQLite DB with Meets,Events,Results tables. Recoded to use Entity Framework.
   - Users table implemented. Can change password etc.
 - AthStitcher 4.1.0: Can record results against lanes and enter names
   - After a result has been determined, click in Result column for lane.
