@@ -3199,7 +3199,58 @@ namespace AthStitcherGUI
             athStitcherViewModel.SetShowSliders(true);
         }
 
-        private void New_Event_Button_Click(object sender, RoutedEventArgs e)
+        private void Select_Meet_Menu_Click(object sender, RoutedEventArgs e)
+        {
+            var dlg = new AthStitcher.Views.SelectMeetDialog { Owner = this };
+            var result = dlg.ShowDialog();
+            if (result == true && dlg.SelectedMeet != null)
+            {
+                // Set current meet object on ViewModel for XAML bindings
+                if (this.DataContext is AthStitcherGUI.ViewModels.AthStitcherModel vm)
+                {
+                    vm.CurrentMeet = dlg.SelectedMeet;
+                    athStitcherViewModel.SetShowSliders(false);
+                }
+            }
+        }
+        private void Manage_Meets_Menu_Click(object sender, RoutedEventArgs e)
+        {
+            var dlg = new AthStitcher.Views.ManageMeetsDialog { Owner = this };
+            var result = dlg.ShowDialog();
+            if (result == true && dlg.SelectedMeet != null)
+            {
+                // Set current meet object on ViewModel for XAML bindings
+                if (this.DataContext is AthStitcherGUI.ViewModels.AthStitcherModel vm)
+                {
+                    vm.CurrentMeet = dlg.SelectedMeet;
+                    athStitcherViewModel.SetShowSliders(false);
+                }
+            }
+        }
+
+        private void New_Meet_Menu_Click(object sender, RoutedEventArgs e)
+        {
+            var dlg = new NewMeetDialog { Owner = this };
+            if (dlg.ShowDialog() == true)
+            {
+                using var ctx = new AthStitcherDbContext();
+                var desc = (dlg.DescriptionValue ?? string.Empty).Trim();
+                var date = dlg.DateValue;
+                var loc = string.IsNullOrWhiteSpace(dlg.LocationValue) ? null : dlg.LocationValue!.Trim();
+                // Duplicate check: same Description + Date
+                bool exists = ctx.Meets.Any(m => m.Description == desc && m.Date == date);
+                if (exists)
+                {
+                    MessageBox.Show("A meet with the same Description and Date already exists.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+                var meet = new Meet { Description = desc, Date = date, Location = loc };
+                ctx.Meets.Add(meet);
+                ctx.SaveChanges();
+            }
+        }
+
+        private void Manage_Events_Menu_Click(object sender, RoutedEventArgs e)
         {
             if (this.DataContext is not AthStitcherGUI.ViewModels.AthStitcherModel vm)
                 return;
@@ -3228,22 +3279,115 @@ namespace AthStitcherGUI
             {
                 vm.CurrentEvent = dlg.SelectedEvent;
                 // Reset lanes/results to the event's lanes if needed (we don't store lanes per event yet; keep current)
-                athStitcherViewModel.SetShowSliders(true);
+                athStitcherViewModel.SetShowSliders(false);
+            }
+        }
+        private void Select_Event_Menu_Click(object sender, RoutedEventArgs e)
+        {
+            if (this.DataContext is not AthStitcherGUI.ViewModels.AthStitcherModel vm)
+                return;
+
+            // Ensure a meet is selected first
+            if (vm.CurrentMeetId == null)
+            {
+                var pick = new AthStitcher.Views.ManageMeetsDialog { Owner = this };
+                var pickRes = pick.ShowDialog();
+                if (pickRes == true && pick.SelectedMeet != null)
+                {
+                    // Set full object to power XAML bindings like CurrentMeet.Description/Date
+                    vm.CurrentMeet = pick.SelectedMeet;
+                }
+                else
+                {
+                    MessageBox.Show("Select a meet first.", "New Event", MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
+            }
+
+            // Open Manage Events dialog for the current meet (like ManageMeets)
+            var dlg = new AthStitcher.Views.SelectEventDialog(vm.CurrentMeetId!.Value) { Owner = this };
+            var result = dlg.ShowDialog();
+            if (result == true && dlg.SelectedEvent != null)
+            {
+                vm.CurrentEvent = dlg.SelectedEvent;
+                // Reset lanes/results to the event's lanes if needed (we don't store lanes per event yet; keep current)
+                athStitcherViewModel.SetShowSliders(false);
             }
         }
 
-        private void New_Meet_Button_Click(object sender, RoutedEventArgs e)
+        private void New_Event_Menu_Click(object sender, RoutedEventArgs e)
         {
-            var dlg = new AthStitcher.Views.ManageMeetsDialog { Owner = this };
-            var result = dlg.ShowDialog();
-            if (result == true && dlg.SelectedMeet != null)
+            if (this.DataContext is not AthStitcherGUI.ViewModels.AthStitcherModel vm)
+                return;
+
+            // Ensure a meet is selected first
+            if (vm.CurrentMeetId == null)
             {
-                // Set current meet object on ViewModel for XAML bindings
-                if (this.DataContext is AthStitcherGUI.ViewModels.AthStitcherModel vm)
+                var pick = new AthStitcher.Views.ManageMeetsDialog { Owner = this };
+                var pickRes = pick.ShowDialog();
+                if (pickRes == true && pick.SelectedMeet != null)
                 {
-                    vm.CurrentMeet = dlg.SelectedMeet;
+                    // Set full object to power XAML bindings like CurrentMeet.Description/Date
+                    vm.CurrentMeet = pick.SelectedMeet;
+                }
+                else
+                {
+                    MessageBox.Show("Select a meet first.", "New Event", MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
                 }
             }
+
+            // Ensure a meet is selected first
+            if (vm.CurrentMeetId == null)
+            {
+                return;
+            }
+            int MeetId = vm.CurrentMeetId!.Value;
+            var dlg = new NewEventDialog { Owner = this };
+            // Use meet date as base date
+            using (var ctx = new AthStitcherDbContext())
+            {
+                var meet = ctx.Meets.SingleOrDefault(m => m.Id == MeetId);
+                dlg.BaseDate = meet?.Date;
+            }
+            if (dlg.ShowDialog() == true)
+            {
+                using var ctx = new AthStitcherDbContext();
+                var ev = new Event
+                {
+                    MeetId = MeetId,
+                    Description = dlg.DescriptionValue,
+                    EventNumber = dlg.EventNumberValue,
+                    Distance = dlg.DistanceValue,
+                    Time = dlg.EventTime,
+                    TrackType = dlg.TrackTypeValue,
+                    Gender = dlg.GenderValue,
+                    AgeGrouping = dlg.AgeGroupingValue,
+                    UnderAgeGroup = dlg.UnderAgeGroupValue,
+                    MastersAgeGroup = dlg.MastersAgeGroupValue,
+                };
+                ctx.Events.Add(ev);
+                ctx.SaveChanges();
+
+                // Ask for number of heats; default and minimum is 1
+                int heatsCount = 1;
+                var heatsDlg = new NumberOfHeatsDialog { Owner = this };
+                if (heatsDlg.ShowDialog() == true)
+                {
+                    heatsCount = Math.Max(1, heatsDlg.HeatsCount);
+                }
+                // Create heats 1..heatsCount, skip any that already exist
+                for (int h = 1; h <= heatsCount; h++)
+                {
+                    if (!ctx.Heats.Any(x => x.EventId == ev.Id && x.HeatNo == h))
+                    {
+                        ctx.Heats.Add(new Heat { EventId = ev.Id, HeatNo = h });
+                    }
+                }
+                ctx.SaveChanges();
+
+            }
+        
         }
 
         private void Next_Event_Button_Click(object sender, RoutedEventArgs e)
@@ -3269,7 +3413,6 @@ namespace AthStitcherGUI
             if (this.DataContext is AthStitcherGUI.ViewModels.AthStitcherModel vm)
                 vm.DecrementHeatNumber();
         }
-
         private void AddHeat_Menu_Click(object sender, RoutedEventArgs e)
         {
             if (this.DataContext is not AthStitcherGUI.ViewModels.AthStitcherModel vm)
@@ -3306,6 +3449,51 @@ namespace AthStitcherGUI
                 MessageBox.Show($"Failed to add heat: {ex.Message}", "Add Heat", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+        
+private void RemoveHeat_Menu_Click(object sender, RoutedEventArgs e)
+{
+    if (this.DataContext is not AthStitcherGUI.ViewModels.AthStitcherModel vm)
+        return;
+    if (!vm.CurrentEventId.HasValue)
+    {
+        MessageBox.Show("Select an event first.", "Remove Heat", MessageBoxButton.OK, MessageBoxImage.Information);
+        return;
+    }
+
+    try
+    {
+        using var ctx = new AthStitcher.Data.AthStitcherDbContext();
+        var eventId = vm.CurrentEventId!.Value;
+
+        // Find the last heat for this event ordered by Time (most recent)
+        var lastHeat = ctx.Heats
+            .Where(h => h.EventId == eventId)
+            .OrderByDescending(h => h.HeatNo)
+            .FirstOrDefault();
+
+        if (lastHeat == null)
+        {
+            MessageBox.Show("No heats found for this event.", "Remove Heat", MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+
+        // Remove the found heat
+        ctx.Heats.Remove(lastHeat);
+        ctx.SaveChanges();
+
+        // Update current heat number to the highest remaining heat number or 1 if none remain
+        var remainingMax = ctx.Heats
+            .Where(h => h.EventId == eventId)
+            .Select(h => (int?)h.HeatNo)
+            .Max();
+
+        vm.CurrentHeatNumber = remainingMax.HasValue ? remainingMax.Value : 1;
+    }
+    catch (Exception ex)
+    {
+        MessageBox.Show($"Failed to remove heat: {ex.Message}", "Remove Heat", MessageBoxButton.OK, MessageBoxImage.Error);
+    }
+}
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////

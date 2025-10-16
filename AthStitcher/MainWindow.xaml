@@ -144,13 +144,18 @@
                                     FontStyle="Italic"
                                     Foreground="Blue">
                                 <MenuItem Background="Beige" Header="Meets:" Foreground="Purple"/>
-                                <MenuItem Header="Meets" Click="New_Meet_Button_Click"/>
+                                <MenuItem Header="Select Meet" Click="Select_Meet_Menu_Click"/>
+                                <MenuItem Header="Manage Meets" Click="Manage_Meets_Menu_Click"/>
+                                <MenuItem Header="New Meet" Click="New_Meet_Menu_Click"/>
                                 <Separator/>
                                 <MenuItem Background="Beige" Header="Events:" Foreground="Purple"/>
-                                <MenuItem Header="Events" Click="New_Event_Button_Click"/>
+                                <MenuItem Header="Select Event" Click="Select_Event_Menu_Click"/>
+                                <MenuItem Header="Manage Events" Click="Manage_Events_Menu_Click"/>
+                                <MenuItem Header="New Event" Click="New_Event_Menu_Click"/>
                                 <Separator/>
                                 <MenuItem Background="Beige" Header="Heats:" Foreground="Purple"/>
                                 <MenuItem  Header="Add Heat to current Event" Click="AddHeat_Menu_Click"/>
+                                <MenuItem  Header="Remove LAST Heat from current Event" Click="RemoveHeat_Menu_Click"/>
                             </MenuItem>
                         </Menu>
                         <Menu>
