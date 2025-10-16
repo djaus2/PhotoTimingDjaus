@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net9.0-windows</TargetFramework>
-    <Version>4.5.0</Version>
+    <Version>4.5.1</Version>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>

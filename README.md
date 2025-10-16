@@ -11,6 +11,13 @@ A simple ***Photo Timing/Photo Finish*** app for Athletics etc where a finish li
 > All good!
 
 ### Latest
+- AthStitcher: V5.4.1
+  - Extended menus under Program
+    - Meets: Select, Manage, Add
+    - Events: Select, Manage, Add
+    - Heats: Add, Delete Last
+    - _Need to add Admin Mode to restrict these menus_
+    - _Also to not delete heats if results exist for that heat._
 - AthStitcher:V4.5.0 
   - Meets ***Done***
   - Events **Done**
