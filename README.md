@@ -23,7 +23,7 @@ A simple ***Photo Timing/Photo Finish*** app for Athletics etc where a finish li
     - Restrict entering results prior to the event DateTime
     - Don't allow deletion of Heats that have data entered.
   - This all improves the integrity of data entry.
-    - _i.e. Can't create a spurious event and add data after the event date._
+    - _i.e. Can't create a spurious event and add data after the event date/time._
 - AthStitcher: V5.4.1
   - Extended menus under Program
     - Meets: Select, Manage, Add
