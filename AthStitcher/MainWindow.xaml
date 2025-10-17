@@ -156,6 +156,9 @@
                                 <MenuItem Background="Beige" Header="Heats:" Foreground="Purple"/>
                                 <MenuItem  Header="Add Heat to current Event" Click="AddHeat_Menu_Click"/>
                                 <MenuItem  Header="Remove LAST Heat from current Event" Click="RemoveHeat_Menu_Click"/>
+                                <Separator/>
+                                <MenuItem Background="Beige" Header="Settings:" Foreground="Purple"/>
+                                <MenuItem  Header="Set App Cuttoffs" Click="SetAppCuttoffs_Menu_Click"/>
                             </MenuItem>
                         </Menu>
                         <Menu>

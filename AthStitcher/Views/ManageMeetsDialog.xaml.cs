@@ -1,20 +1,27 @@
+using AthStitcher.Data;
+using AthStitcherGUI.ViewModels;
 using System;
+using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.ComponentModel;
 using System.Windows.Data;
-using AthStitcher.Data;
 
 namespace AthStitcher.Views
 {
     public partial class ManageMeetsDialog : Window
     {
+        public AthStitcherGUI.ViewModels.AthStitcherModel vm { get; set; }
         public Meet? SelectedMeet { get; private set; }
         public ManageMeetsDialog()
         {
             InitializeComponent();
             LoadMeets();
+            Loaded += (_, __) =>
+            {
+
+            };
+
         }
 
         private void LoadMeets()
@@ -104,20 +111,37 @@ namespace AthStitcher.Views
         private void EditRow_Click(object sender, RoutedEventArgs e)
         {
             if ((sender as Button)?.DataContext is not Meet row) return;
+
+            // Check wrt Cut-off
+            DateTime meetCuttoffDay = DateTime.Now.Date;
+            if (vm != null)
+            {
+                int cuttoff = vm.Scheduling?.MeetCutoff ?? 0;
+                DateTime MeetDate = row.Date ?? DateTime.Now;
+                meetCuttoffDay = MeetDate.AddDays(-cuttoff).Date;
+                if (meetCuttoffDay < DateTime.Now.Date)
+                {
+                    MessageBox.Show($"Too late to [Edit] meet based on current cut-off settings. Cut-off is  {cuttoff} days before Meet.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+            }
+
             var dlg = new NewMeetDialog { Owner = this };
             dlg.FindName("DescriptionBox");
-            dlg.FindName("DatePicker");
+            dlg.FindName("MeetDatePicker");
             dlg.FindName("LocationBox");
             // Initialize fields via logical names
             if (dlg.Content is FrameworkElement root)
             {
                 var desc = (TextBox)root.FindName("DescriptionBox");
-                var date = (DatePicker)root.FindName("DatePicker");
+                var date = (DatePicker)root.FindName("MeetDatePicker");
                 var loc = (TextBox)root.FindName("LocationBox");
                 desc.Text = row.Description;
                 date.SelectedDate = row.Date;
+                //date.Text = row.Date?.ToString("yyyy-MM-dd") ?? string.Empty;
                 loc.Text = row.Location ?? string.Empty;
             }
+
             if (dlg.ShowDialog() == true)
             {
                 using var ctx = new AthStitcherDbContext();
@@ -146,6 +170,21 @@ namespace AthStitcher.Views
         private void DeleteRow_Click(object sender, RoutedEventArgs e)
         {
             if ((sender as Button)?.DataContext is not Meet row) return;
+
+            // Check wrt Cut-off
+            DateTime meetCuttoffDay = DateTime.Now.Date;
+            if (vm != null)
+            {
+                int cuttoff = vm.Scheduling?.MeetCutoff ?? 0;
+                DateTime MeetDate = row.Date ?? DateTime.Now;
+                meetCuttoffDay = MeetDate.AddDays(-cuttoff).Date;
+                if (meetCuttoffDay < DateTime.Now.Date)
+                {
+                    MessageBox.Show($"Too late to [Delete] meet based on current cut-off settings. Cut-off is  {cuttoff} days before Meet.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+            }
+
             var confirm = MessageBox.Show($"Delete meet '{row.Description}'?", "Confirm Delete", MessageBoxButton.YesNo, MessageBoxImage.Warning);
             if (confirm != MessageBoxResult.Yes) return;
 

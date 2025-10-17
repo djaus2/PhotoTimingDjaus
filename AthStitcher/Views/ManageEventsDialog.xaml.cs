@@ -10,6 +10,7 @@ namespace AthStitcher.Views
 {
     public partial class ManageEventsDialog : Window
     {
+        public AthStitcherGUI.ViewModels.AthStitcherModel vm { get; set; }
         public Event? SelectedEvent { get; private set; }
         public int MeetId { get; set; }
 
@@ -129,6 +130,21 @@ namespace AthStitcher.Views
         private void EditRow_Click(object sender, RoutedEventArgs e)
         {
             if ((sender as Button)?.DataContext is not Event row) return;
+
+            // Check wrt Cut-off
+            DateTime meetCuttoffDay = DateTime.Now.Date;
+            if (vm != null)
+            {
+                int cuttoff = vm.Scheduling?.EventCutoff ?? 0;
+                DateTime MeetDate = vm.CurrentMeet.Date ?? DateTime.Now;
+                meetCuttoffDay = MeetDate.AddDays(-cuttoff).Date;
+                if (meetCuttoffDay < DateTime.Now.Date)
+                {
+                    MessageBox.Show($"Too late to [Edit] event based on current cut-off settings. Cut-off is  {cuttoff} days before Meet.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+            }
+
             var dlg = new NewEventDialog { Owner = this };
             // Provide base date for composing time
             using (var ctx = new AthStitcherDbContext())
@@ -201,6 +217,21 @@ namespace AthStitcher.Views
         private void DeleteRow_Click(object sender, RoutedEventArgs e)
         {
             if ((sender as Button)?.DataContext is not Event row) return;
+
+            // Check wrt Cut-off
+            DateTime eventMeetCuttoff = DateTime.Now.Date;
+            if (vm != null)
+            {
+                int eventcuttoff = vm.Scheduling?.EventCutoff ?? 0;
+                DateTime MeetDate = vm.CurrentMeet.Date ?? DateTime.Now;
+                eventMeetCuttoff = MeetDate.AddDays(-eventcuttoff).Date;
+                if (eventMeetCuttoff < DateTime.Now.Date)
+                {
+                    MessageBox.Show($"Too late to [Delete] event based on current cut-off settings. Cut-off is  {eventcuttoff} days before Meet.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+            }
+
             var confirm = MessageBox.Show($"Delete event '{row.Description}'?", "Confirm Delete", MessageBoxButton.YesNo, MessageBoxImage.Warning);
             if (confirm != MessageBoxResult.Yes) return;
             using var ctx = new AthStitcherDbContext();

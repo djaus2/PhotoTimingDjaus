@@ -46,10 +46,11 @@ namespace AthStitcherGUI.ViewModels
         /// Automatically called on property change via PropertyChanged event.
         /// Changes saved after 1 second timeout
         /// </summary>
-        public void SaveViewModel()
+        public void SaveViewModel(AthStitcherGUI.ViewModels.AthStitcherModel? vm=null)
         {
+            AthStitcherGUI.ViewModels.AthStitcherModel viewM = vm ?? DataContext;
             //MyViewModel viewModel = (this.DataContext as MyViewModel) ?? new MyViewModel(); // Ensure viewModel is not null, otherwise create a new instance
-            string json = JsonSerializer.Serialize(DataContext);// viewModel);
+            string json = JsonSerializer.Serialize(viewM);// viewModel);
             AthStitcher.Properties.Settings.Default.SavedViewModel = json;
             AthStitcher.Properties.Settings.Default.Save(); // Persist settings
         }

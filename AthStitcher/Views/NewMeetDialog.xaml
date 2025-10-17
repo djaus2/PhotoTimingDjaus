@@ -19,7 +19,9 @@
         <TextBox x:Name="DescriptionBox" Grid.Row="0" Grid.Column="1" Margin="0,0,0,8"/>
 
         <TextBlock Grid.Row="1" Grid.Column="0" Margin="0,0,8,8" VerticalAlignment="Center" Text="Date:"/>
-        <DatePicker x:Name="DatePicker" Grid.Row="1" Grid.Column="1" Margin="0,0,0,8" SelectedDateFormat="Short"/>
+        <DatePicker x:Name="MeetDatePicker" Grid.Row="1" Grid.Column="1" Margin="0,0,0,8" SelectedDateFormat="Short"
+                    DisplayDateStart=""
+                    />
 
         <TextBlock Grid.Row="2" Grid.Column="0" Margin="0,0,8,8" VerticalAlignment="Center" Text="Location:"/>
         <TextBox x:Name="LocationBox" Grid.Row="2" Grid.Column="1" Margin="0,0,0,8"/>

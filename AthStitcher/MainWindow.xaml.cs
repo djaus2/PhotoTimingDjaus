@@ -90,7 +90,9 @@ namespace AthStitcherGUI
             // Initialize database via EF and ensure Admin user exists
             try
             {
+                athStitcherViewModel.LoadViewModel();
                 this.DataContext = athStitcherViewModel.DataContext; // Set the DataContext to the AthStitchView instance
+                
                 if (string.IsNullOrEmpty(athStitcherViewModel.DataContext.ExifTool))
                     athStitcherViewModel.DataContext.ExifTool = _EXIFTOOL;
                 if (string.IsNullOrEmpty(athStitcherViewModel.DataContext.ExifToolExe))
@@ -3216,6 +3218,7 @@ namespace AthStitcherGUI
         private void Manage_Meets_Menu_Click(object sender, RoutedEventArgs e)
         {
             var dlg = new AthStitcher.Views.ManageMeetsDialog { Owner = this };
+            dlg.vm = this.DataContext as AthStitcherGUI.ViewModels.AthStitcherModel;
             var result = dlg.ShowDialog();
             if (result == true && dlg.SelectedMeet != null)
             {
@@ -3230,7 +3233,14 @@ namespace AthStitcherGUI
 
         private void New_Meet_Menu_Click(object sender, RoutedEventArgs e)
         {
-            var dlg = new NewMeetDialog { Owner = this };
+            DateTime meetCuttoff = DateTime.Now.Date;
+            if (this.DataContext is AthStitcherModel vm)
+            {
+                int cuttoff = vm.Scheduling?.MeetCutoff ?? 0;
+                meetCuttoff = DateTime.Now.AddDays(cuttoff);
+            }
+            var dlg = new NewMeetDialog { Owner = this};
+            dlg.CutOff = meetCuttoff;
             if (dlg.ShowDialog() == true)
             {
                 using var ctx = new AthStitcherDbContext();
@@ -3274,6 +3284,7 @@ namespace AthStitcherGUI
 
             // Open Manage Events dialog for the current meet (like ManageMeets)
             var dlg = new AthStitcher.Views.ManageEventsDialog(vm.CurrentMeetId!.Value) { Owner = this };
+            dlg.vm = this.DataContext as AthStitcherGUI.ViewModels.AthStitcherModel;
             var result = dlg.ShowDialog();
             if (result == true && dlg.SelectedEvent != null)
             {
@@ -3319,6 +3330,19 @@ namespace AthStitcherGUI
         {
             if (this.DataContext is not AthStitcherGUI.ViewModels.AthStitcherModel vm)
                 return;
+            else
+            {
+
+                DateTime meetCuttoff = DateTime.Now.Date;
+                int cuttoff = vm.Scheduling?.EventCutoff ?? 0;
+                DateTime meetDate = vm.CurrentMeet?.Date ?? DateTime.Now;
+                DateTime eventCuttoff = meetDate.AddDays(cuttoff);
+                if (DateTime.Now.Date> eventCuttoff.Date)
+                {
+                    MessageBox.Show($"Cannot add events after {cuttoff} days of the meet date ({meetDate:dd/MM/yyyy}).", "New Event", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+            }
 
             // Ensure a meet is selected first
             if (vm.CurrentMeetId == null)
@@ -3494,6 +3518,30 @@ private void RemoveHeat_Menu_Click(object sender, RoutedEventArgs e)
         MessageBox.Show($"Failed to remove heat: {ex.Message}", "Remove Heat", MessageBoxButton.OK, MessageBoxImage.Error);
     }
 }
+
+        private void SetAppCuttoffs_Menu_Click(object sender, RoutedEventArgs e)
+        {
+            if (/*this.DataContext*/ athStitcherViewModel.DataContext is not AthStitcherGUI.ViewModels.AthStitcherModel vm)
+                return; 
+
+            var xx = athStitcherViewModel.DataContext;
+            // Ensure Scheduling is initialized
+            vm.Scheduling ??= new AthStitcher.Data.Scheduling();
+
+            var dlg = new AthStitcher.Views.SchedulingDialog(vm.Scheduling) { Owner = this };
+            var result = dlg.ShowDialog();
+            if (result == true)
+            {
+                // Apply edited model back to VM
+                vm.Scheduling.MeetCutoff = dlg.Model.MeetCutoff;
+                vm.Scheduling.EventCutoff = dlg.Model.EventCutoff;
+                vm.Scheduling.CanAddHeatsOnDayOfMeet = dlg.Model.CanAddHeatsOnDayOfMeet;
+
+                // Persist through existing VM save pipeline
+                athStitcherViewModel.SaveViewModel(vm);
+            }
+        }
+
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////

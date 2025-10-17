@@ -118,6 +118,10 @@ namespace AthStitcherGUI.ViewModels
             set { _results = value; OnPropertyChanged(nameof(Results)); }
         }
 
+        private AthStitcher.Data.Scheduling? _Scheduling;
+        public Scheduling? Scheduling { get => _Scheduling; set { _Scheduling = value; OnPropertyChanged(nameof(Scheduling));} }
+
+
         private int _MinLane { get; set; } = 1;
         public int MinLane
         {
