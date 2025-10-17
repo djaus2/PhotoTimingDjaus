@@ -11,13 +11,27 @@ A simple ***Photo Timing/Photo Finish*** app for Athletics etc where a finish li
 > All good!
 
 ### Latest
+- AthStitcher: V6.0.0
+  - Can set New Meet and New Event Cut offs at app level
+    - See bottom of Program menu
+    - App Level means persisted between app runs, in app data, not in database.
+  - **New Meet Cutoff:** Can't add a new Meet within Cuttoff days of Meets.
+  - **New Event Cutoff:** Can't add a new Event within Cutoff days of Events in selected Meet.
+    - Restricted to <= Meet Cutoff.
+  -  Heats: Can toggle (at app level) whether or not Heats can be added on the day.
+  - **2Do's:** 
+    - Restrict entering results prior to the event DateTime
+    - Don't allow deletion of Heats that have data entered.
+  - This all improves the integrity of data entry.
+    - _i.e. Can't create a spurious event and add data after the event date._
 - AthStitcher: V5.4.1
   - Extended menus under Program
     - Meets: Select, Manage, Add
+      - Manage: Add, Select, Edit, Delete
     - Events: Select, Manage, Add
+      - Manage: Add, Select, Edit, Delete
+      - When adding an event you specify the number of heats and lanes.
     - Heats: Add, Delete Last
-    - _Need to add Admin Mode to restrict these menus_
-    - _Also to not delete heats if results exist for that heat._
 - AthStitcher:V4.5.0 
   - Meets ***Done***
   - Events **Done**
