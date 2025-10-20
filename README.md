@@ -20,8 +20,9 @@ A simple ***Photo Timing/Photo Finish*** app for Athletics etc where a finish li
     - See bottom of Program menu
     - App Level means persisted between app runs, in app data, not in database.
   - **New Meet Cutoff:** Can't add a new Meet within Cuttoff days of Meets.
-  - **New Event Cutoff:** Can't add a new Event within Cutoff days of Events in selected Meet.
+  - **New Event Cutoff:** Can't add a new Event after Cutoff days of Meet Cutoff.
     - Restricted to <= Meet Cutoff.
+    - 0 means same cut-off day as Meet creation/edit/deletion cutoff day.
   -  Heats: Can toggle (at app level) whether or not Heats can be added on the day.
   - **2Do's:** 
     - Restrict entering results prior to the event DateTime
