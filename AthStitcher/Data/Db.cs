@@ -14,6 +14,7 @@ namespace AthStitcher.Data
             Directory.CreateDirectory(dir);
             var path = Path.Combine(dir, "athstitcher.db");
             var cs = new SqliteConnectionStringBuilder { DataSource = path }.ToString();
+            System.Diagnostics.Debug.WriteLine(cs);
             return cs;
         }
 

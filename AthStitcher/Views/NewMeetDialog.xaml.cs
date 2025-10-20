@@ -30,7 +30,6 @@ namespace AthStitcher.Views
                 MessageBox.Show("Description is required.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
-
             DescriptionValue = desc;
             DateValue = MeetDatePicker.SelectedDate;
             LocationValue = string.IsNullOrWhiteSpace(LocationBox.Text) ? null : LocationBox.Text.Trim();

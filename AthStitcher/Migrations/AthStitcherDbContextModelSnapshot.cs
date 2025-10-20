@@ -42,22 +42,19 @@ namespace AthStitcher.Migrations
                         .HasColumnType("INTEGER")
                         .HasDefaultValue(100);
 
-                    b.Property<int?>("HeatNumber")
-                        .HasColumnType("INTEGER");
-
                     b.Property<int?>("HurdleSteepleHeight")
                         .HasColumnType("INTEGER");
 
                     b.Property<int?>("MastersAgeGroup")
                         .HasColumnType("INTEGER");
 
+                    b.Property<int?>("MaxLane")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("MeetId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("Sex")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int?>("StandardAgeGroup")
+                    b.Property<int?>("MinLane")
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTime?>("Time")
@@ -68,11 +65,8 @@ namespace AthStitcher.Migrations
                         .HasColumnType("INTEGER")
                         .HasDefaultValue(100);
 
-                    b.Property<string>("VideoFile")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("VideoImageFile")
-                        .HasColumnType("TEXT");
+                    b.Property<int?>("UnderAgeGroup")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("VideoInfoFile")
                         .HasColumnType("TEXT");
@@ -92,6 +86,26 @@ namespace AthStitcher.Migrations
 
                             t.HasCheckConstraint("CK_Events_TrackType", "TrackType IN (0,1,2,3,4,100)");
                         });
+                });
+
+            modelBuilder.Entity("AthStitcher.Data.Heat", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("EventId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("HeatNo")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EventId", "HeatNo")
+                        .IsUnique();
+
+                    b.ToTable("Heats", (string)null);
                 });
 
             modelBuilder.Entity("AthStitcher.Data.Meet", b =>
@@ -124,7 +138,7 @@ namespace AthStitcher.Migrations
                     b.Property<int?>("BibNumber")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("EventId")
+                    b.Property<int>("HeatId")
                         .HasColumnType("INTEGER");
 
                     b.Property<int?>("Lane")
@@ -138,7 +152,7 @@ namespace AthStitcher.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("EventId");
+                    b.HasIndex("HeatId");
 
                     b.ToTable("Results", (string)null);
                 });
@@ -189,7 +203,7 @@ namespace AthStitcher.Migrations
                     b.Navigation("Meet");
                 });
 
-            modelBuilder.Entity("AthStitcher.Data.Result", b =>
+            modelBuilder.Entity("AthStitcher.Data.Heat", b =>
                 {
                     b.HasOne("AthStitcher.Data.Event", "Event")
                         .WithMany()
@@ -198,6 +212,17 @@ namespace AthStitcher.Migrations
                         .IsRequired();
 
                     b.Navigation("Event");
+                });
+
+            modelBuilder.Entity("AthStitcher.Data.Result", b =>
+                {
+                    b.HasOne("AthStitcher.Data.Heat", "Heat")
+                        .WithMany()
+                        .HasForeignKey("HeatId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Heat");
                 });
 #pragma warning restore 612, 618
         }

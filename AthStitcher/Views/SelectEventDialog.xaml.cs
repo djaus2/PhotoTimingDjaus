@@ -85,14 +85,14 @@ namespace AthStitcher.Views
             using (var ctx = new AthStitcherDbContext())
             {
                 var meet = ctx.Meets.SingleOrDefault(m => m.Id == MeetId);
-                dlg.BaseDate = meet?.Date;
+                //dlg.BaseDate = meet?.Date;
             }
             if (dlg.ShowDialog() == true)
             {
                 using var ctx = new AthStitcherDbContext();
                 var ev = new Event
                 {
-                    MeetId = MeetId,
+                    /*MeetId = MeetId,
                     Description = dlg.DescriptionValue,
                     EventNumber = dlg.EventNumberValue,
                     Distance = dlg.DistanceValue,
@@ -101,7 +101,7 @@ namespace AthStitcher.Views
                     Gender = dlg.GenderValue,
                     AgeGrouping = dlg.AgeGroupingValue,
                     UnderAgeGroup = dlg.UnderAgeGroupValue,
-                    MastersAgeGroup = dlg.MastersAgeGroupValue,
+                    MastersAgeGroup = dlg.MastersAgeGroupValue,*/
                 };
                 ctx.Events.Add(ev);
                 ctx.SaveChanges();
@@ -134,7 +134,7 @@ namespace AthStitcher.Views
             using (var ctx = new AthStitcherDbContext())
             {
                 var meet = ctx.Meets.SingleOrDefault(m => m.Id == MeetId);
-                dlg.BaseDate = meet?.Date;
+                //dlg.BaseDate = meet?.Date;
             }
             dlg.InitializeForEdit(row);
             if (dlg.ShowDialog() == true)
@@ -143,7 +143,7 @@ namespace AthStitcher.Views
                 var existing = ctx.Events.SingleOrDefault(ev => ev.Id == row.Id);
                 if (existing != null)
                 {
-                    existing.Description = dlg.DescriptionValue;
+                    /*existing.Description = dlg.DescriptionValue;
                     existing.EventNumber = dlg.EventNumberValue;
                     existing.Distance = dlg.DistanceValue;
                     existing.Time = dlg.EventTime;
@@ -151,7 +151,7 @@ namespace AthStitcher.Views
                     existing.Gender = dlg.GenderValue;
                     existing.AgeGrouping = dlg.AgeGroupingValue;
                     existing.UnderAgeGroup = dlg.UnderAgeGroupValue;
-                    existing.MastersAgeGroup = dlg.MastersAgeGroupValue;
+                    existing.MastersAgeGroup = dlg.MastersAgeGroupValue;*/
                     ctx.SaveChanges();
 
                     // Prompt to edit number of heats for this event

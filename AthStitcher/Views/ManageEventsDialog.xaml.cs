@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using AthStitcher.Data;
+using Xceed.Wpf.Toolkit.Panels;
 
 namespace AthStitcher.Views
 {
@@ -83,29 +84,20 @@ namespace AthStitcher.Views
         {
             var dlg = new NewEventDialog { Owner = this };
             // Use meet date as base date
+            Meet meet;
             using (var ctx = new AthStitcherDbContext())
             {
-                var meet = ctx.Meets.SingleOrDefault(m => m.Id == MeetId);
-                dlg.BaseDate = meet?.Date;
+                meet = ctx.Meets.SingleOrDefault(m => m.Id == MeetId);
+                //dlg.BaseDate = meet?.Date;
             }
             if (dlg.ShowDialog() == true)
             {
                 using var ctx = new AthStitcherDbContext();
-                var ev = new Event
-                {
-                    MeetId = MeetId,
-                    Description = dlg.DescriptionValue,
-                    EventNumber = dlg.EventNumberValue,
-                    Distance = dlg.DistanceValue,
-                    Time = dlg.EventTime,
-                    TrackType = dlg.TrackTypeValue,
-                    Gender = dlg.GenderValue,
-                    AgeGrouping = dlg.AgeGroupingValue,
-                    UnderAgeGroup = dlg.UnderAgeGroupValue,
-                    MastersAgeGroup = dlg.MastersAgeGroupValue,
-                };
+                var ev = dlg._event;
+                ev.MeetId = MeetId;
                 ctx.Events.Add(ev);
                 ctx.SaveChanges();
+
 
                 // Ask for number of heats; default and minimum is 1
                 int heatsCount = 1;
@@ -150,67 +142,18 @@ namespace AthStitcher.Views
             using (var ctx = new AthStitcherDbContext())
             {
                 var meet = ctx.Meets.SingleOrDefault(m => m.Id == MeetId);
-                dlg.BaseDate = meet?.Date;
+                dlg.BaseDate = meet!.Date;
             }
             dlg.InitializeForEdit(row);
             if (dlg.ShowDialog() == true)
             {
                 using var ctx = new AthStitcherDbContext();
-                var existing = ctx.Events.SingleOrDefault(ev => ev.Id == row.Id);
-                if (existing != null)
-                {
-                    existing.Description = dlg.DescriptionValue;
-                    existing.EventNumber = dlg.EventNumberValue;
-                    existing.Distance = dlg.DistanceValue;
-                    existing.Time = dlg.EventTime;
-                    existing.TrackType = dlg.TrackTypeValue;
-                    existing.Gender = dlg.GenderValue;
-                    existing.AgeGrouping = dlg.AgeGroupingValue;
-                    existing.UnderAgeGroup = dlg.UnderAgeGroupValue;
-                    existing.MastersAgeGroup = dlg.MastersAgeGroupValue;
-                    ctx.SaveChanges();
+                //var existing = ctx.Events.SingleOrDefault(ev => ev.Id == row.Id);
+                Event existing = dlg._event;
 
-                    // Prompt to edit number of heats for this event
-                    int currentHeats = ctx.Heats.Count(h => h.EventId == existing.Id);
-                    var heatsDlg = new NumberOfHeatsDialog { Owner = this, InitialHeats = Math.Max(1, currentHeats) };
-                    if (heatsDlg.ShowDialog() == true)
-                    {
-                        var desired = Math.Max(1, heatsDlg.HeatsCount);
-                        if (desired > currentHeats)
-                        {
-                            // Add heats from currentHeats+1..desired
-                            for (int h = currentHeats + 1; h <= desired; h++)
-                            {
-                                if (!ctx.Heats.Any(x => x.EventId == existing.Id && x.HeatNo == h))
-                                    ctx.Heats.Add(new Heat { EventId = existing.Id, HeatNo = h });
-                            }
-                            ctx.SaveChanges();
-                        }
-                        else if (desired < currentHeats)
-                        {
-                            // Remove highest-numbered heats down to desired, skipping any with results
-                            bool warned = false;
-                            for (int h = currentHeats; h > desired; h--)
-                            {
-                                var heat = ctx.Heats.SingleOrDefault(x => x.EventId == existing.Id && x.HeatNo == h);
-                                if (heat == null) continue;
-                                bool hasResults = ctx.Results.Any(r => r.HeatId == heat.Id);
-                                if (hasResults)
-                                {
-                                    if (!warned)
-                                    {
-                                        MessageBox.Show("Some heats could not be removed because they contain results.", "Heats", MessageBoxButton.OK, MessageBoxImage.Information);
-                                        warned = true;
-                                    }
-                                    continue;
-                                }
-                                ctx.Heats.Remove(heat);
-                            }
-                            ctx.SaveChanges();
-                        }
-                    }
-                    LoadEvents();
-                }
+                ctx.Events.Update(existing);
+                ctx.SaveChanges();
+                return;
             }
         }
 

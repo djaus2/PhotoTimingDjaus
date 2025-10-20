@@ -2,9 +2,61 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="New Event" SizeToContent="WidthAndHeight" ResizeMode="NoResize"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+        xmlns:enums="clr-namespace:AthStitcher.Data"
+        xmlns:sys="clr-namespace:System;assembly=System.Runtime"
+        xmlns:conv="clr-namespace:AthStitcherGUI.Converters;assembly=AthStitcher"
         WindowStartupLocation="CenterOwner">
+    <Window.Resources>
+        <ObjectDataProvider x:Key="TrackTypeValues"
+                      MethodName="GetValues"
+                      ObjectType="{x:Type sys:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="enums:TrackType"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+        <ObjectDataProvider x:Key="GenderValues"
+                      MethodName="GetValues"
+                      ObjectType="{x:Type sys:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="enums:Gender"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+        <ObjectDataProvider x:Key="AgeGroupingValues"
+                      MethodName="GetValues"
+                      ObjectType="{x:Type sys:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="enums:AgeGrouping"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+        <ObjectDataProvider x:Key="UnderAgeGroupValues"
+                      MethodName="GetValues"
+                      ObjectType="{x:Type sys:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="enums:UnderAgeGroup"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+        <ObjectDataProvider x:Key="MaleMastersAgeGroupValues"
+                      MethodName="GetValues"
+                      ObjectType="{x:Type sys:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="enums:MaleMastersAgeGroup"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+        <ObjectDataProvider x:Key="FemaleMastersAgeGroupValues"
+                      MethodName="GetValues"
+                      ObjectType="{x:Type sys:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="enums:FemaleMastersAgeGroup"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+    </Window.Resources>
+
+
     <Grid Margin="16">
         <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition/>
             <RowDefinition/>
             <RowDefinition/>
             <RowDefinition/>
@@ -24,40 +76,123 @@
         </Grid.ColumnDefinitions>
 
         <TextBlock Grid.Row="0" Grid.Column="0" Margin="0,0,8,8" VerticalAlignment="Center" Text="Description:"/>
-        <TextBox x:Name="DescriptionBox" Grid.Row="0" Grid.Column="1" Margin="0,0,0,8"/>
+        <TextBox x:Name="DescriptionBox" Grid.Row="0" Grid.Column="1" Margin="0,0,0,8"
+             Text="{Binding Description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
         <TextBlock Grid.Row="1" Grid.Column="0" Margin="0,0,8,8" VerticalAlignment="Center" Text="Event #:"/>
-        <TextBox x:Name="EventNumberBox" Grid.Row="1" Grid.Column="1" Margin="0,0,0,8"/>
+        <xctk:ValueRangeTextBox  Grid.Row="1" Grid.Column="1" 
+                Value="{Binding EventNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                MinValue="1" 
+                ValueDataType="{x:Type sys:Int32}"                
+               />
+
 
 
         <TextBlock Grid.Row="3" Grid.Column="0" Margin="0,0,8,8" VerticalAlignment="Center" Text="Distance:"/>
-        <TextBox x:Name="DistanceBox" Grid.Row="3" Grid.Column="1" Margin="0,0,0,8"/>
+        <xctk:ValueRangeTextBox x:Name="DistanceBox"  Grid.Row="3" Grid.Column="1" 
+                Value="{Binding Distance, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                MinValue="1" 
+                ValueDataType="{x:Type sys:Int32}"                
+               />
 
         <TextBlock Grid.Row="4" Grid.Column="0" Margin="0,0,8,8" VerticalAlignment="Center" Text="Min Lane:"/>
-        <TextBox x:Name="MinLaneBox" Grid.Row="4" Grid.Column="1" Margin="0,0,0,8"/>
+        <xctk:ValueRangeTextBox x:Name="MinLaneBox"  Grid.Row="4" Grid.Column="1" 
+                Value="{Binding MinLane, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                MinValue="1"              
+                ValueDataType="{x:Type sys:Int32}"                
+               />
 
         <TextBlock Grid.Row="5" Grid.Column="0" Margin="0,0,8,8" VerticalAlignment="Center" Text="Max Lane:"/>
-        <TextBox x:Name="MaxLaneBox" Grid.Row="5" Grid.Column="1" Margin="0,0,0,8"/>
+        <xctk:ValueRangeTextBox x:Name="MaxLaneBox"   Grid.Row="5" Grid.Column="1" 
+                Value="{Binding MaxLane, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                MinValue="{Binding MinLane}"
+                ValueDataType = "{x:Type sys:Int32}"                
+               />
 
         <TextBlock Grid.Row="6" Grid.Column="0" Margin="0,0,8,8" VerticalAlignment="Center" Text="Time (HH:MM:SS[.fff]):"/>
-        <TextBox x:Name="TimeBox" Grid.Row="6" Grid.Column="1" Margin="0,0,0,8"/>
+        <xctk:TimePicker x:Name="TimeBox" Grid.Row="6" Grid.Column="1" Margin="0,0,0,8"
+            Value="{Binding Time, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
-        <TextBlock Grid.Row="7" Grid.Column="0" Margin="0,0,8,8" VerticalAlignment="Center" Text="Track Type:"/>
-        <ComboBox x:Name="TrackTypeBox" Grid.Row="7" Grid.Column="1" Margin="0,0,0,8"/>
+        <TextBlock Grid.Row="7" Grid.Column="0" Margin="0,0,8,8" VerticalAlignment="Center" Text="Gender:"/>
+        <ComboBox x:Name="GenderBox"
+          Grid.Row="7" Grid.Column="1" Margin="0,0,0,8"
+          ItemsSource="{Binding Source={StaticResource GenderValues}}"
+          SelectedItem="{Binding Gender, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 
-        <TextBlock Grid.Row="8" Grid.Column="0" Margin="0,0,8,8" VerticalAlignment="Center" Text="Gender:"/>
-        <ComboBox x:Name="GenderBox" Grid.Row="8" Grid.Column="1" Margin="0,0,0,8"/>
+        <TextBlock Grid.Row="8" Grid.Column="0" Margin="0,0,8,8" VerticalAlignment="Center" Text="Track Type:"/>
+        <ComboBox x:Name="TrackTypeBox"
+          Grid.Row="8" Grid.Column="1" Margin="0,0,0,8"
+          ItemsSource="{Binding Source={StaticResource TrackTypeValues}}"
+          SelectedItem="{Binding TrackType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
 
         <TextBlock Grid.Row="9" Grid.Column="0" Margin="0,0,8,8" VerticalAlignment="Center" Text="Age Grouping:"/>
-        <ComboBox x:Name="AgeGroupingBox" Grid.Row="9" Grid.Column="1" Margin="0,0,0,8"/>
-
+        <ComboBox x:Name="AgeGroupingBox"
+          Grid.Row="9" Grid.Column="1" Margin="0,0,0,8"
+          ItemsSource="{Binding Source={StaticResource AgeGroupingValues}}"
+          SelectedItem="{Binding AgeGrouping, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+       
         <TextBlock Grid.Row="10" Grid.Column="0" Margin="0,0,8,8" VerticalAlignment="Center" Text="Under Age Group:"/>
-        <ComboBox x:Name="StandardAgeGroupBox" Grid.Row="10" Grid.Column="1" Margin="0,0,0,8"/>
+            <ComboBox x:Name="StandardAgeGroupBox"
+          Grid.Row="10" Grid.Column="1" Margin="0,0,0,8"
+          ItemsSource="{Binding Source={StaticResource UnderAgeGroupValues}}"
+          SelectedItem="{Binding StandardAgeGroup, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" >
+            <ComboBox.Style>
+                <Style TargetType="ComboBox">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding AgeGrouping}" Value="junior">
+                            <Setter Property="Visibility" Value="Visible"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </ComboBox.Style>
+        </ComboBox>
 
-        <TextBlock Grid.Row="11" Grid.Column="0" Margin="0,0,8,8" VerticalAlignment="Center" Text="Masters Age Group:"/>
-        <ComboBox x:Name="MastersAgeGroupBox" Grid.Row="11" Grid.Column="1" Margin="0,0,0,8"/>
+        <StackPanel Orientation="Horizontal" Grid.Row="11"  Grid.Column="0" Grid.ColumnSpan="2">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="160"/>
+                    <ColumnDefinition Width="240"/>
+                </Grid.ColumnDefinitions>
 
-        <StackPanel Grid.Row="12" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
+                <TextBlock Grid.Row="0" Grid.Column="0" Margin="0,0,8,8" VerticalAlignment="Center" Text="Masters Age Group:"/>
+                <ComboBox x:Name="MaleMastersAgeGroupBox" Grid.Row="0" Grid.Column="1" Margin="0,0,0,8"
+                            ItemsSource="{Binding Source={StaticResource MaleMastersAgeGroupValues}}"
+          SelectedItem="{Binding MaleMastersAgeGroup, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" >
+                    <ComboBox.Style>
+                        <Style TargetType="ComboBox">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Gender}" Value="male">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ComboBox.Style>
+                </ComboBox>
+
+                <ComboBox x:Name="FemaleMastersAgeGroupBox" Grid.Row="0" Grid.Column="1" Margin="0,0,0,8"
+                            ItemsSource="{Binding Source={StaticResource FemaleMastersAgeGroupValues}}"
+          SelectedItem="{Binding FemaleMastersAgeGroup, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" >
+                    <ComboBox.Style>
+                        <Style TargetType="ComboBox">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Gender}" Value="female">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ComboBox.Style>
+                </ComboBox>
+            </Grid>
+        </StackPanel>
+
+        <StackPanel Grid.Row="13" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
             <Button Width="80" Margin="0,0,8,0" Content="OK" IsDefault="True" Click="Ok_Click"/>
             <Button Width="80" Content="Cancel" IsCancel="True"/>
         </StackPanel>

@@ -11,6 +11,10 @@ A simple ***Photo Timing/Photo Finish*** app for Athletics etc where a finish li
 > All good!
 
 ### Latest
+- AthStitcher V6.1.0
+  - Fixed numerous issues with New Event and Edit Event dialog
+    - Used bindings
+  - 2Do: Do same for New and Edit Meet dialog.
 - AthStitcher: V6.0.0
   - Can set New Meet and New Event Cut offs at app level
     - See bottom of Program menu

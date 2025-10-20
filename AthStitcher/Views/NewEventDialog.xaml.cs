@@ -1,113 +1,105 @@
-using System;
-using System.Linq;
-using System.Windows;
 using AthStitcher.Data;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System;
+using System.Globalization;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Windows;
+using System.Windows.Data;
+using System.Windows.Input;
 
 namespace AthStitcher.Views
 {
     public partial class NewEventDialog : Window
     {
-        public string? DescriptionValue { get; private set; }
-        public int? EventNumberValue { get; private set; }
-        public int DistanceValue { get; private set; }
-        public int MinLaneValue { get; private set; } = 1;
-        public int MaxLaneValue { get; private set; } = 8;
-        public DateTime? EventTime { get; private set; }
-        public DateTime? BaseDate { get; set; }
-        // Selected enums
-        public TrackType TrackTypeValue { get; private set; } = TrackType.na;
-        public Gender GenderValue { get; private set; } = Gender.none;
-        public AgeGrouping AgeGroupingValue { get; private set; } = AgeGrouping.none;
-        public UnderAgeGroup? UnderAgeGroupValue { get; private set; }
-        public MastersAgeGroup? MastersAgeGroupValue { get; private set; }
+
+        public Event _event {get; set;}
+        public DateTime? BaseDate { get; set; } = DateTime.Today;
+
+        int MinLaneValue { get; set; }
+        int MaxLaneValue { get; set; }
 
         public NewEventDialog()
         {
+            _event = new Event();
+            _event.Time = BaseDate;
             InitializeComponent();
-            TimeBox.Text = DateTime.Now.ToString("HH:mm:ss");
-
-            // Populate enum dropdowns
-            TrackTypeBox.ItemsSource = Enum.GetValues(typeof(TrackType)).Cast<TrackType>();
-            TrackTypeBox.SelectedItem = TrackType.na;
-
-            GenderBox.ItemsSource = Enum.GetValues(typeof(Gender)).Cast<Gender>();
-            GenderBox.SelectedItem = Gender.none;
-            GenderBox.SelectionChanged += GenderBox_SelectionChanged;
-
-            AgeGroupingBox.ItemsSource = Enum.GetValues(typeof(AgeGrouping)).Cast<AgeGrouping>();
-            AgeGroupingBox.SelectionChanged += AgeGroupingBox_SelectionChanged;
-            AgeGroupingBox.SelectedItem = AgeGrouping.none;
-
-            StandardAgeGroupBox.ItemsSource = Enum.GetValues(typeof(UnderAgeGroup)).Cast<UnderAgeGroup>();
-            MastersAgeGroupBox.ItemsSource = Enum.GetValues(typeof(MastersAgeGroup)).Cast<MastersAgeGroup>();
-            // Hide both until an appropriate AgeGrouping is selected
-            StandardAgeGroupBox.Visibility = Visibility.Collapsed;
-            MastersAgeGroupBox.Visibility = Visibility.Collapsed;
+            this.DataContext = _event;
         }
 
         public void InitializeForEdit(Event existing)
         {
-            // Pre-fill for edit callers
-            DescriptionBox.Text = existing.Description ?? string.Empty;
-            EventNumberValue = existing.EventNumber;
-            DistanceValue = existing.Distance ?? 0;
-            TimeBox.Text = existing.Time?.ToString("HH:mm:ss") ?? TimeBox.Text;
-            TrackTypeBox.SelectedItem = existing.TrackType;
-            GenderBox.SelectedItem = existing.Gender;
-            AgeGroupingBox.SelectedItem = existing.AgeGrouping;
-            // Set visibility and selection for age sub-groups
-            UpdateAgeGroupVisibility(existing.AgeGrouping);
-            StandardAgeGroupBox.SelectedItem = existing.UnderAgeGroup ?? UnderAgeGroup.other;
-            MastersAgeGroupBox.SelectedItem = existing.MastersAgeGroup ?? MastersAgeGroup.other;
+            _event = existing;
+            _event.GetMastersAgeGenderGroup();
+            this.DataContext = _event;
         }
 
         private void Ok_Click(object sender, RoutedEventArgs e)
         {
-            var desc = DescriptionBox.Text?.Trim();
+            _event.SetMastersAgeGenderGroup();
+            //var desc = DescriptionBox.Text?.Trim();
+            var desc = _event.Description.Trim();
             if (string.IsNullOrEmpty(desc))
             {
                 MessageBox.Show("Description is required.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
-            DescriptionValue = desc;
-            if (!int.TryParse(DistanceBox.Text, out var dist) || dist <= 0)
+            int eventNo = _event.EventNumber ?? 0;
+
+            if (eventNo < 1)
+            {
+                MessageBox.Show("Event No must be a positive integer.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            int distanceNo = _event.Distance ?? 0;
+
+            if (distanceNo < 1)
             {
                 MessageBox.Show("Distance must be a positive integer.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
-            DistanceValue = dist;
 
-            if (int.TryParse(EventNumberBox.Text, out var ev)) EventNumberValue = ev; else EventNumberValue = null;
-
-            // Time only; date is from meet (use BaseDate if provided, else today)
-            var tText = (TimeBox.Text ?? string.Empty).Trim();
-            if (TimeSpan.TryParse(tText, out var ts))
+            // Make sure Time is set to BaseDate with time-of-day from input
+            DateTime time = _event.Time ?? DateTime.MinValue;
+            if (time == DateTime.MinValue)
             {
-                var dateUsed = (BaseDate?.Date) ?? DateTime.Today;
-                EventTime = dateUsed + ts;
+                MessageBox.Show("Please provide a valid Time in HH:mm:ss format.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
             }
-            else
+            TimeSpan ts = time.TimeOfDay;
+            time = BaseDate!.Value.Add(ts);
+            _event.Time = time;
+
+            // Validate lanes
+            var minLane = _event.MinLane!.Value;
+            var maxLane = _event.MaxLane!.Value;
+            if ((minLane < 1) || (minLane > 12) || (maxLane < 1) || (maxLane > 12) || (maxLane < minLane))
             {
-                MessageBox.Show("Time must be in HH:mm:ss or HH:mm:ss.fff format.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Please provide valid Min and Max Lane values (1-12, Min <= Max).", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
-            if (!int.TryParse(MinLaneBox.Text, out var minLane)) minLane = 1;
-            if (!int.TryParse(MaxLaneBox.Text, out var maxLane)) maxLane = 8;
-            if (minLane < 1) minLane = 1; if (maxLane < minLane) maxLane = minLane;
-            MinLaneValue = minLane; MaxLaneValue = maxLane;
+
 
             // Capture enum selections
-            TrackTypeValue = (TrackType)(TrackTypeBox.SelectedItem ?? TrackType.na);
-            GenderValue = (Gender)(GenderBox.SelectedItem ?? Gender.none);
-            AgeGroupingValue = (AgeGrouping)(AgeGroupingBox.SelectedItem ?? AgeGrouping.none);
+            //_event.Gender
+            //_event.AgeGrouping
+            //_event.UnderAgeGroup
+            //_event.MastersAgeGroup
+            //
+            var TrackTypeValue = _event.TrackType;
+
+            var GenderValue = _event.Gender;
+      
+            var AgeGroupingValue = _event.AgeGrouping;
             if (AgeGroupingValue == AgeGrouping.junior)
             {
-                UnderAgeGroupValue = (UnderAgeGroup?)(StandardAgeGroupBox.SelectedItem ?? UnderAgeGroup.other);
-                MastersAgeGroupValue = null;
+                var UnderAgeGroupValue = _event.UnderAgeGroup;
+                _event.MastersAgeGroup = null;
                 // Require selection for junior
-                if (UnderAgeGroupValue == null)
+                if (_event.UnderAgeGroup == null)
                 {
                     MessageBox.Show("Please select an Under Age Group.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
@@ -115,8 +107,8 @@ namespace AthStitcher.Views
             }
             else if (AgeGroupingValue == AgeGrouping.masters)
             {
-                MastersAgeGroupValue = (MastersAgeGroup?)(MastersAgeGroupBox.SelectedItem ?? MastersAgeGroup.other);
-                UnderAgeGroupValue = null;
+                var MastersAgeGroupValue = _event.MastersAgeGroup;;
+                _event.UnderAgeGroup = null;
                 // Require selection for masters
                 if (MastersAgeGroupValue == null)
                 {
@@ -126,8 +118,8 @@ namespace AthStitcher.Views
             }
             else
             {
-                UnderAgeGroupValue = null;
-                MastersAgeGroupValue = null;
+                _event.UnderAgeGroup = null;
+                _event.MastersAgeGroup = null;
             }
 
             DialogResult = true;
@@ -136,17 +128,17 @@ namespace AthStitcher.Views
         private void AgeGroupingBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
             // On any change, clear both subgroup selections/values
-            StandardAgeGroupBox.SelectedItem = null;
-            MastersAgeGroupBox.SelectedItem = null;
-            UnderAgeGroupValue = null;
-            MastersAgeGroupValue = null;
+            //_event.AgeGrouping =  AgeGrouping.none ;
+            /*_event.MastersAgeGroup = MastersAgeGroup.other;
+            _event.UnderAgeGroup = null;
+            _event.MastersAgeGroup = null;
 
             var ag = (AgeGrouping)(AgeGroupingBox.SelectedItem ?? AgeGrouping.none);
-            UpdateAgeGroupVisibility(ag);
+            UpdateAgeGroupVisibility(ag);*/
         }
 
         private void UpdateAgeGroupVisibility(AgeGrouping ag)
-        {
+        {/*
             if (ag == AgeGrouping.junior)
             {
                 StandardAgeGroupBox.Visibility = Visibility.Visible;
@@ -174,22 +166,23 @@ namespace AthStitcher.Views
                 MastersAgeGroupBox.SelectedItem = null;
                 UnderAgeGroupValue = null;
                 MastersAgeGroupValue = null;
-            }
+            }*/
         }
 
         private void GenderBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
+            /*
             // Clear subgroup selections when gender changes and re-apply filter
             StandardAgeGroupBox.SelectedItem = null;
             MastersAgeGroupBox.SelectedItem = null;
             UnderAgeGroupValue = null;
             MastersAgeGroupValue = null;
-            ApplyMastersGenderFilter();
+            ApplyMastersGenderFilter();*/
         }
 
         private void ApplyMastersGenderFilter()
         {
-            var g = (Gender)(GenderBox.SelectedItem ?? Gender.none);
+            /*var g = (Gender)(GenderBox.SelectedItem ?? Gender.none);
             var all = Enum.GetValues(typeof(MastersAgeGroup)).Cast<MastersAgeGroup>();
             // Filter by gender: male => M*, female => W*, mixed/none => all
             if (g == Gender.male)
@@ -197,7 +190,32 @@ namespace AthStitcher.Views
             else if (g == Gender.female)
                 MastersAgeGroupBox.ItemsSource = all.Where(x => x.ToString().StartsWith("W"));
             else
-                MastersAgeGroupBox.ItemsSource = all;
+                MastersAgeGroupBox.ItemsSource = all;*/
+        }
+
+        // Code-behind for the dialog/window
+
+
+        private static readonly Regex _digitsOnly = new(@"^\d+$");
+        private static readonly Regex _digitsTyping = new(@"^\d*$");
+
+        private void DistanceBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            e.Handled = !_digitsTyping.IsMatch(e.Text);
+        }
+
+        private void DistanceBox_Pasting(object sender, DataObjectPastingEventArgs e)
+        {
+            if (e.DataObject.GetDataPresent(DataFormats.Text))
+            {
+                var text = (string)e.DataObject.GetData(DataFormats.Text);
+                if (!_digitsOnly.IsMatch(text)) e.CancelCommand();
+            }
+            else e.CancelCommand();
+
+            var x = new AthStitcherGUI.Converters.UnderAgeGroupByGenderConverter();
         }
     }
+
+
 }

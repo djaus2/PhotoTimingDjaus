@@ -3369,27 +3369,30 @@ namespace AthStitcherGUI
             int MeetId = vm.CurrentMeetId!.Value;
             var dlg = new NewEventDialog { Owner = this };
             // Use meet date as base date
+            Meet meet;
             using (var ctx = new AthStitcherDbContext())
             {
-                var meet = ctx.Meets.SingleOrDefault(m => m.Id == MeetId);
-                dlg.BaseDate = meet?.Date;
+                meet = ctx.Meets.SingleOrDefault(m => m.Id == MeetId);
+                //dlg.BaseDate = meet?.Date;
             }
             if (dlg.ShowDialog() == true)
             {
                 using var ctx = new AthStitcherDbContext();
-                var ev = new Event
-                {
-                    MeetId = MeetId,
-                    Description = dlg.DescriptionValue,
-                    EventNumber = dlg.EventNumberValue,
-                    Distance = dlg.DistanceValue,
-                    Time = dlg.EventTime,
-                    TrackType = dlg.TrackTypeValue,
-                    Gender = dlg.GenderValue,
-                    AgeGrouping = dlg.AgeGroupingValue,
-                    UnderAgeGroup = dlg.UnderAgeGroupValue,
-                    MastersAgeGroup = dlg.MastersAgeGroupValue,
-                };
+                var ev = dlg._event;
+                ev.MeetId = MeetId;
+                //new Event
+                //{
+                //    /*MeetId = MeetId,
+                //    Description = dlg.DescriptionValue,
+                //    EventNumber = dlg.EventNumberValue,
+                //    Distance = dlg.DistanceValue,
+                //    Time = dlg.EventTime,
+                //    TrackType = dlg.TrackTypeValue,
+                //    Gender = dlg.GenderValue,
+                //    AgeGrouping = dlg.AgeGroupingValue,
+                //    UnderAgeGroup = dlg.UnderAgeGroupValue,
+                //    MastersAgeGroup = dlg.MastersAgeGroupValue,*/
+                //};
                 ctx.Events.Add(ev);
                 ctx.SaveChanges();
 

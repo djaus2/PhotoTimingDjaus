@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace AthStitcher.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialFullSchema : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -52,21 +52,19 @@ namespace AthStitcher.Migrations
                         .Annotation("Sqlite:Autoincrement", true),
                     MeetId = table.Column<int>(type: "INTEGER", nullable: false),
                     EventNumber = table.Column<int>(type: "INTEGER", nullable: true),
-                    HeatNumber = table.Column<int>(type: "INTEGER", nullable: true),
                     Time = table.Column<DateTime>(type: "TEXT", nullable: true),
                     Description = table.Column<string>(type: "TEXT", nullable: true),
                     Distance = table.Column<int>(type: "INTEGER", nullable: true),
                     HurdleSteepleHeight = table.Column<int>(type: "INTEGER", nullable: true),
-                    Sex = table.Column<string>(type: "TEXT", nullable: true),
                     TrackType = table.Column<int>(type: "INTEGER", nullable: false, defaultValue: 100),
                     Gender = table.Column<int>(type: "INTEGER", nullable: false, defaultValue: 100),
                     AgeGrouping = table.Column<int>(type: "INTEGER", nullable: false, defaultValue: 100),
-                    StandardAgeGroup = table.Column<int>(type: "INTEGER", nullable: true),
+                    UnderAgeGroup = table.Column<int>(type: "INTEGER", nullable: true),
                     MastersAgeGroup = table.Column<int>(type: "INTEGER", nullable: true),
-                    VideoFile = table.Column<string>(type: "TEXT", nullable: true),
                     VideoInfoFile = table.Column<string>(type: "TEXT", nullable: true),
-                    VideoImageFile = table.Column<string>(type: "TEXT", nullable: true),
-                    VideoStartOffsetSeconds = table.Column<double>(type: "REAL", nullable: true)
+                    VideoStartOffsetSeconds = table.Column<double>(type: "REAL", nullable: true),
+                    MinLane = table.Column<int>(type: "INTEGER", nullable: true),
+                    MaxLane = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -83,12 +81,32 @@ namespace AthStitcher.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Results",
+                name: "Heats",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     EventId = table.Column<int>(type: "INTEGER", nullable: false),
+                    HeatNo = table.Column<int>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Heats", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Heats_Events_EventId",
+                        column: x => x.EventId,
+                        principalTable: "Events",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Results",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    HeatId = table.Column<int>(type: "INTEGER", nullable: false),
                     Lane = table.Column<int>(type: "INTEGER", nullable: true),
                     BibNumber = table.Column<int>(type: "INTEGER", nullable: true),
                     Name = table.Column<string>(type: "TEXT", nullable: true),
@@ -98,9 +116,9 @@ namespace AthStitcher.Migrations
                 {
                     table.PrimaryKey("PK_Results", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Results_Events_EventId",
-                        column: x => x.EventId,
-                        principalTable: "Events",
+                        name: "FK_Results_Heats_HeatId",
+                        column: x => x.HeatId,
+                        principalTable: "Heats",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -111,9 +129,15 @@ namespace AthStitcher.Migrations
                 column: "MeetId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Results_EventId",
+                name: "IX_Heats_EventId_HeatNo",
+                table: "Heats",
+                columns: new[] { "EventId", "HeatNo" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Results_HeatId",
                 table: "Results",
-                column: "EventId");
+                column: "HeatId");
         }
 
         /// <inheritdoc />
@@ -124,6 +148,9 @@ namespace AthStitcher.Migrations
 
             migrationBuilder.DropTable(
                 name: "Users");
+
+            migrationBuilder.DropTable(
+                name: "Heats");
 
             migrationBuilder.DropTable(
                 name: "Events");
