@@ -59,6 +59,36 @@ namespace AthStitcher.Data
         [NotMapped]
         public string TimeStr => Time?.ToString("h:mm tt", CultureInfo.CurrentCulture) ?? string.Empty;
 
+        public override string ToString()
+        {
+            string genderStr;
+            {
+                var g = $"{Gender}" ?? "";
+                var formattedGender = g.Length > 0
+                    ? char.ToUpper(g[0], System.Globalization.CultureInfo.CurrentCulture) + g[1..].ToLower(System.Globalization.CultureInfo.CurrentCulture)
+                    : g;
+                genderStr = $"{formattedGender}";
+            }
+            string ageGroupingStr;
+            {
+                var ag = $"{AgeGrouping}" ?? "";
+                var formattedAgeGroupingStr = ag.Length > 0
+                    ? char.ToUpper(ag[0], System.Globalization.CultureInfo.CurrentCulture) + ag[1..].ToLower(System.Globalization.CultureInfo.CurrentCulture)
+                    : ag;
+                ageGroupingStr = $"{formattedAgeGroupingStr}";
+            }
+            string trackTypeStr;
+            {
+                var t = $"{TrackType}" ?? "";
+                var formattedTrackTypeStr = t.Length > 0
+                    ? char.ToUpper(t[0], System.Globalization.CultureInfo.CurrentCulture) + t[1..].ToLower(System.Globalization.CultureInfo.CurrentCulture)
+                    : t;
+                trackTypeStr = $"{formattedTrackTypeStr}";
+            }
+
+            string result = $"Event No:{EventNumber} {TimeStr} {genderStr} {ageGroupingStr} {Distance}m {trackTypeStr} {Description}";
+            return result;
+        }
 
         public void SetMastersAgeGenderGroup()
         {

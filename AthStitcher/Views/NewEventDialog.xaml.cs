@@ -38,12 +38,12 @@ namespace AthStitcher.Views
         {
             _event.SetMastersAgeGenderGroup();
             //var desc = DescriptionBox.Text?.Trim();
-            var desc = _event.Description.Trim();
-            if (string.IsNullOrEmpty(desc))
-            {
-                MessageBox.Show("Description is required.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
+            var desc = _event.Description.Trim(); //Description is now option. TrackType covers that.
+            //if (string.IsNullOrEmpty(desc))
+            //{
+            //    MessageBox.Show("Description is required.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+            //    return;
+            //}
 
             int eventNo = _event.EventNumber ?? 0;
 

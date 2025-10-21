@@ -572,11 +572,10 @@
                         </Grid.RowDefinitions>
 
                         <!-- Header row -->
-                    <TextBlock Grid.Column="0" Grid.Row="0" HorizontalAlignment="Right" Text="Meet:"/>
-                    <TextBlock Grid.Column="1" Grid.Row="0" HorizontalAlignment="Left" Text="{Binding CurrentMeet.Description}"/>
-                    <TextBlock Grid.Column="2" Grid.Row="0" HorizontalAlignment="Left" Text="{Binding CurrentMeet.DateStr}"/>
+                    <TextBlock Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3" Foreground="Blue" Background="Beige" HorizontalAlignment="Left" Text="{Binding CurrentMeet}"/>
+                   
 
-                    <TextBlock Grid.Column="0" Grid.ColumnSpan="3"  Grid.Row="1" HorizontalAlignment="Left" Text="{Binding CurrentEventInfo }"/>
+                    <TextBlock Grid.Column="0" Grid.ColumnSpan="3"  Grid.Row="1" Foreground="Purple" HorizontalAlignment="Left" Text="{Binding CurrentEvent}"/>
 
                     <!-- List row: choose one -->
                     <!-- Option A: DataGrid (scrolls by default) -->

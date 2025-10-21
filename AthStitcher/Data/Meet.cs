@@ -17,6 +17,12 @@ namespace AthStitcher.Data
 
         // Convenience: date-only string for UI bindings
         public string DateStr => Date?.ToString("yyyy-MM-dd") ?? string.Empty;
+
+        public override string ToString()
+        {
+            string result = $"Meet Round:{Round}. Series:{Description} {DateStr} at {Location}";
+            return result ;
+        }
     }
 
 }
