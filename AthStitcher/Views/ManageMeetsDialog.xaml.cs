@@ -87,83 +87,141 @@ namespace AthStitcher.Views
 
         private void Add_Click(object sender, RoutedEventArgs e)
         {
+
+            DateTime meetCutoff = DateTime.Now.Date;
+            if (this.DataContext is AthStitcherModel vm)
+            {
+                int cutoff = vm.Scheduling?.MeetCutoff ?? 0;
+                meetCutoff = DateTime.Now.AddDays(cutoff);
+            }
+            Meet meet = new Meet
+            {
+                Description = "<Enter Meet description>",
+                Date = meetCutoff,
+                Location = "<Enter Meet Location>",
+                Round = 1
+
+            };
             var dlg = new NewMeetDialog { Owner = this };
+            dlg.Meet = meet;
+            dlg.CutOff = meetCutoff;
             if (dlg.ShowDialog() == true)
             {
                 using var ctx = new AthStitcherDbContext();
-                var desc = (dlg.DescriptionValue ?? string.Empty).Trim();
-                var date = dlg.DateValue;
-                var loc = string.IsNullOrWhiteSpace(dlg.LocationValue) ? null : dlg.LocationValue!.Trim();
+                meet = dlg.Meet;
+                string desc = meet.Description;
+                if (string.IsNullOrWhiteSpace(desc))
+                {
+                    MessageBox.Show("Description cannot be empty.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+                int? round = meet.Round; //Not mandatory so no checks except >0
+                if ((round != null) && (round <= 0))
+                {
+                    MessageBox.Show("Round must be greater than zero.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+                var date = meet.Date;
+                if ((date == null) || (date < meetCutoff))
+                {
+                    MessageBox.Show("Date before cut-off date {meetCutoff}.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+                var loc = meet.Location;
+                if (string.IsNullOrWhiteSpace(loc))
+                {
+                    MessageBox.Show("Location cannot be empty.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
                 // Duplicate check: same Description + Date
-                bool exists = ctx.Meets.Any(m => m.Description == desc && m.Date == date);
+                bool exists = ctx.Meets.Any(m => m.Description == desc && m.Date == date && m.Location == loc);
                 if (exists)
                 {
                     MessageBox.Show("A meet with the same Description and Date already exists.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
-                var meet = new Meet { Description = desc, Date = date, Location = loc };
+                //var meet = new Meet { Description = desc, Date = date, Location = loc };
                 ctx.Meets.Add(meet);
                 ctx.SaveChanges();
                 LoadMeets();
             }
         }
 
+
         private void EditRow_Click(object sender, RoutedEventArgs e)
         {
-            if ((sender as Button)?.DataContext is not Meet row) return;
+            if ((sender as Button)?.DataContext is not Meet meet) return;
 
             // Check wrt Cut-off
-            DateTime meetCuttoffDay = DateTime.Now.Date;
+            DateTime meetCutoffDay = DateTime.Now.Date;
             if (vm != null)
             {
-                int cuttoff = vm.Scheduling?.MeetCutoff ?? 0;
-                DateTime MeetDate = row.Date ?? DateTime.Now;
-                meetCuttoffDay = MeetDate.AddDays(-cuttoff).Date;
-                if (meetCuttoffDay < DateTime.Now.Date)
+                int cutoff = vm.Scheduling?.MeetCutoff ?? 0;
+                DateTime MeetDate = meet.Date ?? DateTime.Now;
+                meetCutoffDay = MeetDate.AddDays(-cutoff).Date;
+                if (meetCutoffDay < DateTime.Now.Date)
                 {
-                    MessageBox.Show($"Too late to [Edit] meet based on current cut-off settings. Cut-off is  {cuttoff} days before Meet.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show($"Too late to [Edit] meet based on current cut-off settings. Cut-off is  {cutoff} days before Meet.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
             }
 
             var dlg = new NewMeetDialog { Owner = this };
-            dlg.FindName("DescriptionBox");
-            dlg.FindName("MeetDatePicker");
-            dlg.FindName("LocationBox");
-            // Initialize fields via logical names
-            if (dlg.Content is FrameworkElement root)
-            {
-                var desc = (TextBox)root.FindName("DescriptionBox");
-                var date = (DatePicker)root.FindName("MeetDatePicker");
-                var loc = (TextBox)root.FindName("LocationBox");
-                desc.Text = row.Description;
-                date.SelectedDate = row.Date;
-                //date.Text = row.Date?.ToString("yyyy-MM-dd") ?? string.Empty;
-                loc.Text = row.Location ?? string.Empty;
-            }
+            dlg.Meet = meet;
 
             if (dlg.ShowDialog() == true)
             {
                 using var ctx = new AthStitcherDbContext();
-                var existing = ctx.Meets.SingleOrDefault(m => m.Id == row.Id);
-                if (existing != null)
+                meet = dlg.Meet;
+                string desc = meet.Description;
+                if (string.IsNullOrWhiteSpace(desc))
                 {
-                    var newDesc = (dlg.DescriptionValue ?? existing.Description).Trim();
-                    var newDate = dlg.DateValue;
-                    var newLoc = string.IsNullOrWhiteSpace(dlg.LocationValue) ? null : dlg.LocationValue!.Trim();
-                    // Duplicate check excluding current row
-                    bool dup = ctx.Meets.Any(m => m.Id != row.Id && m.Description == newDesc && m.Date == newDate);
-                    if (dup)
+                    MessageBox.Show("Description cannot be empty.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+                int? round = meet.Round; //Not mandatory so no checks except >0
+                if ((round != null) && (round <= 0))
+                {
+                    MessageBox.Show("Round must be greater than zero.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+                var date = meet.Date;
+                if (date == null) 
+                {
+                    MessageBox.Show("Date before cut-off date {meetCutoff}.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+                DateTime newMeetCutoffDay = DateTime.Now.Date;
+                if (vm != null)
+                {
+                    int cutoff = vm.Scheduling?.MeetCutoff ?? 0;
+                    DateTime MeetDate = meet.Date ?? DateTime.Now;
+                    newMeetCutoffDay = MeetDate.AddDays(-cutoff).Date;
+                    if (newMeetCutoffDay < DateTime.Now.Date)
                     {
-                        MessageBox.Show("Another meet with the same Description and Date already exists.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        MessageBox.Show($"Too late to [Edit] meet based on current cut-off settings. Cut-off is  {cutoff} days before Meet.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
                         return;
                     }
-                    existing.Description = newDesc;
-                    existing.Date = newDate;
-                    existing.Location = newLoc;
-                    ctx.SaveChanges();
-                    LoadMeets();
                 }
+                var loc = meet.Location;
+                if (string.IsNullOrWhiteSpace(loc))
+                {
+                    MessageBox.Show("Location cannot be empty.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                // Duplicate check: same Description + Date
+                // No duplicate Check as this is an UPDATE
+                //bool exists = ctx.Meets.Any(m => m.Description == desc && m.Date == date && m.Location == loc);
+                //if (exists)
+                //{
+                //    MessageBox.Show("A meet with the same Description and Date already exists.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+                //    return;
+                //};
+                ctx.Meets.Update(meet);
+                ctx.SaveChanges();
+                LoadMeets();
             }
         }
 
@@ -172,20 +230,20 @@ namespace AthStitcher.Views
             if ((sender as Button)?.DataContext is not Meet row) return;
 
             // Check wrt Cut-off
-            DateTime meetCuttoffDay = DateTime.Now.Date;
+            DateTime meetCuttofDay = DateTime.Now.Date;
             if (vm != null)
             {
-                int cuttoff = vm.Scheduling?.MeetCutoff ?? 0;
+                int cutoff = vm.Scheduling?.MeetCutoff ?? 0;
                 DateTime MeetDate = row.Date ?? DateTime.Now;
-                meetCuttoffDay = MeetDate.AddDays(-cuttoff).Date;
-                if (meetCuttoffDay < DateTime.Now.Date)
+                meetCuttofDay = MeetDate.AddDays(-cutoff).Date;
+                if (meetCuttofDay < DateTime.Now.Date)
                 {
-                    MessageBox.Show($"Too late to [Delete] meet based on current cut-off settings. Cut-off is  {cuttoff} days before Meet.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show($"Too late to [Delete] meet based on current cut-off settings. Cut-off is  {cutoff} days before Meet.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
             }
 
-            var confirm = MessageBox.Show($"Delete meet '{row.Description}'?", "Confirm Delete", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            var confirm = MessageBox.Show($"Delete meet '{row.Description} Round:{row.Round}' ?", "Confirm Delete", MessageBoxButton.YesNo, MessageBoxImage.Warning);
             if (confirm != MessageBoxResult.Yes) return;
 
             using var ctx = new AthStitcherDbContext();

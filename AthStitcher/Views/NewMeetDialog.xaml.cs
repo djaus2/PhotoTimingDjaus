@@ -7,15 +7,22 @@ namespace AthStitcher.Views
 {
     public partial class NewMeetDialog : Window
     {
-        public string? DescriptionValue { get; private set; }
-        public DateTime? DateValue { get; private set; }
-        public string? LocationValue { get; private set; }
+        private Meet? _meet;
+        public Meet? Meet 
+        {
+            get{ return _meet; }
+            set{ _meet = value; this.DataContext = Meet; }
+
+        }
+        public string? DescriptionValue { get;  set; }
+        public DateTime? DateValue { get;  set; }
+        public string? LocationValue { get;  set; }
 
         public DateTime CutOff { get; set; } = DateTime.Today;
 
         public NewMeetDialog()
         {
-            InitializeComponent();
+            InitializeComponent();           
             this.Loaded += (_, __) =>
             {
                 MeetDatePicker.DisplayDateStart = CutOff;
@@ -24,15 +31,15 @@ namespace AthStitcher.Views
 
         private void Ok_Click(object sender, RoutedEventArgs e)
         {
-            var desc = DescriptionBox.Text?.Trim();
+            var desc = Meet.Description.Trim();
             if (string.IsNullOrEmpty(desc))
             {
                 MessageBox.Show("Description is required.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
-            DescriptionValue = desc;
-            DateValue = MeetDatePicker.SelectedDate;
-            LocationValue = string.IsNullOrWhiteSpace(LocationBox.Text) ? null : LocationBox.Text.Trim();
+            //DescriptionValue = desc;
+            //DateValue = MeetDatePicker.SelectedDate;
+            //LocationValue = string.IsNullOrWhiteSpace(LocationBox.Text) ? null : LocationBox.Text.Trim();
             DialogResult = true;
         }
     }

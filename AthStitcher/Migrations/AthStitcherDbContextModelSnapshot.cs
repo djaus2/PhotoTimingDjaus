@@ -124,6 +124,9 @@ namespace AthStitcher.Migrations
                     b.Property<string>("Location")
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("Round")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("Id");
 
                     b.ToTable("Meets", (string)null);

@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AthStitcher.Migrations
 {
     [DbContext(typeof(AthStitcherDbContext))]
-    [Migration("20251020040415_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20251020231650_New-Meet-Add-Round")]
+    partial class NewMeetAddRound
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -126,6 +126,9 @@ namespace AthStitcher.Migrations
 
                     b.Property<string>("Location")
                         .HasColumnType("TEXT");
+
+                    b.Property<int>("Round")
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 

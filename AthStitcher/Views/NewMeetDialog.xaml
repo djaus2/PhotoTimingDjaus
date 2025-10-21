@@ -2,9 +2,14 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="New Meet" SizeToContent="WidthAndHeight" ResizeMode="NoResize"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+        xmlns:enums="clr-namespace:AthStitcher.Data"
+        xmlns:sys="clr-namespace:System;assembly=System.Runtime"
+        xmlns:conv="clr-namespace:AthStitcherGUI.Converters;assembly=AthStitcher"
         WindowStartupLocation="CenterOwner">
     <Grid Margin="16">
         <Grid.RowDefinitions>
+            <RowDefinition/>
             <RowDefinition/>
             <RowDefinition/>
             <RowDefinition/>
@@ -16,17 +21,26 @@
         </Grid.ColumnDefinitions>
 
         <TextBlock Grid.Row="0" Grid.Column="0" Margin="0,0,8,8" VerticalAlignment="Center" Text="Description:"/>
-        <TextBox x:Name="DescriptionBox" Grid.Row="0" Grid.Column="1" Margin="0,0,0,8"/>
+        <TextBox x:Name="DescriptionBox" Text="{Binding Description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Row="0" Grid.Column="1" Margin="0,0,0,8"/>
 
-        <TextBlock Grid.Row="1" Grid.Column="0" Margin="0,0,8,8" VerticalAlignment="Center" Text="Date:"/>
-        <DatePicker x:Name="MeetDatePicker" Grid.Row="1" Grid.Column="1" Margin="0,0,0,8" SelectedDateFormat="Short"
+        <TextBlock Grid.Row="1" Grid.Column="0" Margin="0,0,8,8" VerticalAlignment="Center" Text="Round:"/>
+        <xctk:ValueRangeTextBox  Grid.Row="1" Grid.Column="1" Width="60"
+         HorizontalAlignment="Left"
+         Value="{Binding Round, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+         MinValue="1" 
+         ValueDataType="{x:Type sys:Int32}"                
+        />
+
+        <TextBlock Grid.Row="2" Grid.Column="0" Margin="0,0,8,8" VerticalAlignment="Center" Text="Date:"/>
+        <DatePicker x:Name="MeetDatePicker" Grid.Row="2" Grid.Column="1" Margin="0,0,0,8" SelectedDateFormat="Short"
+                    SelectedDate="{Binding Date, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                     DisplayDateStart=""
                     />
 
-        <TextBlock Grid.Row="2" Grid.Column="0" Margin="0,0,8,8" VerticalAlignment="Center" Text="Location:"/>
-        <TextBox x:Name="LocationBox" Grid.Row="2" Grid.Column="1" Margin="0,0,0,8"/>
+        <TextBlock Grid.Row="3" Grid.Column="0" Margin="0,0,8,8" VerticalAlignment="Center" Text="Location:"/>
+        <TextBox x:Name="LocationBox" Text="{Binding Location,Mode=TwoWay}" Grid.Row="3" Grid.Column="1" Margin="0,0,0,8"/>
 
-        <StackPanel Grid.Row="3" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
+        <StackPanel Grid.Row="4" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
             <Button Width="80" Margin="0,0,8,0" Content="OK" IsDefault="True" Click="Ok_Click"/>
             <Button Width="80" Content="Cancel" IsCancel="True"/>
         </StackPanel>
