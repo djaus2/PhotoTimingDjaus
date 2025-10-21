@@ -12,7 +12,7 @@ A simple ***Photo Timing/Photo Finish*** app for Athletics etc where a finish li
 
 ### History
 - AthStitcher V6.2.1
-  - Improved Info above results. **2Do Add/Restore Heat Number there.***
+  - Improved Info above results. ***2Do Add/Restore Heat Number there.***
 - AthStitcher V6.1.0 & V6.2.0
   - Fixed numerous issues with New Event and Edit Event dialog
     - Used bindings
