@@ -143,15 +143,7 @@ namespace AthStitcher.Views
                 var existing = ctx.Events.SingleOrDefault(ev => ev.Id == row.Id);
                 if (existing != null)
                 {
-                    /*existing.Description = dlg.DescriptionValue;
-                    existing.EventNumber = dlg.EventNumberValue;
-                    existing.Distance = dlg.DistanceValue;
-                    existing.Time = dlg.EventTime;
-                    existing.TrackType = dlg.TrackTypeValue;
-                    existing.Gender = dlg.GenderValue;
-                    existing.AgeGrouping = dlg.AgeGroupingValue;
-                    existing.UnderAgeGroup = dlg.UnderAgeGroupValue;
-                    existing.MastersAgeGroup = dlg.MastersAgeGroupValue;*/
+                    ctx.Update(existing);
                     ctx.SaveChanges();
 
                     // Prompt to edit number of heats for this event

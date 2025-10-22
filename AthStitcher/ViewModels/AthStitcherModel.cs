@@ -1,14 +1,15 @@
-using OpenCvSharp;
 using AthStitcher.Data;
+using Microsoft.Extensions.Logging;
+using OpenCvSharp;
 using Sportronics.VideoEnums;// This is where TimeFromMode is defined
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Input;
-using System.Linq;
 
 namespace AthStitcherGUI.ViewModels
 {
@@ -405,20 +406,8 @@ namespace AthStitcherGUI.ViewModels
             }
         }
 
-        // Current meet selection (managed via ManageMeets dialog)
-        private int? _CurrentMeetId;
-        public int? CurrentMeetId
-        {
-            get => _CurrentMeetId;
-            set { _CurrentMeetId = value; OnPropertyChanged(nameof(CurrentMeetId)); }
-        }
-
-        private string _CurrentMeetDescription = string.Empty;
-        public string CurrentMeetDescription
-        {
-            get => _CurrentMeetDescription;
-            set { _CurrentMeetDescription = value; OnPropertyChanged(nameof(CurrentMeetDescription)); }
-        }
+        #region Current Meet,Event,Heat Entities  
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
         // Object reference for the selected Meet
         private AthStitcher.Data.Meet? _CurrentMeet;
@@ -427,27 +416,9 @@ namespace AthStitcherGUI.ViewModels
             get => _CurrentMeet;
             set
             {
-                _CurrentMeet = value;
-                // keep legacy fields in sync
-                CurrentMeetId = value?.Id;
-                CurrentMeetDescription = value?.Description ?? string.Empty;
+                _CurrentMeet = value;;
                 OnPropertyChanged(nameof(CurrentMeet));
             }
-        }
-
-        // Current event selection (set from an events UI)
-        private int? _CurrentEventId;
-        public int? CurrentEventId
-        {
-            get => _CurrentEventId;
-            set { _CurrentEventId = value; OnPropertyChanged(nameof(CurrentEventId)); }
-        }
-
-        private string _CurrentEventDescription = string.Empty;
-        public string CurrentEventDescription
-        {
-            get => _CurrentEventDescription;
-            set { _CurrentEventDescription = value; OnPropertyChanged(nameof(CurrentEventDescription)); }
         }
 
         // Object reference for the selected Event
@@ -457,75 +428,48 @@ namespace AthStitcherGUI.ViewModels
             get => _CurrentEvent;
             set
             {
-                _CurrentEvent = value;
-                CurrentEventId = value?.Id;
-                CurrentEventDescription = value?.Description ?? string.Empty;
+                _CurrentEvent = value;;
                 // Reset heat number on event change
                 if (value != null)
-                    CurrentHeatNumber = 1;
+                {
+                    var CurrentHeatNumber = 1;
+                    using var ctx = new AthStitcherDbContext();
+                    var CurrentHeat = ctx.Heats
+                        .FirstOrDefault(h => h.EventId == CurrentEvent.Id && h.HeatNo == CurrentHeatNumber);
+                }
                 OnPropertyChanged(nameof(CurrentEvent));
-                OnPropertyChanged(nameof(CurrentEventInfo));
             }
         }
 
-        // Current Heat number within the selected Event (1-based)
-        private int _CurrentHeatNumber = 1;
-        public int CurrentHeatNumber
+        private Heat _CurrentHeat;
+        public Heat CurrentHeat
         {
-            get => _CurrentHeatNumber;
-            set { _CurrentHeatNumber = value; OnPropertyChanged(nameof(CurrentHeatNumber)); OnPropertyChanged(nameof(CurrentEventInfo)); }
+            get => _CurrentHeat;
+            set { _CurrentHeat = value; OnPropertyChanged(nameof(CurrentHeat)); }
         }
 
-        // Read-only composed info for current event/heat
-        public string CurrentEventInfo
-        {
-            get
-            {
-                var e = CurrentEvent;
-                if (e == null)
-                {
-                    return $"Heat no:{CurrentHeatNumber}";
-                }
-                string numPart = e.EventNumber.HasValue ? $"{e.EventNumber.Value}" : string.Empty;
-                string desc = e.Description ?? string.Empty;
-                if(e.AgeGrouping == AgeGrouping.masters && e.MastersAgeGroup.HasValue)
-                {
-                    desc += $" {e.MastersAgeGroup.Value}";
-                }
-                else if(e.AgeGrouping == AgeGrouping.junior && e.UnderAgeGroup.HasValue)
-                {
-                    desc += $" {e.UnderAgeGroup.Value}";
-                }
-                else if(e.AgeGrouping != AgeGrouping.open)
-                {
-                    desc += $" {e.AgeGrouping}";
-                }
-                string age = e.AgeGrouping.ToString();
-                string time = e.Time?.ToString("h:mm tt", System.Globalization.CultureInfo.CurrentCulture) ?? string.Empty;
-                string prefix = string.IsNullOrEmpty(numPart) ? string.Empty : numPart + ". ";
-                return $"{time} Event: {prefix} {desc} {age} - Heat:{CurrentHeatNumber}";
-            }
-        }
-
-        // Advance to next heat for the CurrentEvent, wrapping back to 1 after the last heat
+        /// <summary>
+        /// Advance to next event for the CurrentEvent, wrapping back to 1 after the last heat
+        /// Need to change this to to not use CurrentEventId but use CurrentEvent.Date object directly.
+        /// </summary>
         public void AdvanceEventNumber()
         {
-            if (!CurrentMeetId.HasValue)
+            if (CurrentMeet==null)
                 return;
-            if (!CurrentEventId.HasValue)
+            if (CurrentEvent==null)
                 return;
             try
             {
                 // Get next event in chronological (Time) order ... may not be next Id!
                 using var ctx = new AthStitcherDbContext();
-                var meetId = CurrentMeetId!.Value;
+                var meetId = CurrentMeet.Id;
                 var events = ctx.Events.Where(h => h.MeetId == meetId).OrderBy<AthStitcher.Data.Event, DateTime?>(e => e.Time);
                 if (!events.Any())
                 {
                     // No events defined yet; nothing to do
                     return;
                 }
-                var index = events.ToList().FindIndex(e => e.Id == CurrentEventId.Value);
+                var index = events.ToList().FindIndex(e => e.Id == CurrentEvent.Id);
                 if (index < 0)
                 {
                     // Current event not found in meet; nothing to do
@@ -544,8 +488,10 @@ namespace AthStitcherGUI.ViewModels
                 index = (index + 1);
                 var nextEvent = events.ElementAt(index);
                 CurrentEvent = nextEvent;
-                CurrentEventId = nextEvent.Id;
-                CurrentHeatNumber = 1; // Reset heat number on event change
+                
+                var CurrentHeatNumber = 1; // Reset heat number on event change
+                CurrentHeat = ctx.Heats
+                    .FirstOrDefault(h => h.EventId == CurrentEvent.Id && h.HeatNo == CurrentHeatNumber);
             }
             catch
             {
@@ -553,25 +499,28 @@ namespace AthStitcherGUI.ViewModels
             }
         }
 
-        // Advance to next heat for the CurrentEvent, wrapping back to 1 after the last heat
+        /// <summary>
+        /// Decrement to previous event from the CurrentEvent, wrapping back to 1 after the last heat
+        /// Need to change this to to not use CurrentEventId but use CurrentEvent.Date object directly.
+        /// </summary>
         public void DecrementEventNumber()
         {
-            if (!CurrentMeetId.HasValue)
+            if (CurrentMeet == null)
                 return;
-            if (!CurrentEventId.HasValue)
+            if (CurrentEvent == null)
                 return;
             try
             {
                 // Get previous event in chronological (Time) order ... may not be prev Id!
                 using var ctx = new AthStitcherDbContext();
-                var meetId = CurrentMeetId!.Value;
+                var meetId = CurrentMeet.Id;
                 var events = ctx.Events.Where(h => h.MeetId == meetId).OrderBy<AthStitcher.Data.Event, DateTime?>(e => e.Time);
                 if (!events.Any())
                 {
                     // No events defined yet; nothing to do
                     return;
                 }
-                var index = events.ToList().FindIndex(e => e.Id == CurrentEventId.Value);
+                var index = events.ToList().FindIndex(e => e.Id == CurrentEvent.Id);
                 if (index < 0)
                 {
                     // Current event not found in meet; nothing to do
@@ -590,8 +539,9 @@ namespace AthStitcherGUI.ViewModels
                 index = (index - 1);
                 var prevEvent = events.ElementAt(index);
                 CurrentEvent = prevEvent;
-                CurrentEventId = prevEvent.Id;
-                CurrentHeatNumber = 1; // Reset heat number on event change
+                var CurrentHeatNumber = 1; // Reset heat number on event change
+                CurrentHeat = ctx.Heats
+                    .FirstOrDefault(h => h.EventId == CurrentEvent.Id && h.HeatNo == CurrentHeatNumber);
             }
             catch
             {
@@ -599,21 +549,41 @@ namespace AthStitcherGUI.ViewModels
             }
         }
 
-        // Advance to next heat for the CurrentEvent, wrapping back to 1 after the last heat
+        /// <summary>
+        /// Advance to next heat for the CurrentEvent, wrapping back to 1 after the last heat
+        /// Heat are assumed to be in chronological order by HeatNo. No need to srt
+        /// </summary>
         public void AdvanceHeatNumber()
         {
-            if (!CurrentEventId.HasValue)
+            if (CurrentMeet == null)
+                return;
+            if (CurrentEvent == null)
                 return;
             try
             {
                 using var ctx = new AthStitcherDbContext();
-                var eventId = CurrentEventId!.Value;
+                var eventId = CurrentEvent.Id;
                 var heats = ctx.Heats.Where(h => h.EventId == eventId);
                 if (!heats.Any())
                 {
                     // No heats defined yet; Add one with heat number 1
-                    ctx.Heats.Add(new Heat { EventId = eventId, HeatNo = 1 });
+                    ctx.Heats.Add(new Heat { EventId = CurrentEvent.Id, HeatNo = 1 });
                     ctx.SaveChanges();
+                    CurrentHeat = ctx.Heats
+                        .FirstOrDefault(h => h.EventId == CurrentEvent.Id && h.HeatNo == 1);
+                    return;
+                }
+                var minHeatNo = ctx.Heats
+                    .Where(h => h.EventId == eventId)
+                    .Select(h => h.HeatNo)
+                    //.DefaultIfEmpty(1)
+                    .Min();
+                if (CurrentHeat == null)
+                {
+                    //If no current heat make the first the current heat
+                    CurrentHeat = ctx.Heats
+                        .FirstOrDefault(h => h.EventId == CurrentEvent.Id && h.HeatNo == minHeatNo);
+                    return;
                 }
                 var maxHeatNo = ctx.Heats
                     .Where(h => h.EventId == eventId)
@@ -622,11 +592,17 @@ namespace AthStitcherGUI.ViewModels
                     .Max();
                 if (maxHeatNo <= 0)
                 {
-                    // No heats defined yet; default to 1
-                    CurrentHeatNumber = 1;
+                    // No heats defined yet;
+                    // Should get here!
                     return;
                 }
-                CurrentHeatNumber = (CurrentHeatNumber >= maxHeatNo) ? 1 : (CurrentHeatNumber + 1);
+
+                if (CurrentHeat.HeatNo < maxHeatNo)
+                {
+                    var CurrentHeatNumber = (CurrentHeat.HeatNo >= maxHeatNo) ? 1 : (CurrentHeat.HeatNo + 1);
+                    CurrentHeat = ctx.Heats
+                        .FirstOrDefault(h => h.EventId == CurrentEvent.Id && h.HeatNo == CurrentHeatNumber);
+                }
             }
             catch
             {
@@ -636,40 +612,52 @@ namespace AthStitcherGUI.ViewModels
 
         public void DecrementHeatNumber()
         {
-            if (!CurrentEventId.HasValue)
+            if (CurrentMeet == null)
+                return;
+            if (CurrentEvent == null)
                 return;
             try
             {
                 using var ctx = new AthStitcherDbContext();
-                var eventId = CurrentEventId!.Value;
+                var eventId = CurrentEvent.Id;
                 var heats = ctx.Heats.Where(h => h.EventId == eventId);
                 if (!heats.Any())
                 {
                     // No heats defined yet; Add one with heat number 1
-                    ctx.Heats.Add(new Heat { EventId = eventId, HeatNo = 1 });
+                    ctx.Heats.Add(new Heat { EventId = CurrentEvent.Id, HeatNo = 1 });
                     ctx.SaveChanges();
+                    CurrentHeat = ctx.Heats
+                        .FirstOrDefault(h => h.EventId == CurrentEvent.Id && h.HeatNo == 1);
+                    return;
                 }
-                var maxHeatNo = ctx.Heats
+                var minHeatNo = ctx.Heats
                     .Where(h => h.EventId == eventId)
                     .Select(h => h.HeatNo)
                     //.DefaultIfEmpty(1)
-                    .Max();
-                if (maxHeatNo <= 0)
+                    .Min();
+                if (CurrentHeat == null)
                 {
-                    // No heats defined yet; default to 1
-                    CurrentHeatNumber = 1;
+                    //If no current heat make the first the current heat
+                    CurrentHeat = ctx.Heats
+                        .FirstOrDefault(h => h.EventId == CurrentEvent.Id && h.HeatNo == minHeatNo);
                     return;
                 }
-                CurrentHeatNumber = (CurrentHeatNumber >= maxHeatNo) ? 1 : (CurrentHeatNumber - 1);
-                if (CurrentHeatNumber < 1)
-                    CurrentHeatNumber = maxHeatNo;
+
+                var CurrentHeatNumber = (CurrentHeat.HeatNo ==1) ? 1 : (CurrentHeat.HeatNo - 1);
+                if(CurrentHeatNumber <= 0)
+                    CurrentHeatNumber = 1;
+                CurrentHeat = ctx.Heats
+                    .FirstOrDefault(h => h.EventId == CurrentEvent.Id && h.HeatNo == CurrentHeatNumber);
             }
             catch
             {
                 // On any error, keep existing number
             }
         }
-        
+
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////
+        #endregion
+
         public Scalar GunColor
         {
             get => _gunColor;

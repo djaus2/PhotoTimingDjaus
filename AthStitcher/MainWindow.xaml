@@ -272,6 +272,18 @@
                         </Menu>
                     </StackPanel>
 
+                    <MenuItem x:Name="MeetInfo" Header="{Binding CurrentMeet}" HorizontalAlignment="Center" Grid.Column="1">
+                        <MenuItem.HeaderTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding}" 
+                                     Foreground="Red"
+                                     FontWeight="Bold"
+                                     FontStyle="Italic"
+                                     FontSize="20"/>
+                            </DataTemplate>
+                        </MenuItem.HeaderTemplate>
+                    </MenuItem>
+
                     <Menu Visibility="{Binding MyVisibility}" HorizontalAlignment="Right" Grid.Column="2">
                         <MenuItem Header="Help" 
                             FontWeight="Bold" 
@@ -566,20 +578,22 @@
                             <ColumnDefinition Width="220"/>
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
 
                         <!-- Header row -->
-                    <TextBlock Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3" Foreground="Blue" Background="Beige" HorizontalAlignment="Left" Text="{Binding CurrentMeet}"/>
-                   
-
-                    <TextBlock Grid.Column="0" Grid.ColumnSpan="3"  Grid.Row="1" Foreground="Purple" HorizontalAlignment="Left" Text="{Binding CurrentEvent}"/>
-
+                    <!--TextBlock Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3" Foreground="Blue" Background="Beige" HorizontalAlignment="Left" Text="{Binding CurrentMeet}"/ -->
+                    <StackPanel Orientation="Horizontal"  Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3">
+                        <TextBlock    Foreground="Purple" HorizontalAlignment="Left" Text="{Binding CurrentEvent}"/>
+                        <Label Content=" "/>
+                        <TextBlock  Foreground="DarkGreen" HorizontalAlignment="Left" Text="{Binding CurrentHeat}"/>
+                    </StackPanel>
                     <!-- List row: choose one -->
                     <!-- Option A: DataGrid (scrolls by default) -->
-                    <DataGrid Grid.Column="0" Grid.Row="3"  Grid.ColumnSpan="3"
+                    <DataGrid Grid.Column="0" Grid.Row="1"  Grid.ColumnSpan="3" 
                               HorizontalScrollBarVisibility="Hidden"
                               VerticalScrollBarVisibility="Auto"
             ItemsSource="{Binding Results}"

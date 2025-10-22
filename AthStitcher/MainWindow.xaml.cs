@@ -3201,6 +3201,7 @@ namespace AthStitcherGUI
             athStitcherViewModel.SetShowSliders(true);
         }
 
+        #region Meets,Events,Heats Management
         private void Select_Meet_Menu_Click(object sender, RoutedEventArgs e)
         {
             var dlg = new AthStitcher.Views.SelectMeetDialog { Owner = this };
@@ -3299,7 +3300,7 @@ namespace AthStitcherGUI
                 return;
 
             // Ensure a meet is selected first
-            if (vm.CurrentMeetId == null)
+            if (vm.CurrentMeet == null)
             {
                 var pick = new AthStitcher.Views.ManageMeetsDialog { Owner = this };
                 var pickRes = pick.ShowDialog();
@@ -3316,7 +3317,7 @@ namespace AthStitcherGUI
             }
 
             // Open Manage Events dialog for the current meet (like ManageMeets)
-            var dlg = new AthStitcher.Views.ManageEventsDialog(vm.CurrentMeetId!.Value) { Owner = this };
+            var dlg = new AthStitcher.Views.ManageEventsDialog(vm.CurrentMeet.Id) { Owner = this };
             dlg.vm = this.DataContext as AthStitcherGUI.ViewModels.AthStitcherModel;
             var result = dlg.ShowDialog();
             if (result == true && dlg.SelectedEvent != null)
@@ -3332,7 +3333,7 @@ namespace AthStitcherGUI
                 return;
 
             // Ensure a meet is selected first
-            if (vm.CurrentMeetId == null)
+            if (vm.CurrentMeet == null)
             {
                 var pick = new AthStitcher.Views.ManageMeetsDialog { Owner = this };
                 var pickRes = pick.ShowDialog();
@@ -3349,7 +3350,7 @@ namespace AthStitcherGUI
             }
 
             // Open Manage Events dialog for the current meet (like ManageMeets)
-            var dlg = new AthStitcher.Views.SelectEventDialog(vm.CurrentMeetId!.Value) { Owner = this };
+            var dlg = new AthStitcher.Views.SelectEventDialog(vm.CurrentMeet.Id) { Owner = this };
             var result = dlg.ShowDialog();
             if (result == true && dlg.SelectedEvent != null)
             {
@@ -3378,7 +3379,7 @@ namespace AthStitcherGUI
             }
 
             // Ensure a meet is selected first
-            if (vm.CurrentMeetId == null)
+            if (vm.CurrentMeet == null)
             {
                 var pick = new AthStitcher.Views.ManageMeetsDialog { Owner = this };
                 var pickRes = pick.ShowDialog();
@@ -3395,11 +3396,11 @@ namespace AthStitcherGUI
             }
 
             // Ensure a meet is selected first
-            if (vm.CurrentMeetId == null)
+            if (vm.CurrentMeet == null)
             {
                 return;
             }
-            int MeetId = vm.CurrentMeetId!.Value;
+            int MeetId = vm.CurrentMeet.Id;
             var dlg = new NewEventDialog { Owner = this };
             // Use meet date as base date
             Meet meet;
@@ -3413,19 +3414,7 @@ namespace AthStitcherGUI
                 using var ctx = new AthStitcherDbContext();
                 var ev = dlg._event;
                 ev.MeetId = MeetId;
-                //new Event
-                //{
-                //    /*MeetId = MeetId,
-                //    Description = dlg.DescriptionValue,
-                //    EventNumber = dlg.EventNumberValue,
-                //    Distance = dlg.DistanceValue,
-                //    Time = dlg.EventTime,
-                //    TrackType = dlg.TrackTypeValue,
-                //    Gender = dlg.GenderValue,
-                //    AgeGrouping = dlg.AgeGroupingValue,
-                //    UnderAgeGroup = dlg.UnderAgeGroupValue,
-                //    MastersAgeGroup = dlg.MastersAgeGroupValue,*/
-                //};
+
                 ctx.Events.Add(ev);
                 ctx.SaveChanges();
 
@@ -3441,7 +3430,7 @@ namespace AthStitcherGUI
                 {
                     if (!ctx.Heats.Any(x => x.EventId == ev.Id && x.HeatNo == h))
                     {
-                        ctx.Heats.Add(new Heat { EventId = ev.Id, HeatNo = h });
+                        ctx.Heats.Add(new Heat { Event = ev, HeatNo = h });
                     }
                 }
                 ctx.SaveChanges();
@@ -3477,16 +3466,21 @@ namespace AthStitcherGUI
         {
             if (this.DataContext is not AthStitcherGUI.ViewModels.AthStitcherModel vm)
                 return;
-            if (!vm.CurrentEventId.HasValue)
+            if (vm.CurrentMeet == null)
             {
-                MessageBox.Show("Select an event first.", "Add Heat", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show("Select an Meet and Event first.", "Add Heat", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+            if (vm.CurrentEvent == null)
+            {
+                MessageBox.Show("Select an Event first.", "Add Heat", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
 
             try
             {
                 using var ctx = new AthStitcher.Data.AthStitcherDbContext();
-                var eventId = vm.CurrentEventId!.Value;
+                var eventId = vm.CurrentEvent.Id;
                 // Determine next heat number
                 int nextHeatNo = 1;
                 var existingMax = ctx.Heats
@@ -3497,63 +3491,81 @@ namespace AthStitcherGUI
                     nextHeatNo = existingMax.Value + 1;
 
                 // Create and save new heat
-                var heat = new AthStitcher.Data.Heat { EventId = eventId, HeatNo = nextHeatNo };
+                var heat = new AthStitcher.Data.Heat {  EventId = vm.CurrentEvent.Id, HeatNo = nextHeatNo };
                 ctx.Heats.Add(heat);
                 ctx.SaveChanges();
 
                 // Make it current in the VM
-                vm.CurrentHeatNumber = nextHeatNo;
+                vm.CurrentHeat = heat;
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Failed to add heat: {ex.Message}", "Add Heat", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-        
-private void RemoveHeat_Menu_Click(object sender, RoutedEventArgs e)
-{
-    if (this.DataContext is not AthStitcherGUI.ViewModels.AthStitcherModel vm)
-        return;
-    if (!vm.CurrentEventId.HasValue)
-    {
-        MessageBox.Show("Select an event first.", "Remove Heat", MessageBoxButton.OK, MessageBoxImage.Information);
-        return;
-    }
 
-    try
-    {
-        using var ctx = new AthStitcher.Data.AthStitcherDbContext();
-        var eventId = vm.CurrentEventId!.Value;
-
-        // Find the last heat for this event ordered by Time (most recent)
-        var lastHeat = ctx.Heats
-            .Where(h => h.EventId == eventId)
-            .OrderByDescending(h => h.HeatNo)
-            .FirstOrDefault();
-
-        if (lastHeat == null)
+        /// <summary>
+        /// Remove last heat for current event
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void RemoveHeat_Menu_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("No heats found for this event.", "Remove Heat", MessageBoxButton.OK, MessageBoxImage.Information);
-            return;
+            if (this.DataContext is not AthStitcherGUI.ViewModels.AthStitcherModel vm)
+                return;
+            if (vm.CurrentHeat == null)
+            {
+                MessageBox.Show("Select an Meet and Event first.", "Remove Heat", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+            if (vm.CurrentEvent == null)
+            {
+                MessageBox.Show("Select an Event first.", "Remove Heat", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            try
+            {
+                using var ctx = new AthStitcher.Data.AthStitcherDbContext();
+                var eventId = vm.CurrentEvent.Id;
+
+                // Find the last heat for this event ordered by Time (most recent)
+                var lastHeat = ctx.Heats
+                    .Where(h => h.EventId == eventId)
+                    .OrderByDescending(h => h.HeatNo)
+                    .FirstOrDefault();
+
+                if (lastHeat == null)
+                {
+                    MessageBox.Show("No heats found for this event.", "Remove Heat", MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
+
+                // Remove the found heat
+                ctx.Heats.Remove(lastHeat);
+                ctx.SaveChanges();
+
+                // Update current heat number to the highest remaining heat number or 1 if none remain
+                var remainingMax = ctx.Heats
+                    .Where(h => h.EventId == eventId)
+                    .Select(h => (int?)h.HeatNo)
+                    .Max();
+
+                var CurrentHeatNumber = remainingMax.HasValue ? remainingMax.Value : -1;
+                if(CurrentHeatNumber == -1)
+                {
+                    // No heats remain
+                    vm.CurrentHeat = null;
+                    return;
+                }
+                var CurrentHeat = ctx.Heats
+                    .FirstOrDefault(h => h.EventId == eventId && h.HeatNo == CurrentHeatNumber);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to remove last Heat: {ex.Message}", "Remove Heat", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
-
-        // Remove the found heat
-        ctx.Heats.Remove(lastHeat);
-        ctx.SaveChanges();
-
-        // Update current heat number to the highest remaining heat number or 1 if none remain
-        var remainingMax = ctx.Heats
-            .Where(h => h.EventId == eventId)
-            .Select(h => (int?)h.HeatNo)
-            .Max();
-
-        vm.CurrentHeatNumber = remainingMax.HasValue ? remainingMax.Value : 1;
-    }
-    catch (Exception ex)
-    {
-        MessageBox.Show($"Failed to remove heat: {ex.Message}", "Remove Heat", MessageBoxButton.OK, MessageBoxImage.Error);
-    }
-}
 
         private void SetAppCuttoffs_Menu_Click(object sender, RoutedEventArgs e)
         {
@@ -3577,6 +3589,7 @@ private void RemoveHeat_Menu_Click(object sender, RoutedEventArgs e)
                 athStitcherViewModel.SaveViewModel(vm);
             }
         }
+        #endregion
 
     }
 

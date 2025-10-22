@@ -10,22 +10,18 @@ namespace AthStitcher.Data
 
         public int HeatNo { get; set; }
 
-        [NotMapped]
-        public string Info
+        public override string ToString()
         {
-            get
+            //var e = Event;
+            //if (e == null)
+            //{
+            //    return $"";
+            //}
+            if(HeatNo>0)
             {
-                var e = Event;
-                if (e == null)
-                {
-                    return $"Heat no:{HeatNo}";
-                }
-                string numPart = e.EventNumber.HasValue ? $"{e.EventNumber.Value}. " : string.Empty;
-                string desc = e.Description ?? string.Empty;
-                string age = e.AgeGrouping.ToString();
-                string time = e.TimeStr;
-                return $"{time} Event: {numPart}. {desc} {age}  Heat:{HeatNo}";
+                return $"Heat:{HeatNo}";
             }
+            return "";
         }
     }
 }

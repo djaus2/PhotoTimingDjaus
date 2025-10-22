@@ -11,6 +11,14 @@ A simple ***Photo Timing/Photo Finish*** app for Athletics etc where a finish li
 > All good!
 
 ### History
+- AthStitcher V6.3.0
+  - Meet info now on Menu Bar
+  - _Code Tidy Up:_ Using CurrentMeet.Id etc rather than CurrentMeetId.
+  - Also using ToString() overrides for Meet,Event and Heat so can just bind to entity in Xaml.
+    - But : When using Menu just to display info 
+        - If Header binding is an object (as in Meet info as above), the default template may not propagate Foreground to the generated text. 
+        - Define a HeaderTemplate with a TextBlock (preferred) or bind Header to a specific string property to ensure your color styling applies.
+        - Look for MeetInfo in MainWindow.xaml for example.
 - AthStitcher V6.2.1
   - Improved Info above results. **2Do Add/Restore Heat Number there.***
 - AthStitcher V6.1.0 & V6.2.0
