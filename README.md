@@ -20,7 +20,7 @@ A simple ***Photo Timing/Photo Finish*** app for Athletics etc where a finish li
         - Define a HeaderTemplate with a TextBlock (preferred) or bind Header to a specific string property to ensure your color styling applies.
         - Look for MeetInfo in MainWindow.xaml for example.
 - AthStitcher V6.2.1
-  - Improved Info above results. **2Do Add/Restore Heat Number there.***
+  - Improved Info above results. ***2Do Add/Restore Heat Number there.***
 - AthStitcher V6.1.0 & V6.2.0
   - Fixed numerous issues with New Event and Edit Event dialog
     - Used bindings
