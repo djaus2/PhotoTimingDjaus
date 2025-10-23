@@ -13,7 +13,7 @@ A simple ***Photo Timing/Photo Finish*** app for Athletics etc where a finish li
 > All good!
 
 ### History
-- AthStitcher V6.3.0
+- AthStitcher V6.2.5
   - Meet info now on Menu Bar
   - _Code Tidy Up:_ Using CurrentMeet.Id etc rather than CurrentMeetId.
   - Also using ToString() overrides for Meet,Event and Heat so can just bind to entity in Xaml.
