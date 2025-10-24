@@ -1,8 +1,18 @@
+using AthStitcher.Data;
+using AthStitcher.Security;
+using AthStitcher.Views;
 using AthStitcherGUI.ViewModels;
 using DetectAudioFlash;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Win32;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+
+//using OpenCvSharp;
+//using OpenCvSharp;
+using Microsoft.VisualBasic;
+using Microsoft.Win32;
+using Microsoft.Win32;
+using NAudio.Utils;
 using OpenCvSharp;
 using OpenCvSharp.Features2D;
 using PhotoTimingDjaus;
@@ -12,37 +22,30 @@ using Sportronics.VideoEnums; //.Local;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data.Common;
 using System.Diagnostics;
 using System.Diagnostics.Eventing.Reader;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Media;
 using System.Net.Sockets;
 using System.Runtime.Intrinsics.Arm;
 using System.Security;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Documents;
 //using System.Windows.Forms;
 using System.Windows.Input;
-using Microsoft.Win32;
-using System.Windows.Documents;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Threading;
-using System.Threading.Tasks;
-//using OpenCvSharp;
-//using OpenCvSharp;
-using Microsoft.VisualBasic;
-using AthStitcher.Data;
-using AthStitcher.Security;
-using AthStitcher.Views;
-using System.Data.Common;
-using System.Linq;
 
 
 namespace AthStitcherGUI
@@ -3234,13 +3237,13 @@ namespace AthStitcherGUI
 
         private void New_Meet_Menu_Click(object sender, RoutedEventArgs e)
         {
-
+            if (this.DataContext is not AthStitcherGUI.ViewModels.AthStitcherModel vm)
+                return;
             DateTime meetCutoff = DateTime.Now.Date;
-            if (this.DataContext is AthStitcherModel vm)
-            {
-                int cutoff = vm.Scheduling?.MeetCutoff ?? 0;
-                meetCutoff = DateTime.Now.AddDays(cutoff);
-            }
+
+            int cutoff = vm.Scheduling?.MeetCutoff ?? 0;
+            meetCutoff = DateTime.Now.AddDays(cutoff);
+
             Meet meet = new Meet
             {
                 Description = "<Enter Meet description>",
@@ -3291,6 +3294,7 @@ namespace AthStitcherGUI
                 //var meet = new Meet { Description = desc, Date = date, Location = loc };
                 ctx.Meets.Add(meet);
                 ctx.SaveChanges();
+                vm.CurrentMeet = meet;
             }
         }
 
@@ -3323,6 +3327,9 @@ namespace AthStitcherGUI
             if (result == true && dlg.SelectedEvent != null)
             {
                 vm.CurrentEvent = dlg.SelectedEvent;
+                var ctx = new AthStitcherDbContext();
+                vm.CurrentHeat = ctx.Heats.FirstOrDefault(h => h.EventId == dlg.SelectedEvent.Id && h.HeatNo == 1);
+                GetCurrentResultsforCurrentHeat(vm, ctx, vm.CurrentHeat);
                 // Reset lanes/results to the event's lanes if needed (we don't store lanes per event yet; keep current)
                 athStitcherViewModel.SetShowSliders(false);
             }
@@ -3355,6 +3362,9 @@ namespace AthStitcherGUI
             if (result == true && dlg.SelectedEvent != null)
             {
                 vm.CurrentEvent = dlg.SelectedEvent;
+                using var ctx = new AthStitcherDbContext();
+                vm.CurrentHeat = ctx.Heats.FirstOrDefault(h => h.EventId == dlg.SelectedEvent.Id && h.HeatNo == 1);
+                GetCurrentResultsforCurrentHeat(vm, ctx, vm.CurrentHeat);
                 // Reset lanes/results to the event's lanes if needed (we don't store lanes per event yet; keep current)
                 athStitcherViewModel.SetShowSliders(false);
             }
@@ -3367,13 +3377,13 @@ namespace AthStitcherGUI
             else
             {
 
-                DateTime meetCuttoff = DateTime.Now.Date;
-                int cuttoff = vm.Scheduling?.EventCutoff ?? 0;
+                DateTime meetCutoff = DateTime.Now.Date;
+                int cutoff = vm.Scheduling?.EventCutoff ?? 0;
                 DateTime meetDate = vm.CurrentMeet?.Date ?? DateTime.Now;
-                DateTime eventCuttoff = meetDate.AddDays(cuttoff);
-                if (DateTime.Now.Date> eventCuttoff.Date)
+                DateTime eventCutoff = meetDate.AddDays(cutoff);
+                if (DateTime.Now.Date> eventCutoff.Date)
                 {
-                    MessageBox.Show($"Cannot add events after {cuttoff} days of the meet date ({meetDate:dd/MM/yyyy}).", "New Event", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show($"Cannot add events after {cutoff} days of the meet date ({meetDate:dd/MM/yyyy}).", "New Event", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
             }
@@ -3430,11 +3440,14 @@ namespace AthStitcherGUI
                 {
                     if (!ctx.Heats.Any(x => x.EventId == ev.Id && x.HeatNo == h))
                     {
-                        ctx.Heats.Add(new Heat { Event = ev, HeatNo = h });
+                        AddHeat_Menu_Click(sender, e);
+                        //ctx.Heats.Add(new Heat { Event = ev, HeatNo = h });
                     }
                 }
-                ctx.SaveChanges();
-
+                //ctx.SaveChanges();
+                vm.CurrentEvent = ev;
+                vm.CurrentHeat = ctx.Heats.FirstOrDefault(h => h.EventId == ev.Id && h.HeatNo == 1);
+                GetCurrentResultsforCurrentHeat(vm, ctx, vm.CurrentHeat);
             }
         
         }
@@ -3442,25 +3455,41 @@ namespace AthStitcherGUI
         private void Next_Event_Button_Click(object sender, RoutedEventArgs e)
         {
             if (this.DataContext is AthStitcherGUI.ViewModels.AthStitcherModel vm)
+            {
                 vm.AdvanceEventNumber();
+                using var ctx = new AthStitcherDbContext();
+                GetCurrentResultsforCurrentHeat(vm, ctx, vm.CurrentHeat);
+            }
         }
 
         private void Prev_Event_Button_Click(object sender, RoutedEventArgs e)
         {
             if (this.DataContext is AthStitcherGUI.ViewModels.AthStitcherModel vm)
+            { 
                 vm.DecrementEventNumber();
+                using var ctx = new AthStitcherDbContext();
+                GetCurrentResultsforCurrentHeat(vm, ctx, vm.CurrentHeat);
+            }
         }
 
         private void Next_Heat_Button_Click(object sender, RoutedEventArgs e)
         {
             if (this.DataContext is AthStitcherGUI.ViewModels.AthStitcherModel vm)
+            {
                 vm.AdvanceHeatNumber();
+                using var ctx = new AthStitcherDbContext();
+                GetCurrentResultsforCurrentHeat(vm, ctx, vm.CurrentHeat);
+            }
         }
 
         private void Prev_Heat_Button_Click(object sender, RoutedEventArgs e)
         {
             if (this.DataContext is AthStitcherGUI.ViewModels.AthStitcherModel vm)
+            {
                 vm.DecrementHeatNumber();
+                using var ctx = new AthStitcherDbContext();
+                GetCurrentResultsforCurrentHeat(vm, ctx, vm.CurrentHeat);
+            }
         }
         private void AddHeat_Menu_Click(object sender, RoutedEventArgs e)
         {
@@ -3494,14 +3523,49 @@ namespace AthStitcherGUI
                 var heat = new AthStitcher.Data.Heat {  EventId = vm.CurrentEvent.Id, HeatNo = nextHeatNo };
                 ctx.Heats.Add(heat);
                 ctx.SaveChanges();
-
+                AddResultsToHeat(vm,ctx, vm.CurrentEvent, heat);
                 // Make it current in the VM
                 vm.CurrentHeat = heat;
+                GetCurrentResultsforCurrentHeat(vm, ctx, vm.CurrentHeat);
+
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Failed to add heat: {ex.Message}", "Add Heat", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        private void AddResultsToHeat(AthStitcherGUI.ViewModels.AthStitcherModel vm,AthStitcher.Data.AthStitcherDbContext ctx, Event _event, Heat heat)
+        {
+            heat.Results = new List<Result>();
+            if (_event != null)
+            {
+                int max = _event.MaxLane ?? 8;
+                int min = _event.MinLane ?? 1;
+                for (int lane = min; lane <= max; lane++)
+                {
+                    ctx.Results.Add(new Result { HeatId = heat.Id, Lane = lane });
+                };
+                ctx.SaveChanges();
+                GetCurrentResultsforCurrentHeat(vm, ctx, heat);
+            }
+        }
+
+        private void GetCurrentResultsforCurrentHeat(AthStitcherGUI.ViewModels.AthStitcherModel vm, AthStitcher.Data.AthStitcherDbContext ctx, Heat heat)
+        {
+            if (heat == null)
+            {
+                vm.CurrentResults = null;
+                MessageBox.Show("No Heat to get Results from.", "GetCurrentResultsforCurrentHeat", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            var list = ctx.Results
+                .AsNoTracking()
+                .Where(r => r.HeatId == heat.Id)
+                .OrderBy(r => r.Lane) // ascending; use .OrderByDescending if needed
+                .ToList();
+
+            vm.CurrentResults = list; // or new ObservableCollection<Result>(list)
         }
 
         /// <summary>
@@ -3554,12 +3618,13 @@ namespace AthStitcherGUI
                 var CurrentHeatNumber = remainingMax.HasValue ? remainingMax.Value : -1;
                 if(CurrentHeatNumber == -1)
                 {
-                    // No heats remain
-                    vm.CurrentHeat = null;
+                    // Removed one and only heat so add a new one.
+                    AddHeat_Menu_Click(sender, e);
                     return;
                 }
                 var CurrentHeat = ctx.Heats
                     .FirstOrDefault(h => h.EventId == eventId && h.HeatNo == CurrentHeatNumber);
+                GetCurrentResultsforCurrentHeat(vm, ctx, CurrentHeat);
             }
             catch (Exception ex)
             {
@@ -3567,7 +3632,7 @@ namespace AthStitcherGUI
             }
         }
 
-        private void SetAppCuttoffs_Menu_Click(object sender, RoutedEventArgs e)
+        private void SetAppCutoffs_Menu_Click(object sender, RoutedEventArgs e)
         {
             if (/*this.DataContext*/ athStitcherViewModel.DataContext is not AthStitcherGUI.ViewModels.AthStitcherModel vm)
                 return; 
@@ -3591,6 +3656,10 @@ namespace AthStitcherGUI
         }
         #endregion
 
+        private void DataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+        }
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////

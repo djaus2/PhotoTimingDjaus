@@ -230,13 +230,13 @@ namespace AthStitcher.Views
             if ((sender as Button)?.DataContext is not Meet row) return;
 
             // Check wrt Cut-off
-            DateTime meetCuttofDay = DateTime.Now.Date;
+            DateTime meetCutoffDay = DateTime.Now.Date;
             if (vm != null)
             {
                 int cutoff = vm.Scheduling?.MeetCutoff ?? 0;
                 DateTime MeetDate = row.Date ?? DateTime.Now;
-                meetCuttofDay = MeetDate.AddDays(-cutoff).Date;
-                if (meetCuttofDay < DateTime.Now.Date)
+                meetCutoffDay = MeetDate.AddDays(-cutoff).Date;
+                if (meetCutoffDay < DateTime.Now.Date)
                 {
                     MessageBox.Show($"Too late to [Delete] meet based on current cut-off settings. Cut-off is  {cutoff} days before Meet.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;

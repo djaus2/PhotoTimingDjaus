@@ -8,6 +8,7 @@ namespace AthStitcher.Data
     public static class Db
     {
         // SQLite DB path: %LocalAppData%/AthStitcher/athstitcher.db
+        /// e.g., %LocalAppData%\AthStitcher\athstitcher.db
         public static string GetConnectionString()
         {
             var dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "AthStitcher");

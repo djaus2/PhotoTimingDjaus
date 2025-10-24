@@ -158,7 +158,7 @@
                                 <MenuItem  Header="Remove LAST Heat from current Event" Click="RemoveHeat_Menu_Click"/>
                                 <Separator/>
                                 <MenuItem Background="Beige" Header="Settings:" Foreground="Purple"/>
-                                <MenuItem  Header="Set App Cuttoffs" Click="SetAppCuttoffs_Menu_Click"/>
+                                <MenuItem  Header="Set App Cuttoffs" Click="SetAppCutoffs_Menu_Click"/>
                             </MenuItem>
                         </Menu>
                         <Menu>
@@ -596,12 +596,41 @@
                     <DataGrid Grid.Column="0" Grid.Row="1"  Grid.ColumnSpan="3" 
                               HorizontalScrollBarVisibility="Hidden"
                               VerticalScrollBarVisibility="Auto"
-            ItemsSource="{Binding Results}"
-            AutoGenerateColumns="False" CanUserAddRows="False">
+            ItemsSource="{Binding CurrentResults}"
+            AutoGenerateColumns="False" CanUserAddRows="False" SelectionChanged="DataGrid_SelectionChanged">
+                        <DataGrid.ColumnHeaderStyle>
+                            <Style TargetType="DataGridColumnHeader">
+                                <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                            </Style>
+                        </DataGrid.ColumnHeaderStyle>
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="Lane" Binding="{Binding LaneStr}" IsReadOnly="True" Width="120"/>
-                            <DataGridTextColumn Header="Result" Binding="{Binding ResultStr, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="150"/>
-                            <DataGridTextColumn Header="Name" Binding="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="220"/>
+                            <!--DataGridTextColumn Header="Lane" Binding="{Binding Lane}"   IsReadOnly="True" Width="60"/ -->
+                            <DataGridTextColumn Header="Lane"
+                                Binding="{Binding Lane}"
+                                IsReadOnly="True"
+                                Width="80">
+                                
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                                    <Setter Property="TextAlignment" Value="Center"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <!--DataGridTextColumn Header="ResultSeconds" Binding="{Binding ResultStr, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="150"/-->
+                            <DataGridTextColumn Header="Time(sec)"
+                                Binding="{Binding ResultStr, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                Width="100">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="HorizontalAlignment" Value="Center"/>
+                                        <Setter Property="TextAlignment" Value="Center"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="BinNo" Binding="{Binding BibNo, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="60" />
+                            <DataGridTextColumn Header="Name" Binding="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="210"/>
+                          
                         </DataGrid.Columns>
                     </DataGrid>
 

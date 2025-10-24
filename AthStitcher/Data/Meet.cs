@@ -15,6 +15,8 @@ namespace AthStitcher.Data
         public DateTime? Date { get; set; }
         public string? Location { get; set; }
 
+        public int? MaxLanes { get; set; } = 8;
+
         // Convenience: date-only string for UI bindings
         public string DateStr => Date?.ToString("yyyy-MM-dd") ?? string.Empty;
 

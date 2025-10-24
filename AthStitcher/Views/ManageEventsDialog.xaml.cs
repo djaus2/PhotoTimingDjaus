@@ -124,15 +124,15 @@ namespace AthStitcher.Views
             if ((sender as Button)?.DataContext is not Event row) return;
 
             // Check wrt Cut-off
-            DateTime meetCuttoffDay = DateTime.Now.Date;
+            DateTime meetCutoffDay = DateTime.Now.Date;
             if (vm != null)
             {
-                int cuttoff = vm.Scheduling?.EventCutoff ?? 0;
+                int cutoff = vm.Scheduling?.EventCutoff ?? 0;
                 DateTime MeetDate = vm.CurrentMeet.Date ?? DateTime.Now;
-                meetCuttoffDay = MeetDate.AddDays(-cuttoff).Date;
-                if (meetCuttoffDay < DateTime.Now.Date)
+                meetCutoffDay = MeetDate.AddDays(-cutoff).Date;
+                if (meetCutoffDay < DateTime.Now.Date)
                 {
-                    MessageBox.Show($"Too late to [Edit] event based on current cut-off settings. Cut-off is  {cuttoff} days before Meet.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show($"Too late to [Edit] event based on current cut-off settings. Cut-off is  {cutoff} days before Meet.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
             }
@@ -162,15 +162,15 @@ namespace AthStitcher.Views
             if ((sender as Button)?.DataContext is not Event row) return;
 
             // Check wrt Cut-off
-            DateTime eventMeetCuttoff = DateTime.Now.Date;
+            DateTime eventMeetCutoff = DateTime.Now.Date;
             if (vm != null)
             {
-                int eventcuttoff = vm.Scheduling?.EventCutoff ?? 0;
+                int eventcutoff = vm.Scheduling?.EventCutoff ?? 0;
                 DateTime MeetDate = vm.CurrentMeet.Date ?? DateTime.Now;
-                eventMeetCuttoff = MeetDate.AddDays(-eventcuttoff).Date;
-                if (eventMeetCuttoff < DateTime.Now.Date)
+                eventMeetCutoff = MeetDate.AddDays(-eventcutoff).Date;
+                if (eventMeetCutoff < DateTime.Now.Date)
                 {
-                    MessageBox.Show($"Too late to [Delete] event based on current cut-off settings. Cut-off is  {eventcuttoff} days before Meet.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show($"Too late to [Delete] event based on current cut-off settings. Cut-off is  {eventcutoff} days before Meet.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
             }

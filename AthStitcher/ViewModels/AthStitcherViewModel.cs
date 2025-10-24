@@ -143,7 +143,7 @@ namespace AthStitcherGUI.ViewModels
             }
         }
 
-        public void SetMaxMinLans(string maxmin)
+        public void SetMaxMinLanes(string maxmin)
         {
             if (DataContext is AthStitcherModel viewModel)
             {

@@ -107,10 +107,11 @@ namespace AthStitcher.Data
                 e.Property(x => x.ResultSeconds).IsRequired(false);
 
                 e.HasOne(x => x.Heat)
-                 .WithMany()
+                 .WithMany(h => h.Results)   // critical: tie to Heat.Results
                  .HasForeignKey(x => x.HeatId)
                  .OnDelete(DeleteBehavior.Cascade);
             });
+
         }
     }
 }

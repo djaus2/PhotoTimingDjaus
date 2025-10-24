@@ -448,6 +448,13 @@ namespace AthStitcherGUI.ViewModels
             set { _CurrentHeat = value; OnPropertyChanged(nameof(CurrentHeat)); }
         }
 
+        private ICollection<Result> _CurrentResults;
+        public ICollection<Result> CurrentResults
+        {
+            get => _CurrentResults;
+            set { _CurrentResults = value; OnPropertyChanged(nameof(CurrentResults)); }
+        }
+
         /// <summary>
         /// Advance to next event for the CurrentEvent, wrapping back to 1 after the last heat
         /// Need to change this to to not use CurrentEventId but use CurrentEvent.Date object directly.
