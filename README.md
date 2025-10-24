@@ -10,9 +10,10 @@ A simple ***Photo Timing/Photo Finish*** app for Athletics etc where a finish li
 
 ## Recent
 ### Status
-> All good!
+> Mainly All good! Some loose ends with V6.2.9
 
 ### History
+- AthStitcher V6.2.9 Major DB Code improvements
 - AthStitcher V6.2.5
   - Meet info now on Menu Bar
   - _Code Tidy Up:_ Using CurrentMeet.Id etc rather than CurrentMeetId.
