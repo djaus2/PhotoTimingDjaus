@@ -68,6 +68,7 @@
             <RowDefinition/>
             <RowDefinition/>
             <RowDefinition/>
+            <RowDefinition/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
@@ -75,55 +76,70 @@
             <ColumnDefinition Width="240"/>
         </Grid.ColumnDefinitions>
 
-        <TextBlock Grid.Row="0" Grid.Column="0" Margin="0,0,8,8" FontStyle="Italic" VerticalAlignment="Center" Text="Description (Optional):"/>
-        <TextBox x:Name="DescriptionBox" Grid.Row="0" Grid.Column="1" Margin="0,0,0,8"
-             Text="{Binding Description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+        <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" 
+               FontStyle="Italic" FontWeight="Bold" Foreground="Blue"
+               HorizontalAlignment="Center"
+               Text ="{Binding Display}"
+                   />
 
         <TextBlock Grid.Row="1" Grid.Column="0" Margin="0,0,8,8" VerticalAlignment="Center" Text="Event #:"/>
         <xctk:ValueRangeTextBox  Grid.Row="1" Grid.Column="1" 
-                Value="{Binding EventNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                MinValue="1" 
-                ValueDataType="{x:Type sys:Int32}"                
-               />
+               Value="{Binding EventNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+               Width="80" HorizontalAlignment="Left"
+               MinValue="1" 
+               ValueDataType="{x:Type sys:Int32}"                
+              />
 
-
+        <TextBlock Grid.Row="2" Grid.Column="0" Margin="0,0,8,8" VerticalAlignment="Center" Text="Track Type:"/>
+        <ComboBox x:Name="TrackTypeBox"
+          Grid.Row="2" Grid.Column="2" Margin="0,0,0,8"
+          ItemsSource="{Binding Source={StaticResource TrackTypeValues}}"
+          SelectedItem="{Binding TrackType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 
         <TextBlock Grid.Row="3" Grid.Column="0" Margin="0,0,8,8" VerticalAlignment="Center" Text="Distance:"/>
+        <StackPanel Orientation="Horizontal" Grid.Row="3" Grid.Column="1">
         <xctk:ValueRangeTextBox x:Name="DistanceBox"  Grid.Row="3" Grid.Column="1" 
                 Value="{Binding Distance, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                Width="80" TextAlignment="Right" VerticalAlignment="Center"
                 MinValue="1" 
-                ValueDataType="{x:Type sys:Int32}"                
-               />
+                ValueDataType="{x:Type sys:Int32}" />
+            <Label Width="20" Content="m" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+        </StackPanel>
 
-        <TextBlock Grid.Row="4" Grid.Column="0" Margin="0,0,8,8" VerticalAlignment="Center" Text="Min Lane:"/>
-        <xctk:ValueRangeTextBox x:Name="MinLaneBox"  Grid.Row="4" Grid.Column="1" 
+        <TextBlock Grid.Row="4" Grid.Column="0" Margin="0,0,8,8" FontStyle="Italic" VerticalAlignment="Center" Text="Description (Optional):"/>
+        <xctk:WatermarkTextBox Watermark="Optional, not required" 
+        x:Name="DescriptionBox" Grid.Row="4" Grid.Column="1" Margin="0,0,0,8"
+                 Background="Beige" 
+                 
+             Text="{Binding Description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+
+        <TextBlock Grid.Row="5" Grid.Column="0" Margin="0,0,8,8" VerticalAlignment="Center" Text="Min Lane:"/>
+        <xctk:ValueRangeTextBox x:Name="MinLaneBox"  Grid.Row="5" Grid.Column="1" 
                 Value="{Binding MinLane, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                Width="80" HorizontalAlignment="Left"
                 MinValue="1"              
                 ValueDataType="{x:Type sys:Int32}"                
                />
 
-        <TextBlock Grid.Row="5" Grid.Column="0" Margin="0,0,8,8" VerticalAlignment="Center" Text="Max Lane:"/>
-        <xctk:ValueRangeTextBox x:Name="MaxLaneBox"   Grid.Row="5" Grid.Column="1" 
+        <TextBlock Grid.Row="6" Grid.Column="0" Margin="0,0,8,8" VerticalAlignment="Center" Text="Max Lane:"/>
+        <xctk:ValueRangeTextBox x:Name="MaxLaneBox"   Grid.Row="6" Grid.Column="1" 
                 Value="{Binding MaxLane, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                Width="80" HorizontalAlignment="Left"
                 MinValue="{Binding MinLane}"
                 ValueDataType = "{x:Type sys:Int32}"                
                />
 
-        <TextBlock Grid.Row="6" Grid.Column="0" Margin="0,0,8,8" VerticalAlignment="Center" Text="Time (HH:MM:SS[.fff]):"/>
-        <xctk:TimePicker x:Name="TimeBox" Grid.Row="6" Grid.Column="1" Margin="0,0,0,8"
+        <TextBlock Grid.Row="7" Grid.Column="0" Margin="0,0,8,8" VerticalAlignment="Center" Text="Time (HH:MM:SS[.fff]):"/>
+        <xctk:TimePicker x:Name="TimeBox" Grid.Row="7" Grid.Column="1" Margin="0,0,0,8"
+                         Width="100" HorizontalAlignment="Left"
             Value="{Binding Time, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
-        <TextBlock Grid.Row="7" Grid.Column="0" Margin="0,0,8,8" VerticalAlignment="Center" Text="Gender:"/>
+        <TextBlock Grid.Row="8" Grid.Column="0" Margin="0,0,8,8" VerticalAlignment="Center" Text="Gender:"/>
         <ComboBox x:Name="GenderBox"
-          Grid.Row="7" Grid.Column="1" Margin="0,0,0,8"
+          Grid.Row="8" Grid.Column="1" Margin="0,0,0,8"
           ItemsSource="{Binding Source={StaticResource GenderValues}}"
           SelectedItem="{Binding Gender, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-
-        <TextBlock Grid.Row="8" Grid.Column="0" Margin="0,0,8,8" VerticalAlignment="Center" Text="Track Type:"/>
-        <ComboBox x:Name="TrackTypeBox"
-          Grid.Row="8" Grid.Column="1" Margin="0,0,0,8"
-          ItemsSource="{Binding Source={StaticResource TrackTypeValues}}"
-          SelectedItem="{Binding TrackType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 
 
         <TextBlock Grid.Row="9" Grid.Column="0" Margin="0,0,8,8" VerticalAlignment="Center" Text="Age Grouping:"/>

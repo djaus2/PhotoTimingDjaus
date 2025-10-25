@@ -11,48 +11,49 @@ namespace AthStitcher.Data
         public int Id;
         public int MeetId;
 
-        [ObservableProperty]
+        [ObservableProperty, NotifyPropertyChangedFor(nameof(Display))]
         public Meet? meet;
-        [ObservableProperty]
+        [ObservableProperty, NotifyPropertyChangedFor(nameof(Display))]
         public int? eventNumber;
-        [ObservableProperty]
+        [ObservableProperty, NotifyPropertyChangedFor(nameof(Display))]
         public DateTime? time;
-        [ObservableProperty]
+        [ObservableProperty, NotifyPropertyChangedFor(nameof(Display))]
         public string? description;
-        [ObservableProperty]
+        [ObservableProperty, NotifyPropertyChangedFor(nameof(Display))]
         public int? distance;
-        [ObservableProperty]
+        [ObservableProperty, NotifyPropertyChangedFor(nameof(Display))]
         public int? hurdleSteepleHeight;
 
-        [ObservableProperty]
+        [ObservableProperty, NotifyPropertyChangedFor(nameof(Display))]
         public TrackType trackType;
-        [ObservableProperty]
+        [ObservableProperty, NotifyPropertyChangedFor(nameof(Display))]
         public Gender gender;
-        [ObservableProperty]
+        [ObservableProperty, NotifyPropertyChangedFor(nameof(Display))]
         public AgeGrouping ageGrouping;
-        [ObservableProperty]
+        [ObservableProperty, NotifyPropertyChangedFor(nameof(Display))]
         public UnderAgeGroup? underAgeGroup;
-        [ObservableProperty]
+        [ObservableProperty, NotifyPropertyChangedFor(nameof(Display))]
         public MastersAgeGroup? mastersAgeGroup;
 
-        [ObservableProperty]
+        [ObservableProperty, NotifyPropertyChangedFor(nameof(Display))]
         [property: NotMapped]
         public MaleMastersAgeGroup? maleMastersAgeGroup;
 
 
-        [ObservableProperty]
+        [ObservableProperty, NotifyPropertyChangedFor(nameof(Display))]
         [property: NotMapped]
         public FemaleMastersAgeGroup? femaleMastersAgeGroup;
 
-        [ObservableProperty]
+        [ObservableProperty, NotifyPropertyChangedFor(nameof(Display))]
         public string? videoInfoFile;
-        [ObservableProperty]
+        [ObservableProperty, NotifyPropertyChangedFor(nameof(Display))]
         public double? videoStartOffsetSeconds;
-        [ObservableProperty]
+        [ObservableProperty, NotifyPropertyChangedFor(nameof(Display))]
         public int? minLane;
-        [ObservableProperty]
+        [ObservableProperty, NotifyPropertyChangedFor(nameof(Display))]
         public int? maxLane;
 
+        public string Display => ToString();
 
 
         // Convenience: time-of-day string for UI bindings (12-hour with AM/PM)

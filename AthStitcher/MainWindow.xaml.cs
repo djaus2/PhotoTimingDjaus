@@ -3427,7 +3427,7 @@ namespace AthStitcherGUI
 
                 ctx.Events.Add(ev);
                 ctx.SaveChanges();
-
+                vm.CurrentEvent = ev;
                 // Ask for number of heats; default and minimum is 1
                 int heatsCount = 1;
                 var heatsDlg = new NumberOfHeatsDialog { Owner = this };
@@ -3445,7 +3445,7 @@ namespace AthStitcherGUI
                     }
                 }
                 //ctx.SaveChanges();
-                vm.CurrentEvent = ev;
+                //vm.CurrentEvent = ev;
                 vm.CurrentHeat = ctx.Heats.FirstOrDefault(h => h.EventId == ev.Id && h.HeatNo == 1);
                 GetCurrentResultsforCurrentHeat(vm, ctx, vm.CurrentHeat);
             }
@@ -3556,7 +3556,7 @@ namespace AthStitcherGUI
             if (heat == null)
             {
                 vm.CurrentResults = null;
-                MessageBox.Show("No Heat to get Results from.", "GetCurrentResultsforCurrentHeat", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("No Heat to get Results for.", "GetCurrentResultsforCurrentHeat", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
             var list = ctx.Results
