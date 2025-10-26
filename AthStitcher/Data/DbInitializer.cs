@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace AthStitcher.Data
 {
-    public enum TrackType {  run, walk, steeple, hurdles, relay, na=100 }
+    public enum TrackType {  run, walk, steeple, hurdles, relay, none=100 }
     public enum Gender { male, female, mixed, none=100 }
     public enum AgeGrouping { junior, open, masters, none=100 }
     public enum MastersAgeGroup { M30, M35, M40, M45, M50, M55, M60, M65, M70, M75, M80, M85, M90, M95, W30, W35, W40, W45, W50, W55, W60, W65, W70, W75, W80, W85, W90, W95, other=100 }

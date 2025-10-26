@@ -36,6 +36,9 @@ namespace AthStitcher.Views
 
         private void Ok_Click(object sender, RoutedEventArgs e)
         {
+            // For Masters there are two gender based age groups used in two gender based separate ComboBoxes.
+            // Only the correct ComboBox for the geneder shows.
+            // This next call sets/combines the selection/s into the MastersAgeGroup property
             _event.SetMastersAgeGenderGroup();
             //var desc = DescriptionBox.Text?.Trim();
             //var desc = _event.Description.Trim(); //Description is now option. TrackType covers that.
@@ -98,10 +101,12 @@ namespace AthStitcher.Views
             {
                 var UnderAgeGroupValue = _event.UnderAgeGroup;
                 _event.MastersAgeGroup = null;
+                _event.MaleMastersAgeGroup = null;
+                _event.FemaleMastersAgeGroup = null;
                 // Require selection for junior
-                if (_event.UnderAgeGroup == null)
+                if ((UnderAgeGroupValue == null)|| (UnderAgeGroupValue ==   UnderAgeGroup.other))
                 {
-                    MessageBox.Show("Please select an Under Age Group.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show("Please select an Under Age Group.", "Validation", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
                     return;
                 }
             }
@@ -110,19 +115,29 @@ namespace AthStitcher.Views
                 var MastersAgeGroupValue = _event.MastersAgeGroup;;
                 _event.UnderAgeGroup = null;
                 // Require selection for masters
-                if (MastersAgeGroupValue == null)
+                if ((MastersAgeGroupValue == null) || (MastersAgeGroupValue ==  MastersAgeGroup.other))
                 {
-                    MessageBox.Show("Please select a Masters Age Group.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show("Please select a Masters Age Group.", "Validation", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
                     return;
                 }
             }
-            else
+            else if (AgeGroupingValue == AgeGrouping.open)
             {
                 _event.UnderAgeGroup = null;
                 _event.MastersAgeGroup = null;
+                _event.MaleMastersAgeGroup = null;
+                _event.FemaleMastersAgeGroup = null;
+                _event.MastersAgeGroup = null;
+            }
+            else
+            {
+                MessageBox.Show("Please select a Age Group/Sub-AgeGroup.", "Validation", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
+
+                DialogResult = false;
+                return;
             }
 
-            DialogResult = true;
+                DialogResult = true;
         }
 
         private void AgeGroupingBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)

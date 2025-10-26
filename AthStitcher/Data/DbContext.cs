@@ -76,7 +76,7 @@ namespace AthStitcher.Data
                 e.Property(x => x.Distance).IsRequired(false);
                 e.Property(x => x.HurdleSteepleHeight).IsRequired(false);
                 // enums as ints
-                e.Property(x => x.TrackType).HasConversion<int>().HasDefaultValue(TrackType.na).IsRequired();
+                e.Property(x => x.TrackType).HasConversion<int>().HasDefaultValue(TrackType.none).IsRequired();
                 e.Property(x => x.Gender).HasConversion<int>().HasDefaultValue(Gender.none).IsRequired();
                 e.Property(x => x.AgeGrouping).HasConversion<int>().HasDefaultValue(AgeGrouping.none).IsRequired();
                 e.Property(x => x.UnderAgeGroup).HasConversion<int>().IsRequired(false);

@@ -78,6 +78,17 @@ namespace AthStitcher.Data
                     : ag;
                 ageGroupingStr = $"{formattedAgeGroupingStr}";
             }
+
+            switch (AgeGrouping)
+            {
+                case AgeGrouping.junior:
+                    ageGroupingStr = $"{UnderAgeGroup}";
+                    break;
+                case AgeGrouping.masters:
+                    ageGroupingStr = $"Masters {MastersAgeGroup}";
+                    break;
+            }
+
             string trackTypeStr;
             {
                 var t = $"{TrackType}" ?? "";
@@ -91,6 +102,13 @@ namespace AthStitcher.Data
             return result;
         }
 
+        /// <summary>
+        // For Masters there are two gender based age groups used in two gender based separate ComboBoxes.
+        // Only the correct ComboBox for the gender shows.
+        // This next call translates the selection into the MastersAgeGroup property
+        // There are separate enum lists for all three.
+        // MaleMastersAgeGroup || FemaleMastersAgeGroup --> (Parsed as Text) --> MastersAgeGroup
+        /// </summary>
         public void SetMastersAgeGenderGroup()
         {
             if (Gender == Gender.male)

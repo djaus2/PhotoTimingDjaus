@@ -147,14 +147,11 @@
           Grid.Row="9" Grid.Column="1" Margin="0,0,0,8"
           ItemsSource="{Binding Source={StaticResource AgeGroupingValues}}"
           SelectedItem="{Binding AgeGrouping, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-       
-        <TextBlock Grid.Row="10" Grid.Column="0" Margin="0,0,8,8" VerticalAlignment="Center" Text="Under Age Group:"/>
-            <ComboBox x:Name="StandardAgeGroupBox"
-          Grid.Row="10" Grid.Column="1" Margin="0,0,0,8"
-          ItemsSource="{Binding Source={StaticResource UnderAgeGroupValues}}"
-          SelectedItem="{Binding StandardAgeGroup, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" >
-            <ComboBox.Style>
-                <Style TargetType="ComboBox">
+
+
+        <StackPanel Orientation="Horizontal" Grid.Row="10"  Grid.Column="0" Grid.ColumnSpan="2">
+            <StackPanel.Style>
+                <Style TargetType="StackPanel">
                     <Setter Property="Visibility" Value="Collapsed"/>
                     <Style.Triggers>
                         <DataTrigger Binding="{Binding AgeGrouping}" Value="junior">
@@ -162,11 +159,36 @@
                         </DataTrigger>
                     </Style.Triggers>
                 </Style>
-            </ComboBox.Style>
-        </ComboBox>
+            </StackPanel.Style>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="160"/>
+                    <ColumnDefinition Width="240"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Row="0" Grid.Column="0" Margin="0,0,8,8" VerticalAlignment="Center" Text="Under Age Group:"/>
+                <ComboBox x:Name="StandardAgeGroupBox"
+          Grid.Row="0" Grid.Column="1" Margin="0,0,0,8"
+          ItemsSource="{Binding Source={StaticResource UnderAgeGroupValues}}"
+          SelectedItem="{Binding UnderAgeGroup, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            </Grid>
+        </StackPanel>
+
 
         <StackPanel Orientation="Horizontal" Grid.Row="11"  Grid.Column="0" Grid.ColumnSpan="2">
-            <Grid>
+            <StackPanel.Style>
+            <Style TargetType="StackPanel">
+                <Setter Property="Visibility" Value="Collapsed"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding AgeGrouping}" Value="masters">
+                            <Setter Property="Visibility" Value="Visible"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+            </Style>
+            </StackPanel.Style>
+                <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition />
                 </Grid.RowDefinitions>

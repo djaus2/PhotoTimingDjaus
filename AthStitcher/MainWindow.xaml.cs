@@ -3456,6 +3456,16 @@ namespace AthStitcherGUI
         {
             if (this.DataContext is AthStitcherGUI.ViewModels.AthStitcherModel vm)
             {
+                if (vm.CurrentMeet == null)
+                {
+                    MessageBox.Show("Select a Meet first.", "Next Event", MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
+                if (vm.CurrentEvent == null)
+                {
+                    MessageBox.Show("Select an Event first.", "Next Event", MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
                 vm.AdvanceEventNumber();
                 using var ctx = new AthStitcherDbContext();
                 GetCurrentResultsforCurrentHeat(vm, ctx, vm.CurrentHeat);
@@ -3465,7 +3475,17 @@ namespace AthStitcherGUI
         private void Prev_Event_Button_Click(object sender, RoutedEventArgs e)
         {
             if (this.DataContext is AthStitcherGUI.ViewModels.AthStitcherModel vm)
-            { 
+            {
+                if (vm.CurrentMeet == null)
+                {
+                    MessageBox.Show("Select a Meet first.", "Previous Event", MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
+                if (vm.CurrentEvent == null)
+                {
+                    MessageBox.Show("Select an Event first.", "Previous Event", MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
                 vm.DecrementEventNumber();
                 using var ctx = new AthStitcherDbContext();
                 GetCurrentResultsforCurrentHeat(vm, ctx, vm.CurrentHeat);
@@ -3476,6 +3496,21 @@ namespace AthStitcherGUI
         {
             if (this.DataContext is AthStitcherGUI.ViewModels.AthStitcherModel vm)
             {
+                if (vm.CurrentMeet == null)
+                {
+                    MessageBox.Show("Select a Meet first.", "Next Heat", MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
+                if (vm.CurrentEvent == null)
+                {
+                    MessageBox.Show("Select an Event first.", "Next Heat", MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
+                if (vm.CurrentHeat == null)
+                {
+                    MessageBox.Show("Select a Heat  first.", "Next Heat", MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
                 vm.AdvanceHeatNumber();
                 using var ctx = new AthStitcherDbContext();
                 GetCurrentResultsforCurrentHeat(vm, ctx, vm.CurrentHeat);
@@ -3486,6 +3521,21 @@ namespace AthStitcherGUI
         {
             if (this.DataContext is AthStitcherGUI.ViewModels.AthStitcherModel vm)
             {
+                if (vm.CurrentMeet == null)
+                {
+                    MessageBox.Show("Select a Meet first.", "Previous Heat", MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
+                if (vm.CurrentEvent == null)
+                {
+                    MessageBox.Show("Select an Event first.", "Previous Heat", MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
+                if (vm.CurrentHeat == null)
+                {
+                    MessageBox.Show("Select a Heat  first.", "Previous Heat", MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
                 vm.DecrementHeatNumber();
                 using var ctx = new AthStitcherDbContext();
                 GetCurrentResultsforCurrentHeat(vm, ctx, vm.CurrentHeat);
@@ -3497,7 +3547,7 @@ namespace AthStitcherGUI
                 return;
             if (vm.CurrentMeet == null)
             {
-                MessageBox.Show("Select an Meet and Event first.", "Add Heat", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show("Select a Meet first.", "Add Heat", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
             if (vm.CurrentEvent == null)
@@ -3537,6 +3587,21 @@ namespace AthStitcherGUI
 
         private void AddResultsToHeat(AthStitcherGUI.ViewModels.AthStitcherModel vm,AthStitcher.Data.AthStitcherDbContext ctx, Event _event, Heat heat)
         {
+            if (vm.CurrentMeet == null)
+            {
+                MessageBox.Show("Select a Meet first.", "Add Results To Heat", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+            if (_event == null)
+            {
+                MessageBox.Show("Select an Event first.", "Add Results To Heat", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+            if (heat == null)
+            {
+                MessageBox.Show("Select a Heat first.", "Add Results To Heat", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
             heat.Results = new List<Result>();
             if (_event != null)
             {
@@ -3553,10 +3618,20 @@ namespace AthStitcherGUI
 
         private void GetCurrentResultsforCurrentHeat(AthStitcherGUI.ViewModels.AthStitcherModel vm, AthStitcher.Data.AthStitcherDbContext ctx, Heat heat)
         {
+            if (vm.CurrentMeet == null)
+            {
+                MessageBox.Show("Select a Meet first.", "Get Current Results for CurrentHeat", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+            if (vm.CurrentEvent == null)
+            {
+                MessageBox.Show("Select an Event first.", "Get Current Results for CurrentHeat", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
             if (heat == null)
             {
                 vm.CurrentResults = null;
-                MessageBox.Show("No Heat to get Results for.", "GetCurrentResultsforCurrentHeat", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("No Heat to generate Results for.", "Get Current Results for CurrentHeat", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
             var list = ctx.Results
@@ -3577,9 +3652,9 @@ namespace AthStitcherGUI
         {
             if (this.DataContext is not AthStitcherGUI.ViewModels.AthStitcherModel vm)
                 return;
-            if (vm.CurrentHeat == null)
+            if (vm.CurrentMeet == null)
             {
-                MessageBox.Show("Select an Meet and Event first.", "Remove Heat", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show("Select a Meet first.", "Remove Heat", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
             if (vm.CurrentEvent == null)
@@ -3587,6 +3662,12 @@ namespace AthStitcherGUI
                 MessageBox.Show("Select an Event first.", "Remove Heat", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
+            if (vm.CurrentHeat == null)
+            {
+                MessageBox.Show("Select an Meet, Event and Heat first.", "Remove Heat", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
 
             try
             {
