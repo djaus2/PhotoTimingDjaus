@@ -13,6 +13,7 @@ A simple ***Photo Timing/Photo Finish*** app for Athletics etc where a finish li
 > Mainly All good! Some loose ends with V6.2.9
 
 ### History
+- AthStitcher V6.2.10/11 Code corrections/improvements wrt Meets,Events and Heats.
 - AthStitcher V6.2.9 Major DB Code improvements
 - AthStitcher V6.2.5
   - Meet info now on Menu Bar
