@@ -11,7 +11,7 @@ A simple ***Photo Timing/Photo Finish*** app for Athletics etc where a finish li
 
 ## Recent
 ### Status
-> Mainly All good now!  
+> All good now!  
 
 ### History
 - AthStitcher V6.2.12 Code corrections/improvements wrt Meets,Events and Heats.
