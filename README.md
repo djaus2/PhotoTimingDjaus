@@ -13,7 +13,14 @@ A simple ***Photo Timing/Photo Finish*** app for Athletics etc where a finish li
 > Mainly All good! _Working on some loose ends._
 
 ### History
-- AthStitcher V6.2.10/11 Code corrections/improvements wrt Meets,Events and Heats.
+- AthStitcher V6.2.12 Code corrections/improvements wrt Meets,Events and Heats.
+  - Now Meets,Events,Heats,Results are all now ObservableObject with ObservableProperties
+  - ORM:
+    - A Meet has Events
+    - An Event has Heats
+    - A Heat has Results (LaneResults)
+  - Can Cascade Delete
+  - enums in separate file in Data folder.
 - AthStitcher V6.2.9 Major DB Code improvements
 - AthStitcher V6.2.5
   - Meet info now on Menu Bar
