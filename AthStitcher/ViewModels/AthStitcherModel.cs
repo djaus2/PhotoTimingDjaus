@@ -4,6 +4,7 @@ using OpenCvSharp;
 using Sportronics.VideoEnums;// This is where TimeFromMode is defined
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Globalization;
 using System.Linq;
 using System.Windows;
@@ -13,69 +14,6 @@ using System.Windows.Input;
 
 namespace AthStitcherGUI.ViewModels
 {
-
-
-    public class LaneResult : INotifyPropertyChanged
-    {
-        private int _lane;
-        public int Lane
-        {
-            get => _lane;
-            set { _lane = value; OnPropertyChanged(nameof(Lane)); OnPropertyChanged(nameof(LaneStr)); }
-        }
-
-        public string LaneStr
-        {
-            get => $"Lane {_lane}";
-        }
-
-        private int _BibNumber = 0;
-        public int BibNumber
-        {
-            get => _BibNumber;
-            set { _BibNumber = value; OnPropertyChanged(nameof(BibNumber)); }
-        }
-
-        private double _result = 0.0;
-        public double Result
-        {
-            get => _result;
-            set { _result = value; OnPropertyChanged(nameof(Result)); OnPropertyChanged(nameof(ResultStr)); }
-        }
-
-        public string ResultStr
-        {
-            get
-            {
-                if (_result <= 0.0)
-                    return "";
-                else
-                    return _result.ToString("F3");
-            }
-            set
-            {
-                if(double.TryParse(value, out double parsedValue))
-                {
-                    Result = parsedValue;
-                }
-                else
-                {
-                    Result = 0.0; // or handle invalid input as needed
-                }
-            }
-        }
-
-        private string _name = string.Empty;
-        public string Name
-        {
-            get => _name;
-            set { _name = value; OnPropertyChanged(nameof(Name)); }
-        }
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-        protected void OnPropertyChanged(string propertyName)
-            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
 
     public class enums
     {
@@ -106,7 +44,7 @@ namespace AthStitcherGUI.ViewModels
             _results = new ObservableCollection<LaneResult>();
             for (int i = MinLane; i <= MaxLane; i++)
             {
-                _results.Add(new LaneResult { Lane = i, Result = 0.0, Name = string.Empty });
+                _results.Add(new LaneResult { Lane = i, ResultSeconds = 0.0, Name = string.Empty });
             }
             OnPropertyChanged(nameof(Results));
         }
@@ -448,8 +386,8 @@ namespace AthStitcherGUI.ViewModels
             set { _CurrentHeat = value; OnPropertyChanged(nameof(CurrentHeat)); }
         }
 
-        private ICollection<Result> _CurrentResults;
-        public ICollection<Result> CurrentResults
+        private ICollection<LaneResult> _CurrentResults;
+        public ICollection<LaneResult> CurrentResults
         {
             get => _CurrentResults;
             set { _CurrentResults = value; OnPropertyChanged(nameof(CurrentResults)); }

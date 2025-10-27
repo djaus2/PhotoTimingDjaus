@@ -1,6 +1,7 @@
 ﻿using Sportronics.VideoEnums;
 using AthStitcher;
 using AthStitcherGUI.ViewModels;
+using AthStitcher.Data;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -136,7 +137,7 @@ namespace AthStitcherGUI.ViewModels
                         Lane = lane,
                         Name = string.Empty,
                         BibNumber = 0,
-                        Result = 0.0,
+                        ResultSeconds = 0.0,
                     };
                     viewModel.Results.Add(lr);
                 }

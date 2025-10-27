@@ -1,26 +1,34 @@
-using Microsoft.EntityFrameworkCore.Update;
+using AthStitcher.Data;
+using CommunityToolkit.Mvvm.ComponentModel;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
-using System.Windows.Controls;
+using System.Xml.Linq;
 
 namespace AthStitcher.Data
 {
-    public class Heat
+    [Table("Heats")]
+    public partial class Heat :ObservableObject
     {
         public Heat()
         {
-            Results = new List<Result>();
         }
-     
+
+        [Key]
         public int Id { get; set; }
         public int EventId { get; set; }
+        [ForeignKey(nameof(EventId))]
         public Event? Event { get; set; }
 
-        public int HeatNo { get; set; }
+
+        [ObservableProperty, NotifyPropertyChangedFor(nameof(Display))]
+        private int heatNo;
 
         [JsonIgnore]
-        [InverseProperty(nameof(Result.Heat))]
-        public virtual ICollection<Result> Results { get; set; } = new List<Result>();
+        [NotMapped]
+        public virtual ICollection<LaneResult> Results { get; set; } = new List<LaneResult>();
+
 
         public override string ToString()
         {
@@ -30,5 +38,9 @@ namespace AthStitcher.Data
             }
             return "";
         }
+
+        [JsonIgnore]
+        [NotMapped]
+        public string Display => ToString();
     }
 }

@@ -593,7 +593,7 @@
                     </StackPanel>
                     <!-- List row: choose one -->
                     <!-- Option A: DataGrid (scrolls by default) -->
-                    <DataGrid Grid.Column="0" Grid.Row="1"  Grid.ColumnSpan="3" 
+                    <DataGrid  x:Name="ResultsDataGrid" Grid.Column="0" Grid.Row="1"  Grid.ColumnSpan="3" 
                               HorizontalScrollBarVisibility="Hidden"
                               VerticalScrollBarVisibility="Auto"
             ItemsSource="{Binding CurrentResults}"
@@ -628,7 +628,7 @@
                                     </Style>
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
-                            <DataGridTextColumn Header="BinNo" Binding="{Binding BibNo, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="60" />
+                            <DataGridTextColumn Header="BinNo" Binding="{Binding BibNumberStr, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="60" />
                             <DataGridTextColumn Header="Name" Binding="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="210"/>
                           
                         </DataGrid.Columns>

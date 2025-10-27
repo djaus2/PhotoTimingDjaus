@@ -11,7 +11,6 @@ using Microsoft.Extensions.Logging;
 //using OpenCvSharp;
 using Microsoft.VisualBasic;
 using Microsoft.Win32;
-using Microsoft.Win32;
 using NAudio.Utils;
 using OpenCvSharp;
 using OpenCvSharp.Features2D;
@@ -88,7 +87,7 @@ namespace AthStitcherGUI
             athStitcherViewModel = new AthStitcherViewModel();
             this.DataContext = viewModel;
             // Capture mouse clicks to enable paste-on-click into Results grid
-            this.AddHandler(System.Windows.Controls.DataGrid.PreviewMouseLeftButtonDownEvent,
+            ResultsDataGrid.AddHandler(System.Windows.Controls.DataGrid.PreviewMouseLeftButtonDownEvent,
                 new System.Windows.Input.MouseButtonEventHandler(ResultsGrid_PreviewMouseLeftButtonDown), true);
             // Initialize database via EF and ensure Admin user exists
             try
@@ -314,7 +313,7 @@ namespace AthStitcherGUI
                 return;
 
             // Get row item
-            if (cell.DataContext is not AthStitcherGUI.ViewModels.LaneResult lr)
+            if (cell.DataContext is not LaneResult lr)
                 return;
 
             // Read clipboard
@@ -331,30 +330,39 @@ namespace AthStitcherGUI
             if (!TryParseTimeToSeconds(clip, out double newSeconds)) return;
 
             // If existing non-zero, confirm overwrite
-            double old = lr.Result;
-            if (old != 0.0)
+            double? old = lr.ResultSeconds;
+            if ((old != null) && (old != 0.0))
             {
                 var res = MessageBox.Show($"Overwrite existing result?\nOld: {old:0.000}\nNew: {newSeconds:0.000}",
                     "Confirm Overwrite", MessageBoxButton.YesNo, MessageBoxImage.Question);
                 if (res != MessageBoxResult.Yes) return;
             }
 
-            // If we previously pasted into a different lane within the same result cycle, clear it
-            if (_currentResultLaneIndex.HasValue && _currentResultLaneIndex.Value != lr.Lane)
+            if (this.DataContext is AthStitcherGUI.ViewModels.AthStitcherModel vm)
             {
-                if (this.DataContext is AthStitcherGUI.ViewModels.AthStitcherModel vm)
+                using var ctx = new AthStitcherDbContext();
+                // If we previously pasted into a different lane within the same result cycle, clear it
+                if (_currentResultLaneIndex.HasValue && _currentResultLaneIndex.Value != lr.Lane)
                 {
-                    var prev = vm.Results.FirstOrDefault(x => x.Lane == _currentResultLaneIndex.Value);
-                    if (prev != null)
-                        prev.Result = 0.0; // clears (ResultStr will render blank)
-                }
-            }
 
-            // Set new value and record lane for this cycle
-            lr.Result = newSeconds;
-            _currentResultLaneIndex = lr.Lane;
-            // keep _hasNewResultAvailable = true to allow moving the result between lanes in this cycle
-            // let focus/edit continue
+                    var prev = vm.Results.FirstOrDefault(x => x.Lane == _currentResultLaneIndex.Value && x.HeatId == vm.CurrentHeat.Id);
+
+                    var prevDb = ctx.Results.FirstOrDefault(x => x.Lane == _currentResultLaneIndex.Value && x.HeatId == vm.CurrentHeat.Id);
+                    prevDb.ResultSeconds = null; // clears (ResultStr will render blank)
+                    ctx.Update(prevDb);
+                    ctx.SaveChanges();
+                }
+
+
+                // Set new value and record lane for this cycle
+                lr.ResultSeconds = newSeconds;
+                ctx.Update(lr);
+                ctx.SaveChanges();
+                _currentResultLaneIndex = lr.Lane;
+                GetCurrentResultsforCurrentHeat(vm, ctx, vm.CurrentHeat);
+                // keep _hasNewResultAvailable = true to allow moving the result between lanes in this cycle
+                // let focus/edit continue
+            }
         }
 
         // Menu handler to invoke change password (wire from XAML MenuItem)
@@ -3602,14 +3610,14 @@ namespace AthStitcherGUI
                 MessageBox.Show("Select a Heat first.", "Add Results To Heat", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
-            heat.Results = new List<Result>();
+            heat.Results = new List<LaneResult>();
             if (_event != null)
             {
                 int max = _event.MaxLane ?? 8;
                 int min = _event.MinLane ?? 1;
                 for (int lane = min; lane <= max; lane++)
                 {
-                    ctx.Results.Add(new Result { HeatId = heat.Id, Lane = lane });
+                    ctx.Results.Add(new LaneResult { HeatId = heat.Id, Lane = lane });
                 };
                 ctx.SaveChanges();
                 GetCurrentResultsforCurrentHeat(vm, ctx, heat);

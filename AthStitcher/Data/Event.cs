@@ -1,62 +1,84 @@
+using AthStitcher.Data;
 using CommunityToolkit.Mvvm.ComponentModel;
-using System;
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Globalization;
+using System.Text.Json.Serialization;
+using System.Xml.Linq;
 
 namespace AthStitcher.Data
 {
+    [Table("Events")]
     public partial class Event : ObservableObject
     {
-        public int Id;
-        public int MeetId;
+        public Event()
+        {
+        }
 
-        [ObservableProperty, NotifyPropertyChangedFor(nameof(Display))]
+        // ...
+
+        [Key]
+        public int Id { get; set; }
+        public int MeetId { get; set; }
+        [ForeignKey(nameof(MeetId))]
         public Meet? meet;
-        [ObservableProperty, NotifyPropertyChangedFor(nameof(Display))]
-        public int? eventNumber;
-        [ObservableProperty, NotifyPropertyChangedFor(nameof(Display))]
-        public DateTime? time;
-        [ObservableProperty, NotifyPropertyChangedFor(nameof(Display))]
-        public string? description;
-        [ObservableProperty, NotifyPropertyChangedFor(nameof(Display))]
-        public int? distance;
-        [ObservableProperty, NotifyPropertyChangedFor(nameof(Display))]
-        public int? hurdleSteepleHeight;
+
 
         [ObservableProperty, NotifyPropertyChangedFor(nameof(Display))]
-        public TrackType trackType;
+        private int? eventNumber;
         [ObservableProperty, NotifyPropertyChangedFor(nameof(Display))]
-        public Gender gender;
+        private DateTime? time;
         [ObservableProperty, NotifyPropertyChangedFor(nameof(Display))]
-        public AgeGrouping ageGrouping;
+        private string? description;
         [ObservableProperty, NotifyPropertyChangedFor(nameof(Display))]
-        public UnderAgeGroup? underAgeGroup;
+        private int? distance;
         [ObservableProperty, NotifyPropertyChangedFor(nameof(Display))]
-        public MastersAgeGroup? mastersAgeGroup;
+        private int? hurdleSteepleHeight;
 
         [ObservableProperty, NotifyPropertyChangedFor(nameof(Display))]
-        [property: NotMapped]
-        public MaleMastersAgeGroup? maleMastersAgeGroup;
-
+        private TrackType trackType;
+        [ObservableProperty, NotifyPropertyChangedFor(nameof(Display))]
+        private Gender gender;
+        [ObservableProperty, NotifyPropertyChangedFor(nameof(Display))]
+        private AgeGrouping ageGrouping;
+        [ObservableProperty, NotifyPropertyChangedFor(nameof(Display))]
+        private UnderAgeGroup? underAgeGroup;
+        [ObservableProperty, NotifyPropertyChangedFor(nameof(Display))]
+        private MastersAgeGroup? mastersAgeGroup;
 
         [ObservableProperty, NotifyPropertyChangedFor(nameof(Display))]
         [property: NotMapped]
-        public FemaleMastersAgeGroup? femaleMastersAgeGroup;
+        private MaleMastersAgeGroup? maleMastersAgeGroup;
+
 
         [ObservableProperty, NotifyPropertyChangedFor(nameof(Display))]
-        public string? videoInfoFile;
-        [ObservableProperty, NotifyPropertyChangedFor(nameof(Display))]
-        public double? videoStartOffsetSeconds;
-        [ObservableProperty, NotifyPropertyChangedFor(nameof(Display))]
-        public int? minLane;
-        [ObservableProperty, NotifyPropertyChangedFor(nameof(Display))]
-        public int? maxLane;
+        [property: NotMapped]
+        private FemaleMastersAgeGroup? femaleMastersAgeGroup;
 
+        [ObservableProperty, NotifyPropertyChangedFor(nameof(Display))]
+        private string? videoInfoFile;
+        [ObservableProperty, NotifyPropertyChangedFor(nameof(Display))]
+        private double? videoStartOffsetSeconds;
+        [ObservableProperty, NotifyPropertyChangedFor(nameof(Display))]
+        private int? minLane;
+        [ObservableProperty, NotifyPropertyChangedFor(nameof(Display))]
+        private int? maxLane;
+
+        [JsonIgnore]
+        [NotMapped]
+        public virtual ICollection<Heat> Heats { get; set; } = new List<Heat>();
+
+        [JsonIgnore]
+        [NotMapped]
         public string Display => ToString();
 
-
+        [JsonIgnore]
+        [NotMapped]
+        public string DisplayName => ToString();    
         // Convenience: time-of-day string for UI bindings (12-hour with AM/PM)
+        
         [NotMapped]
         public string TimeStr => Time?.ToString("h:mm tt", CultureInfo.CurrentCulture) ?? string.Empty;
 

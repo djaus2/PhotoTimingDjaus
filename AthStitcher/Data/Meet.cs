@@ -1,24 +1,43 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using AthStitcher.Data;
+using CommunityToolkit.Mvvm.ComponentModel;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace AthStitcher.Data
 {
 
-    public class Meet
+    public partial class Meet :ObservableObject
     {
+        [Key]
         public int Id { get; set; }
-        public string Description { get; set; } = string.Empty;
-        public int Round { get; set; }
-        public DateTime? Date { get; set; }
-        public string? Location { get; set; }
 
-        public int? MaxLanes { get; set; } = 8;
+        [ObservableProperty, NotifyPropertyChangedFor(nameof(Display))]
+        private string description;
 
+        [ObservableProperty, NotifyPropertyChangedFor(nameof(Display))]
+        public int round;
+
+        [ObservableProperty, NotifyPropertyChangedFor(nameof(Display))]
+        public DateTime? date;
+
+        [ObservableProperty, NotifyPropertyChangedFor(nameof(Display))]
+        public string? location = "";
+
+        [ObservableProperty, NotifyPropertyChangedFor(nameof(Display))]
+        public int? maxLanes  = 8;
+
+        [JsonIgnore]
+        public virtual ICollection<Event> Events { get; set; } = new List<Event>();
+
+        [JsonIgnore]
         // Convenience: date-only string for UI bindings
         public string DateStr => Date?.ToString("yyyy-MM-dd") ?? string.Empty;
+
+        [JsonIgnore]
+        [NotMapped]
+        public string Display => ToString();
 
         public override string ToString()
         {
