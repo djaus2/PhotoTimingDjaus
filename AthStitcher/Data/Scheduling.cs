@@ -17,5 +17,8 @@ namespace AthStitcher.Data
 
         [ObservableProperty]
         private bool canAddHeatsOnDayOfMeet = false;
+
+        [ObservableProperty]
+        private bool useTabbedPrinting = true;
     }
 }

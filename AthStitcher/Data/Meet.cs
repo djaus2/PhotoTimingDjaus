@@ -1,6 +1,11 @@
 using AthStitcher.Data;
-using CommunityToolkit.Mvvm.ComponentModel;
+using System;
+using System.Globalization;
 using System.ComponentModel;
+using System.Xml.Linq;
+
+using Microsoft.EntityFrameworkCore;
+using CommunityToolkit.Mvvm.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
@@ -10,8 +15,21 @@ namespace AthStitcher.Data
 
     public partial class Meet :ObservableObject
     {
+        public Meet()
+        {
+            PropertyChanged += (_, e) =>
+            {
+                if (e.PropertyName is nameof(IsDirty) or nameof(Id) or nameof(Display)) return;
+                IsDirty = true;
+            };
+        }
+
         [Key]
         public int Id { get; set; }
+
+        [JsonIgnore]
+        public virtual ICollection<Event> Events { get; set; } = new List<Event>();
+
 
         [ObservableProperty, NotifyPropertyChangedFor(nameof(Display))]
         private string description;
@@ -28,8 +46,6 @@ namespace AthStitcher.Data
         [ObservableProperty, NotifyPropertyChangedFor(nameof(Display))]
         public int? maxLanes  = 8;
 
-        [JsonIgnore]
-        public virtual ICollection<Event> Events { get; set; } = new List<Event>();
 
         [JsonIgnore]
         // Convenience: date-only string for UI bindings
@@ -41,8 +57,22 @@ namespace AthStitcher.Data
 
         public override string ToString()
         {
-            string result = $"Meet Round:{Round}. Series:{Description} {DateStr} at {Location}";
+            string result = $"{Description} Round:{Round}.  {DateStr} at {Location}";
             return result ;
+        }
+
+        [property: JsonIgnore]
+        [property: NotMapped]
+        [ObservableProperty] private bool isDirty = false;
+
+        public bool IsMeetDirty()
+        {
+            if (IsDirty) return true;
+            foreach (var r in Events)
+            {
+                if (r.IsDirty) return true;
+            }
+            return false;
         }
     }
 

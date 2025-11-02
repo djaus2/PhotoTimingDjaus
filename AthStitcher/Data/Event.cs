@@ -1,12 +1,15 @@
 using AthStitcher.Data;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.EntityFrameworkCore;
+using NAudio.Utils;
+using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Globalization;
 using System.Text.Json.Serialization;
 using System.Xml.Linq;
+
 
 namespace AthStitcher.Data
 {
@@ -15,6 +18,11 @@ namespace AthStitcher.Data
     {
         public Event()
         {
+            PropertyChanged += (_, e) =>
+            {
+                if (e.PropertyName is nameof(IsDirty) or nameof(Id) or nameof(MeetId) or nameof(Display)) return;
+                IsDirty = true;
+            };
         }
 
         // ...
@@ -23,7 +31,10 @@ namespace AthStitcher.Data
         public int Id { get; set; }
         public int MeetId { get; set; }
         [ForeignKey(nameof(MeetId))]
-        public Meet? meet;
+        public virtual Meet? Meet { get; set; }
+
+        [JsonIgnore]
+        public virtual ICollection<Heat> Heats { get; set; } = new List<Heat>();
 
 
         [ObservableProperty, NotifyPropertyChangedFor(nameof(Display))]
@@ -66,9 +77,6 @@ namespace AthStitcher.Data
         [ObservableProperty, NotifyPropertyChangedFor(nameof(Display))]
         private int? maxLane;
 
-        [JsonIgnore]
-        [NotMapped]
-        public virtual ICollection<Heat> Heats { get; set; } = new List<Heat>();
 
         [JsonIgnore]
         [NotMapped]
@@ -175,6 +183,18 @@ namespace AthStitcher.Data
                     FemaleMastersAgeGroup = null; // or a specific fallback
                 }
             }
+        }
+
+        [property: JsonIgnore]
+        [property: NotMapped]
+        [ObservableProperty] private bool isDirty = false;
+
+
+        public bool IsEventDirty()
+        {
+            if (IsDirty) return true;
+            if (Heats == null) return IsDirty;
+            return Heats.Any(h => h.IsDirty);
         }
     }
 }

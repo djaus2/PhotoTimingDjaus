@@ -17,6 +17,7 @@ using OpenCvSharp.Features2D;
 using PhotoTimingDjaus;
 using PhotoTimingDjausLib;
 using SharpVectors.Converters;
+using SharpVectors.Dom.Events;
 using Sportronics.VideoEnums; //.Local;
 using System;
 using System.Collections.Generic;
@@ -29,6 +30,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Media;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Runtime.Intrinsics.Arm;
 using System.Security;
@@ -94,7 +96,7 @@ namespace AthStitcherGUI
             {
                 athStitcherViewModel.LoadViewModel();
                 this.DataContext = athStitcherViewModel.DataContext; // Set the DataContext to the AthStitchView instance
-                
+
                 if (string.IsNullOrEmpty(athStitcherViewModel.DataContext.ExifTool))
                     athStitcherViewModel.DataContext.ExifTool = _EXIFTOOL;
                 if (string.IsNullOrEmpty(athStitcherViewModel.DataContext.ExifToolExe))
@@ -359,7 +361,7 @@ namespace AthStitcherGUI
                 ctx.Update(lr);
                 ctx.SaveChanges();
                 _currentResultLaneIndex = lr.Lane;
-                GetCurrentResultsforCurrentHeat(vm, ctx, vm.CurrentHeat);
+                
                 // keep _hasNewResultAvailable = true to allow moving the result between lanes in this cycle
                 // let focus/edit continue
             }
@@ -403,7 +405,7 @@ namespace AthStitcherGUI
             }
         }
 
-        
+
 
         bool imageLoaded = false;
         private void LoadImageButton_Click(object sender, RoutedEventArgs e)
@@ -444,8 +446,8 @@ namespace AthStitcherGUI
             { StartVerticalLine.Visibility = Visibility.Collapsed; }
             if (NudgeVerticalLine != null)
             { NudgeVerticalLine.Visibility = Visibility.Collapsed; }
-            if(TimeLabel != null)
-                { TimeLabel.Visibility = Visibility.Collapsed; }
+            if (TimeLabel != null)
+            { TimeLabel.Visibility = Visibility.Collapsed; }
             UpdateZoom();
         }
 
@@ -619,7 +621,7 @@ namespace AthStitcherGUI
                 //double horizontalOffset = 0; // (ImageCanvas.Width - bitmap.PixelWidth * 1) / 2; // 1 = no horizontal scaling
                 //Canvas.SetLeft(StitchedImage, horizontalOffset > 0 ? horizontalOffset : 0); // Ensure no negative offsets
             }
-            
+
         }
 
         private void AutoScaleHeightCheckbox_Unchecked(object sender, RoutedEventArgs e)
@@ -635,8 +637,8 @@ namespace AthStitcherGUI
                 return;
             // Reset the image scaling to manual zoom levels
             VerticalZoomSlider.IsEnabled = true;
-                VerticalPanSlider.IsEnabled = VerticalZoomSlider.IsEnabled;
-                UpdateZoom();
+            VerticalPanSlider.IsEnabled = VerticalZoomSlider.IsEnabled;
+            UpdateZoom();
         }
 
         private void UpdatePan()
@@ -661,7 +663,7 @@ namespace AthStitcherGUI
         private void UpdateZoom()
         {
             if (!(imageLoaded))
-            { 
+            {
                 if (StitchedImage == null)
                     return;
             }
@@ -935,14 +937,14 @@ namespace AthStitcherGUI
         bool SkipMetaCheck = false;
         private void StitchButton_Click(object sender, RoutedEventArgs e)
         {
-            
+
             // If using Stitch Button then reset some properties
             athStitcherViewModel.Set_HaveSelectedandShownGunLineinManualorWallClockMode(false); // Reset the flag for manual or wall clock mode 
             var vidStart = athStitcherViewModel.GetVideoCreationDate();
             athStitcherViewModel.SetEventWallClockStart(vidStart); // Reset the flag for manual or wall clock mode
             var Mode = athStitcherViewModel.GetTimeFromMode();
             //If press Stitch button and WallClaock mode then allow to check for embedded WallClock gun time.
-            if(Mode != TimeFromMode.WallClockSelect)
+            if (Mode != TimeFromMode.WallClockSelect)
                 SkipMetaCheck = true;
             StitchVideo();
         }
@@ -1158,7 +1160,7 @@ namespace AthStitcherGUI
             // You can then set it.
             athStitcherViewModel.SetSelectedStartTime(0);
 
-             // Show the busy indicator
+            // Show the busy indicator
             BusyIndicator.Visibility = Visibility.Visible;
 
             // More setup
@@ -1223,48 +1225,48 @@ namespace AthStitcherGUI
             worker.DoWork += (s, args) =>
             {
                 //Determine guntime
-               // if (HaveGotGunTime)
+                // if (HaveGotGunTime)
                 //{
-                    //HaveGotGunTime = false;
-                    if (timeFromMode == TimeFromMode.FromVideoStart)
-                    {
-                        //Need next to get video length
-                        var xx = videoStitcher.GetGunTimenFrameIndex(gunAudioPath);
-                        GunTimeDbl = 0; // Default value when timing is from button press
-                        GunTimeIndex = 0; // Default index when timing is from button press
-                        athStitcherViewModel.Set_HaveSelectedandShownGunLineinManualorWallClockMode(false); // Explicitly reset for FromVideoStart mode
-                    }
-                    else if (timeFromMode == TimeFromMode.FromGunSound)
-                    {
-                        GunTimeDbl = videoStitcher.GetGunTimenFrameIndex(gunAudioPath);
-                        GunTimeIndex = videoStitcher.GunTimeIndex;
-                    }
-                    else if (timeFromMode == TimeFromMode.FromGunFlash)
-                    {
-                        GunTimeDbl = videoStitcher.GetGunTimenFrameIndex(gunAudioPath, videoDetectMode);
-                        GunTimeIndex = videoStitcher.GunTimeIndex;
-                    }
-                    else if (timeFromMode == TimeFromMode.ManuallySelect)
-                    {
-                        //Need next to get video length
-                        var xx = videoStitcher.GetGunTimenFrameIndex(gunAudioPath);
-                        GunTimeDbl = 0;
-                        GunTimeIndex = 0;// videoStitcher.GunTimeIndex;
-                        athStitcherViewModel.Set_HaveSelectedandShownGunLineinManualorWallClockMode(false); // Explicitly reset for ManuallySelect mode
-                    }
-                    else if (timeFromMode == TimeFromMode.WallClockSelect)
-                    {
-                        DateTime videoCreationDate = athStitcherViewModel.GetVideoCreationDate();
-                        DateTime gunDateTime = athStitcherViewModel.GetEventWallClockStartTime();
-                        TimeSpan GunTime = gunDateTime.Subtract(videoCreationDate);
-                        //Need next to get video length
-                        //GunTimeDbl = 0.7;// videoStitcher.GetGunTimenFrameIndex(gunAudioPath);
-                        double gunTimSec = (GunTime.TotalMilliseconds) / 1000;
-                        GunTimeDbl = videoStitcher.GetGunTimenFrameIndex($"{gunTimSec}");
-                        GunTimeIndex = videoStitcher.GunTimeIndex;
-                        athStitcherViewModel.SetGunTime(GunTimeDbl, GunTimeIndex);
-                        athStitcherViewModel.Set_HaveSelectedandShownGunLineinManualorWallClockMode(true);
-                    }
+                //HaveGotGunTime = false;
+                if (timeFromMode == TimeFromMode.FromVideoStart)
+                {
+                    //Need next to get video length
+                    var xx = videoStitcher.GetGunTimenFrameIndex(gunAudioPath);
+                    GunTimeDbl = 0; // Default value when timing is from button press
+                    GunTimeIndex = 0; // Default index when timing is from button press
+                    athStitcherViewModel.Set_HaveSelectedandShownGunLineinManualorWallClockMode(false); // Explicitly reset for FromVideoStart mode
+                }
+                else if (timeFromMode == TimeFromMode.FromGunSound)
+                {
+                    GunTimeDbl = videoStitcher.GetGunTimenFrameIndex(gunAudioPath);
+                    GunTimeIndex = videoStitcher.GunTimeIndex;
+                }
+                else if (timeFromMode == TimeFromMode.FromGunFlash)
+                {
+                    GunTimeDbl = videoStitcher.GetGunTimenFrameIndex(gunAudioPath, videoDetectMode);
+                    GunTimeIndex = videoStitcher.GunTimeIndex;
+                }
+                else if (timeFromMode == TimeFromMode.ManuallySelect)
+                {
+                    //Need next to get video length
+                    var xx = videoStitcher.GetGunTimenFrameIndex(gunAudioPath);
+                    GunTimeDbl = 0;
+                    GunTimeIndex = 0;// videoStitcher.GunTimeIndex;
+                    athStitcherViewModel.Set_HaveSelectedandShownGunLineinManualorWallClockMode(false); // Explicitly reset for ManuallySelect mode
+                }
+                else if (timeFromMode == TimeFromMode.WallClockSelect)
+                {
+                    DateTime videoCreationDate = athStitcherViewModel.GetVideoCreationDate();
+                    DateTime gunDateTime = athStitcherViewModel.GetEventWallClockStartTime();
+                    TimeSpan GunTime = gunDateTime.Subtract(videoCreationDate);
+                    //Need next to get video length
+                    //GunTimeDbl = 0.7;// videoStitcher.GetGunTimenFrameIndex(gunAudioPath);
+                    double gunTimSec = (GunTime.TotalMilliseconds) / 1000;
+                    GunTimeDbl = videoStitcher.GetGunTimenFrameIndex($"{gunTimSec}");
+                    GunTimeIndex = videoStitcher.GunTimeIndex;
+                    athStitcherViewModel.SetGunTime(GunTimeDbl, GunTimeIndex);
+                    athStitcherViewModel.Set_HaveSelectedandShownGunLineinManualorWallClockMode(true);
+                }
                 //}
                 //else
                 //{
@@ -1285,7 +1287,7 @@ namespace AthStitcherGUI
                 //string imagepath =  PngMetadataHelper.AppendGunTimeImageFilename(athStitcherViewModel.GetOutputPath(), GunTimeDbl);
                 //string imagepath = athStitcherViewModel.GetOutputPath();
                 string videoStart = athStitcherViewModel.GetVideoCreationDateStr();
-                
+
                 await PngMetadataHelper.SetMetaInfo(
                     athStitcherViewModel.GetOutputPath(),
                     $"VideoStart:{videoStart}",
@@ -1293,8 +1295,8 @@ namespace AthStitcherGUI
 
                 //Next bit only for debugging
                 var metaInfo = await PngMetadataHelper.GetMetaInfo(athStitcherViewModel.GetOutputPath()); // Wait for the metadata to be retrieved
-                                                //AddMetadataToPng(@"C:\temp\vid\cars\notwo.png", @"C:\temp\vid\cars\notwocpy.png", "XXX", "A TITLE").Wait();
-                
+                                                                                                          //AddMetadataToPng(@"C:\temp\vid\cars\notwo.png", @"C:\temp\vid\cars\notwocpy.png", "XXX", "A TITLE").Wait();
+
 
                 videoLength = videoStitcher.videoDuration;
                 athStitcherViewModel.SetVideoLength(videoLength);
@@ -1304,8 +1306,8 @@ namespace AthStitcherGUI
 
 
 
-                
-                
+
+
                 // Hide the busy indicator
                 BusyIndicator.Visibility = Visibility.Collapsed;
 
@@ -1326,7 +1328,7 @@ namespace AthStitcherGUI
                     {
                         athStitcherViewModel.SetEventWallClockStartTime(athStitcherViewModel.GetVideoCreationDate());
                     }
-                    
+
                 }
                 switch (athStitcherViewModel.GetTimeFromMode())
                 {
@@ -1452,7 +1454,7 @@ namespace AthStitcherGUI
 
                 _VerticalLine = StartVerticalLine;
             }
-            
+
             // Start drawing the line only when the mouse is over the image
 
             StitchedImage.CaptureMouse();
@@ -1566,12 +1568,12 @@ namespace AthStitcherGUI
                 gunTime = athStitcherViewModel.GetGunTime(); // Get the gun time from the ViewModel
             }
             else if (athStitcherViewModel.Get_HaveSelectedandShownGunLineinManualorWallClockMode())
-            { 
+            {
                 gunTime = athStitcherViewModel.GetGunTime(); // Get the gun time from the ViewModel
             }
             double timeFromGunStart = timeFromVideoStart - gunTime; // Calculate time from gun start
             frameNo = (int)(timeFromVideoStart * Fps); // Assuming 30 FPS, adjust as needed
-            
+
             if (timeFromGunStart >= 0)
             {
 
@@ -1710,7 +1712,7 @@ namespace AthStitcherGUI
             string imagePath = Regex.Replace(videoFilePath, ".mp4", ".png", RegexOptions.IgnoreCase);
             athStitcherViewModel.SetGunTime(0, 0);
             HaveGotGunTime = false; // Reset the gun time flag
-  
+
             string jsonFilePath = Regex.Replace(videoFilePath, ".mp4", ".json", RegexOptions.IgnoreCase);
             if (File.Exists(jsonFilePath))
             {
@@ -1896,32 +1898,32 @@ namespace AthStitcherGUI
                     {
                         AthStitcherGUI.SharedAppState.SetGlobalFolder(selDir);
                     }
-                if (File.Exists(OutputFilePath))
-                {
-                    LoadImageButton_Click(null, null);
-                    // If the file name contains "_Start_", set the time from mode to ManuallySelect
-                    if (OutputFilePath.Contains("_Start_", StringComparison.OrdinalIgnoreCase))
+                    if (File.Exists(OutputFilePath))
                     {
-                        //using System.Text.RegularExpressions;
-                        //var match = Regex.Match(OutputFilePath, @"[-+]?\d*\.\d+|\d+");
-                        var match = Regex.Match(OutputFilePath, @"_start_([-+]?\d*\.?\d+)", RegexOptions.IgnoreCase);
-                        if (match.Success)
+                        LoadImageButton_Click(null, null);
+                        // If the file name contains "_Start_", set the time from mode to ManuallySelect
+                        if (OutputFilePath.Contains("_Start_", StringComparison.OrdinalIgnoreCase))
                         {
-                            var numberString = match.Groups[1].Value; // just the numeric portion
-                            if (double.TryParse(numberString, out double dbl))
+                            //using System.Text.RegularExpressions;
+                            //var match = Regex.Match(OutputFilePath, @"[-+]?\d*\.\d+|\d+");
+                            var match = Regex.Match(OutputFilePath, @"_start_([-+]?\d*\.?\d+)", RegexOptions.IgnoreCase);
+                            if (match.Success)
                             {
-                                athStitcherViewModel.SetGunTime(dbl, 0); // Set the gun time in the ViewModel
-                                athStitcherViewModel.SetTimeFromMode(TimeFromMode.ManuallySelect);
-                                athStitcherViewModel.SetHasStitched();
-                                athStitcherViewModel.Set_HaveSelectedandShownGunLineinManualorWallClockMode(true);
+                                var numberString = match.Groups[1].Value; // just the numeric portion
+                                if (double.TryParse(numberString, out double dbl))
+                                {
+                                    athStitcherViewModel.SetGunTime(dbl, 0); // Set the gun time in the ViewModel
+                                    athStitcherViewModel.SetTimeFromMode(TimeFromMode.ManuallySelect);
+                                    athStitcherViewModel.SetHasStitched();
+                                    athStitcherViewModel.Set_HaveSelectedandShownGunLineinManualorWallClockMode(true);
+                                }
                             }
                         }
                     }
-                }
-                else
-                {
-                    MessageBox.Show("Failed to select a PNG image file.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
+                    else
+                    {
+                        MessageBox.Show("Failed to select a PNG image file.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
                 }
             }
             finally
@@ -2017,7 +2019,7 @@ namespace AthStitcherGUI
             if (sender is MenuItem menuItem && menuItem.Tag is TimeFromMode timeMode)
             {
                 athStitcherViewModel.SetTimeFromMode(timeMode);
-                
+
                 // Explicitly set HaveSelectedandShownGunLineToManualorWallClockMode based on the selected mode
                 if (timeMode == TimeFromMode.WallClockSelect || timeMode == TimeFromMode.FromVideoStart)
                 {
@@ -2163,9 +2165,9 @@ namespace AthStitcherGUI
                 NudgeFrameImage.Height = ratio * NudgeFrameImage.Width + ResizeThumb.Height;
             }
             // Just incase ....
-            if(NudgeFrameImage.Height> ImageCanvas.Height)
+            if (NudgeFrameImage.Height > ImageCanvas.Height)
             {
-                NudgeFrameImage.Height=  ImageCanvas.Height;
+                NudgeFrameImage.Height = ImageCanvas.Height;
                 var width = NudgeFrameImage.Source.Width;
                 var height = NudgeFrameImage.Source.Height;
                 double ratio = width / height;
@@ -2280,7 +2282,7 @@ namespace AthStitcherGUI
             if (prevline == null)
                 return;
 
-            if(prevline != NudgeVerticalLine)
+            if (prevline != NudgeVerticalLine)
             {
                 // Change to using the Nudge line
                 prevline.Visibility = Visibility.Collapsed;
@@ -2297,14 +2299,14 @@ namespace AthStitcherGUI
             if (sender is Button button)
             {
                 string toolTip = button.ToolTip?.ToString() ?? "";
-                if(!toolTip.Contains("WC"))
+                if (!toolTip.Contains("WC"))
                     Nudge(toolTip);
-                else 
+                else
                     NudgeWC(toolTip);
             }
             ImageCanvas.UpdateLayout();
             NudgeVerticalLine.UpdateLayout();
-            horizOffset = NudgeVerticalLine.X1- horizOffsetz;
+            horizOffset = NudgeVerticalLine.X1 - horizOffsetz;
 
             PositionPopupOverLine();
             NudgePopupVideoFrameImage.UpdateLayout();
@@ -2363,23 +2365,23 @@ namespace AthStitcherGUI
             double posXPrev = posX;
             if (toolTip == "Back")
             {
-                if (posX >= 1* horizontalScale)
+                if (posX >= 1 * horizontalScale)
                 {
                     //Back one Frame
-                    posX -= 1* horizontalScale;
+                    posX -= 1 * horizontalScale;
                 }
             }
             else if (toolTip == "Forward")
             {
-                if (posX <= (stitchedImageVirtualWidth - 1* horizontalScale))
+                if (posX <= (stitchedImageVirtualWidth - 1 * horizontalScale))
                 {
                     //Forward one Frame
-                    posX += 1* horizontalScale;
+                    posX += 1 * horizontalScale;
                 }
             }
             else if (toolTip == "Back 5")
             {
-                if (posX >= 5* horizontalScale)
+                if (posX >= 5 * horizontalScale)
                 {
                     //Back five Frames
                     posX -= 5 * horizontalScale;
@@ -2387,26 +2389,26 @@ namespace AthStitcherGUI
             }
             else if (toolTip == "Forward 5")
             {
-                if (posX < (stitchedImageVirtualWidth - 5* horizontalScale))
+                if (posX < (stitchedImageVirtualWidth - 5 * horizontalScale))
                 {
                     //Forward five Frames
-                    posX += 5* horizontalScale;
+                    posX += 5 * horizontalScale;
                 }
             }
             else if (toolTip == "Back 1 sec")
             {
-                if (posX >= oneSecNoFrames* horizontalScale)
+                if (posX >= oneSecNoFrames * horizontalScale)
                 {
                     //Back five Frames
-                    posX -= oneSecNoFrames* horizontalScale;
+                    posX -= oneSecNoFrames * horizontalScale;
                 }
             }
             else if (toolTip == "Forward 1 sec")
             {
-                if (posX < (stitchedImageVirtualWidth - oneSecNoFrames* horizontalScale))
+                if (posX < (stitchedImageVirtualWidth - oneSecNoFrames * horizontalScale))
                 {
                     //Forward five Frames
-                    posX += oneSecNoFrames* horizontalScale;
+                    posX += oneSecNoFrames * horizontalScale;
                 }
             }
 
@@ -2433,14 +2435,14 @@ namespace AthStitcherGUI
             _VerticalLine.X2 = posX;
             _VerticalLine.Y1 = 0; // Top of the image
             double posY2 = stitchedImageVirtualHeight;
-            
+
             _VerticalLine.Y2 = posY2; // Bottom of the image
 
-            horizOffset = posX- horizOffset;
+            horizOffset = posX - horizOffset;
             verticalOffset = posY2; ;
-            UpdateTimeLabel(posX,startTime,isLeft);
+            UpdateTimeLabel(posX, startTime, isLeft);
             if (athStitcherViewModel.GetShowVideoFramePopup())
-            { 
+            {
                 if (athStitcherViewModel.GetNudge_useVideoFrameratherthanNudgeFrame())
                 {
                     NudgePopupVideoFrameImage.IsOpen = false;
@@ -2478,7 +2480,7 @@ namespace AthStitcherGUI
 
             TimeSpan oneSec = new TimeSpan(0, 0, 0, 1);
             TimeSpan fiveFramesTs = new TimeSpan(0, 0, 0, 0, 0, (int)Math.Round(5000000 / Fps, 0));
-            TimeSpan oneFrameTs = new TimeSpan(0, 0, 0, 0, 0, (int)Math.Round(1000000 / Fps,0));
+            TimeSpan oneFrameTs = new TimeSpan(0, 0, 0, 0, 0, (int)Math.Round(1000000 / Fps, 0));
 
             if (toolTip == "WC Back 1 Frame")
             {
@@ -2576,7 +2578,7 @@ namespace AthStitcherGUI
             {
                 if (isShift)
                 {
-                    FrameImage.Width /= 1.5; 
+                    FrameImage.Width /= 1.5;
                     FrameImage.Height /= 1.5;
                     PopupVideoFrameImage.Width /= 1.5;
                     PopupVideoFrameImage.Height /= 1.5;
@@ -2586,8 +2588,8 @@ namespace AthStitcherGUI
                         PopupVideoFrameImage.IsOpen = false; // Close popup if too small
                     }
                 }
-                else 
-                { 
+                else
+                {
                     if (PopupVideoFrameImage.Height * 1.5 < ImageCanvas.Height)
                     {
                         VideoFrameScrollbar.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
@@ -2598,7 +2600,7 @@ namespace AthStitcherGUI
                     {
                         VideoFrameScrollbar.VerticalScrollBarVisibility = ScrollBarVisibility.Visible;
                     }
-                        FrameImage.Width *= 1.5; // Close popup
+                    FrameImage.Width *= 1.5; // Close popup
                     FrameImage.Height *= 1.5;
                 }
             }
@@ -2630,7 +2632,7 @@ namespace AthStitcherGUI
                 }
                 else
                 {
-                    if(NudgePopupVideoFrameImage.Height*1.5< ImageCanvas.Height)
+                    if (NudgePopupVideoFrameImage.Height * 1.5 < ImageCanvas.Height)
                     {
                         NudgePopupVideoFrameImage.Width *= 1.5;
                         NudgePopupVideoFrameImage.Height *= 1.5;
@@ -2646,7 +2648,7 @@ namespace AthStitcherGUI
             }
             else if (e.ClickCount == 2) // Detect double-click
             {
-                double ratio = NudgePopupVideoFrameImage.Width  /NudgePopupVideoFrameImage.Height;
+                double ratio = NudgePopupVideoFrameImage.Width / NudgePopupVideoFrameImage.Height;
                 NudgePopupVideoFrameImage.Height = 100;
                 NudgePopupVideoFrameImage.Width = 100 / ratio;
                 NudgePopupVideoFrameImage.IsOpen = false; // Close popup
@@ -2797,9 +2799,9 @@ namespace AthStitcherGUI
                 return;
 
             Line? lineToUse = NudgeVerticalLine;
-            if(NudgeVerticalLine.Visibility== Visibility.Collapsed)
+            if (NudgeVerticalLine.Visibility == Visibility.Collapsed)
             {
-                if(StartVerticalLine.Visibility== Visibility.Visible)
+                if (StartVerticalLine.Visibility == Visibility.Visible)
                 {
                     lineToUse = StartVerticalLine;
                 }
@@ -2808,7 +2810,7 @@ namespace AthStitcherGUI
                     return;
                 }
             }
-            
+
 
             if (lineToUse != null)
             {
@@ -2823,7 +2825,7 @@ namespace AthStitcherGUI
                         return;
                 }
 
-                if(NudgePopupVideoFrameImage.Width < athStitcherViewModel.GetMinPopupWidth()/2)
+                if (NudgePopupVideoFrameImage.Width < athStitcherViewModel.GetMinPopupWidth() / 2)
                 {
                     resize = true;
                 }
@@ -2841,8 +2843,8 @@ namespace AthStitcherGUI
                 NudgeFrameImage.Height = ratio * NudgeFrameImage.Width;
                 NudgePopupVideoFrameImage.Width = NudgeFrameImage.Width;
                 NudgePopupVideoFrameImage.Height = NudgeFrameImage.Height + NudgeResizeThumb.Height;
-                
-                System.Windows.Point fakeMousePoint = new System.Windows.Point(horizOffset+100+ athStitcherViewModel.GetGunTime(), 0); // arbitrarily chosen coordinates
+
+                System.Windows.Point fakeMousePoint = new System.Windows.Point(horizOffset + 100 + athStitcherViewModel.GetGunTime(), 0); // arbitrarily chosen coordinates
                 var screenPoint = ImageCanvas.PointToScreen(fakeMousePoint);
                 var windowPoint = this.PointFromScreen(screenPoint);
                 if (NudgePopupVideoFrameImage.VerticalOffset <= 0)
@@ -2857,7 +2859,7 @@ namespace AthStitcherGUI
                     switch (mode)
                     {
                         case PlacementMode.Left:
-                            NudgePopupVideoFrameImage.HorizontalOffset = -ratio * NudgePopupVideoFrameImage.Width ;
+                            NudgePopupVideoFrameImage.HorizontalOffset = -ratio * NudgePopupVideoFrameImage.Width;
                             NudgePopupVideoFrameImage.VerticalOffset = 100;
                             break;
                         case PlacementMode.Right:
@@ -2916,7 +2918,7 @@ namespace AthStitcherGUI
                     }
                 }
             }
-            
+
 
             // Enforce global folder by setting current directory temporarily
             var originalCwdMp4b = Environment.CurrentDirectory;
@@ -2980,7 +2982,7 @@ namespace AthStitcherGUI
         {
             string url = "https://davidjones.sportronics.com.au/appdev/Photo_Finish-Video_Capture_and_Processing-appdev.html";
             MessageBox.Show($"Documentation URL:\n{url}", "Photo Finish Documentation", MessageBoxButton.OK, MessageBoxImage.Information);
-            
+
             // Open the URL in the default browser
             try
             {
@@ -3071,7 +3073,7 @@ namespace AthStitcherGUI
             };
 
             // Show the dialog
-            if (!folderDialog.ShowDialog()!= true) return;
+            if (!folderDialog.ShowDialog() != true) return;
 
             if (string.IsNullOrWhiteSpace(folderDialog.FolderName))
                 return;
@@ -3132,7 +3134,7 @@ namespace AthStitcherGUI
             var ExifToolFolder = athStitcherViewModel.DataContext.ExifToolFolder;
 
             // Use Windows Forms FolderBrowserDialog for folder selection
-            var  dialog = new OpenFolderDialog
+            var dialog = new OpenFolderDialog
             {
                 Title = "Select the folder containing exiftool.exe",
                 InitialDirectory = ExifToolFolder // Set initial folder
@@ -3170,7 +3172,7 @@ namespace AthStitcherGUI
 
         private void AboutExifTool(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show( "Needed for storing meta-info with stitched iamge.", $"About XifTool", MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show("Needed for storing meta-info with stitched iamge.", $"About XifTool", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void AboutGunTimeLineColor(object sender, RoutedEventArgs e)
@@ -3260,7 +3262,7 @@ namespace AthStitcherGUI
                 Round = 1
 
             };
-            var dlg = new NewMeetDialog { Owner = this};
+            var dlg = new NewMeetDialog { Owner = this };
             dlg.Meet = meet;
             dlg.CutOff = meetCutoff;
             if (dlg.ShowDialog() == true)
@@ -3280,20 +3282,20 @@ namespace AthStitcherGUI
                     return;
                 }
                 var date = meet.Date;
-                if ((date==null) || (date < meetCutoff))
+                if ((date == null) || (date < meetCutoff))
                 {
                     MessageBox.Show("Date before cut-off date {meetCutoff}.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
                 var loc = meet.Location;
-                if(string.IsNullOrWhiteSpace(loc))
+                if (string.IsNullOrWhiteSpace(loc))
                 {
                     MessageBox.Show("Location cannot be empty.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
                 // Duplicate check: same Description + Date
-                bool exists = ctx.Meets.Any(m => m.Description == desc && m.Date == date &&m.Location ==loc );
+                bool exists = ctx.Meets.Any(m => m.Description == desc && m.Date == date && m.Location == loc);
                 if (exists)
                 {
                     MessageBox.Show("A meet with the same Description and Date already exists.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -3337,7 +3339,7 @@ namespace AthStitcherGUI
                 vm.CurrentEvent = dlg.SelectedEvent;
                 var ctx = new AthStitcherDbContext();
                 vm.CurrentHeat = ctx.Heats.FirstOrDefault(h => h.EventId == dlg.SelectedEvent.Id && h.HeatNo == 1);
-                GetCurrentResultsforCurrentHeat(vm, ctx, vm.CurrentHeat);
+                
                 // Reset lanes/results to the event's lanes if needed (we don't store lanes per event yet; keep current)
                 athStitcherViewModel.SetShowSliders(false);
             }
@@ -3372,7 +3374,7 @@ namespace AthStitcherGUI
                 vm.CurrentEvent = dlg.SelectedEvent;
                 using var ctx = new AthStitcherDbContext();
                 vm.CurrentHeat = ctx.Heats.FirstOrDefault(h => h.EventId == dlg.SelectedEvent.Id && h.HeatNo == 1);
-                GetCurrentResultsforCurrentHeat(vm, ctx, vm.CurrentHeat);
+                
                 // Reset lanes/results to the event's lanes if needed (we don't store lanes per event yet; keep current)
                 athStitcherViewModel.SetShowSliders(false);
             }
@@ -3389,7 +3391,7 @@ namespace AthStitcherGUI
                 int cutoff = vm.Scheduling?.EventCutoff ?? 0;
                 DateTime meetDate = vm.CurrentMeet?.Date ?? DateTime.Now;
                 DateTime eventCutoff = meetDate.AddDays(cutoff);
-                if (DateTime.Now.Date> eventCutoff.Date)
+                if (DateTime.Now.Date > eventCutoff.Date)
                 {
                     MessageBox.Show($"Cannot add events after {cutoff} days of the meet date ({meetDate:dd/MM/yyyy}).", "New Event", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
@@ -3455,9 +3457,9 @@ namespace AthStitcherGUI
                 //ctx.SaveChanges();
                 //vm.CurrentEvent = ev;
                 vm.CurrentHeat = ctx.Heats.FirstOrDefault(h => h.EventId == ev.Id && h.HeatNo == 1);
-                GetCurrentResultsforCurrentHeat(vm, ctx, vm.CurrentHeat);
+                
             }
-        
+
         }
 
         private void Next_Event_Button_Click(object sender, RoutedEventArgs e)
@@ -3474,9 +3476,10 @@ namespace AthStitcherGUI
                     MessageBox.Show("Select an Event first.", "Next Event", MessageBoxButton.OK, MessageBoxImage.Information);
                     return;
                 }
+                UpdateCurrentEventHeats();
                 vm.AdvanceEventNumber();
-                using var ctx = new AthStitcherDbContext();
-                GetCurrentResultsforCurrentHeat(vm, ctx, vm.CurrentHeat);
+                //using var ctx = new AthStitcherDbContext();
+                
             }
         }
 
@@ -3494,9 +3497,10 @@ namespace AthStitcherGUI
                     MessageBox.Show("Select an Event first.", "Previous Event", MessageBoxButton.OK, MessageBoxImage.Information);
                     return;
                 }
+                UpdateCurrentEventHeats();
                 vm.DecrementEventNumber();
-                using var ctx = new AthStitcherDbContext();
-                GetCurrentResultsforCurrentHeat(vm, ctx, vm.CurrentHeat);
+                //using var ctx = new AthStitcherDbContext();
+                
             }
         }
 
@@ -3519,11 +3523,86 @@ namespace AthStitcherGUI
                     MessageBox.Show("Select a Heat  first.", "Next Heat", MessageBoxButton.OK, MessageBoxImage.Information);
                     return;
                 }
+
+
+                UpdateCurrentHeatResults();
                 vm.AdvanceHeatNumber();
-                using var ctx = new AthStitcherDbContext();
-                GetCurrentResultsforCurrentHeat(vm, ctx, vm.CurrentHeat);
+                
+                
             }
         }
+
+        private void UpdateCurrentHeatResults()
+        {
+            if (this.DataContext is AthStitcherGUI.ViewModels.AthStitcherModel vm)
+            {
+                if (vm.CurrentMeet == null)
+                {
+                    MessageBox.Show("Select a Meet first.", "Update Current Heat Results", MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
+                if (vm.CurrentEvent == null)
+                {
+                    MessageBox.Show("Select an Event first.", "Update Current Heat Results", MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
+                if (vm.CurrentHeat == null)
+                {
+                    MessageBox.Show("Select a Heat  first.", "Update Current Heat Results", MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
+                if (vm.CurrentHeat.IsHeatDirty())
+                {
+                    using var ctx = new AthStitcherDbContext();
+                    var results = vm.CurrentHeat.Results;
+                    ctx.UpdateRange(results);
+                    ctx.SaveChanges();
+                    var resultsRes = ctx.Results
+                        .AsNoTracking()
+                        .Where(r => r.HeatId == vm.CurrentHeat.Id)
+                        .OrderBy(r => r.Lane) // ascending; use .OrderByDescending if needed
+                        .ToList();
+                }
+            }
+        }
+
+
+        private void UpdateCurrentEventHeats()
+        {
+            if (this.DataContext is AthStitcherGUI.ViewModels.AthStitcherModel vm)
+            {
+                if (vm.CurrentMeet == null)
+                {
+                    MessageBox.Show("Select a Meet first.", "Update Current Heat Results", MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
+                if (vm.CurrentEvent == null)
+                {
+                    MessageBox.Show("Select an Event first.", "Update Current Heat Results", MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
+                if (vm.CurrentHeat != null)
+                {
+                    UpdateCurrentHeatResults();
+                }
+                using var ctx = new AthStitcherDbContext();
+                var ev = ctx.Events
+                .Include(e => e.Heats)
+                .First(e => e.Id == vm.CurrentEvent.Id);
+                if (ev.IsEventDirty())
+                {
+                    var heats = ev.Heats;
+                    ctx.UpdateRange(heats);
+                    ctx.SaveChanges();
+                    var resultsRes = ctx.Heats
+                        .AsNoTracking()
+                        .Where(r => r.EventId == vm.CurrentEvent.Id)
+                        .OrderBy(r => r.HeatNo) // ascending; use .OrderByDescending if needed
+                        .ToList();
+                }
+            }
+        }
+ 
 
         private void Prev_Heat_Button_Click(object sender, RoutedEventArgs e)
         {
@@ -3544,9 +3623,10 @@ namespace AthStitcherGUI
                     MessageBox.Show("Select a Heat  first.", "Previous Heat", MessageBoxButton.OK, MessageBoxImage.Information);
                     return;
                 }
+                UpdateCurrentHeatResults();
                 vm.DecrementHeatNumber();
-                using var ctx = new AthStitcherDbContext();
-                GetCurrentResultsforCurrentHeat(vm, ctx, vm.CurrentHeat);
+                //using var ctx = new AthStitcherDbContext();
+                
             }
         }
         private void AddHeat_Menu_Click(object sender, RoutedEventArgs e)
@@ -3578,13 +3658,13 @@ namespace AthStitcherGUI
                     nextHeatNo = existingMax.Value + 1;
 
                 // Create and save new heat
-                var heat = new AthStitcher.Data.Heat {  EventId = vm.CurrentEvent.Id, HeatNo = nextHeatNo };
+                var heat = new AthStitcher.Data.Heat { EventId = vm.CurrentEvent.Id, HeatNo = nextHeatNo };
                 ctx.Heats.Add(heat);
                 ctx.SaveChanges();
-                AddResultsToHeat(vm,ctx, vm.CurrentEvent, heat);
+                AddResultsToHeat(vm, ctx, vm.CurrentEvent, heat);
                 // Make it current in the VM
                 vm.CurrentHeat = heat;
-                GetCurrentResultsforCurrentHeat(vm, ctx, vm.CurrentHeat);
+                
 
             }
             catch (Exception ex)
@@ -3593,7 +3673,7 @@ namespace AthStitcherGUI
             }
         }
 
-        private void AddResultsToHeat(AthStitcherGUI.ViewModels.AthStitcherModel vm,AthStitcher.Data.AthStitcherDbContext ctx, Event _event, Heat heat)
+        private void AddResultsToHeat(AthStitcherGUI.ViewModels.AthStitcherModel vm, AthStitcher.Data.AthStitcherDbContext ctx, AthStitcher.Data.Event _event, Heat heat)
         {
             if (vm.CurrentMeet == null)
             {
@@ -3610,45 +3690,18 @@ namespace AthStitcherGUI
                 MessageBox.Show("Select a Heat first.", "Add Results To Heat", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
-            heat.Results = new List<LaneResult>();
+            //heat.Results = new List<LaneResult>();
             if (_event != null)
             {
                 int max = _event.MaxLane ?? 8;
                 int min = _event.MinLane ?? 1;
                 for (int lane = min; lane <= max; lane++)
                 {
-                    ctx.Results.Add(new LaneResult { HeatId = heat.Id, Lane = lane });
+                    heat.Results.Add(new LaneResult { HeatId = heat.Id, Lane = lane });
                 };
                 ctx.SaveChanges();
-                GetCurrentResultsforCurrentHeat(vm, ctx, heat);
+                //GetCurrentResultsforCurrentHeat(vm, ctx, heat);
             }
-        }
-
-        private void GetCurrentResultsforCurrentHeat(AthStitcherGUI.ViewModels.AthStitcherModel vm, AthStitcher.Data.AthStitcherDbContext ctx, Heat heat)
-        {
-            if (vm.CurrentMeet == null)
-            {
-                MessageBox.Show("Select a Meet first.", "Get Current Results for CurrentHeat", MessageBoxButton.OK, MessageBoxImage.Information);
-                return;
-            }
-            if (vm.CurrentEvent == null)
-            {
-                MessageBox.Show("Select an Event first.", "Get Current Results for CurrentHeat", MessageBoxButton.OK, MessageBoxImage.Information);
-                return;
-            }
-            if (heat == null)
-            {
-                vm.CurrentResults = null;
-                MessageBox.Show("No Heat to generate Results for.", "Get Current Results for CurrentHeat", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-            var list = ctx.Results
-                .AsNoTracking()
-                .Where(r => r.HeatId == heat.Id)
-                .OrderBy(r => r.Lane) // ascending; use .OrderByDescending if needed
-                .ToList();
-
-            vm.CurrentResults = list; // or new ObservableCollection<Result>(list)
         }
 
         /// <summary>
@@ -3672,7 +3725,7 @@ namespace AthStitcherGUI
             }
             if (vm.CurrentHeat == null)
             {
-                MessageBox.Show("Select an Meet, Event and Heat first.", "Remove Heat", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show("Select a Heat first.", "Remove Heat", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
 
@@ -3705,7 +3758,7 @@ namespace AthStitcherGUI
                     .Max();
 
                 var CurrentHeatNumber = remainingMax.HasValue ? remainingMax.Value : -1;
-                if(CurrentHeatNumber == -1)
+                if (CurrentHeatNumber == -1)
                 {
                     // Removed one and only heat so add a new one.
                     AddHeat_Menu_Click(sender, e);
@@ -3713,7 +3766,7 @@ namespace AthStitcherGUI
                 }
                 var CurrentHeat = ctx.Heats
                     .FirstOrDefault(h => h.EventId == eventId && h.HeatNo == CurrentHeatNumber);
-                GetCurrentResultsforCurrentHeat(vm, ctx, CurrentHeat);
+                //(vm, ctx, CurrentHeat);
             }
             catch (Exception ex)
             {
@@ -3724,7 +3777,7 @@ namespace AthStitcherGUI
         private void SetAppCutoffs_Menu_Click(object sender, RoutedEventArgs e)
         {
             if (/*this.DataContext*/ athStitcherViewModel.DataContext is not AthStitcherGUI.ViewModels.AthStitcherModel vm)
-                return; 
+                return;
 
             var xx = athStitcherViewModel.DataContext;
             // Ensure Scheduling is initialized
@@ -3749,7 +3802,138 @@ namespace AthStitcherGUI
         {
 
         }
-    }
 
-    ////////////////////////////////////////////////////////////////////////////////////////
+        private void Print_Click(object sender, RoutedEventArgs e)
+        {
+            if (this.DataContext is AthStitcherModel vm)
+            {
+
+                if (sender is MenuItem menu)
+                {
+                    if (!string.IsNullOrEmpty(menu.Header.ToString()))
+                    {
+                        string menuHeader = menu.Header.ToString();
+                        string meetHdr = $"{vm.CurrentMeet}\n";
+
+                        switch (menuHeader)
+                        {
+                            case "Current Heat":
+                                if (vm.CurrentHeat.Results != null)
+                                {
+                                    // Print Current Heat
+                                    meetHdr += PrintHeat(vm.CurrentMeet, vm.CurrentEvent, vm.CurrentHeat);
+                                }
+                                else
+                                {
+                                    MessageBox.Show("Select an Event Heat first", "Print Heat", MessageBoxButton.OK, MessageBoxImage.Warning);
+                                    return;
+                                }
+                                break;
+                            case "Current Event":
+                                if (vm.CurrentEvent != null)
+                                {
+                                    using var ctx = new AthStitcherDbContext();
+                                    var ev = ctx.Events
+                                    .Include(e => e.Heats)
+                                    .First(e => e.Id == vm.CurrentEvent.Id);
+                                    string res = "";
+                                    //Print Event.Heats
+                                    foreach (var heat in ev.Heats)
+                                    {
+                                        string ht = PrintHeat(vm.CurrentMeet, vm.CurrentEvent, heat);
+                                        res += ht + "\n";
+                                    }
+                                    meetHdr += res;
+                                }
+                                else
+                                {
+                                    MessageBox.Show("Select an Event with Heats first", "Print Event Results", MessageBoxButton.OK, MessageBoxImage.Warning);
+                                    return;
+                                }
+                                break;
+                            case "Current Meet":
+                                if (vm.CurrentMeet != null)
+                                {
+                                    using var ctx = new AthStitcherDbContext();
+                                    var ev = ctx.Meets
+                                    .Include(e => e.Events)
+                                    .First(e => e.Id == vm.CurrentMeet.Id);
+                                    // Print Heats for Meet.Events
+                                    foreach (AthStitcher.Data.Event _event in ev.Events)
+                                    {
+                                        var eEvent = ctx.Events
+                                            .Include(eEvent => eEvent.Heats)
+                                            .First(eEvent => eEvent.Id == _event.Id);
+                                        foreach (Heat heat in eEvent.Heats)
+                                        {
+                                            meetHdr += PrintHeat(vm.CurrentMeet, _event, heat);
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    MessageBox.Show("Select a Meet with Events and Heats first", "Print Meet Results", MessageBoxButton.OK, MessageBoxImage.Warning);
+                                    return;
+                                }
+                                break;
+                        }
+
+                        if (!string.IsNullOrEmpty(meetHdr))
+                        {
+                            Clipboard.SetText(meetHdr);
+                            MessageBox.Show("Results - Copied to Clipboard", menuHeader, MessageBoxButton.OK, MessageBoxImage.Information);
+
+                        }
+                    }
+
+                }
+            }
+
+            string PrintHeat(Meet CurrentMeet, AthStitcher.Data.Event CurrentEvent, Heat CurrentHeat)
+            {
+                if (athStitcherViewModel.DataContext is not AthStitcherGUI.ViewModels.AthStitcherModel vm)
+                    return "";
+                string printHeader = "\n";
+
+                printHeader = $"{CurrentEvent}\t" +
+                                            $"Heat No: {CurrentHeat.HeatNo}\n" +
+                                            "------------------------------------------------------";
+                bool tabbed = vm.Scheduling.UseTabbedPrinting;
+                List<LaneResult> results = CurrentHeat.Results
+                    .OrderBy(r => r.ResultSeconds ?? double.MaxValue)  // nulls last
+                    .ToList();
+                if (tabbed)
+                {
+                    printHeader += $"\nPosn\t{LaneResult.TabHeader()}";
+                    int posn = 1;
+                    foreach (var lr in results)
+                    {
+                        printHeader += "\n" + $"{posn++}\t{lr.ToTab()}";
+                    }
+                }
+                else
+                {
+                    int posn = 1;
+                    printHeader += $"\nPosn,{LaneResult.CSVHeader()}";
+                    foreach (var lr in results)
+                    {
+                        printHeader += "\n" + $"{posn++},{lr.ToCSV()}";
+                    }
+                }
+
+                printHeader += "\n\n";
+                return printHeader;
+            }
+
+        }
+
+
+        private void SaveHeat_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+
+        ////////////////////////////////////////////////////////////////////////////////////////
+    }
 }

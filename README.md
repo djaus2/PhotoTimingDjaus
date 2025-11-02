@@ -14,6 +14,12 @@ A simple ***Photo Timing/Photo Finish*** app for Athletics etc where a finish li
 > All good now!  
 
 ### History
+- AthStitcher V7.0.0
+  - Major changes to DB structure and code.
+  - Heat results are now properly stored as LaneResults in DB.
+  - Can print, as text, a Heat, all Heats for an Event or or all Events for a Meet.
+    - And print order is (time) finish order, not lane order.
+  - ***Coming:*** PDF print options.
 - AthStitcher V6.2.12 Code corrections/improvements wrt Meets,Events and Heats.
   - Now Meets,Events,Heats,Results are all now ObservableObject with ObservableProperties
   - ORM:

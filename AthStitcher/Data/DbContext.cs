@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Proxies;
 using System;
 using System.IO;
 
@@ -23,7 +24,9 @@ namespace AthStitcher.Data
             }
             optionsBuilder
                 .UseSqlite($"Data Source={dbPath}")
-                .ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning));
+                .ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning))
+                .UseLazyLoadingProxies(); // This now works because of the added using directive
+                //.UseChangeTrackingProxies();
         }
 
     }

@@ -270,7 +270,21 @@
                             </MenuItem>
 
                         </Menu>
+                        <Menu Visibility="Visible"  HorizontalAlignment="Left">
+                            <MenuItem Header="Print" 
+                           FontWeight="Bold" 
+                                  VerticalAlignment="Center"
+                           FontStyle="Italic"
+                           Foreground="Blue">
+                                <MenuItem Header="Current Heat" Click="Print_Click"/>
+                                <MenuItem Header="Current Event" Click="Print_Click"/>
+                                <MenuItem Header="Current Meet" Click="Print_Click"/>
+                            </MenuItem>
+                        </Menu>
                     </StackPanel>
+
+
+
 
                     <MenuItem x:Name="MeetInfo" Header="{Binding CurrentMeet}" HorizontalAlignment="Center" Grid.Column="1">
                         <MenuItem.HeaderTemplate>
@@ -284,11 +298,15 @@
                         </MenuItem.HeaderTemplate>
                     </MenuItem>
 
+
+
                     <Menu Visibility="{Binding MyVisibility}" HorizontalAlignment="Right" Grid.Column="2">
                         <MenuItem Header="Help" 
                             FontWeight="Bold" 
                             FontStyle="Italic"
                             Foreground="Blue">
+                            <MenuItem Header="Save" Click="SaveHeat_Click"/>
+                            <MenuItem Header="" />
                             <MenuItem Header="View Blog Site" Click="BlogSite_Click"/>
                             <MenuItem Header="View Code Repository" Click="Repo_Click"/>
                             <MenuItem Header="NuGet Android Phone Video Capture Package" Click="NuGet_Click"/>
@@ -596,7 +614,7 @@
                     <DataGrid  x:Name="ResultsDataGrid" Grid.Column="0" Grid.Row="1"  Grid.ColumnSpan="3" 
                               HorizontalScrollBarVisibility="Hidden"
                               VerticalScrollBarVisibility="Auto"
-            ItemsSource="{Binding CurrentResults}"
+            ItemsSource="{Binding CurrentHeat.Results}"
             AutoGenerateColumns="False" CanUserAddRows="False" SelectionChanged="DataGrid_SelectionChanged">
                         <DataGrid.ColumnHeaderStyle>
                             <Style TargetType="DataGridColumnHeader">

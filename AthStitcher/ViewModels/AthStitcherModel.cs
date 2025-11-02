@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Globalization;
 using System.Linq;
+using System.Text.Json.Serialization;
 using System.Windows;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
@@ -51,6 +52,7 @@ namespace AthStitcherGUI.ViewModels
 
         // Results list: lanes with result and name
         private ObservableCollection<LaneResult> _results = new ObservableCollection<LaneResult>();
+        [JsonIgnore]
         public ObservableCollection<LaneResult> Results
         {
             get => _results;
@@ -62,6 +64,7 @@ namespace AthStitcherGUI.ViewModels
 
 
         private int _MinLane { get; set; } = 1;
+        [JsonIgnore]
         public int MinLane
         {
             get => _MinLane;
@@ -69,6 +72,7 @@ namespace AthStitcherGUI.ViewModels
         }
 
         private int _MaxLane { get; set; } = 8;
+        [JsonIgnore]
         public int MaxLane
         {
             get =>  _MaxLane;
@@ -349,6 +353,7 @@ namespace AthStitcherGUI.ViewModels
 
         // Object reference for the selected Meet
         private AthStitcher.Data.Meet? _CurrentMeet;
+        [JsonIgnore]
         public AthStitcher.Data.Meet? CurrentMeet
         {
             get => _CurrentMeet;
@@ -361,6 +366,7 @@ namespace AthStitcherGUI.ViewModels
 
         // Object reference for the selected Event
         private AthStitcher.Data.Event? _CurrentEvent;
+        [JsonIgnore]
         public AthStitcher.Data.Event? CurrentEvent
         {
             get => _CurrentEvent;
@@ -380,6 +386,7 @@ namespace AthStitcherGUI.ViewModels
         }
 
         private Heat _CurrentHeat;
+        [JsonIgnore]
         public Heat CurrentHeat
         {
             get => _CurrentHeat;
@@ -387,6 +394,7 @@ namespace AthStitcherGUI.ViewModels
         }
 
         private ICollection<LaneResult> _CurrentResults;
+        [JsonIgnore]
         public ICollection<LaneResult> CurrentResults
         {
             get => _CurrentResults;
@@ -408,7 +416,11 @@ namespace AthStitcherGUI.ViewModels
                 // Get next event in chronological (Time) order ... may not be next Id!
                 using var ctx = new AthStitcherDbContext();
                 var meetId = CurrentMeet.Id;
-                var events = ctx.Events.Where(h => h.MeetId == meetId).OrderBy<AthStitcher.Data.Event, DateTime?>(e => e.Time);
+                var events = ctx.Events
+                    .Where(h => h.MeetId == meetId)
+                    .OrderBy(e => e.EventNumber ?? int.MaxValue)
+                    .ThenBy(e => e.Time ?? DateTime.MaxValue)
+                    .ToList();
                 if (!events.Any())
                 {
                     // No events defined yet; nothing to do
@@ -459,7 +471,11 @@ namespace AthStitcherGUI.ViewModels
                 // Get previous event in chronological (Time) order ... may not be prev Id!
                 using var ctx = new AthStitcherDbContext();
                 var meetId = CurrentMeet.Id;
-                var events = ctx.Events.Where(h => h.MeetId == meetId).OrderBy<AthStitcher.Data.Event, DateTime?>(e => e.Time);
+                var events = ctx.Events
+                    .Where(h => h.MeetId == meetId)
+                    .OrderBy(e => e.EventNumber ?? int.MaxValue)
+                    .ThenBy(e => e.Time ?? DateTime.MaxValue)
+                    .ToList();
                 if (!events.Any())
                 {
                     // No events defined yet; nothing to do
