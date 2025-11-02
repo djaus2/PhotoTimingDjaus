@@ -24,7 +24,10 @@ namespace AthStitcher.Data
 
             var meet = vm.CurrentMeet;
             var ev = vm.CurrentEvent;
-            var results = (heat.Results ?? Enumerable.Empty<LaneResult>()).OrderBy(r => r.Lane).ToList();
+            //var results = (heat.Results ?? Enumerable.Empty<LaneResult>()).OrderBy(r => r.Lane).ToList();
+            List<LaneResult> results = heat.Results
+               .OrderBy(r => r.ResultSeconds ?? double.MaxValue)  // nulls last
+               .ToList();
 
             var document = Document.Create(container =>
             {
@@ -63,6 +66,7 @@ namespace AthStitcher.Data
                         {
                             table.ColumnsDefinition(cols =>
                             {
+                                cols.ConstantColumn(40);   // Position
                                 cols.ConstantColumn(40);   // Lane
                                 cols.RelativeColumn(1);    // Bib
                                 cols.RelativeColumn(3);    // Name
@@ -72,6 +76,7 @@ namespace AthStitcher.Data
                             // Header row
                             table.Header(header =>
                             {
+                                header.Cell().Background(Colors.Grey.Lighten3).Padding(4).Text("Posn").SemiBold();
                                 header.Cell().Background(Colors.Grey.Lighten3).Padding(4).Text("Lane").SemiBold();
                                 header.Cell().Background(Colors.Grey.Lighten3).Padding(4).Text("Bib").SemiBold();
                                 header.Cell().Background(Colors.Grey.Lighten3).Padding(4).Text("Name").SemiBold();
@@ -79,13 +84,16 @@ namespace AthStitcher.Data
                             });
 
                             // Data rows
+                            int Posn = 1;
                             foreach (var r in results)
                             {
+                                table.Cell().Padding(4).Text(Posn.ToString());
                                 table.Cell().Padding(4).Text(r.Lane.ToString());
                                 table.Cell().Padding(4).Text(r.BibNumberStr ?? string.Empty);
                                 table.Cell().Padding(4).Text(r.NameStr ?? string.Empty);
                                 var resultText = r.ResultStr ?? (r.ResultSeconds.HasValue ? r.ResultSeconds.Value.ToString("0.000") : string.Empty);
                                 table.Cell().Padding(4).Text(resultText);
+                                Posn++;
                             }
                         });
                     });

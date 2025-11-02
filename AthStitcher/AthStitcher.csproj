@@ -9,10 +9,6 @@
     <UseWPF>true</UseWPF>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="Data\ToPdf.cs" />
-  </ItemGroup>
-
  
 
   <ItemGroup>
@@ -29,6 +25,7 @@
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json" />
     <PackageReference Include="SharpVectors.Wpf" />
+    <PackageReference Include="QuestPDF" />
   </ItemGroup>
   
 
@@ -53,11 +50,6 @@
 
   <ItemGroup>
     <Content Include="athstitcher.ico" />
-  </ItemGroup>
-  
-
-  <ItemGroup>
-    <None Include="Data\ToPdf.cs" />
   </ItemGroup>
 
   <!--From GetVideoWPFLibSample -->

@@ -61,6 +61,7 @@
     <!-- Android ML/CV -->
     <PackageVersion Include="Emgu.CV" Version="4.10.0.5680" />
     <PackageVersion Include="Emgu.CV.runtime.maui.mini.android" Version="4.10.0.5680" />
+    <PackageVersion Include="QuestPDF" Version="2025.7.3" />
     <!--PackageVersion Include="Sportronics.DownloadVideoOverTcpLib" Version="2.0.3" / -->
   </ItemGroup>
   <PropertyGroup>

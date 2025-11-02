@@ -3888,49 +3888,162 @@ namespace AthStitcherGUI
 
                 }
             }
+        }
 
-            string PrintHeat(Meet CurrentMeet, AthStitcher.Data.Event CurrentEvent, Heat CurrentHeat)
+        string PrintHeat(Meet CurrentMeet, AthStitcher.Data.Event CurrentEvent, Heat CurrentHeat)
+        {
+            if (athStitcherViewModel.DataContext is not AthStitcherGUI.ViewModels.AthStitcherModel vm)
+                return "";
+            string printHeader = "\n";
+
+            printHeader = $"{CurrentEvent}\t" +
+                                        $"Heat No: {CurrentHeat.HeatNo}\n" +
+                                        "------------------------------------------------------";
+            bool tabbed = vm.Scheduling.UseTabbedPrinting;
+            List<LaneResult> results = CurrentHeat.Results
+                .OrderBy(r => r.ResultSeconds ?? double.MaxValue)  // nulls last
+                .ToList();
+            if (tabbed)
             {
-                if (athStitcherViewModel.DataContext is not AthStitcherGUI.ViewModels.AthStitcherModel vm)
-                    return "";
-                string printHeader = "\n";
-
-                printHeader = $"{CurrentEvent}\t" +
-                                            $"Heat No: {CurrentHeat.HeatNo}\n" +
-                                            "------------------------------------------------------";
-                bool tabbed = vm.Scheduling.UseTabbedPrinting;
-                List<LaneResult> results = CurrentHeat.Results
-                    .OrderBy(r => r.ResultSeconds ?? double.MaxValue)  // nulls last
-                    .ToList();
-                if (tabbed)
+                printHeader += $"\nPosn\t{LaneResult.TabHeader()}";
+                int posn = 1;
+                foreach (var lr in results)
                 {
-                    printHeader += $"\nPosn\t{LaneResult.TabHeader()}";
-                    int posn = 1;
-                    foreach (var lr in results)
-                    {
-                        printHeader += "\n" + $"{posn++}\t{lr.ToTab()}";
-                    }
+                    printHeader += "\n" + $"{posn++}\t{lr.ToTab()}";
                 }
-                else
+            }
+            else
+            {
+                int posn = 1;
+                printHeader += $"\nPosn,{LaneResult.CSVHeader()}";
+                foreach (var lr in results)
                 {
-                    int posn = 1;
-                    printHeader += $"\nPosn,{LaneResult.CSVHeader()}";
-                    foreach (var lr in results)
-                    {
-                        printHeader += "\n" + $"{posn++},{lr.ToCSV()}";
-                    }
+                    printHeader += "\n" + $"{posn++},{lr.ToCSV()}";
                 }
-
-                printHeader += "\n\n";
-                return printHeader;
             }
 
+            printHeader += "\n\n";
+            return printHeader;
         }
+
 
 
         private void SaveHeat_Click(object sender, RoutedEventArgs e)
         {
 
+        }
+
+        private void Print_PDF_Click(object sender, RoutedEventArgs e)
+        {
+            if (this.DataContext is AthStitcherModel vm)
+            {
+
+                if (sender is MenuItem menu)
+                {
+                    if (!string.IsNullOrEmpty(menu.Header.ToString()))
+                    {
+                        string menuHeader = menu.Header.ToString();
+                        string meetHdr = $"{vm.CurrentMeet}\n";
+
+                        switch (menuHeader)
+                        {
+                            case "Current Heat":
+                                if (vm.CurrentHeat.Results != null)
+                                {
+                                    // Print Current Heat
+                                    PrintOneHeatAsPdf(vm.CurrentMeet, vm.CurrentEvent, vm.CurrentHeat);
+                                }
+                                else
+                                {
+                                    MessageBox.Show("Select an Event Heat first", "Print Heat", MessageBoxButton.OK, MessageBoxImage.Warning);
+                                    return;
+                                }
+                                break;
+                            case "Current Event":
+                                if (vm.CurrentEvent != null)
+                                {
+                                    using var ctx = new AthStitcherDbContext();
+                                    var ev = ctx.Events
+                                    .Include(e => e.Heats)
+                                    .First(e => e.Id == vm.CurrentEvent.Id);
+                                    //Print Event.Heats
+                                    foreach (var heat in ev.Heats)
+                                    {
+                                        //??
+                                    }
+                                }
+                                else
+                                {
+                                    MessageBox.Show("Select an Event with Heats first", "Print Event Results", MessageBoxButton.OK, MessageBoxImage.Warning);
+                                    return;
+                                }
+                                break;
+                            case "Current Meet":
+                                if (vm.CurrentMeet != null)
+                                {
+                                    using var ctx = new AthStitcherDbContext();
+                                    var ev = ctx.Meets
+                                    .Include(e => e.Events)
+                                    .First(e => e.Id == vm.CurrentMeet.Id);
+                                    // Print Heats for Meet.Events
+                                    foreach (AthStitcher.Data.Event _event in ev.Events)
+                                    {
+                                        var eEvent = ctx.Events
+                                            .Include(eEvent => eEvent.Heats)
+                                            .First(eEvent => eEvent.Id == _event.Id);
+                                        foreach (Heat heat in eEvent.Heats)
+                                        {
+                                            //??
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    MessageBox.Show("Select a Meet with Events and Heats first", "Print Meet Results", MessageBoxButton.OK, MessageBoxImage.Warning);
+                                    return;
+                                }
+                                break;
+                        }
+
+                    }
+
+                }
+            }
+        }
+
+        void PrintOneHeatAsPdf(Meet CurrentMeet, AthStitcher.Data.Event CurrentEvent, Heat CurrentHeat)
+        {
+            if (athStitcherViewModel.DataContext is not AthStitcherGUI.ViewModels.AthStitcherModel vm)
+                return;
+            // inside your existing Print_Click handler, e.g. in the "Current Heat" case
+            if (CurrentHeat != null)
+            {
+                var dlg = new Microsoft.Win32.SaveFileDialog
+                {
+                    Filter = "PDF Files (*.pdf)|*.pdf",
+                    FileName = $"{CurrentMeet}_{CurrentEvent}_Heat{CurrentHeat.HeatNo}.pdf"
+                };
+                if (dlg.ShowDialog() == true)
+                {
+                    try
+                    {
+                        // Use the stitched image if available from the viewmodel (optional)
+                        //? stitchedImage = null;
+                        //try { stitchedImage = athStitcherViewModel.GetOutputPath(); } catch { stitchedImage = null; }
+                        PdfExporter.ExportHeatToPdf(vm, CurrentHeat, dlg.FileName); //, stitchedImage);
+                        MessageBox.Show($"PDF exported: {dlg.FileName}", "Export Complete", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Failed to export PDF: {ex.Message}", "Export Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+            }
+            else
+            {
+                MessageBox.Show("Select a Heat first", "Print Heat", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+            return;
         }
 
 
