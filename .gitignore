@@ -365,3 +365,4 @@ FodyWeavers.xsd
 /AthStitcher/Migrations/20251024050907_InitialCreate.Designer.cs
 /AthStitcher/Migrations/AthStitcherDbContextModelSnapshot.cs
 /AthStitcher/Migrations
+/AthStitcher/Data/ToPdf.cs
