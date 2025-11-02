@@ -3964,12 +3964,27 @@ namespace AthStitcherGUI
                                 {
                                     using var ctx = new AthStitcherDbContext();
                                     var ev = ctx.Events
-                                    .Include(e => e.Heats)
-                                    .First(e => e.Id == vm.CurrentEvent.Id);
-                                    //Print Event.Heats
-                                    foreach (var heat in ev.Heats)
+                                        .Include(e => e.Heats)
+                                        .ThenInclude(h => h.Results)
+                                        .First(e => e.Id == vm.CurrentEvent.Id);
+
+                                    var dlg = new Microsoft.Win32.SaveFileDialog
                                     {
-                                        //??
+                                        Filter = "PDF Files (*.pdf)|*.pdf",
+                                        FileName = $"{vm.CurrentMeet}_{ev}_Event.pdf"
+                                    };
+
+                                    if (dlg.ShowDialog() == true)
+                                    {
+                                        try
+                                        {
+                                            PdfExporter.ExportEventToPdf(vm, ev, dlg.FileName);
+                                            MessageBox.Show($"PDF exported: {dlg.FileName}", "Export Complete", MessageBoxButton.OK, MessageBoxImage.Information);
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            MessageBox.Show($"Failed to export PDF: {ex.Message}", "Export Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                                        }
                                     }
                                 }
                                 else
