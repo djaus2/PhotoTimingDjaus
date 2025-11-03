@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net9.0-windows</TargetFramework>
-    <Version>7.0.0</Version>
+    <Version>7.1.0</Version>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
@@ -34,6 +34,7 @@
     <!-- SVG Licenses: https://www.svgrepo.com/page/licensing/ -->    
     <None Remove="athstitcher.ico" />    
     <None Remove="athstitcher.png" />    
+    <None Remove="Media\djcolor.jpg" />    
     <None Remove="Resources\Images\cancelvid.svg" />
     <None Remove="Resources\Images\crosshairs.svg" />
     <None Remove="Resources\Images\dotnet_athletics.jpg" />
@@ -50,6 +51,9 @@
 
   <ItemGroup>
     <Content Include="athstitcher.ico" />
+    <Content Include="Media\djcolor.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <!--From GetVideoWPFLibSample -->

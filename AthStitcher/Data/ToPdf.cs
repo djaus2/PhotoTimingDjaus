@@ -1,25 +1,49 @@
 ﻿using AthStitcher.Data;
 using AthStitcherGUI.ViewModels;
 using global::AthStitcherGUI.ViewModels;
+using Microsoft.EntityFrameworkCore;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
+using System.Runtime.CompilerServices;
 
 namespace AthStitcher.Data
 {
     public static class PdfExporter
     {
+        public static string appIcon { get; set; } = "djcolor.jpg";
+        public static string InfoLink { get; set; } = "https://davidjones.sportronics.com.au/tags/athstitcher/";
+        public static string InfoLinkText { get; set; } = "Blogs about AthStitcher app";
+        public static string GitHubLink { get; set; } = "https://github.com/djaus2/PhotoTimingDjaus";
+        public static string GitHubLinkText { get; set; } = "App Repository ... See AthStitcher project";
+
+
+        private static string headerImagePath 
+        {
+            get
+            {
+                
+                return Path.Combine(AppContext.BaseDirectory, "Media", appIcon);
+            }
+        }
+
+        [ModuleInitializer]
+        public static void Init()
+        {
+            // one-time per assembly
+            QuestPDF.Settings.License = LicenseType.Community;
+        }
+
         /// <summary>
         /// Exports a single heat to a PDF containing header, optional stitched image and a results table.
         /// </summary>
         public static void ExportHeatToPdf(AthStitcherModel vm, Heat heat, string outputPdfPath, string? stitchedImagePath = null)
         {
-            QuestPDF.Settings.License = LicenseType.Community;
+            //QuestPDF.Settings.License = LicenseType.Community;
             if (vm == null) throw new ArgumentNullException(nameof(vm));
             if (heat == null) throw new ArgumentNullException(nameof(heat));
             if (string.IsNullOrWhiteSpace(outputPdfPath)) throw new ArgumentNullException(nameof(outputPdfPath));
@@ -29,10 +53,9 @@ namespace AthStitcher.Data
             List<LaneResult> results = (heat.Results ?? Enumerable.Empty<LaneResult>())
                .OrderBy(r => r.ResultSeconds ?? double.MaxValue)  // nulls last
                .ToList();
-
             var document = Document.Create(container =>
             {
-                container.Page(page =>
+                _ = container.Page(page =>
                 {
                     page.Size(PageSizes.A4);
                     page.Margin(20);
@@ -40,17 +63,53 @@ namespace AthStitcher.Data
                     page.DefaultTextStyle(x => x.FontSize(11));
 
                     // Keep only meet info in the repeating page header
-                    page.Header().Column(column =>
+                    // repeating meet header (image + link + meet in one row)
+                    
+                    page.Header().Row(row =>
                     {
-                        column.Item().PaddingBottom(5).Text($"{meet}").SemiBold().FontSize(16);
-                        column.Item().PaddingTop(6).LineHorizontal(1).LineColor(Colors.Grey.Lighten1);
+                        // Left: flexible text column (link + meet)
+                        row.RelativeItem().Column(col =>
+                        {
+
+                            col.Item()
+                                .PaddingBottom(2)
+                                .Hyperlink(GitHubLink)
+                                .Text(GitHubLinkText)
+                                .FontColor(Colors.Blue.Medium)
+                                .Underline()
+                                .FontSize(10);
+
+                            col.Item()
+                                .PaddingBottom(2)
+                                .Hyperlink(InfoLink)
+                                .Text(InfoLinkText)
+                                .FontColor(Colors.Blue.Medium)
+                                .Underline()
+                                .FontSize(10);
+
+                            col.Item()
+                                .PaddingBottom(4)
+                                .Text($"{meet}")
+                                .SemiBold()
+                                .FontSize(16);
+                        });
+
+                        // Right: fixed-width image column. Set alignment/height on the cell (not inside Element).
+                        // ConstantItem(width).AlignRight().Height(h) then single Element(...) which adds the Image child.
+                        row.ConstantItem(30)
+                            .AlignRight()    // set alignment on the container (safe)
+                            .Height(40)      // set element height on the container (safe)
+                            .Element(img =>
+                            {
+                                if (File.Exists(headerImagePath))
+                                {
+                                    img.Image(headerImagePath).FitArea(); // single child only
+                                }
+                            });
                     });
 
                     page.Content().PaddingVertical(8).Column(content =>
                     {
-                        content.Item().PaddingBottom(6).Text($"{ev} — Heat {heat.HeatNo}")
-                                       .SemiBold()
-                                       .FontSize(12);
 
                         content.Item().Table(table =>
                         {
@@ -110,7 +169,7 @@ namespace AthStitcher.Data
         /// </summary>
         public static void ExportEventToPdf(AthStitcherModel vm, AthStitcher.Data.Event ev, string outputPdfPath, string? stitchedImagePath = null)
         {
-            QuestPDF.Settings.License = LicenseType.Community;
+            //QuestPDF.Settings.License = LicenseType.Community;
             if (vm == null) throw new ArgumentNullException(nameof(vm));
             if (ev == null) throw new ArgumentNullException(nameof(ev));
             if (string.IsNullOrWhiteSpace(outputPdfPath)) throw new ArgumentNullException(nameof(outputPdfPath));
@@ -144,11 +203,48 @@ namespace AthStitcher.Data
                     page.DefaultTextStyle(x => x.FontSize(11));
 
                     // repeating meet header
-                    page.Header().Column(column =>
+                    page.Header().Row(row =>
                     {
-                        column.Item().PaddingBottom(5).Text($"{meet}").SemiBold().FontSize(16);
-                        column.Item().PaddingTop(6).LineHorizontal(1).LineColor(Colors.Grey.Lighten1);
+                        // Left: flexible text column (link + meet)
+                        row.RelativeItem().Column(col =>
+                        {
+                            col.Item()
+                                .PaddingBottom(2)
+                                .Hyperlink(GitHubLink)
+                                .Text(GitHubLinkText)
+                                .FontColor(Colors.Blue.Medium)
+                                .Underline()
+                                .FontSize(10);
+
+                            col.Item()
+                                .PaddingBottom(2)
+                                .Hyperlink(InfoLink)
+                                .Text(InfoLinkText)
+                                .FontColor(Colors.Blue.Medium)
+                                .Underline()
+                                .FontSize(10);
+
+                            col.Item()
+                                .PaddingBottom(4)
+                                .Text($"{meet}")
+                                .SemiBold()
+                                .FontSize(16);
+                        });
+
+                        // Right: fixed-width image column. Set alignment/height on the cell (not inside Element).
+                        // ConstantItem(width).AlignRight().Height(h) then single Element(...) which adds the Image child.
+                        row.ConstantItem(30)
+                            .AlignRight()    // set alignment on the container (safe)
+                            .Height(40)      // set element height on the container (safe)
+                            .Element(img =>
+                            {
+                                if (File.Exists(headerImagePath))
+                                {
+                                    img.Image(headerImagePath).FitArea(); // single child only
+                                }
+                            });
                     });
+
 
                     // Single content stream: iterate heats and render a table per heat.
                     // QuestPDF will automatically paginate the content when it overflows pages.
