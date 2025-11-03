@@ -14,6 +14,10 @@ A simple ***Photo Timing/Photo Finish*** app for Athletics etc where a finish li
 > All good now!  
 
 ### History
+- AthStitcher V7.1.0
+  - Can now export Heat, Event or Meet_(coming)_ results as Pdf file.
+    - From Print menu options.
+    - Blog Link and GitHub App Link, as displayed in Pdf Header, can be set in App Settings dialog.
 - AthStitcher V7.0.0
   - Major changes to DB structure and code.
   - Heat results are now properly stored as LaneResults in DB.
