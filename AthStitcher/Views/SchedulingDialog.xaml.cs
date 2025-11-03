@@ -34,7 +34,6 @@ namespace AthStitcher.Views
                 MessageBox.Show("Event Cut Off days must be =< Meet Cut Off", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
-
             Model.CanAddHeatsOnDayOfMeet = CanAddHeatsOnDay.IsChecked == true;
             DialogResult = true;
         }

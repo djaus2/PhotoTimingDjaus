@@ -54,6 +54,16 @@ namespace AthStitcherGUI.ViewModels
             string json = JsonSerializer.Serialize(viewM);// viewModel);
             AthStitcher.Properties.Settings.Default.SavedViewModel = json;
             AthStitcher.Properties.Settings.Default.Save(); // Persist settings
+            UpdatePdfExporter(viewM.Scheduling);
+        }
+
+        public void UpdatePdfExporter(Scheduling scheduling)
+        {
+            PdfExporter.AppIcon = scheduling?.AppIcon;
+            PdfExporter.InfoLink = scheduling?.InfoLink;
+            PdfExporter.InfoLinkText = scheduling?.InfoLinkText;
+            PdfExporter.GitHubLink = scheduling?.GitHubLink;
+            PdfExporter.GitHubLinkText = scheduling?.GitHubLinkText;
         }
 
         /// <summary>
@@ -80,6 +90,13 @@ namespace AthStitcherGUI.ViewModels
             }
             if (DataContext is AthStitcherModel viewModel)
             {
+                if(viewModel.Scheduling==null)
+                {
+                    viewModel.Scheduling = new Scheduling();
+                    SaveViewModel();
+                }
+                UpdatePdfExporter(viewModel.Scheduling);
+
                 // Set default visibility at start to visble for controls
                 //Add any other defaults here.
                 viewModel.GunTimeIndex = 0; // Reset the gun time index to 0 before saving

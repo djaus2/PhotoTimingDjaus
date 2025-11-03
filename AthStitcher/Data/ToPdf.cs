@@ -15,7 +15,7 @@ namespace AthStitcher.Data
 {
     public static class PdfExporter
     {
-        public static string appIcon { get; set; } = "djcolor.jpg";
+        public static string AppIcon { get; set; } = "djcolor.jpg";
         public static string InfoLink { get; set; } = "https://davidjones.sportronics.com.au/tags/athstitcher/";
         public static string InfoLinkText { get; set; } = "Blogs about AthStitcher app";
         public static string GitHubLink { get; set; } = "https://github.com/djaus2/PhotoTimingDjaus";
@@ -26,8 +26,15 @@ namespace AthStitcher.Data
         {
             get
             {
-                
-                return Path.Combine(AppContext.BaseDirectory, "Media", appIcon);
+                if (File.Exists(AppIcon))
+                    return AppIcon;
+                else
+                {
+                    string path = Path.Combine(AppContext.BaseDirectory, "Media", AppIcon);
+                    if(File.Exists(path))
+                        return path;
+                }
+                return "";
             }
         }
 

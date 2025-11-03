@@ -20,5 +20,22 @@ namespace AthStitcher.Data
 
         [ObservableProperty]
         private bool useTabbedPrinting = true;
+
+        [ObservableProperty]
+        private string appIcon  = "djcolor.jpg";
+
+
+        [ObservableProperty]
+        private string infoLink  = "https://davidjones.sportronics.com.au/tags/athstitcher/";
+
+        [ObservableProperty]
+        private string infoLinkText  = "Blogs about AthStitcher app";
+
+
+        [ObservableProperty]
+        private string gitHubLink  = "https://github.com/djaus2/PhotoTimingDjaus";
+
+        [ObservableProperty]
+        private string gitHubLinkText  = "App Repository ... See AthStitcher project";
     }
 }
