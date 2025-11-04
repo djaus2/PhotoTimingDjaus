@@ -13,7 +13,20 @@ A simple ***Photo Timing/Photo Finish*** app for Athletics etc where a finish li
 ### Status
 > All good now!  
 
+---
+
+## QuestPDF
+- Added QuestPDF NuGet package to AthStitcher WPF app to enable export of Heat, Event results as Pdf file.
+- Requires licensing acceptance on first use.
+  - See [QuestPDF Licensing](https://www.questpdf.com/licensing.html)
+  - If accepting license for Community Non Profit use then uncomment line #46 in Data/ToPdf.cs
+
+---
+   
 ### History
+- AthStitcher V7.1.2 
+  - Fixed filename generation for Pdf export of Heat, Event results.
+  - Added Page Numbering to Pdf export of Heat, Event results.
 - AthStitcher V7.1.0
   - Can now export Heat, Event or Meet_(coming)_ results as Pdf file.
     - From Print menu options.
@@ -23,7 +36,6 @@ A simple ***Photo Timing/Photo Finish*** app for Athletics etc where a finish li
   - Heat results are now properly stored as LaneResults in DB.
   - Can print, as text, a Heat, all Heats for an Event or or all Events for a Meet.
     - And print order is (time) finish order, not lane order.
-  - ***Coming:*** PDF print options.
 - AthStitcher V6.2.12 Code corrections/improvements wrt Meets,Events and Heats.
   - Now Meets,Events,Heats,Results are all now ObservableObject with ObservableProperties
   - ORM:

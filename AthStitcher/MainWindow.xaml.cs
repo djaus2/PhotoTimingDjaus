@@ -3967,11 +3967,13 @@ namespace AthStitcherGUI
                                         .Include(e => e.Heats)
                                         .ThenInclude(h => h.Results)
                                         .First(e => e.Id == vm.CurrentEvent.Id);
-
+                                    string filename = $"{vm.CurrentMeet.Description}_{vm.CurrentMeet.Round}_{ev}_Event.pdf"
+                                        .Replace(' ', '_').Replace(':', '-'); ;
                                     var dlg = new Microsoft.Win32.SaveFileDialog
                                     {
                                         Filter = "PDF Files (*.pdf)|*.pdf",
-                                        FileName = $"{vm.CurrentMeet}_{ev}_Event.pdf"
+                                        FileName = filename
+                                        //$"{vm.CurrentMeet.Description}_{vm.CurrentMeet.Round}_{ev}_Event.pdf"
                                     };
 
                                     if (dlg.ShowDialog() == true)
@@ -3979,7 +3981,7 @@ namespace AthStitcherGUI
                                         try
                                         {
                                             PdfExporter.ExportEventToPdf(vm, ev, dlg.FileName);
-                                            MessageBox.Show($"PDF exported: {dlg.FileName}", "Export Complete", MessageBoxButton.OK, MessageBoxImage.Information);
+                                            MessageBox.Show($"PDF exported: {dlg.FileName}. File path saved to Clipboard.", "Export Complete", MessageBoxButton.OK, MessageBoxImage.Information);
                                         }
                                         catch (Exception ex)
                                         {
@@ -4033,11 +4035,14 @@ namespace AthStitcherGUI
             // inside your existing Print_Click handler, e.g. in the "Current Heat" case
             if (CurrentHeat != null)
             {
+                string filename = $"{vm.CurrentMeet.Description}_Round-{vm.CurrentMeet.Round}_{vm.CurrentEvent}_Heat-{CurrentHeat.HeatNo}.pdf"
+                        .Replace(' ', '_').Replace(':', '-');
                 var dlg = new Microsoft.Win32.SaveFileDialog
                 {
                     Filter = "PDF Files (*.pdf)|*.pdf",
-                    FileName = $"{CurrentMeet}_{CurrentEvent}_Heat{CurrentHeat.HeatNo}.pdf"
-                };
+                    FileName = filename  
+                    //$"{vm.CurrentMeet.Description}_Round-{vm.CurrentMeet.Round}_{vm.CurrentEvent}_Heat-{CurrentHeat.HeatNo}.pdf"
+                };//// 
                 if (dlg.ShowDialog() == true)
                 {
                     try
@@ -4046,7 +4051,7 @@ namespace AthStitcherGUI
                         //? stitchedImage = null;
                         //try { stitchedImage = athStitcherViewModel.GetOutputPath(); } catch { stitchedImage = null; }
                         PdfExporter.ExportHeatToPdf(vm, CurrentHeat, dlg.FileName); //, stitchedImage);
-                        MessageBox.Show($"PDF exported: {dlg.FileName}", "Export Complete", MessageBoxButton.OK, MessageBoxImage.Information);
+                        MessageBox.Show($"PDF exported: {dlg.FileName}. File path saved to Clipboard.", "Export Complete", MessageBoxButton.OK, MessageBoxImage.Information);
                     }
                     catch (Exception ex)
                     {

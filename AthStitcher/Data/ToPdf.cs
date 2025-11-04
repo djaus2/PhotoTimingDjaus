@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Windows;
 
 namespace AthStitcher.Data
 {
@@ -42,7 +43,7 @@ namespace AthStitcher.Data
         public static void Init()
         {
             // one-time per assembly
-            QuestPDF.Settings.License = LicenseType.Community;
+            //QuestPDF.Settings.License = LicenseType.Community;
         }
 
         /// <summary>
@@ -154,9 +155,18 @@ namespace AthStitcher.Data
                         });
                     });
 
+                    //page.Footer().AlignCenter().Text(txt =>
+                    //{
+                    //    txt.Span($"Generated: {DateTime.Now:G}").FontSize(9);
+                    //});
                     page.Footer().AlignCenter().Text(txt =>
                     {
                         txt.Span($"Generated: {DateTime.Now:G}").FontSize(9);
+                        txt.Span("    "); // spacing
+                        txt.Span("Page ").FontSize(9);
+                        txt.CurrentPageNumber().FontSize(9);
+                        txt.Span(" of ").FontSize(9);
+                        txt.TotalPages().FontSize(9);
                     });
                 });
             });
@@ -167,6 +177,7 @@ namespace AthStitcher.Data
 
             // Generate PDF file
             document.GeneratePdf(outputPdfPath);
+            Clipboard.SetText(outputPdfPath);
         }
 
         /// <summary>
@@ -255,7 +266,9 @@ namespace AthStitcher.Data
 
                     // Single content stream: iterate heats and render a table per heat.
                     // QuestPDF will automatically paginate the content when it overflows pages.
-                    page.Content().PaddingVertical(8).Stack(stack =>
+                    // Replace this line:
+                    // page.Content().PaddingVertical(8).Stack(stack =>
+                    page.Content().PaddingVertical(8).Column(stack =>
                     {
                         foreach (var heat in heats)
                         {
@@ -300,16 +313,27 @@ namespace AthStitcher.Data
                         }
                     });
 
+                    //page.Footer().AlignCenter().Text(txt =>
+                    //{
+                    //    txt.Span($"Generated: {DateTime.Now:G}").FontSize(9);
+                    //});
                     page.Footer().AlignCenter().Text(txt =>
                     {
                         txt.Span($"Generated: {DateTime.Now:G}").FontSize(9);
+                        txt.Span("    "); // spacing
+                        txt.Span("Page ").FontSize(9);
+                        txt.CurrentPageNumber().FontSize(9);
+                        txt.Span(" of ").FontSize(9);
+                        txt.TotalPages().FontSize(9);
                     });
+
                 });
             });
 
             var dir = Path.GetDirectoryName(outputPdfPath) ?? Environment.CurrentDirectory;
             Directory.CreateDirectory(dir);
             document.GeneratePdf(outputPdfPath);
+            Clipboard.SetText(outputPdfPath);
         }
     }
 }
