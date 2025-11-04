@@ -18,7 +18,7 @@ A simple ***Photo Timing/Photo Finish*** app for Athletics etc where a finish li
 ## QuestPDF
 - Added QuestPDF NuGet package to AthStitcher WPF app to enable export of Heat, Event results as Pdf file.
 - Requires licensing acceptance on first use.
-  - See [QuestPDF Licensing](https://www.questpdf.com/licensing.html)
+  - See [QuestPDF Licensing](https://www.questpdf.com/license/community.html)
   - If accepting license for Community Non Profit use then uncomment line #46 in Data/ToPdf.cs
 
 ---
