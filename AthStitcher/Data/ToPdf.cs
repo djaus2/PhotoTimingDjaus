@@ -23,7 +23,7 @@ namespace AthStitcher.Data
         public static string GitHubLinkText { get; set; } = "App Repository ... See AthStitcher project";
 
 
-        private static string headerImagePath 
+        private static string headerImagePath
         {
             get
             {
@@ -32,7 +32,7 @@ namespace AthStitcher.Data
                 else
                 {
                     string path = Path.Combine(AppContext.BaseDirectory, "Media", AppIcon);
-                    if(File.Exists(path))
+                    if (File.Exists(path))
                         return path;
                 }
                 return "";
@@ -43,7 +43,7 @@ namespace AthStitcher.Data
         public static void Init()
         {
             // one-time per assembly
-            //QuestPDF.Settings.License = LicenseType.Community;
+            QuestPDF.Settings.License = LicenseType.Community;
         }
 
         /// <summary>
@@ -72,7 +72,7 @@ namespace AthStitcher.Data
 
                     // Keep only meet info in the repeating page header
                     // repeating meet header (image + link + meet in one row)
-                    
+
                     page.Header().Row(row =>
                     {
                         // Left: flexible text column (link + meet)
@@ -187,7 +187,6 @@ namespace AthStitcher.Data
         /// </summary>
         public static void ExportEventToPdf(AthStitcherModel vm, AthStitcher.Data.Event ev, string outputPdfPath, string? stitchedImagePath = null)
         {
-            //QuestPDF.Settings.License = LicenseType.Community;
             if (vm == null) throw new ArgumentNullException(nameof(vm));
             if (ev == null) throw new ArgumentNullException(nameof(ev));
             if (string.IsNullOrWhiteSpace(outputPdfPath)) throw new ArgumentNullException(nameof(outputPdfPath));
@@ -221,54 +220,14 @@ namespace AthStitcher.Data
                     page.DefaultTextStyle(x => x.FontSize(11));
 
                     // repeating meet header
-                    page.Header().Row(row =>
+                    page.Header().Column(column =>
                     {
-                        // Left: flexible text column (link + meet)
-                        row.RelativeItem().Column(col =>
-                        {
-                            col.Item()
-                                .PaddingBottom(2)
-                                .Hyperlink(GitHubLink)
-                                .Text(GitHubLinkText)
-                                .FontColor(Colors.Blue.Medium)
-                                .Underline()
-                                .FontSize(10);
-
-                            col.Item()
-                                .PaddingBottom(2)
-                                .Hyperlink(InfoLink)
-                                .Text(InfoLinkText)
-                                .FontColor(Colors.Blue.Medium)
-                                .Underline()
-                                .FontSize(10);
-
-                            col.Item()
-                                .PaddingBottom(4)
-                                .Text($"{meet}")
-                                .SemiBold()
-                                .FontSize(16);
-                        });
-
-                        // Right: fixed-width image column. Set alignment/height on the cell (not inside Element).
-                        // ConstantItem(width).AlignRight().Height(h) then single Element(...) which adds the Image child.
-                        row.ConstantItem(30)
-                            .AlignRight()    // set alignment on the container (safe)
-                            .Height(40)      // set element height on the container (safe)
-                            .Element(img =>
-                            {
-                                if (File.Exists(headerImagePath))
-                                {
-                                    img.Image(headerImagePath).FitArea(); // single child only
-                                }
-                            });
+                        column.Item().PaddingBottom(5).Text($"{meet}").SemiBold().FontSize(16);
+                        column.Item().PaddingTop(6).LineHorizontal(1).LineColor(Colors.Grey.Lighten1);
                     });
 
-
-                    // Single content stream: iterate heats and render a table per heat.
-                    // QuestPDF will automatically paginate the content when it overflows pages.
-                    // Replace this line:
-                    // page.Content().PaddingVertical(8).Stack(stack =>
-                    page.Content().PaddingVertical(8).Column(stack =>
+                    // Content: iterate heats, prevent page breaks inside each heat so a heat will not be split.
+                    page.Content().PaddingVertical(8).Column(content =>
                     {
                         foreach (var heat in heats)
                         {
@@ -276,57 +235,66 @@ namespace AthStitcher.Data
                                           .OrderBy(r => r.ResultSeconds ?? double.MaxValue)
                                           .ToList();
 
-                            stack.Item().PaddingTop(6).Table(table =>
-                            {
-                                table.ColumnsDefinition(cols =>
-                                {
-                                    cols.ConstantColumn(40);   // Posn
-                                    cols.ConstantColumn(40);   // Lane
-                                    cols.RelativeColumn(1);    // Bib
-                                    cols.RelativeColumn(3);    // Name
-                                    cols.RelativeColumn(1);    // Result
-                                });
+                            // PreventPageBreak on the IContainer for this heat so it either fits whole or starts on next page.
+                            content.Item()
+                                   .PreventPageBreak()
+                                   .Element(containerHeat =>
+                                   {
+                                       containerHeat.Column(col =>
+                                       {
+                                           col.Item().PaddingBottom(6).Text($"").SemiBold().FontSize(12);
 
-                                // Table header contains heat title (spanning columns) and the column labels.
-                                table.Header(header =>
-                                {
-                                    header.Cell().ColumnSpan(5).Padding(6).Text($"Event: {ev?.ToString() ?? "-"}    Heat: {heat.HeatNo}").SemiBold().FontSize(12);
-                                    header.Cell().Background(Colors.Grey.Lighten3).Padding(4).AlignRight().Text("Posn").SemiBold();
-                                    header.Cell().Background(Colors.Grey.Lighten3).Padding(4).Text("Lane").SemiBold();
-                                    header.Cell().Background(Colors.Grey.Lighten3).Padding(4).Text("Bib").SemiBold();
-                                    header.Cell().Background(Colors.Grey.Lighten3).Padding(4).Text("Name").SemiBold();
-                                    header.Cell().Background(Colors.Grey.Lighten3).Padding(4).Text("Result").SemiBold();
-                                });
+                                           col.Item().Table(table =>
+                                           {
+                                               table.ColumnsDefinition(cols =>
+                                               {
+                                                   cols.ConstantColumn(40);   // Posn
+                                                   cols.ConstantColumn(40);   // Lane
+                                                   cols.RelativeColumn(1);    // Bib
+                                                   cols.RelativeColumn(3);    // Name
+                                                   cols.RelativeColumn(1);    // Result
+                                               });
 
-                                int posn = 1;
-                                foreach (var r in results)
-                                {
-                                    table.Cell().Padding(4).AlignRight().Text(posn.ToString());
-                                    table.Cell().Padding(4).Text(r.Lane.ToString());
-                                    table.Cell().Padding(4).Text(r.BibNumberStr ?? string.Empty);
-                                    table.Cell().Padding(4).Text(r.NameStr ?? string.Empty);
-                                    var resultText = r.ResultStr ?? (r.ResultSeconds.HasValue ? r.ResultSeconds.Value.ToString("0.000") : string.Empty);
-                                    table.Cell().Padding(4).Text(resultText);
-                                    posn++;
-                                }
-                            });
+                                               // Table header will repeat automatically if the table spans pages.
+                                               table.Header(header =>
+                                               {
+                                                   header.Cell().ColumnSpan(5).Padding(6).Text($"Event: {ev?.ToString() ?? "-"}    Heat: {heat.HeatNo}").SemiBold().FontSize(12);
+                                                   header.Cell().Background(Colors.Grey.Lighten3).Padding(4).AlignRight().Text("Posn").SemiBold();
+                                                   header.Cell().Background(Colors.Grey.Lighten3).Padding(4).Text("Lane").SemiBold();
+                                                   header.Cell().Background(Colors.Grey.Lighten3).Padding(4).Text("Bib").SemiBold();
+                                                   header.Cell().Background(Colors.Grey.Lighten3).Padding(4).Text("Name").SemiBold();
+                                                   header.Cell().Background(Colors.Grey.Lighten3).Padding(4).Text("Result").SemiBold();
+                                               });
+
+                                               int posn = 1;
+                                               foreach (var r in results)
+                                               {
+                                                   table.Cell().Padding(4).AlignRight().Text(posn.ToString());
+                                                   table.Cell().Padding(4).Text(r.Lane.ToString());
+                                                   table.Cell().Padding(4).Text(r.BibNumberStr ?? string.Empty);
+                                                   table.Cell().Padding(4).Text(r.NameStr ?? string.Empty);
+                                                   var resultText = r.ResultStr ?? (r.ResultSeconds.HasValue ? r.ResultSeconds.Value.ToString("0.000") : string.Empty);
+                                                   table.Cell().Padding(4).Text(resultText);
+                                                   posn++;
+                                               }
+                                           });
+                                       });
+                                   });
                         }
                     });
 
-                    //page.Footer().AlignCenter().Text(txt =>
-                    //{
-                    //    txt.Span($"Generated: {DateTime.Now:G}").FontSize(9);
-                    //});
-                    page.Footer().AlignCenter().Text(txt =>
+                    // Footer with page numbers
+                    page.Footer().Height(30).Row(row =>
                     {
-                        txt.Span($"Generated: {DateTime.Now:G}").FontSize(9);
-                        txt.Span("    "); // spacing
-                        txt.Span("Page ").FontSize(9);
-                        txt.CurrentPageNumber().FontSize(9);
-                        txt.Span(" of ").FontSize(9);
-                        txt.TotalPages().FontSize(9);
+                        row.RelativeItem().AlignLeft().Text(txt => txt.Span($"Generated: {DateTime.Now:G}").FontSize(9));
+                        row.ConstantItem(120).AlignRight().Text(txt =>
+                        {
+                            txt.Span("Page ").FontSize(9);
+                            txt.CurrentPageNumber().FontSize(9);
+                            txt.Span(" of ").FontSize(9);
+                            txt.TotalPages().FontSize(9);
+                        });
                     });
-
                 });
             });
 
@@ -335,5 +303,163 @@ namespace AthStitcher.Data
             document.GeneratePdf(outputPdfPath);
             Clipboard.SetText(outputPdfPath);
         }
+        public static void ExportMeetToPdf(Meet mt, string outputPdfPath, string? stitchedImagePath = null)
+        {
+            if (mt == null) throw new ArgumentNullException(nameof(mt));
+            if (string.IsNullOrWhiteSpace(outputPdfPath)) throw new ArgumentNullException(nameof(outputPdfPath));
+
+            // Load events + heats + results (prefer in-memory if already attached)
+            List<AthStitcher.Data.Event> events;
+            if (mt.Events != null && mt.Events.Any() && mt.Events.All(e => e.Heats != null))
+            {
+                events = mt.Events.OrderBy(e => e.EventNumber).ToList();
+            }
+            else
+            {
+                MessageBox.Show("Meet Event/Heat/Results data not loaded. Cannot export meet to PDF.", "Export Meet to PDF", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var document = Document.Create(container =>
+            {
+                // Single page template; header/footer repeat, content flows.
+                container.Page(page =>
+                {
+                    page.Size(PageSizes.A4);
+                    page.Margin(20);
+                    page.PageColor(Colors.White);
+                    page.DefaultTextStyle(x => x.FontSize(11));
+
+                    // Header (links + meet + icon)
+                    page.Header().Row(row =>
+                    {
+                        row.RelativeItem().Column(col =>
+                        {
+                            col.Item().PaddingBottom(2).Hyperlink(GitHubLink).Text(GitHubLinkText).FontColor(Colors.Blue.Medium).Underline().FontSize(10);
+                            col.Item().PaddingBottom(2).Hyperlink(InfoLink).Text(InfoLinkText).FontColor(Colors.Blue.Medium).Underline().FontSize(10);
+                            col.Item().PaddingBottom(4).Text($"{mt}").SemiBold().FontSize(16);
+                        });
+
+                        row.ConstantItem(30).AlignRight().Height(40).Element(img =>
+                        {
+                            var imgPath = headerImagePath;
+                            if (!string.IsNullOrEmpty(imgPath) && File.Exists(imgPath))
+                                img.Image(imgPath).FitArea();
+                        });
+                    });
+
+                    // Content: iterate events -> heats.
+                    // Start each event on a new page; wrap each heat in PreventPageBreak so a heat will not be split.
+                    page.Content().PaddingVertical(8).Column(content =>
+                    {
+                        for (int eventIndex = 0; eventIndex < events.Count; eventIndex++)
+                        {
+                            var ev = events[eventIndex];
+                            var heats = (ev.Heats ?? Enumerable.Empty<Heat>()).OrderBy(h => h.HeatNo).ToList();
+
+                            // Start each event on a new page (except first)
+                            if (eventIndex > 0)
+                            {
+                                content.Item().PageBreak();
+                            }
+
+                            if (!heats.Any())
+                            {
+                                content.Item().Column(col =>
+                                {
+                                    col.Item().PaddingTop(8).PaddingBottom(6).Text($"Event: {ev}").SemiBold().FontSize(14);
+                                    col.Item().Text("No heats for this event").FontSize(11);
+                                });
+                                continue;
+                            }
+
+                            for (int heatIndex = 0; heatIndex < heats.Count; heatIndex++)
+                            {
+                                var heat = heats[heatIndex];
+
+                                // Prevent splitting a heat across pages where possible.
+                                // Include the event heading with the first heat so heading doesn't orphan.
+                                content.Item()
+                                       .PreventPageBreak()
+                                       .Element(containerHeat =>
+                                       {
+                                           containerHeat.Column(col =>
+                                           {
+                                               if (heatIndex == 0)
+                                               {
+                                                   col.Item().PaddingBottom(4).Text($"Event: {ev}").Bold().FontSize(14).FontColor("#0000FF");
+                                               }
+
+                                               col.Item().PaddingBottom(6).Text($"").SemiBold().FontSize(12);
+
+                                               col.Item().Table(table =>
+                                               {
+                                                   table.ColumnsDefinition(cols =>
+                                                   {
+                                                       cols.ConstantColumn(40);   // Posn
+                                                       cols.ConstantColumn(40);   // Lane
+                                                       cols.RelativeColumn(1);    // Bib
+                                                       cols.RelativeColumn(3);    // Name
+                                                       cols.RelativeColumn(1);    // Result
+                                                   });
+
+                                                   table.Header(header =>
+                                                   {
+                                                       header.Cell().ColumnSpan(5).Padding(6)
+                                                             .Text($"Event: {ev?.ToString() ?? "-"}    Heat: {heat.HeatNo}")
+                                                             .SemiBold()
+                                                             .FontSize(12);
+
+                                                       header.Cell().Background(Colors.Grey.Lighten3).Padding(4).AlignRight().Text("Posn").SemiBold();
+                                                       header.Cell().Background(Colors.Grey.Lighten3).Padding(4).Text("Lane").SemiBold();
+                                                       header.Cell().Background(Colors.Grey.Lighten3).Padding(4).Text("Bib").SemiBold();
+                                                       header.Cell().Background(Colors.Grey.Lighten3).Padding(4).Text("Name").SemiBold();
+                                                       header.Cell().Background(Colors.Grey.Lighten3).Padding(4).Text("Result").SemiBold();
+                                                   });
+
+                                                   var results = (heat.Results ?? Enumerable.Empty<LaneResult>())
+                                                                 .OrderBy(r => r.ResultSeconds ?? double.MaxValue)
+                                                                 .ToList();
+
+                                                   int posn = 1;
+                                                   foreach (var r in results)
+                                                   {
+                                                       table.Cell().Padding(4).AlignRight().Text(posn.ToString());
+                                                       table.Cell().Padding(4).Text(r.Lane.ToString());
+                                                       table.Cell().Padding(4).Text(r.BibNumberStr ?? string.Empty);
+                                                       table.Cell().Padding(4).Text(r.NameStr ?? string.Empty);
+                                                       var resultText = r.ResultStr ?? (r.ResultSeconds.HasValue ? r.ResultSeconds.Value.ToString("0.000") : string.Empty);
+                                                       table.Cell().Padding(4).Text(resultText);
+                                                       posn++;
+                                                   }
+                                               });
+                                           });
+                                       });
+                            }
+                        }
+                    });
+
+                    // Footer (timestamp + page numbers)
+                    page.Footer().Height(30).Row(row =>
+                    {
+                        row.RelativeItem().AlignLeft().Text(txt => txt.Span($"Generated: {DateTime.Now:G}").FontSize(9));
+                        row.ConstantItem(120).AlignRight().Text(txt =>
+                        {
+                            txt.Span("Page ").FontSize(9);
+                            txt.CurrentPageNumber().FontSize(9);
+                            txt.Span(" of ").FontSize(9);
+                            txt.TotalPages().FontSize(9);
+                        });
+                    });
+                });
+            });
+
+            // Ensure directory exists and generate
+            var dir = Path.GetDirectoryName(outputPdfPath) ?? Environment.CurrentDirectory;
+            Directory.CreateDirectory(dir);
+            document.GeneratePdf(outputPdfPath);
+            Clipboard.SetText(outputPdfPath);
+        }
+
     }
 }

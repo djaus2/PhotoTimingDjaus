@@ -3955,7 +3955,7 @@ namespace AthStitcherGUI
                                 }
                                 else
                                 {
-                                    MessageBox.Show("Select an Event Heat first", "Print Heat", MessageBoxButton.OK, MessageBoxImage.Warning);
+                                    MessageBox.Show("Select an Event Heat first", "Export Heat Results as Pdf", MessageBoxButton.OK, MessageBoxImage.Warning);
                                     return;
                                 }
                                 break;
@@ -3981,17 +3981,17 @@ namespace AthStitcherGUI
                                         try
                                         {
                                             PdfExporter.ExportEventToPdf(vm, ev, dlg.FileName);
-                                            MessageBox.Show($"PDF exported: {dlg.FileName}. File path saved to Clipboard.", "Export Complete", MessageBoxButton.OK, MessageBoxImage.Information);
+                                            MessageBox.Show($"Event PDF generated: {dlg.FileName}. File path saved to Clipboard.", "Export Complete", MessageBoxButton.OK, MessageBoxImage.Information);
                                         }
                                         catch (Exception ex)
                                         {
-                                            MessageBox.Show($"Failed to export PDF: {ex.Message}", "Export Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                                            MessageBox.Show($"Failed to export Event to PDF: {ex.Message}", "Export Error", MessageBoxButton.OK, MessageBoxImage.Error);
                                         }
                                     }
                                 }
                                 else
                                 {
-                                    MessageBox.Show("Select an Event with Heats first", "Print Event Results", MessageBoxButton.OK, MessageBoxImage.Warning);
+                                    MessageBox.Show("Select an Event with Heats first", "Export Event Results as Pdf", MessageBoxButton.OK, MessageBoxImage.Warning);
                                     return;
                                 }
                                 break;
@@ -3999,24 +3999,36 @@ namespace AthStitcherGUI
                                 if (vm.CurrentMeet != null)
                                 {
                                     using var ctx = new AthStitcherDbContext();
-                                    var ev = ctx.Meets
-                                    .Include(e => e.Events)
-                                    .First(e => e.Id == vm.CurrentMeet.Id);
-                                    // Print Heats for Meet.Events
-                                    foreach (AthStitcher.Data.Event _event in ev.Events)
+                                    var mt = ctx.Meets
+                                        .Include(e => e.Events)
+                                        .ThenInclude(h => h.Heats)
+                                        .ThenInclude(r => r.Results)
+                                        .First(e => e.Id == vm.CurrentMeet.Id);
+                                    string filename = $"{vm.CurrentMeet.Description}_{vm.CurrentMeet.Round}_Meet.pdf"
+                                        .Replace(' ', '_').Replace(':', '-'); ;
+                                    var dlg = new Microsoft.Win32.SaveFileDialog
                                     {
-                                        var eEvent = ctx.Events
-                                            .Include(eEvent => eEvent.Heats)
-                                            .First(eEvent => eEvent.Id == _event.Id);
-                                        foreach (Heat heat in eEvent.Heats)
+                                        Filter = "PDF Files (*.pdf)|*.pdf",
+                                        FileName = filename
+                                        //$"{vm.CurrentMeet.Description}_{vm.CurrentMeet.Round}_{ev}_Event.pdf"
+                                    };
+
+                                    if (dlg.ShowDialog() == true)
+                                    {
+                                        try
                                         {
-                                            //??
+                                            PdfExporter.ExportMeetToPdf(mt, dlg.FileName);
+                                            MessageBox.Show($"Meet PDF generated: {dlg.FileName}. File path saved to Clipboard.", "Export Complete", MessageBoxButton.OK, MessageBoxImage.Information);
+                                        }
+                                        catch (Exception ex) 
+                                        {
+                                            MessageBox.Show($"Failed to export Meet to PDF: {ex.Message}", "Export Error", MessageBoxButton.OK, MessageBoxImage.Error);
                                         }
                                     }
                                 }
                                 else
                                 {
-                                    MessageBox.Show("Select a Meet with Events and Heats first", "Print Meet Results", MessageBoxButton.OK, MessageBoxImage.Warning);
+                                    MessageBox.Show("Select an Meet with Events first", "Export Meet Results to Pdf", MessageBoxButton.OK, MessageBoxImage.Warning);
                                     return;
                                 }
                                 break;
@@ -4061,7 +4073,7 @@ namespace AthStitcherGUI
             }
             else
             {
-                MessageBox.Show("Select a Heat first", "Print Heat", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Select a Heat first", "Print Heat results as Pdf", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
             return;
         }
