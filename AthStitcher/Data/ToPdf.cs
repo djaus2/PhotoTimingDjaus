@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Runtime.CompilerServices;
 using System.Windows;
 
@@ -229,8 +230,10 @@ namespace AthStitcher.Data
                     // Content: iterate heats, prevent page breaks inside each heat so a heat will not be split.
                     page.Content().PaddingVertical(8).Column(content =>
                     {
+                        int heatIndex = -1;
                         foreach (var heat in heats)
                         {
+                            heatIndex++;
                             var results = (heat.Results ?? Enumerable.Empty<LaneResult>())
                                           .OrderBy(r => r.ResultSeconds ?? double.MaxValue)
                                           .ToList();
@@ -242,6 +245,12 @@ namespace AthStitcher.Data
                                    {
                                        containerHeat.Column(col =>
                                        {
+                                           if (heatIndex == 0)
+                                           {
+                                               col.Item().PaddingBottom(4).Text($"Event: {ev}").Bold().FontSize(14).FontColor("#0000FF");
+                                           }
+
+
                                            col.Item().PaddingBottom(6).Text($"").SemiBold().FontSize(12);
 
                                            col.Item().Table(table =>

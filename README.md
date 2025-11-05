@@ -22,13 +22,19 @@ A simple ***Photo Timing/Photo Finish*** app for Athletics etc where a finish li
   - If accepting license for Community Non Profit use then uncomment line #46 in Data/ToPdf.cs
 
 ---
-   
+
 ### History
-- AthStitcher V7.1.2 
+- AthStitcher V7.2.0
+  - Updated QuestPDF to 2025.7.4
+  - Added Pdf Export of Meet results (all Events and Heats)
+    - From Print menu options.
+  - Improved pagination for Event Pdf as implemented for Meet Pdf. 
+    - No straddling of page break for Heats Results
+- AthStitcher V7.1.2
   - Fixed filename generation for Pdf export of Heat, Event results.
   - Added Page Numbering to Pdf export of Heat, Event results.
 - AthStitcher V7.1.0
-  - Can now export Heat, Event or Meet_(coming)_ results as Pdf file.
+  - Can now export Heat or Event results as Pdf file.
     - From Print menu options.
     - Blog Link and GitHub App Link, as displayed in Pdf Header, can be set in App Settings dialog.
 - AthStitcher V7.0.0
