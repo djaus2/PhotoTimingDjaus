@@ -3947,7 +3947,6 @@ namespace AthStitcherGUI
 
                         switch (menuHeader)
                         {
-// Tag: Print_PDF_Click_Current_Heat
                             case "Current Heat":
                                 if (vm.CurrentHeat.Results != null)
                                 {
@@ -3960,36 +3959,10 @@ namespace AthStitcherGUI
                                     return;
                                 }
                                 break;
-// Tag: Print_PDF_Click_Current_Event
                             case "Current Event":
                                 if (vm.CurrentEvent != null)
                                 {
-                                    using var ctx = new AthStitcherDbContext();
-                                    var ev = ctx.Events
-                                        .Include(e => e.Heats)
-                                        .ThenInclude(h => h.Results)
-                                        .First(e => e.Id == vm.CurrentEvent.Id);
-                                    string filename = $"{vm.CurrentMeet.Description}_{vm.CurrentMeet.Round}_{ev}_Event.pdf"
-                                        .Replace(' ', '_').Replace(':', '-'); ;
-                                    var dlg = new Microsoft.Win32.SaveFileDialog
-                                    {
-                                        Filter = "PDF Files (*.pdf)|*.pdf",
-                                        FileName = filename
-                                        //$"{vm.CurrentMeet.Description}_{vm.CurrentMeet.Round}_{ev}_Event.pdf"
-                                    };
-
-                                    if (dlg.ShowDialog() == true)
-                                    {
-                                        try
-                                        {
-                                            PdfExporter.ExportEventToPdf(vm, ev, dlg.FileName);
-                                            MessageBox.Show($"Event PDF generated: {dlg.FileName}. File path saved to Clipboard.", "Export Complete", MessageBoxButton.OK, MessageBoxImage.Information);
-                                        }
-                                        catch (Exception ex)
-                                        {
-                                            MessageBox.Show($"Failed to export Event to PDF: {ex.Message}", "Export Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                                        }
-                                    }
+                                    PrintOneEventAsPdf(vm.CurrentMeet, vm.CurrentEvent);
                                 }
                                 else
                                 {
@@ -3997,37 +3970,10 @@ namespace AthStitcherGUI
                                     return;
                                 }
                                 break;
-// Tag: Print_PDF_Click_Current_Meet
                             case "Current Meet":
                                 if (vm.CurrentMeet != null)
                                 {
-                                    using var ctx = new AthStitcherDbContext();
-                                    var mt = ctx.Meets
-                                        .Include(e => e.Events)
-                                        .ThenInclude(h => h.Heats)
-                                        .ThenInclude(r => r.Results)
-                                        .First(e => e.Id == vm.CurrentMeet.Id);
-                                    string filename = $"{vm.CurrentMeet.Description}_{vm.CurrentMeet.Round}_Meet.pdf"
-                                        .Replace(' ', '_').Replace(':', '-'); ;
-                                    var dlg = new Microsoft.Win32.SaveFileDialog
-                                    {
-                                        Filter = "PDF Files (*.pdf)|*.pdf",
-                                        FileName = filename
-                                        //$"{vm.CurrentMeet.Description}_{vm.CurrentMeet.Round}_{ev}_Event.pdf"
-                                    };
-
-                                    if (dlg.ShowDialog() == true)
-                                    {
-                                        try
-                                        {
-                                            PdfExporter.ExportMeetToPdf(mt, dlg.FileName);
-                                            MessageBox.Show($"Meet PDF generated: {dlg.FileName}. File path saved to Clipboard.", "Export Complete", MessageBoxButton.OK, MessageBoxImage.Information);
-                                        }
-                                        catch (Exception ex) 
-                                        {
-                                            MessageBox.Show($"Failed to export Meet to PDF: {ex.Message}", "Export Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                                        }
-                                    }
+                                    PrintOneMeetAsPdf(vm.CurrentMeet);
                                 }
                                 else
                                 {
@@ -4081,7 +4027,70 @@ namespace AthStitcherGUI
             return;
         }
 
+        void PrintOneEventAsPdf(Meet CurrentMeet, AthStitcher.Data.Event CurrentEvent)
+        {
+            if (athStitcherViewModel.DataContext is not AthStitcherGUI.ViewModels.AthStitcherModel vm)
+                return;
+            using var ctx = new AthStitcherDbContext();
+            var ev = ctx.Events
+                .Include(e => e.Heats)
+                .ThenInclude(h => h.Results)
+                .First(e => e.Id == CurrentEvent.Id);
+            string filename = $"{CurrentMeet.Description}_{CurrentMeet.Round}_{ev}_Event.pdf"
+                .Replace(' ', '_').Replace(':', '-'); ;
+            var dlg = new Microsoft.Win32.SaveFileDialog
+            {
+                Filter = "PDF Files (*.pdf)|*.pdf",
+                FileName = filename
+                //$"{vm.CurrentMeet.Description}_{vm.CurrentMeet.Round}_{ev}_Event.pdf"
+            };
 
+            if (dlg.ShowDialog() == true)
+            {
+                try
+                {
+                    PdfExporter.ExportEventToPdf(vm, ev, dlg.FileName);
+                    MessageBox.Show($"Event PDF generated: {dlg.FileName}. File path saved to Clipboard.", "Export Complete", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Failed to export Event to PDF: {ex.Message}", "Export Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        void PrintOneMeetAsPdf(Meet CurrentMeet)
+        {
+            if (athStitcherViewModel.DataContext is not AthStitcherGUI.ViewModels.AthStitcherModel vm)
+                return;
+            using var ctx = new AthStitcherDbContext();
+            var meetWithDetails = ctx.Meets
+                .Include(e => e.Events)
+                .ThenInclude(h => h.Heats)
+                .ThenInclude(r => r.Results)
+                .First(e => e.Id == CurrentMeet.Id);
+            string filename = $"{CurrentMeet.Description}_{vm.CurrentMeet.Round}_Meet.pdf"
+                .Replace(' ', '_').Replace(':', '-'); ;
+            var dlg = new Microsoft.Win32.SaveFileDialog
+            {
+                Filter = "PDF Files (*.pdf)|*.pdf",
+                FileName = filename
+                //$"{vm.CurrentMeet.Description}_{vm.CurrentMeet.Round}_{ev}_Event.pdf"
+            };
+
+            if (dlg.ShowDialog() == true)
+            {
+                try
+                {
+                    PdfExporter.ExportMeetToPdf(meetWithDetails, dlg.FileName);
+                    MessageBox.Show($"Meet PDF generated: {dlg.FileName}. File path saved to Clipboard.", "Export Complete", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Failed to export Meet to PDF: {ex.Message}", "Export Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
         ////////////////////////////////////////////////////////////////////////////////////////
     }
 }
