@@ -3947,6 +3947,7 @@ namespace AthStitcherGUI
 
                         switch (menuHeader)
                         {
+// Tag: Print_PDF_Click_Current_Heat
                             case "Current Heat":
                                 if (vm.CurrentHeat.Results != null)
                                 {
@@ -3959,6 +3960,7 @@ namespace AthStitcherGUI
                                     return;
                                 }
                                 break;
+// Tag: Print_PDF_Click_Current_Event
                             case "Current Event":
                                 if (vm.CurrentEvent != null)
                                 {
@@ -3995,6 +3997,7 @@ namespace AthStitcherGUI
                                     return;
                                 }
                                 break;
+// Tag: Print_PDF_Click_Current_Meet
                             case "Current Meet":
                                 if (vm.CurrentMeet != null)
                                 {
