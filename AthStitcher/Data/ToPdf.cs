@@ -44,7 +44,7 @@ namespace AthStitcher.Data
         public static void Init()
         {
             // one-time per assembly
-            QuestPDF.Settings.License = LicenseType.Community;
+            //QuestPDF.Settings.License = LicenseType.Community;
         }
 
         /// <summary>
