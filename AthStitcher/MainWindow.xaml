@@ -159,6 +159,14 @@
                                 <Separator/>
                                 <MenuItem Background="Beige" Header="Settings:" Foreground="Purple"/>
                                 <MenuItem  Header="Set App Cuttoffs" Click="SetAppCutoffs_Menu_Click"/>
+                                <Separator/>
+                                <MenuItem Background="Beige" Header="CSV:" Foreground="Purple"/>
+                                <MenuItem  Header="Export Event Header" Click="ExportEventFields2CSV"/>
+                                <MenuItem  Header="Import Events" Click="ImportEventsfromCSVTextFile"/>
+                                <Separator/>
+                                <MenuItem Background="Beige" Header="Tabbed:" Foreground="Purple"/>
+                                <MenuItem  Header="Export Event Header" Click="ExportEventFields2Tabbed"/>
+                                <MenuItem  Header="Import Events" Click="ImportEventsfromTextFileTabbed"/>
                             </MenuItem>
                         </Menu>
                         <Menu>

@@ -46,29 +46,68 @@ namespace AthStitcher.Views
         private bool FilterPredicate(object obj)
         {
             if (obj is not Event e) return false;
-            string descFilter = (DescriptionFilter?.Text ?? string.Empty).Trim();
-            string timeFilter = (TimeFilter?.Text ?? string.Empty).Trim();
-            string distFilter = (DistanceFilter?.Text ?? string.Empty).Trim();
 
-            if (!string.IsNullOrEmpty(descFilter))
+            string eventNumberFilter = (EventNumberFilter?.Text ?? string.Empty).Trim();
+            string timeFilter = (TimeFilter?.Text ?? string.Empty).Trim();
+            string trackTypeFilter = (TrackTypeFilter?.Text ?? string.Empty).Trim();      
+            string distFilter = (DistanceFilter?.Text ?? string.Empty).Trim();
+            string ageGroupingFilter = (AgeGroupingFilter?.Text ?? string.Empty).Trim();
+            string underAgeGroupFilter = (UnderAgeGroupFilter?.Text ?? string.Empty).Trim();
+            string mastersAgeGroupFilter = (MastersAgeGroupFilter?.Text ?? string.Empty).Trim();
+
+            string genderFilter = (GenderFilter?.Text ?? string.Empty).Trim();
+
+            if (!string.IsNullOrEmpty(eventNumberFilter))
             {
-                if (string.IsNullOrEmpty(e.Description) || e.Description.IndexOf(descFilter, StringComparison.OrdinalIgnoreCase) < 0)
+                var dStr = e.EventNumber?.ToString() ?? string.Empty;
+                if (dStr.IndexOf(eventNumberFilter, StringComparison.OrdinalIgnoreCase) < 0)
                     return false;
             }
-
             if (!string.IsNullOrEmpty(timeFilter))
             {
                 var timeStr = e.TimeStr ?? string.Empty;
                 if (timeStr.IndexOf(timeFilter, StringComparison.OrdinalIgnoreCase) < 0)
                     return false;
             }
-
             if (!string.IsNullOrEmpty(distFilter))
             {
                 var dStr = e.Distance?.ToString() ?? string.Empty;
                 if (dStr.IndexOf(distFilter, StringComparison.OrdinalIgnoreCase) < 0)
                     return false;
             }
+            if (!string.IsNullOrEmpty(trackTypeFilter))
+            {
+                var dStr = e.TrackType.ToString();
+                if (dStr.IndexOf(trackTypeFilter, StringComparison.OrdinalIgnoreCase) < 0)
+                    return false;
+            }
+            if (!string.IsNullOrEmpty(genderFilter))
+            {
+                //Because of male/female overlap we do startswith
+                var dStr = e.Gender.ToString();
+                if(!string.Equals(dStr.Substring(0,genderFilter.Length), genderFilter, StringComparison.OrdinalIgnoreCase))
+                    return false;
+            }
+            if (!string.IsNullOrEmpty(ageGroupingFilter))
+            {
+                var dStr = e.AgeGrouping.ToString();
+                if (dStr.IndexOf(ageGroupingFilter, StringComparison.OrdinalIgnoreCase) < 0)
+                    return false;
+            }
+            if (!string.IsNullOrEmpty(underAgeGroupFilter))
+            {
+                var dStr = e.UnderAgeGroup.ToString();
+                if (dStr.IndexOf(underAgeGroupFilter, StringComparison.OrdinalIgnoreCase) < 0)
+                    return false;
+            }
+            if (!string.IsNullOrEmpty(mastersAgeGroupFilter))
+            {
+                var dStr = e.MastersAgeGroup.ToString();
+                if (dStr.IndexOf(mastersAgeGroupFilter, StringComparison.OrdinalIgnoreCase) < 0)
+                    return false;
+            }
+
+
             return true;
         }
 

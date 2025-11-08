@@ -14,30 +14,50 @@
         <!-- Filters row -->
         <Grid DockPanel.Dock="Top" Margin="8,0,8,8">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition/>
-                <ColumnDefinition Width="160"/>
-                <ColumnDefinition Width="120"/>
-                <ColumnDefinition Width="220"/>
+                <ColumnDefinition Width="42"/>
+                <ColumnDefinition Width="62"/>
+                <ColumnDefinition Width="72"/>
+                <ColumnDefinition Width="62"/>
+                <ColumnDefinition Width="62"/>
+                <ColumnDefinition Width="92"/>
+                <ColumnDefinition Width="102"/>
+                <ColumnDefinition Width="112"/>
+                <ColumnDefinition Width="62"/>
             </Grid.ColumnDefinitions>
-            <TextBox x:Name="DescriptionFilter" Grid.Column="0" Margin="0,0,8,0"
-                     ToolTip="Filter description" TextChanged="Filter_TextChanged"/>
-            <TextBox x:Name="TimeFilter" Grid.Column="1" Margin="0,0,8,0"
+            <TextBox x:Name="EventNumberFilter" Grid.Column="0" Margin="0,0,2,0"
+                     ToolTip="Filter EventNumber" TextChanged="Filter_TextChanged"/>
+            <TextBox x:Name="TimeFilter" Grid.Column="1" Margin="0,0,2,0"
                      ToolTip="Filter time (e.g. 3:45 PM)" TextChanged="Filter_TextChanged"/>
             <TextBox x:Name="DistanceFilter" Grid.Column="2"
                      ToolTip="Filter distance" TextChanged="Filter_TextChanged"/>
-            <TextBlock Grid.Column="3" HorizontalAlignment="Left" VerticalAlignment="Center">
+            <TextBox x:Name="TrackTypeFilter" Grid.Column="3" Margin="0,0,2,0"
+                     ToolTip="Filter trackType" TextChanged="Filter_TextChanged"/>
+            <TextBox x:Name="GenderFilter" Grid.Column="4" Margin="0,0,2,0"
+                     ToolTip="Filter gender" TextChanged="Filter_TextChanged"/>
+            <TextBox x:Name="AgeGroupingFilter" Grid.Column="5" Margin="0,0,2,0"
+                     ToolTip="Filter age grouping" TextChanged="Filter_TextChanged"/>
+            <TextBox x:Name="UnderAgeGroupFilter" Grid.Column="6" Margin="0,0,2,0"
+                     ToolTip="Filter under age grouping" TextChanged="Filter_TextChanged"/>
+            <TextBox x:Name="MastersAgeGroupFilter" Grid.Column="7" Margin="0,0,2,0"
+                     ToolTip="Filter masters age grouping" TextChanged="Filter_TextChanged"/>
+
+            <TextBlock Grid.Column="8" HorizontalAlignment="Left" VerticalAlignment="Center">
                  <Run Text="&#x2190; "/>
-                <Bold>Filter</Bold>
+                <Bold>Filters</Bold>
             </TextBlock>
         </Grid>
         <DataGrid x:Name="EventsGrid" Margin="8" AutoGenerateColumns="False" IsReadOnly="True"
                   CanUserAddRows="False" CanUserDeleteRows="False" CanUserSortColumns="True"
                   MouseDoubleClick="EventsGrid_MouseDoubleClick">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="#" Binding="{Binding EventNumber}" Width="60" SortMemberPath="EventNumber"/>
-                <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="*" SortMemberPath="Description"/>
-                <DataGridTextColumn Header="Distance" Binding="{Binding Distance}" Width="90" SortMemberPath="Distance"/>
-                <DataGridTextColumn Header="Time" Binding="{Binding TimeStr}" Width="140" SortMemberPath="Time"/>
+                <DataGridTextColumn Header="#" Binding="{Binding EventNumber}" Width="42" SortMemberPath="EventNumber"/>
+                <DataGridTextColumn Header="Time" Binding="{Binding TimeStr}" Width="62" SortMemberPath="Time"/>
+                <DataGridTextColumn Header="Distance m" Binding="{Binding Distance}" Width="72" SortMemberPath="Distance"/>
+                <DataGridTextColumn Header="TrackType" Binding="{Binding TrackType}" Width="62" SortMemberPath="TrackType"/>
+                <DataGridTextColumn Header="Gender" Binding="{Binding Gender}" Width="62" SortMemberPath="Gender"/>
+                <DataGridTextColumn Header="Age Grouping" Binding="{Binding AgeGrouping}" Width="92" SortMemberPath="Gender"/>
+                <DataGridTextColumn Header="Under Age Group" Binding="{Binding UnderAgeGroup}" Width="102" SortMemberPath="Gender"/>
+                <DataGridTextColumn Header="Masters Age Group" Binding="{Binding MastersAgeGroup}" Width="112" SortMemberPath="Gender"/>
                 <DataGridTemplateColumn Header="Actions" Width="160">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>

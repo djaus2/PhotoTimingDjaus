@@ -2,6 +2,7 @@ using AthStitcher.Data;
 using AthStitcher.Security;
 using AthStitcher.Views;
 using AthStitcherGUI.ViewModels;
+using Castle.Core.Resource;
 using DetectAudioFlash;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -34,6 +35,8 @@ using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Runtime.Intrinsics.Arm;
 using System.Security;
+using System.Security.Policy;
+using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -47,6 +50,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.TaskbarClock;
 
 
 namespace AthStitcherGUI
@@ -4090,6 +4094,281 @@ namespace AthStitcherGUI
                     MessageBox.Show($"Failed to export Meet to PDF: {ex.Message}", "Export Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
+        }
+
+        private void ExportEventFields2CSV(object sender, RoutedEventArgs e)
+        {
+            string eventHeader = "Time,Distance,TrackType,MinLane,MaxLane,Gender,AgeGrouping,UnderAgeGroup,MastersAgeGroup,Description";
+            try { System.Windows.Clipboard.SetText(eventHeader); } catch { }
+            MessageBox.Show($"Created as CSV string: {eventHeader}",
+                "Event Fields as CSV", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        private void ExportEventFields2Tabbed(object sender, RoutedEventArgs e)
+        {
+            string eventHeader = "Time\tDistance\tTrackType\tMinLane\tMaxLane\tGender\tAgeGrouping\tUnderAgeGroup\tMastersAgeGroup\tDescription";
+            try { System.Windows.Clipboard.SetText(eventHeader); } catch { }
+            MessageBox.Show($"Created as Tabbed string: {eventHeader}",
+                "Event Fields as Tabbed", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+        private void ImportEventsfromCSVTextFile(object sender, RoutedEventArgs e)
+        {
+            ImportEvents(',');
+        }
+
+        private void ImportEventsfromTextFileTabbed(object sender, RoutedEventArgs e)
+        {
+            ImportEvents('\t');
+        }
+
+        private void ImportEvents(char del)
+        {
+            
+            if (this.DataContext is not AthStitcherGUI.ViewModels.AthStitcherModel vm )
+            {
+                MessageBox.Show("Select a Meet first before importing events.", "Import Events", 
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            // Ensure a meet is selected first
+            if (vm.CurrentMeet == null)
+            {
+                var pick = new AthStitcher.Views.ManageMeetsDialog { Owner = this };
+                var pickRes = pick.ShowDialog();
+                if (pickRes == true && pick.SelectedMeet != null)
+                {
+                    // Set full object to power XAML bindings like CurrentMeet.Description/Date
+                    vm.CurrentMeet = pick.SelectedMeet;
+                }
+                else
+                {
+                    MessageBox.Show("Select a meet first.", "New Event", MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
+            }
+
+            var dlg = new OpenFileDialog
+            {
+                Title = "Select Csv/Tabbed file containing events",
+                Filter = "CSV Files (*.csv;*.txt)|*.csv;*.txt|All files (*.*)|*.*"
+            };
+
+            if (dlg.ShowDialog() != true)
+                return;
+            
+            string path = dlg.FileName;
+            if (!File.Exists(path))
+            {
+                MessageBox.Show($"File not found: {path}", "Import Events", 
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            
+            int imported = 0;
+            var errors = new List<string>();
+            
+            try
+            {
+                
+                var lines = File.ReadAllLines(path)
+                                .Select(l => l.Trim())
+                                .Where(l => !string.IsNullOrWhiteSpace(l))
+                                .ToList();
+                if (lines.Count == 0)
+                {
+                    MessageBox.Show("Csv/Tabbed file is empty.", "Import Events", MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
+
+                // Expect header on first line
+                string header = lines[0];
+                var cols = header.Split(del).Select(h => h.Trim()).ToArray();
+                // Minimal header check (we accept variations but require at least Description column)
+                if (!cols.Any(c => c.Equals("Distance", StringComparison.OrdinalIgnoreCase)))
+                {
+                    MessageBox.Show("CSV header must include a 'Distance' column.", "Import Events", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+                else if (!cols.Any(c => c.Equals("Time", StringComparison.OrdinalIgnoreCase)))
+                {
+                    MessageBox.Show("CSV header must include a 'Time' column.", "Import Events", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+                else if (!cols.Any(c => c.Equals("Gender", StringComparison.OrdinalIgnoreCase)))
+                {
+                    MessageBox.Show("CSV header must include a 'Gender' column.", "Import Events", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+                else if (!cols.Any(c => c.Equals("TrackType", StringComparison.OrdinalIgnoreCase)))
+                {
+                    MessageBox.Show("CSV header must include a 'TrackType' column.", "Import Events", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+
+                    using var ctx = new AthStitcherDbContext();
+                // Determine next event number for this meet
+                int meetId = vm.CurrentMeet.Id;
+                var maxEventNumber = ctx.Events
+                    .Where(ev => ev.MeetId == meetId)
+                    .Max(ev => (int?)ev.EventNumber);
+
+                DateTime meetDate = vm.CurrentMeet.Date??DateTime.MinValue;
+
+                int nextEventNumber = (maxEventNumber ?? 0) + 1;
+
+                // Process data rows
+                for (int i = 1; i < lines.Count; i++)
+                {
+                    var row = lines[i];
+                    // allow quoted commas by using simple split on ',' (assumes CSV is simple). If quoted CSVs required use a CSV parser.
+                    var parts = row.Split(del).Select(p => p.Trim()).ToArray();
+
+                    try
+                    {
+                        var ev = new AthStitcher.Data.Event();
+
+                        // Map columns by name where possible
+                        for (int c = 0; c < Math.Min(cols.Length, parts.Length); c++)
+                        {
+                            var colName = cols[c].Trim();
+                            var val = parts[c].Trim();
+
+                            if (string.IsNullOrEmpty(val)) continue;
+
+                            switch (colName.ToLowerInvariant())
+                            {
+                                case "time":
+                                    // Try parse DateTime or time-of-day
+                                    if (DateTime.TryParse(val, out DateTime dt))
+                                    {
+                                        ev.Time = dt;
+                                    }
+                                    else if (TimeSpan.TryParse(val, out TimeSpan ts))
+                                    {
+                                        ev.Time = DateTime.Today.Add(ts);
+                                    }
+                                    else if (double.TryParse(val, NumberStyles.Float, CultureInfo.InvariantCulture, out double sec))
+                                    {
+                                        ev.Time = DateTime.Today.AddSeconds(sec);
+                                    }
+                                    var d = DateOnly.FromDateTime(meetDate);
+                                    var t = TimeOnly.FromDateTime(ev.Time??DateTime.MinValue);
+                                    ev.Time = d.ToDateTime(t, DateTimeKind.Local); // or Utc/Unspecified
+                                    break;
+                                case "distance":
+                                    if (int.TryParse(val, out int dist)) ev.Distance = dist;
+                                    break;
+                                case "minlane":
+                                    if (int.TryParse(val, out int minLane)) ev.MinLane = minLane;
+                                    break;
+                                case "maxlane":
+                                    if (int.TryParse(val, out int maxLane)) ev.MaxLane = maxLane;
+                                    break;
+                                case "lanes":
+                                    // Accept formats like "1-3", " (1 - 3) ", "1 -3", etc.\
+                                    var lanesLower = val.ToLower();
+                                    var lanes = lanesLower.Replace("lanes","").Replace("(", "").Replace(")", "").Replace(" ", "");
+                                    var m = Regex.Match(lanes, @"^(\d+)-(\d+)$");
+                                    if (m.Success)
+                                    {
+                                        if (int.TryParse(m.Groups[1].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out int min) &&
+                                            int.TryParse(m.Groups[2].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out int max))
+                                        {
+                                            // Validate sensible lane range and ordering (adjust maxLaneLimit if different)
+                                            const int maxLaneLimit = 8;
+                                            if (min > 0 && max >= min && max <= maxLaneLimit)
+                                            {
+                                                ev.MinLane = min;
+                                                ev.MaxLane = max;
+                                            }
+                                        }
+                                    }
+                                    break;
+                                case "gender":
+                                    if (Enum.TryParse(typeof(AthStitcher.Data.Gender), val, true, out object g))
+                                        ev.Gender = (AthStitcher.Data.Gender)g;
+                                    break;
+                                case "agegrouping":
+                                    if (Enum.TryParse(typeof(AthStitcher.Data.AgeGrouping), val, true, out object ag))
+                                        ev.AgeGrouping = (AthStitcher.Data.AgeGrouping)ag;
+                                    break;
+                                case "underagegroup":
+                                    if (Enum.TryParse(typeof(AthStitcher.Data.UnderAgeGroup), val, true, out object uag))
+                                        ev.UnderAgeGroup = (AthStitcher.Data.UnderAgeGroup)uag;
+                                    break;
+                                case "mastersagegroup":
+                                    if (Enum.TryParse(typeof(AthStitcher.Data.MastersAgeGroup), val, true, out object mag))
+                                        ev.MastersAgeGroup = (AthStitcher.Data.MastersAgeGroup)mag;
+                                    break;
+                                case "description":
+                                    ev.Description = val;
+                                    break;
+                                case "minlane/maxlane":
+                                case "maxmin":
+                                case "max-min":
+                                    // ignore
+                                    break;
+                                default:
+                                    // Unknown column - ignore
+                                    break;
+                            }
+                        }
+
+                        // Fill defaults if needed
+                        if (!ev.MinLane.HasValue && vm.CurrentEvent != null)
+                            ev.MinLane = vm.CurrentEvent.MinLane;
+                        if (!ev.MaxLane.HasValue && vm.CurrentEvent != null)
+                            ev.MaxLane = vm.CurrentEvent.MaxLane;
+
+                        ev.MeetId = meetId;
+                        ev.EventNumber = nextEventNumber++;
+                        // Basic validation: require Description
+                        //if (string.IsNullOrWhiteSpace(ev.Description))
+                        //{
+                        //    errors.Add($"Line {i + 1}: missing Description - skipped.");
+                        //    continue;
+                        //}
+
+                        ctx.Events.Add(ev);
+                        imported++;
+                    }
+                    catch (Exception exRow)
+                    {
+                        errors.Add($"Line {i + 1}: {exRow.Message}");
+                    }
+                }
+
+                ctx.SaveChanges();
+                
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to import events: {ex.Message}", "Import Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            
+            var sb = new StringBuilder();
+            sb.AppendLine($"Imported {imported} events.");
+            if (errors.Count > 0)
+            {
+                sb.AppendLine();
+                sb.AppendLine("Errors:");
+                foreach (var err in errors.Take(10))
+                    sb.AppendLine(err);
+                if (errors.Count > 10)
+                    sb.AppendLine($"... and {errors.Count - 10} more.");
+            }
+
+            MessageBox.Show(sb.ToString(), "Import Events Complete", MessageBoxButton.OK, MessageBoxImage.Information);
+
+            // Refresh VM current meet/events if needed
+            try
+            {
+                athStitcherViewModel.LoadViewModel(); ; // reload model so UI shows imported events (LoadViewModel exists earlier)
+                this.DataContext = athStitcherViewModel.DataContext;
+            }
+            catch { }
+            
         }
         ////////////////////////////////////////////////////////////////////////////////////////
     }
