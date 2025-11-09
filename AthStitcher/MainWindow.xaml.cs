@@ -4096,20 +4096,45 @@ namespace AthStitcherGUI
             }
         }
 
+        // CSV and Tabbed Import/Export of Event definitions
+        //string ImportEventHeader = "Time,Distance,TrackType,MinLane,MaxLane,Gender,AgeGrouping,UnderAgeGroup,MastersAgeGroup,Description";
+        //// First n of them are required:
+        //int NumRequiredEventProps = 6;
+
         private void ExportEventFields2CSV(object sender, RoutedEventArgs e)
         {
-            string eventHeader = "Time,Distance,TrackType,MinLane,MaxLane,Gender,AgeGrouping,UnderAgeGroup,MastersAgeGroup,Description";
-            try { System.Windows.Clipboard.SetText(eventHeader); } catch { }
-            MessageBox.Show($"Created as CSV string: {eventHeader}",
-                "Event Fields as CSV", MessageBoxButton.OK, MessageBoxImage.Information);
+
+            if (this.DataContext is not AthStitcherGUI.ViewModels.AthStitcherModel vm)
+            {
+                MessageBox.Show("No app settings.", "Import Events",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            else
+            {
+                string eventHeader = vm.Scheduling.ImportEventHeader;
+                try { System.Windows.Clipboard.SetText(eventHeader); } catch { }
+                MessageBox.Show($"Created as CSV string: {eventHeader}",
+                    "Event Fields as CSV", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
         }
+
 
         private void ExportEventFields2Tabbed(object sender, RoutedEventArgs e)
         {
-            string eventHeader = "Time\tDistance\tTrackType\tMinLane\tMaxLane\tGender\tAgeGrouping\tUnderAgeGroup\tMastersAgeGroup\tDescription";
-            try { System.Windows.Clipboard.SetText(eventHeader); } catch { }
-            MessageBox.Show($"Created as Tabbed string: {eventHeader}",
-                "Event Fields as Tabbed", MessageBoxButton.OK, MessageBoxImage.Information);
+            if (this.DataContext is not AthStitcherGUI.ViewModels.AthStitcherModel vm)
+            {
+                MessageBox.Show("No app settings.", "Import Events",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            else
+            {
+                string eventHeader = vm.Scheduling.ImportEventHeader.Replace(',', '\t');
+                try { System.Windows.Clipboard.SetText(eventHeader); } catch { }
+                MessageBox.Show($"Created as Tabbed string: {eventHeader}",
+                    "Event Fields as Tabbed", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
         }
         private void ImportEventsfromCSVTextFile(object sender, RoutedEventArgs e)
         {
@@ -4123,13 +4148,18 @@ namespace AthStitcherGUI
 
         private void ImportEvents(char del)
         {
-            
-            if (this.DataContext is not AthStitcherGUI.ViewModels.AthStitcherModel vm )
+            if (this.DataContext is not AthStitcherGUI.ViewModels.AthStitcherModel vm)
             {
-                MessageBox.Show("Select a Meet first before importing events.", "Import Events", 
+                MessageBox.Show("No app settings.", "Import Events",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
+            var props = new List<string>(vm.Scheduling.ImportEventHeader.Split(','));
+            int numRequiredEventProps = vm.Scheduling.NumRequiredEventProps;
+            List<string> RequiredEventProps = props.Take(numRequiredEventProps).ToList();
+            List<string> OptionalEventProps = props.Skip(numRequiredEventProps).ToList();
+            var OptionalEventPropsDict = OptionalEventProps.ToDictionary(k => k.ToLower(), _ => false);
+
 
             // Ensure a meet is selected first
             if (vm.CurrentMeet == null)
@@ -4184,28 +4214,29 @@ namespace AthStitcherGUI
                 // Expect header on first line
                 string header = lines[0];
                 var cols = header.Split(del).Select(h => h.Trim()).ToArray();
-                // Minimal header check (we accept variations but require at least Description column)
-                if (!cols.Any(c => c.Equals("Distance", StringComparison.OrdinalIgnoreCase)))
+
+                // Check for required columns
+                foreach (var prop in RequiredEventProps)
                 {
-                    MessageBox.Show("CSV header must include a 'Distance' column.", "Import Events", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-                else if (!cols.Any(c => c.Equals("Time", StringComparison.OrdinalIgnoreCase)))
-                {
-                    MessageBox.Show("CSV header must include a 'Time' column.", "Import Events", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-                else if (!cols.Any(c => c.Equals("Gender", StringComparison.OrdinalIgnoreCase)))
-                {
-                    MessageBox.Show("CSV header must include a 'Gender' column.", "Import Events", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-                else if (!cols.Any(c => c.Equals("TrackType", StringComparison.OrdinalIgnoreCase)))
-                {
-                    MessageBox.Show("CSV header must include a 'TrackType' column.", "Import Events", MessageBoxButton.OK, MessageBoxImage.Error);
+                    if (!cols.Any(c => c.Equals(prop, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        MessageBox.Show($"CSV/Tabbed header must include a '{prop}' column.", "Import Events", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
                 }
 
-                    using var ctx = new AthStitcherDbContext();
+                //See if optional columns present.Needed for later checking where may be required.
+                for (int i = 0; i < OptionalEventProps.Count; i++)
+                {
+                    var prop = OptionalEventProps[i];
+                    if (cols.Any(c => c.Equals(prop, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        OptionalEventPropsDict[prop.ToLower()] = true;
+                    }
+                }
+
+
+                using var ctx = new AthStitcherDbContext();
                 // Determine next event number for this meet
                 int meetId = vm.CurrentMeet.Id;
                 var maxEventNumber = ctx.Events
@@ -4287,18 +4318,57 @@ namespace AthStitcherGUI
                                 case "gender":
                                     if (Enum.TryParse(typeof(AthStitcher.Data.Gender), val, true, out object g))
                                         ev.Gender = (AthStitcher.Data.Gender)g;
+                                    else
+                                    {
+                                        MessageBox.Show($"CSV/Tabbed header invalid Gender string {val}.", "Import Events", MessageBoxButton.OK, MessageBoxImage.Error);
+                                        return;
+                                    }
                                     break;
                                 case "agegrouping":
                                     if (Enum.TryParse(typeof(AthStitcher.Data.AgeGrouping), val, true, out object ag))
                                         ev.AgeGrouping = (AthStitcher.Data.AgeGrouping)ag;
+                                    else
+                                    {
+                                        MessageBox.Show($"CSV/Tabbed header invalid AgeGrouping string {val}.", "Import Events", MessageBoxButton.OK, MessageBoxImage.Error);
+                                        return;
+                                    }
+                                    switch (ev.AgeGrouping)
+                                    {
+                                        case AgeGrouping.open:
+                                            break;
+                                        case AgeGrouping.junior:
+                                            if (!OptionalEventPropsDict["underagegroup"])
+                                            {
+                                                MessageBox.Show($"CSV/Tabbed header must include a 'UnderAgeGroup' with 'AgeGrouping.junior'.", "Import Events", MessageBoxButton.OK, MessageBoxImage.Error);
+                                                return;
+                                            }
+                                            break;
+                                        case AgeGrouping.masters:
+                                            if (!OptionalEventPropsDict["mastersagegroup"])
+                                            {
+                                                MessageBox.Show($"CSV/Tabbed header must include a 'MastersAgeGroup' with 'AgeGrouping.masters'.", "Import Events", MessageBoxButton.OK, MessageBoxImage.Error);
+                                                return;
+                                            }
+                                            break;
+                                    }
                                     break;
                                 case "underagegroup":
                                     if (Enum.TryParse(typeof(AthStitcher.Data.UnderAgeGroup), val, true, out object uag))
                                         ev.UnderAgeGroup = (AthStitcher.Data.UnderAgeGroup)uag;
+                                    else
+                                    {
+                                        MessageBox.Show($"CSV/Tabbed header invalid UnderAgeGroup string {val}.", "Import Events", MessageBoxButton.OK, MessageBoxImage.Error);
+                                        return;
+                                    }
                                     break;
                                 case "mastersagegroup":
                                     if (Enum.TryParse(typeof(AthStitcher.Data.MastersAgeGroup), val, true, out object mag))
                                         ev.MastersAgeGroup = (AthStitcher.Data.MastersAgeGroup)mag;
+                                    else
+                                    {
+                                        MessageBox.Show($"CSV/Tabbed header invalid MastersAgeGroup string {val}.", "Import Events", MessageBoxButton.OK, MessageBoxImage.Error);
+                                        return;
+                                    }
                                     break;
                                 case "description":
                                     ev.Description = val;

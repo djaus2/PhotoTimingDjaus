@@ -23,7 +23,12 @@ A simple ***Photo Timing/Photo Finish*** app for Athletics etc where a finish li
 
 ---
 
-### History
+### 
+- AthStitcher V7.2.5
+  - Meet Events Import Improved.
+    - More robust
+      - EventHeader (CSV list of Event properties) in App settings. Can be changed.
+      - Number of required Event properties (from CSV list from left) also an AppSetting.  Can be changed.
 - AthStitcher V7.2.0
   - Updated QuestPDF to 2025.7.4
   - Added Pdf Export of Meet results (all Events and Heats)

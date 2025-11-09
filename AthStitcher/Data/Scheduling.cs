@@ -36,6 +36,14 @@ namespace AthStitcher.Data
         private string gitHubLink  = "https://github.com/djaus2/PhotoTimingDjaus";
 
         [ObservableProperty]
-        private string gitHubLinkText  = "App Repository ... See AthStitcher project";
+        private string gitHubLinkText = "App Repository ... See AthStitcher project";
+
+        [ObservableProperty]      
+        private string importEventHeader = "Time,Distance,TrackType,MinLane,MaxLane,Gender,AgeGrouping,UnderAgeGroup,MastersAgeGroup,Description";
+        
+        
+        // First n of them are required:
+        [ObservableProperty]
+        int numRequiredEventProps = 6;
     }
 }
