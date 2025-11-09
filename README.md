@@ -4,7 +4,9 @@
 
 
 ## About
-A simple ***Photo Timing/Photo Finish*** app for Athletics etc where a finish line is filmed with say, a phone, and a stitched image is created by taking the middle vertical line of pixels from each video frame and stiching together the phototiming image. Previously had a similar app that used AForge.  Note that video FramesPerSecond are typically 30 so each line represents 0.033 of second and hence this is the resolution of any timing. Commercial equipment would be to thousandths or tens of thousandths of a second. _Can now set to 60 Fps if phone supports that._
+A simple ***Photo Timing/Photo Finish*** app for Athletics etc where a finish line is filmed with say, a phone, and a stitched image is created by taking the middle vertical line of pixels from each video frame and stiching together the phototiming image. Previously had a similar app that used AForge.  Note that video FramesPerSecond are typically 30 so each line represents 0.033 of second and hence this is the resolution of any timing. Commercial equipment would be to thousandths or tens of thousandths of a second. _Can now set to 60 Fps if phone supports that._  
+Have added a DBMS using Entity Framework Core to record Meets, Events, Heats and Lane Results. And export results as a PDF.
+## Feedback
 
 > **What features would you like to see implemented. Please a note as an Issue, thx**  
 Ps Stopping this development for now. Awaiting any feedback before going further.  
