@@ -46,6 +46,7 @@ namespace AthStitcher.Views
             string descFilter = (DescriptionFilter?.Text ?? string.Empty).Trim();
             string dateFilter = (DateFilter?.Text ?? string.Empty).Trim();
             string locFilter = (LocationFilter?.Text ?? string.Empty).Trim();
+            string roundFilter = (RoundFilter?.Text ?? string.Empty).Trim();
 
             // Description contains (case-insensitive)
             if (!string.IsNullOrEmpty(descFilter))
@@ -67,6 +68,12 @@ namespace AthStitcher.Views
             {
                 var loc = m.Location ?? string.Empty;
                 if (loc.IndexOf(locFilter, StringComparison.OrdinalIgnoreCase) < 0)
+                    return false;
+            }
+            if (!string.IsNullOrEmpty(roundFilter))
+            {
+                var round = m.Round.ToString() ?? string.Empty;
+                if (round.IndexOf(roundFilter, StringComparison.OrdinalIgnoreCase) < 0)
                     return false;
             }
             return true;

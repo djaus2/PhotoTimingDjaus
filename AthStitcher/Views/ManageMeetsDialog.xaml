@@ -14,18 +14,22 @@
         <!-- Filters row -->
         <Grid DockPanel.Dock="Top" Margin="8,0,8,8">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition/>
-                <ColumnDefinition Width="150"/>
-                <ColumnDefinition Width="200"/>
-                <ColumnDefinition Width="140"/> <!-- actions spacer to align -->
+                <ColumnDefinition Width="210"/>
+                <ColumnDefinition Width="50"/>
+                <ColumnDefinition Width="120"/>
+                <ColumnDefinition Width="160"/>
+                <ColumnDefinition Width="140"/>
+                <!-- actions spacer to align -->
             </Grid.ColumnDefinitions>
             <TextBox x:Name="DescriptionFilter" Grid.Column="0" Margin="0,0,8,0"
                      ToolTip="Filter description" TextChanged="Filter_TextChanged"/>
-            <TextBox x:Name="DateFilter" Grid.Column="1" Margin="0,0,8,0"
+            <TextBox x:Name="RoundFilter" Grid.Column="1" Margin="0,0,8,0"
+                     ToolTip="Filter round" TextChanged="Filter_TextChanged"/>
+            <TextBox x:Name="DateFilter" Grid.Column="2" Margin="0,0,8,0"
                      ToolTip="Filter date (yyyy-mm-dd)" TextChanged="Filter_TextChanged"/>
-            <TextBox x:Name="LocationFilter" Grid.Column="2"
+            <TextBox x:Name="LocationFilter" Grid.Column="3"
                      ToolTip="Filter location" TextChanged="Filter_TextChanged"/>
-            <TextBlock Grid.Column="3" HorizontalAlignment="Left" VerticalAlignment="Center">
+            <TextBlock Grid.Column="4" HorizontalAlignment="Left" VerticalAlignment="Center">
                 <Run Text="&#x2190; "/>
                 <Bold>Filter</Bold>
             </TextBlock>
@@ -34,10 +38,19 @@
                   CanUserAddRows="False" CanUserDeleteRows="False" CanUserSortColumns="True"
                   MouseDoubleClick="MeetsGrid_MouseDoubleClick">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="*" SortMemberPath="Description"/>
-                <DataGridTextColumn Header="Date" Binding="{Binding Date, StringFormat=yyyy-MM-dd}" Width="150" SortMemberPath="Date"/>
-                <DataGridTextColumn Header="Location" Binding="{Binding Location}" Width="200" SortMemberPath="Location"/>
-                <DataGridTemplateColumn Header="Actions" Width="140">
+                <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="200" SortMemberPath="Description"/>
+                <!-- DataGridTextColumn Header="Round" Binding="{Binding Round}" Width="50" SortMemberPath="Round"  / -->
+                <DataGridTextColumn Header="Round" Binding="{Binding Round}" Width="50">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="TextAlignment" Value="Center"/>
+                            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Date" Binding="{Binding Date, StringFormat=yyyy-MM-dd}" Width="120" SortMemberPath="Date"/>
+                <DataGridTextColumn Header="Location" Binding="{Binding Location}" Width="160" SortMemberPath="Location"/>
+                <DataGridTemplateColumn Header="Actions" Width="*">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">

@@ -6,8 +6,13 @@
 ## About
 A simple ***Photo Timing/Photo Finish*** app for Athletics etc where a finish line is filmed with say, a phone, and a stitched image is created by taking the middle vertical line of pixels from each video frame and stiching together the phototiming image. Previously had a similar app that used AForge.  Note that video FramesPerSecond are typically 30 so each line represents 0.033 of second and hence this is the resolution of any timing. Commercial equipment would be to thousandths or tens of thousandths of a second. _Can now set to 60 Fps if phone supports that._
 
-> What features would you like to see implemented. Please a note as an Issue, thx
-> Eg Import Program, Export Results ?? Leave a note thx.
+> **What features would you like to see implemented. Please a note as an Issue, thx**  
+Ps Stopping this development for now. Awaiting any feedback before going further.  
+Email davidjones AT sportronics DOT com DOT au  
+Or leave an Issue on GitHub
+Or leave a comment on my blog site : [SporTronics AppDev Blog](https://davidjones.sportronics.com.au/appdev/appdev.html)
+
+> Eg Athletes Table, Location Table Draw up Heats etc ?? Leave a note thx.
 
 ## Recent
 ### Status
@@ -24,11 +29,16 @@ A simple ***Photo Timing/Photo Finish*** app for Athletics etc where a finish li
 ---
 
 ### 
-- AthStitcher V7.2.5
+- AthStitcher V7.3.2
+  - Improve Meet Select and Mange Dialogs
+    - Show Meet Round in Meet list
+    - Improved filters for all properties
+- AthStitcher V7.3.1
   - Meet Events Import Improved.
     - More robust
       - EventHeader (CSV list of Event properties) in App settings. Can be changed.
       - Number of required Event properties (from CSV list from left) also an AppSetting.  Can be changed.
+      - Improved filters for all properties
 - AthStitcher V7.2.0
   - Updated QuestPDF to 2025.7.4
   - Added Pdf Export of Meet results (all Events and Heats)

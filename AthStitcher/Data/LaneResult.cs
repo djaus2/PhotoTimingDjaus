@@ -96,6 +96,9 @@ public partial class LaneResult : ObservableObject
     [ObservableProperty, NotifyPropertyChangedFor(nameof(Display)), NotifyPropertyChangedFor(nameof(NameStr))]
     private string? name = string.Empty;
 
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(Display))]
+    private string? club = string.Empty;
+
     [JsonIgnore]
     [NotMapped]
     public string NameStr
@@ -122,14 +125,14 @@ public partial class LaneResult : ObservableObject
 
     public override string ToString()
     {
-        string result = $"{Lane}: {ResultStr} {BibNumberStr} {Name}"; 
+        string result = $"{Lane}: {ResultStr} {BibNumberStr} {Name} {Club}"; 
         return result;
     }
 
 
     public string ToCSV()
     {
-        string result = $"{Lane},{ResultStr},{BibNumberStr},{Name}";
+        string result = $"{Lane},{ResultStr},{BibNumberStr},{Name},{Club}";
         return result;
     }
 
@@ -140,7 +143,7 @@ public partial class LaneResult : ObservableObject
 
     public string ToTab()
     {
-        string result = $"{Lane}\t{ResultStr}\t{BibNumberStr}\t{Name}";
+        string result = $"{Lane}\t{ResultStr}\t{BibNumberStr}\t{Name}\tClub";
         return result;
     }
 

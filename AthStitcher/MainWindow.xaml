@@ -670,7 +670,8 @@
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
                             <DataGridTextColumn Header="BinNo" Binding="{Binding BibNumberStr, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="60" />
-                            <DataGridTextColumn Header="Name" Binding="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="210"/>
+                            <DataGridTextColumn Header="Name" Binding="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="150"/>
+                            <DataGridTextColumn Header="Club" Binding="{Binding Club, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
                           
                         </DataGrid.Columns>
                     </DataGrid>
