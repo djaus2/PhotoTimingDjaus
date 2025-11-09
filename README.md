@@ -12,7 +12,7 @@ Have added a DBMS using Entity Framework Core to record Meets, Events, Heats and
 Ps Stopping this development for now. Awaiting any feedback before going further.  
 Email davidjones AT sportronics DOT com DOT au  
 Or leave an Issue on GitHub
-Or leave a comment on my blog site : [SporTronics AppDev Blog](https://davidjones.sportronics.com.au/appdev/appdev.html)
+Or leave a comment on my blog site : [SporTronics AppDev Blog](https://davidjones.sportronics.com.au/cats/appdev/)
 
 > Eg Athletes Table, Location Table Draw up Heats etc ?? Leave a note thx.
 
