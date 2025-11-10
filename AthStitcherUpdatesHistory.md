@@ -1,0 +1,211 @@
+# AthStitcher Update History
+
+
+## About
+A simple ***Photo Timing/Photo Finish*** app for Athletics etc where a finish line is filmed with say, a phone, and a stitched image is created by taking the middle vertical line of pixels from each video frame and stiching together the phototiming image. Previously had a similar app that used AForge.  Note that video FramesPerSecond are typically 30 so each line represents 0.033 of second and hence this is the resolution of any timing. Commercial equipment would be to thousandths or tens of thousandths of a second. _Can now set to 60 Fps if phone supports that._  
+Have added a DBMS using Entity Framework Core to record Meets, Events, Heats and Lane Results. And export results as a PDF.
+ 
+
+---
+
+## QuestPDF
+- Added QuestPDF NuGet package to AthStitcher WPF app to enable export of Heat, Event results as Pdf file.
+- Requires licensing acceptance on first use.
+  - See [QuestPDF Licensing](https://www.questpdf.com/license/community.html)
+  - If accepting license for Community Non Profit use then uncomment line #46 in Data/ToPdf.cs
+
+---
+
+### Update History
+
+- AthStitcher V7.3.2
+  - Improve Meet Select and Mange Dialogs
+    - Show Meet Round in Meet list
+    - Improved filters for all properties
+- AthStitcher V7.3.1
+  - Meet Events Import Improved.
+    - More robust
+      - EventHeader (CSV list of Event properties) in App settings. Can be changed.
+      - Number of required Event properties (from CSV list from left) also an AppSetting.  Can be changed.
+      - Improved filters for all properties
+- AthStitcher V7.2.0
+  - Updated QuestPDF to 2025.7.4
+  - Added Pdf Export of Meet results (all Events and Heats)
+    - From Print menu options.
+  - Improved pagination for Event Pdf as implemented for Meet Pdf. 
+    - No straddling of page break for Heats Results
+- AthStitcher V7.1.2
+  - Fixed filename generation for Pdf export of Heat, Event results.
+  - Added Page Numbering to Pdf export of Heat, Event results.
+- AthStitcher V7.1.0
+  - Can now export Heat or Event results as Pdf file.
+    - From Print menu options.
+    - Blog Link and GitHub App Link, as displayed in Pdf Header, can be set in App Settings dialog.
+- AthStitcher V7.0.0
+  - Major changes to DB structure and code.
+  - Heat results are now properly stored as LaneResults in DB.
+  - Can print, as text, a Heat, all Heats for an Event or or all Events for a Meet.
+    - And print order is (time) finish order, not lane order.
+- AthStitcher V6.2.12 Code corrections/improvements wrt Meets,Events and Heats.
+  - Now Meets,Events,Heats,Results are all now ObservableObject with ObservableProperties
+  - ORM:
+    - A Meet has Events
+    - An Event has Heats
+    - A Heat has Results (LaneResults)
+  - Can Cascade Delete
+  - enums in separate file in Data folder.
+- AthStitcher V6.2.9 Major DB Code improvements
+- AthStitcher V6.2.5
+  - Meet info now on Menu Bar
+  - _Code Tidy Up:_ Using CurrentMeet.Id etc rather than CurrentMeetId.
+  - Also using ToString() overrides for Meet,Event and Heat so can just bind to entity in Xaml.
+    - But : When using Menu just to display info 
+        - If Header binding is an object (as in Meet info as above), the default template may not propagate Foreground to the generated text. 
+        - Define a HeaderTemplate with a TextBlock (preferred) or bind Header to a specific string property to ensure your color styling applies.
+        - Look for MeetInfo in MainWindow.xaml for example.
+- AthStitcher V6.2.1
+  - Improved Info above results. ***2Do Add/Restore Heat Number there.***
+- AthStitcher V6.1.0 & V6.2.0
+  - Fixed numerous issues with New Event and Edit Event dialog
+    - Used bindings
+  - Done same for New and Edit Meet dialog.
+- AthStitcher: V6.0.0
+  - Can set New Meet and New Event Cut offs at app level
+    - See bottom of Program menu
+    - App Level means persisted between app runs, in app data, not in database.
+  - **New Meet Cutoff:** Can't add a new Meet within Cuttoff days of Meets.
+  - **New Event Cutoff:** Can't add a new Event after Cutoff days of Meet Cutoff.
+    - Restricted to <= Meet Cutoff.
+    - 0 means same cut-off day as Meet creation/edit/deletion cutoff day.
+  -  Heats: Can toggle (at app level) whether or not Heats can be added on the day.
+  - **2Do's:** 
+    - Restrict entering results prior to the event DateTime
+    - Don't allow deletion of Heats that have data entered.
+  - This all improves the integrity of data entry.
+    - _i.e. Can't create a spurious event and add data after the event date/time._
+- AthStitcher: V5.4.1
+  - Extended menus under Program
+    - Meets: Select, Manage, Add
+      - Manage: Add, Select, Edit, Delete
+    - Events: Select, Manage, Add
+      - Manage: Add, Select, Edit, Delete
+      - When adding an event you specify the number of heats and lanes.
+    - Heats: Add, Delete Last
+- AthStitcher:V4.5.0 
+  - Meets ***Done***
+  - Events **Done**
+  - Heats **Done**
+  - Results **Done**  
+  - Usage: 
+    - Need to Create Meet/s,Event/s. 
+      - With Event creation or Edit, prompted for number of heats.
+    - Select Meet then Event. Starts at Heat 1
+    - With selected event can next/previous through heats.
+- AthStitcher
+  - Has SQLite DB with Meets,Events,Results tables. Recoded to use Entity Framework.
+  - Users table implemented. Can change password etc.
+- AthStitcher 4.1.0: Can record results against lanes and enter names
+  - After a result has been determined, click in Result column for lane.
+  - Can change lane by clicking in another which removes previous
+  - Prompted if click in cell with previous result.
+  - 2Do: Back end with a table/database.
+    - Now has backend list for results
+    - Can set first and last lanes 1..10 with min<max
+    - Simple matter now to create a database for meet, events and results
+- AthStitcher: V4.0.0 All ... good
+  - Have removed filename appendages for meta-info and use only json VideoInfo file for that.
+    - i.e. Removed embellished filename processing.
+    - The phone app has been updated to not append such embellishments, using json file only
+    - Nb: If no Json file then assumed **FromVideoStart** mode.
+-   - Needs some testing with various modes.
+- AthStitcher: V3.9.9: 
+  - Some tidy up and code improvements
+  - Download video now can click (and press button) or double click to select video and return and auto-Stitch.
+    - _Also coming_ with phone app is auto send of recorded video once done.
+      - No code changes required here as already has TCP download functionality, which can continue when Downloads page not showing.
+- AthStitcher: V3.2.0
+  - Can download ExifTool, set location, unzip and even change its name(not advised).
+  - Fixed an issue wrt GUNSOUND mode where if no audio for part of track, audio processing is errant.
+    - Is extracted from video as "inf", which is tagged as NaN and is finally set as zero.
+    - This is discussed in detail in the blog post: [Photo Timing Video: Video Stitching Further Update](https://davidjones.sportronics.com.au/appdev/_Photo_Timing_Video-Video_Stitching_Further_Update-appdev.html)
+- AthStitcher: V3.1.2 Fixed issue at start of StitchVideo() where incorrect _embellished_ filename appendages were searched for, when VideoInfo json file is not being used.
+  - Should be one of: ```_VIDEOSTART_, _GUNSOUND_, _GUNFLASH_, _MANUAL_, _WALLCLOCK_```
+  - Not being processed later though (eg getting video sound)
+> Embellished filenames functionality will be removed once VideoInfo json file mechanism is complete for all modes.
+- AthStitcher: V3.1.1 Works properly for Manual,FromVideoStart and WallClock modes, when using VideoInfo to pass meta-info rather than using embellished filename.
+  - Flash and GunSound 2Do. 
+  - Added some sample videos with their json files.  See <solution>\vid
+  - Copy contents to c:\temp\vid
+- AthStitcher: Improved Json Editor for VideoInfo, VideoIfo databound and conditionals.
+- Athstitcher: Once a Video is downloaded along with its json file, the corresponding Json file can be directly edited: 
+  - File-Edit Video File's Meta-Info.
+- AthStitcher: Updated to .NET 9.0
+- AthStitcher: Download _(version2)_ video and meta info over TCP from phone app.
+  - Meta-info as json and uses that for filename, checksum etc.
+  - Filename is now un-embellished with meta-info.
+  - Embellished filename should still work though
+  - VideoEnums _(VideoEnums.Windows here)_ is now a Nuget Package. 
+    - There is a Windows version and an Android/Maui version.
+- AthStitcher: Improving UI for Video Frame Popups - Max popup Frame vertival  size, with vertical scrollbars when video frame image is bigger vertically.
+- AthStitcher: Download now menu item. Menu File-Done to return.
+  - Meta info _(as embellished filename)_ has video start time and gun time (if set)
+  - If no Gun time then Video start time is used as Gun time.
+  - _(Embellished)_ Video filename is _(such as)_: ```{originalfilename}_GUN_{guntime:yyyy-MM-dd HH--mm--ss.fff}_.mp4```
+  - Stitched image filename is set to: ```{originalfilename}_GUN_{guntime:yyyy-MM-dd HH--mm--ss.fff}_.png```
+  - If no Gun time then _VIDEOSTART_ is used instead of _GUN_ in filenames.
+  - WallClock time can be used as well if that is set in meta info.
+- AthStitcher: Improved Nudged video frame popup, Place Left, Middle or Right on app, or use previous (red line) video frame.
+- AthStitcher: Fixed where unable to click to right of previous click on image and be processed.
+- AthStitcher: App: Now has download video over local TCP.
+- Sample app [djaus2/MauiMediaRecorderVideoAndroidApp](https://github.com/djaus2/MauiMediaRecorderVideoAndroidApp) has been updated to append TimeFromMode to Video filename.
+- WPF File-Open is Open is now "Open Video File and Stitch".
+  - Looks at filename and determines type of video, stitches and determines start time.
+    - If no match then opens according to menu selection.
+    - Filename patterns:
+```cs
+  videoStart =  @"_VIDEOSTART_\.mp4$";  // Default
+  wallClockPattern = @"_WALLCLOCK_(\d{4}-\d{2}-\d{2} \d{2}--\d{2}--\d{2}\.\d{3})_\.mp4$"; <-- A DateTime string (sort of)
+  gunPattern = @"_GUNSOUND_\.mp4$";
+  flashPattern = @"_GUNFLASH_\.mp4$";
+  manualPattern = @"_MANUAL_\.mp4$";
+```
+- WPF app now recognizes those patterns and embeds the types as video title and for WallClock, the GunWallClcok time as teh Comment.
+- If use [Stitch] button this meta info is ignored and the selected TimeFromMode is used.
+  - Programmically the TimeFromMode names have changed:
+```cs
+    public enum TimeFromMode
+    {
+        FromVideoStart, //From start of video capture
+        FromGunSound, //From gun sound
+        FromGunFlash,  //From observed flash of gun on video
+        ManuallySelect, //Manually selected start time
+        WallClockSelect,
+    }
+```
+  - ~~2Do Match this with the phone video capture app.~~ _Not possible with the package used to embedded metainfo in the video file on Android._
+
+- WPF App HAS been renamed as **AthStitcher**  <-- And the project folder has now been renamed to that.
+- Added simple App **SplashScreen** (Image in root and SplashScreen property)
+  - And App icon. Used Gimpy to create as 256x256 in root of project and set as Content _(no Copy property)_. Then add as App Icon in project properties.
+- Popup image of frame is centered for mouse click on image (red) line, if start has been determined.
+  - Nudge line is green and image frame for it can be left, center or right wrt to Stitched Image when start time has been determined/set.
+  - For **Manual mode**, the Gun line (selected color) is nudged until accepted.
+  - Double click on image frame hides it, single click enlarges frame x1.5, shift single click reduces frame by 1.5. If too small (about 50) is hidden
+- Zoom controls now work. Pan sliders don't though. Simplest: ***Just set the Auto Width and Height.***
+- Default TimeFrom mode is Manual. If Video Filename has DateTime string on end then that is interpreted as the Gun (race start) DateTime and set to WallClock mode.
+  - eg ```qwerty1_GUN_2025-06-19 11--34--08.591_.mp4```     Pattern searched for with Regex is  
+```string pattern = @"_GUN_(\d{4}-\d{2}-\d{2} \d{2}--\d{2}--\d{2}\.\d{3})_\.mp4$"```
+  - Matching change now in Video Capture Phone app: [djaus2/MauiMediaRecorderVideoAndroidApp](https://github.com/djaus2/MauiMediaRecorderVideoAndroidApp)
+    - If Gun icon is tapped before or after video start then that WallClock time is used as race start and is appended as a DateTime string to video filename as above. WallClock mode here uses that as default instead of VideoStart time and calculates times wrt to that.
+  - Video Capture NuGet Package has been updated (V2.2.2): [djaus2/djaus2_MauiMediaRecorderVideoLib](https://www.nuget.org/packages/djaus2_MauiMediaRecorderVideoLib/) adds this Gun functionality.
+  - _Could also check if audio in video and set that mode or even check video frames for flash mnde._
+- **Added WallClock Start Time**: Just enter the start time of the event (Calendar Day (Select), Time of Day to ms). Initaially set to Video Start. Start on StitchedImage is then calculated wrt Video start DateTime. _(Currently assumes same day)_
+-  **Added ability to popup corresponding video frame for selected time centred on StitchedImage timing line with aligned line thru frame.**
+
+Major rework so that all/most info in XAML page is bound to ViewModel properties. Get Set for many in separate page which handles the DtataContext.  
+Still a workk in progress
+
+The WPF app has been updated to calculate time from gun.  The guntime is taken from audio (microsphone).  So the video is recording before the gun. Continued development of teh WPF app.  
+> Latest: Big changes to the WPF UI and functionality.
+
+
