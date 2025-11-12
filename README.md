@@ -26,9 +26,9 @@ As things stand, athletes are manually entered into heat results before or after
 > **What features would you like to see implemented?**
 
 `Ps:` Stopping this development for now. Awaiting any feedback before going further.  
-Email davidjones AT sportronics DOT com DOT au  
-Or leave an Issue on GitHub
-Or leave a comment on my blog site : [SporTronics AppDev Blog](https://davidjones.sportronics.com.au/cats/appdev/)
+- Email davidjones AT sportronics DOT com DOT au  
+- Or leave a comment on the repository [GitHub Discussions](https://github.com/djaus2/PhotoTimingDjaus/discussions).
+- Or leave a comment on my blog site : [SporTronics AppDev Blog](https://davidjones.sportronics.com.au/cats/appdev/) _(Requires DISQUS login)_
 
 > Eg Athletes Table, Location Table Draw up Heats etc ?? Leave a note thx.
 
