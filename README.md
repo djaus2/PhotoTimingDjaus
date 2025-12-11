@@ -16,6 +16,8 @@ A DBMS has been added using Entity Framework Core to record Meets, Events, Heats
 - Each Event has Heats. 
 - Each Heat has Lane Results.
 
+> **Latest Blog Post:** [AthStitcher -Functionality](https://davidjones.sportronics.com.au/appdev/AthStitcher-Functionality-appdev.html)
+
 ## Note
 As things stand, athletes are manually entered into heat results before or after a heat has been run. 
 
