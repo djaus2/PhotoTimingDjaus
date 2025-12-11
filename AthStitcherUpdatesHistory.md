@@ -17,7 +17,12 @@ Have added a DBMS using Entity Framework Core to record Meets, Events, Heats and
 ---
 
 ### Update History
-
+- AthStitcher V7.4.0
+    - Send Meets and Events to AthsVideoRecording app over TCP each with a Guid.
+      - So that when video is sent over TCP, the Meet and Event can be selected.
+      - Sending Events and Heats at this end is done.
+        - _AthsVideoRecoding app is being updated to receive these.__
+      - 2Do: _Need to align received video with correct Event and Heat..
 - AthStitcher V7.3.2
   - Improve Meet Select and Mange Dialogs
     - Show Meet Round in Meet list

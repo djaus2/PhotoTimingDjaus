@@ -59,7 +59,12 @@ The software has undergone progress updates to enhance functionality and user ex
 - Reverse the horizontal direction of the stitched image such that athlete on right is fastest which matches the direction that athletes compete.
 
 ## Features to add
--  Athletes Table, Location Table Draw up Heats 
+- Send Meets and Events to AthsVideoRecording app over TCP each with a Guid.
+  - So that when video is sent over TCP, the Meet and Event can be selected.
+  - Sending Events and Heats at this end is done.
+    - _AthsVideoRecoding app is being updated to receive these.__
+  - 2Do: _Need to align received video with correct Event and Heat.
+- Athletes Table, Location Table Draw up Heats 
 - Truncate video option at start(gun) time.
   - Code is written.
 
