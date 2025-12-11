@@ -30,7 +30,12 @@ namespace AthStitcherGUI.ViewModels
 
         public VideoInfo? VideoInfo { get; set; }
 
-
+        public NetworkSettings NetworkSettings {
+            get
+            {
+                return DataContext?.NetworkSettings;
+            }
+        }
 
         public void GetAddr(object obj)
         {

@@ -11,9 +11,13 @@ namespace AthStitcher.Data
         /// e.g., %LocalAppData%\AthStitcher\athstitcher.db
         public static string GetConnectionString()
         {
-            var dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "AthStitcher");
-            Directory.CreateDirectory(dir);
-            var path = Path.Combine(dir, "athstitcher.db");
+            var saveDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "AthStitcher");
+            if (!Directory.Exists(saveDir))
+            {
+                Directory.CreateDirectory(saveDir!);
+            }
+			
+            var path = Path.Combine(saveDir, "athstitcher.db");
             var cs = new SqliteConnectionStringBuilder { DataSource = path }.ToString();
             System.Diagnostics.Debug.WriteLine(cs);
             return cs;

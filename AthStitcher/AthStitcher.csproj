@@ -67,6 +67,7 @@
     <ProjectReference Include="..\DetectVideoFlash\DetectVideoFlash.csproj" />
     <ProjectReference Include="..\GetVideoWPFLib\GetVideoWPFLib.csproj" />
     <ProjectReference Include="..\PhotoTimingDjausLib\PhotoTimingDjausLib.csproj" />
+    <ProjectReference Include="..\SendProgramaaCsv\SendProgramaaCsv.csproj" />
     <PackageReference Include="Sportronics.VideoEnums" />
   </ItemGroup>
 

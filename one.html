@@ -1,0 +1,419 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+  <head>
+    <META http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>athstitcher.db Database Schema</title>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <style type="text/css">
+                    body { background-color: #fff; color: #000; font-family: Consolas, monospace}
+                    a:link { color: #03d; }
+                    a:visited { color: #039; }
+                    a:hover { color: #09f; }
+                    table { border-collapse: collapse; width: 100%; }
+                    table caption { color: #666; text-align: right; font-size: 65%; margin-bottom: .5ex; }
+                    table td, table th { border: solid 1px #666; border-collapse: collapse; padding: .3ex .5ex; vertical-align: top; }
+                    table tbody tr:hover { background-color: #ffc; }
+                    table thead th { text-align: left; background-color: #ccc; }
+                    table tbody th { text-align: left; white-space: nowrap; }
+                    .table { page-break-inside: avoid; }
+                    .pk { float: right; cursor: arrow; color: #999; }
+                    .type { white-space: nowrap; }
+                    .null { text-align: center; }
+                    .flag { white-space: nowrap; font-size: 70%; display: inline-block; border: solid 1px #ccc; padding: .25ex .5ex; background-color: #ddd; margin-right: 1ex; }
+                    .tocref { float: right; text-decoration: none; font-weight: normal; }
+                    .footer { text-align: center; margin-top: 1em; font-size: 80%;}
+                    li.view:before { content: "VIEW"; font-size: 70%; display: inline-block; border: solid 1px #ccc; padding: .25ex .5ex; background-color: #ddd; margin-right: 1ex; }
+                    @media print {
+                    body { font-size: .8em; }
+                    #toc, .tocref { display: none; }
+                    a:link, a:visited { color: #000; text-decoration: none; }
+                    }
+                </style>
+  </head>
+  <body>
+    <h1>athstitcher.db Database Schema</h1>
+    <div id="toc">
+      <ul>
+        <li class="table"><a href="#Events">Events</a></li>
+        <li class="table"><a href="#Heats">Heats</a></li>
+        <li class="table"><a href="#Meets">Meets</a></li>
+        <li class="table"><a href="#Results">Results</a></li>
+        <li class="table"><a href="#Users">Users</a></li>
+      </ul>
+    </div>
+    <div class="table">
+      <h2 id=""><a href="#toc" class="tocref">⇧</a>
+        Database Properties
+      </h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Property</th>
+            <th>Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="type">Database</td>
+            <td class="type">C:\Users\david\AppData\Local\AthStitcher\athstitcher.db</td>
+          </tr>
+          <tr>
+            <td class="type">ServerVersion</td>
+            <td class="type">3.46.1</td>
+          </tr>
+          <tr>
+            <td class="type">DatabaseSize</td>
+            <td class="type">52 KB</td>
+          </tr>
+          <tr>
+            <td class="type">Created</td>
+            <td class="type">1/11/2025 3:58 PM</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="table">
+      <h2 id="Events"><a href="#toc" class="tocref">⇧</a>Table Events</h2>
+      <table>
+        <thead>
+          <tr>
+            <th style="width:30ex">Name</th>
+            <th style="width:20ex">Type</th>
+            <th style="width:4ex">NULL</th>
+            <th>Comment</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th><span class="pk" title="PRIMARY KEY sqlite_master_PK_Events">◆</span>Id</th>
+            <td class="type">bigint</td>
+            <td class="null">☐</td>
+            <td><span class="flag">IDENTITY (1,1)</span></td>
+          </tr>
+          <tr>
+            <th>MeetId</th>
+            <td class="type">bigint</td>
+            <td class="null">☐</td>
+            <td><span class="flag" title="FK_Events_0_0">⇨ <a href="#Meets">Meets</a>.Id</span></td>
+          </tr>
+          <tr>
+            <th>EventNumber</th>
+            <td class="type">bigint</td>
+            <td class="null">☒</td>
+            <td>
+            </td>
+          </tr>
+          <tr>
+            <th>Time</th>
+            <td class="type">text</td>
+            <td class="null">☒</td>
+            <td>
+            </td>
+          </tr>
+          <tr>
+            <th>Description</th>
+            <td class="type">text</td>
+            <td class="null">☒</td>
+            <td>
+            </td>
+          </tr>
+          <tr>
+            <th>Distance</th>
+            <td class="type">bigint</td>
+            <td class="null">☒</td>
+            <td>
+            </td>
+          </tr>
+          <tr>
+            <th>HurdleSteepleHeight</th>
+            <td class="type">bigint</td>
+            <td class="null">☒</td>
+            <td>
+            </td>
+          </tr>
+          <tr>
+            <th>TrackType</th>
+            <td class="type">bigint</td>
+            <td class="null">☐</td>
+            <td>
+            </td>
+          </tr>
+          <tr>
+            <th>Gender</th>
+            <td class="type">bigint</td>
+            <td class="null">☐</td>
+            <td>
+            </td>
+          </tr>
+          <tr>
+            <th>AgeGrouping</th>
+            <td class="type">bigint</td>
+            <td class="null">☐</td>
+            <td>
+            </td>
+          </tr>
+          <tr>
+            <th>UnderAgeGroup</th>
+            <td class="type">bigint</td>
+            <td class="null">☒</td>
+            <td>
+            </td>
+          </tr>
+          <tr>
+            <th>MastersAgeGroup</th>
+            <td class="type">bigint</td>
+            <td class="null">☒</td>
+            <td>
+            </td>
+          </tr>
+          <tr>
+            <th>VideoInfoFile</th>
+            <td class="type">text</td>
+            <td class="null">☒</td>
+            <td>
+            </td>
+          </tr>
+          <tr>
+            <th>VideoStartOffsetSeconds</th>
+            <td class="type">real (53, 0)</td>
+            <td class="null">☒</td>
+            <td>
+            </td>
+          </tr>
+          <tr>
+            <th>MinLane</th>
+            <td class="type">bigint</td>
+            <td class="null">☒</td>
+            <td>
+            </td>
+          </tr>
+          <tr>
+            <th>MaxLane</th>
+            <td class="type">bigint</td>
+            <td class="null">☒</td>
+            <td>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="table">
+      <h2 id="Heats"><a href="#toc" class="tocref">⇧</a>Table Heats</h2>
+      <table>
+        <thead>
+          <tr>
+            <th style="width:30ex">Name</th>
+            <th style="width:20ex">Type</th>
+            <th style="width:4ex">NULL</th>
+            <th>Comment</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th><span class="pk" title="PRIMARY KEY sqlite_master_PK_Heats">◆</span>Id</th>
+            <td class="type">bigint</td>
+            <td class="null">☐</td>
+            <td><span class="flag">IDENTITY (1,1)</span></td>
+          </tr>
+          <tr>
+            <th>EventId</th>
+            <td class="type">bigint</td>
+            <td class="null">☐</td>
+            <td><span class="flag" title="FK_Heats_0_0">⇨ <a href="#Events">Events</a>.Id</span></td>
+          </tr>
+          <tr>
+            <th>HeatNo</th>
+            <td class="type">bigint</td>
+            <td class="null">☐</td>
+            <td>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="table">
+      <h2 id="Meets"><a href="#toc" class="tocref">⇧</a>Table Meets</h2>
+      <table>
+        <thead>
+          <tr>
+            <th style="width:30ex">Name</th>
+            <th style="width:20ex">Type</th>
+            <th style="width:4ex">NULL</th>
+            <th>Comment</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th><span class="pk" title="PRIMARY KEY sqlite_master_PK_Meets">◆</span>Id</th>
+            <td class="type">bigint</td>
+            <td class="null">☐</td>
+            <td><span class="flag">IDENTITY (1,1)</span></td>
+          </tr>
+          <tr>
+            <th>Description</th>
+            <td class="type">text</td>
+            <td class="null">☐</td>
+            <td>
+            </td>
+          </tr>
+          <tr>
+            <th>Round</th>
+            <td class="type">bigint</td>
+            <td class="null">☐</td>
+            <td>
+            </td>
+          </tr>
+          <tr>
+            <th>Date</th>
+            <td class="type">text</td>
+            <td class="null">☒</td>
+            <td>
+            </td>
+          </tr>
+          <tr>
+            <th>Location</th>
+            <td class="type">text</td>
+            <td class="null">☒</td>
+            <td>
+            </td>
+          </tr>
+          <tr>
+            <th>MaxLanes</th>
+            <td class="type">bigint</td>
+            <td class="null">☒</td>
+            <td>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="table">
+      <h2 id="Results"><a href="#toc" class="tocref">⇧</a>Table Results</h2>
+      <table>
+        <thead>
+          <tr>
+            <th style="width:30ex">Name</th>
+            <th style="width:20ex">Type</th>
+            <th style="width:4ex">NULL</th>
+            <th>Comment</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th><span class="pk" title="PRIMARY KEY sqlite_master_PK_Results">◆</span>Id</th>
+            <td class="type">bigint</td>
+            <td class="null">☐</td>
+            <td><span class="flag">IDENTITY (1,1)</span></td>
+          </tr>
+          <tr>
+            <th>HeatId</th>
+            <td class="type">bigint</td>
+            <td class="null">☐</td>
+            <td><span class="flag" title="FK_Results_0_0">⇨ <a href="#Heats">Heats</a>.Id</span></td>
+          </tr>
+          <tr>
+            <th>Lane</th>
+            <td class="type">bigint</td>
+            <td class="null">☒</td>
+            <td>
+            </td>
+          </tr>
+          <tr>
+            <th>ResultSeconds</th>
+            <td class="type">real (53, 0)</td>
+            <td class="null">☒</td>
+            <td>
+            </td>
+          </tr>
+          <tr>
+            <th>BibNumber</th>
+            <td class="type">bigint</td>
+            <td class="null">☒</td>
+            <td>
+            </td>
+          </tr>
+          <tr>
+            <th>Name</th>
+            <td class="type">text</td>
+            <td class="null">☒</td>
+            <td>
+            </td>
+          </tr>
+          <tr>
+            <th>Club</th>
+            <td class="type">text</td>
+            <td class="null">☒</td>
+            <td>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="table">
+      <h2 id="Users"><a href="#toc" class="tocref">⇧</a>Table Users</h2>
+      <table>
+        <thead>
+          <tr>
+            <th style="width:30ex">Name</th>
+            <th style="width:20ex">Type</th>
+            <th style="width:4ex">NULL</th>
+            <th>Comment</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th><span class="pk" title="PRIMARY KEY sqlite_master_PK_Users">◆</span>Id</th>
+            <td class="type">bigint</td>
+            <td class="null">☐</td>
+            <td><span class="flag">IDENTITY (1,1)</span></td>
+          </tr>
+          <tr>
+            <th>Username</th>
+            <td class="type">text</td>
+            <td class="null">☐</td>
+            <td>
+            </td>
+          </tr>
+          <tr>
+            <th>PasswordHash</th>
+            <td class="type">image</td>
+            <td class="null">☐</td>
+            <td>
+            </td>
+          </tr>
+          <tr>
+            <th>PasswordSalt</th>
+            <td class="type">image</td>
+            <td class="null">☐</td>
+            <td>
+            </td>
+          </tr>
+          <tr>
+            <th>Role</th>
+            <td class="type">text</td>
+            <td class="null">☐</td>
+            <td>
+            </td>
+          </tr>
+          <tr>
+            <th>CreatedAt</th>
+            <td class="type">text</td>
+            <td class="null">☐</td>
+            <td>
+            </td>
+          </tr>
+          <tr>
+            <th>ForcePasswordChange</th>
+            <td class="type">bigint</td>
+            <td class="null">☐</td>
+            <td>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="footer">
+                    Generated by <a href="http://SqlDbDoc.codeplex.com/">DB&gt;doc</a> and <a href="https://github.com/ErikEJ/SqlCeToolbox">SQLite/SQL Server Compact Toolbox</a> on
+                    November 12, 2025, 03:18:08</div>
+  </body>
+</html>

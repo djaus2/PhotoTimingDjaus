@@ -13,10 +13,14 @@ using System.Text.Json.Serialization;
 namespace AthStitcher.Data
 {
 
-    public partial class Meet :ObservableObject
+    public partial class Meet : ObservableObject
     {
         public Meet()
         {
+            // Ensure a stable ExternalId exists for each new Meet
+            if (string.IsNullOrWhiteSpace(ExternalId))
+                ExternalId = Guid.NewGuid().ToString();
+
             PropertyChanged += (_, e) =>
             {
                 if (e.PropertyName is nameof(IsDirty) or nameof(Id) or nameof(Display)) return;
@@ -44,7 +48,11 @@ namespace AthStitcher.Data
         public string? location = "";
 
         [ObservableProperty, NotifyPropertyChangedFor(nameof(Display))]
-        public int? maxLanes  = 8;
+        public int? maxLanes = 8;
+
+        // New stable identifier to help cross-device reconciliation
+        [ObservableProperty]
+        private string externalId = Guid.NewGuid().ToString();
 
 
         [JsonIgnore]
@@ -58,7 +66,7 @@ namespace AthStitcher.Data
         public override string ToString()
         {
             string result = $"{Description} Round:{Round}.  {DateStr} at {Location}";
-            return result ;
+            return result;
         }
 
         [property: JsonIgnore]

@@ -1,4 +1,5 @@
 using AthStitcher.Data;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.Logging;
 using OpenCvSharp;
 using Sportronics.VideoEnums;// This is where TimeFromMode is defined
@@ -26,6 +27,28 @@ namespace AthStitcherGUI.ViewModels
         }
 
     }
+
+
+    public partial class NetworkSettings:ObservableObject, INotifyPropertyChanged
+    {
+        [ObservableProperty]
+        public string targetHostOrIp = "";
+        [ObservableProperty]
+        public  int targetPort = 1000;
+        [ObservableProperty]
+        public  int connectTimeoutMs = 2000;
+        [ObservableProperty]
+        public bool newDatabase = false;
+
+        /*
+*               athStitcherViewModel.NetworkSettings.TargetHostOrIp,
+            athStitcherViewModel.NetworkSettings.TargetPort,
+            sendFilePath,
+            filenameOverride: null,
+            connectTimeoutMs: athStitcherViewModel.NetworkSettings.ConnectTimeoutMs).ContinueWith(sendTask =>
+
+        */
+    }
     public class AthStitcherModel : INotifyPropertyChanged
     {
         const string EXIFTOOL = "exiftool";
@@ -49,6 +72,9 @@ namespace AthStitcherGUI.ViewModels
             }
             OnPropertyChanged(nameof(Results));
         }
+
+
+        public  NetworkSettings NetworkSettings { get; set; } = new NetworkSettings();
 
         // Results list: lanes with result and name
         private ObservableCollection<LaneResult> _results = new ObservableCollection<LaneResult>();

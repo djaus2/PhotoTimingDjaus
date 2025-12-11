@@ -1,10 +1,15 @@
+using AthStitcher.Data;
+using AthStitcherGUI.ViewModels;
+using Castle.Components.DictionaryAdapter.Xml;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.ComponentModel;
+using System.Diagnostics.Metrics;
 using System.Linq;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using AthStitcher.Data;
 using Xceed.Wpf.Toolkit.Panels;
 
 namespace AthStitcher.Views
@@ -20,10 +25,15 @@ namespace AthStitcher.Views
             InitializeComponent();
             MeetId = meetId;
             LoadEvents();
+
+            AthStitcherViewModel athStitcherViewModel = new AthStitcherViewModel();
+            athStitcherViewModel.LoadViewModel();
+            this.DataContext = athStitcherViewModel.DataContext;
         }
 
         private void LoadEvents()
         {
+            CountHeats();
             using var ctx = new AthStitcherDbContext();
             var items = ctx.Events
                 .Where(ev => ev.MeetId == MeetId)
@@ -109,7 +119,6 @@ namespace AthStitcher.Views
                     return false;
             }
 
-
             return true;
         }
 
@@ -192,6 +201,7 @@ namespace AthStitcher.Views
 
                 ctx.Events.Update(existing);
                 ctx.SaveChanges();
+                CountHeats();
                 return;
             }
         }
@@ -244,6 +254,158 @@ namespace AthStitcher.Views
             }
             this.DialogResult = true;
             this.Close();
+        }
+
+        private void CountHeats()
+        {
+            using var ctx = new AthStitcherDbContext();
+            var events = ctx.Events
+                .Where(ev => ev.MeetId == MeetId)
+                .OrderBy(ev => ev.Time)
+                .ThenBy(ev => ev.EventNumber)
+                .ToList();
+            foreach (var ev in events)
+            {
+                ev.NumHeats = ctx.Heats.Count(h => h.EventId == ev.Id);
+            }
+            ctx.SaveChanges();
+        }
+
+        private async void ExportEventsAsCsv_Click(object sender, RoutedEventArgs e)
+        {
+            Button btn = sender as Button;
+            if(btn == null) return;
+            string caption = btn.Content as string;
+            if(string.IsNullOrEmpty(caption)) return;
+            AthStitcherModel athStitcherModel = this.DataContext as AthStitcherModel;
+
+            try
+            {
+                List<Event> events = new List<Event>();
+                using var ctx = new AthStitcherDbContext();
+                events = ctx.Events
+                    .Where(ev => ev.MeetId == MeetId)
+                    .OrderBy(ev => ev.Time)
+                    .ThenBy(ev => ev.EventNumber)
+                    .ToList();
+
+                ////////////////////////////////////////////////////////////////////////////////////
+                // Get number of heats into NumHeats property so just send that not Heats table
+                ////////////////////////////////////////////////////////////////////////////////////
+                ctx.Heats.Load();
+                foreach (var ev in events)
+                {      
+                    ev.NumHeats = ctx.Heats.Count(h => h.EventId == ev.Id);
+                    if (ev.Heats == null)
+                    {
+                        ev.NumHeats = 1;
+                    }
+                    else if (ev.Heats.Count == 0)
+                    {
+                        ev.NumHeats = 1;
+                    }
+                }
+                ctx.SaveChanges();
+                ////////////////////////////////////////////////////////////////////////////////////
+
+                if (caption == (string)btnSendAll.Content)
+                {
+
+                }
+                else if(caption == (string)btnSendFiltered.Content)
+                {
+                    events = events.Where(m => FilterPredicate(m)).ToList();
+                }
+                else
+                {
+                    MessageBox.Show($"Unknown button caption: {caption}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                
+
+                
+
+                    var sb = new StringBuilder();
+                // Header
+                // Header now includes EventExternalId and MeetExternalId for robust matching on import
+                sb.AppendLine("Id,EventExternalId,EventNumber,Time,Description,Distance,TrackType,Gender,AgeGrouping,UnderAgeGroup,MastersAgeGroup,MinLane,MaxLane,VideoInfoFile,VideoStartOffsetSeconds,MeetId,MeetExternalId,MeetDescription,MeetDate,MeetLocation,MeetRound,NumHeats");
+
+                foreach (var ev in events)
+                {
+                    string id = ev.Id.ToString();
+                    string eventExternalId = CsvEscape(ev.ExternalId);
+                    string eventNumber = ev.EventNumber?.ToString() ?? string.Empty;
+                    string time = ev.Time?.ToString("yyyy-MM-dd HH:mm:ss") ?? string.Empty;
+                    string desc = CsvEscape(ev.ToString()); // CsvEscape(ev.Description);
+                    string distance = ev.Distance?.ToString() ?? string.Empty;
+                    string trackType = CsvEscape(ev.TrackType.ToString());
+                    string gender = CsvEscape(ev.Gender.ToString());
+                    string ageGrouping = CsvEscape(ev.AgeGrouping.ToString());
+                    string underAge = CsvEscape(ev.UnderAgeGroup?.ToString() ?? string.Empty);
+                    string mastersAge = CsvEscape(ev.MastersAgeGroup?.ToString() ?? string.Empty);
+                    string minLane = ev.MinLane?.ToString() ?? string.Empty;
+                    string maxLane = ev.MaxLane?.ToString() ?? string.Empty;
+                    string videoInfoFile = CsvEscape(ev.VideoInfoFile);
+                    string videoStartOffset = ev.VideoStartOffsetSeconds?.ToString() ?? string.Empty;
+                    string numHeats = ev.NumHeats.ToString(); ;
+                    if(string.IsNullOrEmpty(numHeats))
+                    {
+                        numHeats = "1";
+                    }
+
+                    // Meet related fields (ev.Meet may be null)
+                    string meetId = ev.MeetId.ToString();
+                    string meetExternalId = CsvEscape(ev.Meet?.ExternalId);
+                    string meetDesc = CsvEscape(ev.Meet?.Description);
+                    string meetDate = ev.Meet?.Date?.ToString("yyyy-MM-dd") ?? string.Empty;
+                    string meetLoc = CsvEscape(ev.Meet?.Location);
+                    string meetRound = ev.Meet?.Round.ToString() ?? string.Empty;
+
+                    sb.AppendLine($"{id},{eventExternalId},{eventNumber},{time},{desc},{distance},{trackType},{gender},{ageGrouping},{underAge},{mastersAge},{minLane},{maxLane},{videoInfoFile},{videoStartOffset},{meetId},{meetExternalId},{meetDesc},{meetDate},{meetLoc},{meetRound},{numHeats}");
+                }
+
+
+                string eventsCsv = sb.ToString();
+                await AthStitcher.Network.SendTextFileClient.SendTextAsync(
+                athStitcherModel.NetworkSettings.TargetHostOrIp,
+                athStitcherModel.NetworkSettings.TargetPort,
+                eventsCsv,
+                "Events",
+                connectTimeoutMs: athStitcherModel.NetworkSettings.ConnectTimeoutMs).ContinueWith(sendTask =>
+                {
+                    if (sendTask.IsFaulted)
+                    {
+                        var ex = sendTask.Exception?.GetBaseException();
+                        MessageBox.Show($"Failed to send file: {ex?.Message}", "Send Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                    else
+                    {
+                        MessageBox.Show("File sent successfully.", "Send Complete", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                }, TaskScheduler.FromCurrentSynchronizationContext());
+                //File.WriteAllText(dlg.FileName, sb.ToString(), Encoding.UTF8);
+                //            MessageBox.Show($"Meets exported to:\n{dlg.FileName}", "Export Complete", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to export meets to CSV:\n{ex.Message}", "Export Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private static string CsvEscape(string? input)
+        {
+            if (string.IsNullOrEmpty(input))
+                return string.Empty;
+
+            // Escape quotes
+            var s = input.Replace("\"", "\"\"");
+
+            // If contains comma, quote or newline, wrap with quotes
+            if (s.IndexOfAny(new[] { ',', '"', '\r', '\n' }) >= 0)
+                return $"\"{s}\"";
+
+            return s;
         }
     }
 }

@@ -143,5 +143,41 @@ CREATE TABLE IF NOT EXISTS Results (
             DropAllTables();
             EnsureTables();
         }
+
+
+        /// <summary>
+        /// Populate missing ExternalId GUIDs for existing Meets and Events.
+        /// Safe to run many times (only updates rows where ExternalId is null/empty).
+        /// Call this after EnsureCreated()/Migrate().
+        /// </summary>
+        public static void PopulateMissingExternalIds()
+        {
+            using var ctx = new AthStitcherDbContext();
+
+            // Meets
+            var meets = ctx.Meets
+                .Where(m => string.IsNullOrEmpty(m.ExternalId))
+                .ToList();
+
+            foreach (var m in meets)
+            {
+                m.ExternalId = Guid.NewGuid().ToString();
+            }
+
+            // Events
+            var events = ctx.Events
+                .Where(e => string.IsNullOrEmpty(e.ExternalId))
+                .ToList();
+
+            foreach (var ev in events)
+            {
+                ev.ExternalId = Guid.NewGuid().ToString();
+            }
+
+            if (meets.Count > 0 || events.Count > 0)
+            {
+                ctx.SaveChanges();
+            }
+        }
     }
 }

@@ -9,7 +9,9 @@
         </StackPanel>
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="8">
             <Button Width="90" Content="Add" Click="Add_Click"/>
-            <TextBlock Margin="12,0,0,0" VerticalAlignment="Center" Text="Double-click a row to select / Edit button to modify" Foreground="Gray"/>
+            <TextBlock Margin="12,0,12,0" VerticalAlignment="Center" Text="Double-click a row to select / Edit button to modify" Foreground="Gray"/>
+            <Button Width="185" Name="btnSendFiltered" Content="Send selected Events for this Meet" Click="ExportEventsAsCsv_Click"/>
+            <Button Width="155" Name="btnSendAll" Content="Send All Events for All Meets" Click="ExportEventsAsCsv_Click" Margin="5,0,5,0"/>
         </StackPanel>
         <!-- Filters row -->
         <Grid DockPanel.Dock="Top" Margin="8,0,8,8">

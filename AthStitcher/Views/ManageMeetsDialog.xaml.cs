@@ -2,7 +2,9 @@ using AthStitcher.Data;
 using AthStitcherGUI.ViewModels;
 using System;
 using System.ComponentModel;
+using System.Diagnostics.Eventing.Reader;
 using System.Linq;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -21,7 +23,9 @@ namespace AthStitcher.Views
             {
 
             };
-
+            AthStitcherViewModel athStitcherViewModel = new AthStitcherViewModel();
+            athStitcherViewModel.LoadViewModel();
+            this.DataContext = athStitcherViewModel.DataContext;
         }
 
         private void LoadMeets()
@@ -44,7 +48,7 @@ namespace AthStitcher.Views
             var dateCol = MeetsGrid.Columns
                 .OfType<DataGridTextColumn>()
                 .FirstOrDefault(c => c.SortMemberPath == nameof(Meet.Date));
-            if (dateCol != null) dateCol.SortDirection = ListSortDirection.Descending;
+            if (dateCol != null) dateCol.SortDirection = ListSortDirection.Descending;         
         }
 
         private bool FilterPredicate(object obj)
@@ -283,5 +287,92 @@ namespace AthStitcher.Views
             this.DialogResult = true;
             this.Close();
         }
+
+        private async void ExportMeetsAsCsv_Click(object sender, RoutedEventArgs e)
+        {
+            Button btn = sender as Button;
+            if(btn == null) return;
+            string caption = btn.Content?.ToString();
+            if(string.IsNullOrEmpty(caption)) return;
+            AthStitcherModel athStitcherModel = this.DataContext as AthStitcherModel;
+            List<Meet> meets = new List<Meet>();
+            try
+            {
+                using var ctx = new AthStitcherDbContext();
+                meets = ctx.Meets
+                    .OrderByDescending(m => m.Date.HasValue)
+                    .ThenByDescending(m => m.Date)
+                    .ToList();
+                if (caption == (string)btnSendAll.Content)
+                {
+                }
+                else if (caption == (string)btnSendFiltered.Content)
+                {
+                    meets = meets.Where(m => FilterPredicate(m)).ToList();
+                }
+                else
+                {
+                    MessageBox.Show($"Unknown action '{caption}'", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+
+                        // Header
+                        var sb = new StringBuilder();
+                // Header
+                sb.AppendLine("Id,ExternalId,Description,Date,Location,Round");
+
+                foreach (var m in meets)
+                {
+                    string id = m.Id.ToString();
+                    string externalId = CsvEscape(m.ExternalId);
+                    string desc = CsvEscape(m.Description);
+                    string date = m.Date?.ToString("yyyy-MM-dd") ?? "";
+                    string loc = CsvEscape(m.Location);
+                    string round = m.Round.ToString();
+
+                    sb.AppendLine($"{id},{externalId},{desc},{date},{loc},{round}");
+                }
+                string meetsCsv =  sb.ToString();
+                await AthStitcher.Network.SendTextFileClient.SendTextAsync(
+                athStitcherModel.NetworkSettings.TargetHostOrIp,
+                athStitcherModel.NetworkSettings.TargetPort,
+                meetsCsv,
+                "Meets",
+                connectTimeoutMs: athStitcherModel.NetworkSettings.ConnectTimeoutMs).ContinueWith(sendTask =>
+                {
+                    if (sendTask.IsFaulted)
+                    {
+                        var ex = sendTask.Exception?.GetBaseException();
+                        MessageBox.Show($"Failed to send file: {ex?.Message}", "Send Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                    else
+                    {
+                        MessageBox.Show("File sent successfully.", "Send Complete", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                }, TaskScheduler.FromCurrentSynchronizationContext());
+                //File.WriteAllText(dlg.FileName, sb.ToString(), Encoding.UTF8);
+                //            MessageBox.Show($"Meets exported to:\n{dlg.FileName}", "Export Complete", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to export meets to CSV:\n{ex.Message}", "Export Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+
+        private static string CsvEscape(string? input)
+        {
+            if (string.IsNullOrEmpty(input))
+                return string.Empty;
+
+            // Escape quotes
+            var s = input.Replace("\"", "\"\"");
+
+            // If contains comma, quote or newline, wrap with quotes
+            if (s.IndexOfAny(new[] { ',', '"', '\r', '\n' }) >= 0)
+                return $"\"{s}\"";
+
+            return s;
+        }
+
     }
 }

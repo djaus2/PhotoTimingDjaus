@@ -133,11 +133,16 @@ namespace AthStitcherGUI
                     {
                         await Task.Run(() =>
                         {
-
                             using var ctx = new AthStitcher.Data.AthStitcherDbContext();
-                            //ctx.Database.EnsureDeleted();
                             ctx.Database.EnsureCreated();
-                            //ctx.Database.Migrate();
+                            // or ctx.Database.Migrate();
+
+                            //AthStitcher.Data.DbInitializer.PopulateMissingExternalIds();
+
+                            //using var ctx = new AthStitcher.Data.AthStitcherDbContext();
+                            ////ctx.Database.EnsureDeleted();
+                            //ctx.Database.EnsureCreated();
+                            ////ctx.Database.Migrate();
                         });
                         // Seeding uses short operations; OK on UI thread post-migrate
                         SeedAdminIfMissing();
@@ -1813,7 +1818,7 @@ namespace AthStitcherGUI
 
 
         /// <summary>
-        /// Select the MP4 file but not open it.
+        /// Get the MP4 file but not open it.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>DownLoadMp4File_Click
@@ -4439,6 +4444,108 @@ namespace AthStitcherGUI
             }
             catch { }
             
+        }
+
+        private void SendProgram_Click(object sender, RoutedEventArgs e)
+        {
+
+            // Reuse existing ViewModel storage for a selected text file (uses the GunAudioPath property as a generic text-file holder)
+            string sendFilePath = athStitcherViewModel.GetGunAudioPath();
+            var openFileDialog = new OpenFileDialog
+            {
+                Filter = "Text Files (*.txt)|*.txt|All Files (*.*)|*.*",
+                Title = "Select a text file"
+            };
+
+            if (File.Exists(sendFilePath))
+            {
+                string? initialDirectory = System.IO.Path.GetDirectoryName(sendFilePath);
+                if (!string.IsNullOrEmpty(initialDirectory) && Directory.Exists(initialDirectory))
+                {
+                    openFileDialog.InitialDirectory = initialDirectory;
+                    openFileDialog.FileName = System.IO.Path.GetFileName(sendFilePath);
+                }
+            }
+            else if (!string.IsNullOrEmpty(AthStitcherGUI.SharedAppState.GlobalFolder)
+                     && Directory.Exists(AthStitcherGUI.SharedAppState.GlobalFolder))
+            {
+                openFileDialog.InitialDirectory = AthStitcherGUI.SharedAppState.GlobalFolder;
+            }
+
+            var originalCwd = Environment.CurrentDirectory;
+            try
+            {
+                if (!string.IsNullOrEmpty(AthStitcherGUI.SharedAppState.GlobalFolder)
+                    && Directory.Exists(AthStitcherGUI.SharedAppState.GlobalFolder))
+                {
+                    Environment.CurrentDirectory = AthStitcherGUI.SharedAppState.GlobalFolder;
+                    openFileDialog.InitialDirectory = AthStitcherGUI.SharedAppState.GlobalFolder;
+                    openFileDialog.FileName = string.Empty;
+                }
+
+                if (openFileDialog.ShowDialog() == true)
+                {
+                    sendFilePath = openFileDialog.FileName;
+                    athStitcherViewModel.SetGunAudioPath(sendFilePath); // store selected path in the ViewModel
+                    var selDir = System.IO.Path.GetDirectoryName(sendFilePath);
+                    if (!string.IsNullOrEmpty(selDir) && Directory.Exists(selDir))
+                    {
+                        AthStitcherGUI.SharedAppState.SetGlobalFolder(selDir);
+                    }
+
+                    MessageBox.Show($"Selected file:\n{sendFilePath}", "File Selected", MessageBoxButton.OK, MessageBoxImage.Information);
+                    AthStitcher.Network.SendTextFileClient.SendFileAsync(
+                        athStitcherViewModel.NetworkSettings.TargetHostOrIp,
+                        athStitcherViewModel.NetworkSettings.TargetPort,
+                        sendFilePath,
+                        filenameOverride: null,
+                        connectTimeoutMs: athStitcherViewModel.NetworkSettings.ConnectTimeoutMs).ContinueWith(sendTask =>
+                        {
+                            if (sendTask.IsFaulted)
+                            {
+                                var ex = sendTask.Exception?.GetBaseException();
+                                MessageBox.Show($"Failed to send file: {ex?.Message}", "Send Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                            }
+                            else
+                            {
+                                MessageBox.Show("File sent successfully.", "Send Complete", MessageBoxButton.OK, MessageBoxImage.Information);
+                            }
+                        }, TaskScheduler.FromCurrentSynchronizationContext());
+                }
+            }
+            finally
+            {
+                Environment.CurrentDirectory = originalCwd;
+            }
+        }
+
+        
+        private void SendProgramSettings_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var settings = athStitcherViewModel.NetworkSettings ?? new AthStitcherGUI.ViewModels.NetworkSettings();
+                var dlg = new AthStitcher.Views.NetworkSettingsDialog(settings) { Owner = this };
+                if (dlg.ShowDialog() == true)
+                {
+                    // Persist changes
+                    try
+                    {
+                        athStitcherViewModel.SaveViewModel();
+                    }
+                    catch
+                    {
+                        // Ignore save errors; notify user
+                        MessageBox.Show("Network settings updated, but failed to save persistent settings.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    }
+
+                    MessageBox.Show("Network settings updated.", "Network Settings", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to open network settings dialog: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
         ////////////////////////////////////////////////////////////////////////////////////////
     }

@@ -1,4 +1,3 @@
-using AthStitcher.Data;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.EntityFrameworkCore;
 using NAudio.Utils;
@@ -18,6 +17,10 @@ namespace AthStitcher.Data
     {
         public Event()
         {
+            // Ensure a stable ExternalId exists for each new Event
+            if (string.IsNullOrWhiteSpace(ExternalId))
+                ExternalId = Guid.NewGuid().ToString();
+
             PropertyChanged += (_, e) =>
             {
                 if (e.PropertyName is nameof(IsDirty) or nameof(Id) or nameof(MeetId) or nameof(Display)) return;
@@ -36,6 +39,9 @@ namespace AthStitcher.Data
         [JsonIgnore]
         public virtual ICollection<Heat> Heats { get; set; } = new List<Heat>();
 
+        // Stable external id to help matching when importing/exporting across devices
+        [ObservableProperty, NotifyPropertyChangedFor(nameof(Display))]
+        private string externalId = Guid.NewGuid().ToString();
 
         [ObservableProperty, NotifyPropertyChangedFor(nameof(Display))]
         private int? eventNumber;
@@ -77,6 +83,8 @@ namespace AthStitcher.Data
         [ObservableProperty, NotifyPropertyChangedFor(nameof(Display))]
         private int? maxLane;
 
+        [ObservableProperty, NotifyPropertyChangedFor(nameof(Display))]
+        private int numHeats = 1;
 
         [JsonIgnore]
         [NotMapped]
@@ -84,9 +92,9 @@ namespace AthStitcher.Data
 
         [JsonIgnore]
         [NotMapped]
-        public string DisplayName => ToString();    
+        public string DisplayName => ToString();
         // Convenience: time-of-day string for UI bindings (12-hour with AM/PM)
-        
+
         [NotMapped]
         public string TimeStr => Time?.ToString("h:mm tt", CultureInfo.CurrentCulture) ?? string.Empty;
 

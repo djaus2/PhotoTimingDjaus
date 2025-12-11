@@ -143,6 +143,7 @@
                                     FontWeight="Bold" 
                                     FontStyle="Italic"
                                     Foreground="Blue">
+                                <MenuItem Header="Send Program" Click="SendProgram_Click"/>
                                 <MenuItem Background="Beige" Header="Meets:" Foreground="Purple"/>
                                 <MenuItem Header="Select Meet" Click="Select_Meet_Menu_Click"/>
                                 <MenuItem Header="Manage Meets" Click="Manage_Meets_Menu_Click"/>
@@ -174,11 +175,12 @@
                                 FontWeight="Bold" 
                                 FontStyle="Italic"
                                 Foreground="Blue">
-
+                                <MenuItem Header="Send Program Settings" Click="SendProgramSettings_Click"/>
                                 <MenuItem Header="ExifTool"
                             FontWeight="Bold" 
                             FontStyle="Italic"
                             Foreground="Blue">
+                                    
                                     <MenuItem Header="About  ExifTool" Click="AboutExifTool"/>
                                     <MenuItem Header="Get ExifTool Zip (Open browser)" Click="GetExifTool"/>
                                     <MenuItem Header="Unzip ExifTool Download" Click="UnzipExifTool" />

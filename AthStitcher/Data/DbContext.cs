@@ -17,10 +17,10 @@ namespace AthStitcher.Data
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             var dbPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "AthStitcher", "athstitcher.db");
-            var dir = Path.GetDirectoryName(dbPath);
-            if (!Directory.Exists(dir))
+            var saveDir = Path.GetDirectoryName(dbPath);
+            if (!Directory.Exists(saveDir))
             {
-                Directory.CreateDirectory(dir!);
+                Directory.CreateDirectory(saveDir!);
             }
             optionsBuilder
                 .UseSqlite($"Data Source={dbPath}")

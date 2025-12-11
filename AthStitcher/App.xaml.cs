@@ -64,6 +64,7 @@ public partial class App : WpfApplication
         getVideoPage.ShowDialog();
     }
 
+
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);

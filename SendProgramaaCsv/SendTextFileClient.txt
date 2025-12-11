@@ -1,0 +1,70 @@
+using System;
+using System.IO;
+using System.Net;
+using System.Net.Sockets;
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace AthStitcher.Network
+{
+    public static class SendTextFileClient
+    {
+        /// <summary>
+        /// Send file with: [Int32 jsonLength][json][32-byte SHA256][file bytes].
+        /// After sending file bytes the sender does Shutdown(SocketShutdown.Send) and waits for 1-byte ACK.
+        /// </summary>
+        public static async Task SendFileAsync(string filePath, string ipAddress, int port, CancellationToken ct = default)
+        {
+            if (string.IsNullOrEmpty(filePath)) throw new ArgumentNullException(nameof(filePath));
+            if (!File.Exists(filePath)) throw new FileNotFoundException("File not found", filePath);
+
+            using var client = new TcpClient();
+            await client.ConnectAsync(IPAddress.Parse(ipAddress), port).ConfigureAwait(false);
+            using var stream = client.GetStream();
+
+            // 1) JSON metadata (simple object with Filename)
+            string fileName = Path.GetFileName(filePath);
+            var meta = new { Filename = fileName };
+            byte[] jsonBytes = JsonSerializer.SerializeToUtf8Bytes(meta);
+            byte[] jsonLength = BitConverter.GetBytes(jsonBytes.Length);
+            await stream.WriteAsync(jsonLength, 0, jsonLength.Length, ct).ConfigureAwait(false);
+            await stream.WriteAsync(jsonBytes, 0, jsonBytes.Length, ct).ConfigureAwait(false);
+
+            // 2) Compute SHA256 checksum over file and send it (32 bytes)
+            byte[] checksum;
+            using (var sha = SHA256.Create())
+            using (var fileForHash = File.OpenRead(filePath))
+            {
+                checksum = sha.ComputeHash(fileForHash);
+            }
+            await stream.WriteAsync(checksum, 0, checksum.Length, ct).ConfigureAwait(false);
+
+            // 3) Stream file bytes
+            using var fileStream = File.OpenRead(filePath);
+            byte[] buffer = new byte[1024 * 1024];
+            int bytesRead;
+            while (!ct.IsCancellationRequested && (bytesRead = await fileStream.ReadAsync(buffer, 0, buffer.Length, ct).ConfigureAwait(false)) > 0)
+            {
+                await stream.WriteAsync(buffer, 0, bytesRead, ct).ConfigureAwait(false);
+            }
+
+            // 4) Signal end-of-data (half-close) so receiver's ReadAsync returns 0
+            try
+            {
+                client.Client.Shutdown(SocketShutdown.Send);
+            }
+            catch { /* ignore if socket already closed */ }
+
+            // 5) Wait for 1-byte ACK from receiver (1 = match, 0 = mismatch)
+            var ack = new byte[1];
+            int n = await stream.ReadAsync(ack, 0, 1, ct).ConfigureAwait(false);
+            if (n != 1 || ack[0] != 1)
+            {
+                throw new InvalidDataException("Receiver reported checksum mismatch or no ACK received.");
+            }
+        }
+    }
+}
