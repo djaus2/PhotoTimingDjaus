@@ -1729,6 +1729,8 @@ namespace AthStitcherGUI
                 VideoInfo videoInfo = VideoInfo.CreateFromJson(json);
                 ////videoFilePath = openFileDialog.FileName;
                 athStitcherViewModel.VideoInfo = videoInfo;
+                var EventId = videoInfo.EventId;
+                var HeattNum = videoInfo.EventHeatNumber;
                 // Store the VideoInfo object in the ViewModel
                 athStitcherViewModel.SetTimeFromMode(videoInfo.TimeFrom);
                 athStitcherViewModel.SetVideoCreationDate(videoInfo.VideoStart);

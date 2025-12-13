@@ -59,9 +59,11 @@ namespace DownloadVideoOverTCPLib
             // Get info file
             string fileName = videoInfo.Filename; // Encoding.UTF8.GetString(nameBuffer);
             string infoFilePath = Path.Combine(fileFolder, Path.GetFileNameWithoutExtension(fileName) + ".json");
+            Guid EventUniqueId = videoInfo.EventId;
+            int HeatNum = videoInfo.EventHeatNumber;
             File.WriteAllText(infoFilePath, json);
-            System.Diagnostics.Debug.WriteLine($"Receiving file: {fileName}");
-
+            System.Diagnostics.Debug.WriteLine($"Receiving file: {fileName} EventUniqueId: {EventUniqueId} HeatN: {HeatNum}");
+ 
             // Get Video and compare Checksums
             byte[]    expectedChecksum = videoInfo.Checksum; // new byte[32]; // SHA256
 
