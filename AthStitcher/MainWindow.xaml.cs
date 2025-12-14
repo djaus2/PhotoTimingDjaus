@@ -1698,7 +1698,15 @@ namespace AthStitcherGUI
                 if (openFileDialog.ShowDialog() == true)
                 {
                     videoFilePath = openFileDialog.FileName;
-                    StitchVideo(videoFilePath);
+                    string jsonFilePath = Regex.Replace(videoFilePath, ".mp4", ".json", RegexOptions.IgnoreCase);
+                    if (File.Exists(jsonFilePath))
+                    {
+                        string json = File.ReadAllText(jsonFilePath);
+                        VideoInfo videoInfo = VideoInfo.CreateFromJson(json);
+                        athStitcherViewModel.VideoInfo = videoInfo;
+                        Select_EventandHeat_From_VideoInfo_Guid(videoInfo);
+                    }
+                    //StitchVideo(videoFilePath);
                 }
             }
             finally
@@ -3391,6 +3399,58 @@ namespace AthStitcherGUI
             }
         }
 
+        private void Select_EventandHeat_From_VideoInfo_Guid(VideoInfo videoInfo)
+        {
+            if (this.DataContext is not AthStitcherGUI.ViewModels.AthStitcherModel vm)
+                return;
+
+            // Add some checks and balances here
+
+            if (true)
+            {
+                Guid EventId = videoInfo.EventId;
+                int Heat = videoInfo.EventHeatNumber;
+                using var ctx = new AthStitcherDbContext();
+                
+                vm.CurrentEvent = ctx.Events.FirstOrDefault(e => e.ExternalId == EventId.ToString());
+                vm.CurrentMeet = ctx.Meets.FirstOrDefault(m => m.Id == vm.CurrentEvent.MeetId);
+                int numEventHeats = ctx.Heats.Count(h => h.EventId == vm.CurrentEvent.Id);
+                int numHeats = vm.CurrentEvent?.NumHeats ?? 1;
+                if(numEventHeats < numHeats)
+                {
+                    // Note deleting any pre-existing heats and recreating them all. Could improve on this later
+                    vm.CurrentEvent.Heats.Clear();
+                    for (int h = 0; h <= numHeats; h++)
+                    {
+                        if (!ctx.Heats.Any(x => x.EventId == vm.CurrentEvent.Id && x.HeatNo == h))
+                        {
+                            ctx.Heats.Add(new Heat { EventId = vm.CurrentEvent.Id, HeatNo = h });
+                        }
+                    }
+                    ctx.Update(vm.CurrentEvent);
+                    ctx.SaveChanges();
+                }
+              
+                vm.CurrentHeat = ctx.Heats.FirstOrDefault(h => h.EventId == vm.CurrentEvent.Id && h.HeatNo == Heat);
+                int starLane = vm.CurrentEvent.MinLane??1;
+                int endLane = vm.CurrentEvent.MaxLane??1;
+                int numLanes = endLane - starLane + 1;
+                var currentHeatResults = vm.CurrentHeat.Results;
+                if(currentHeatResults.Count != numLanes)
+                {
+                    //Note deleting any pre-existing results and recreating them all. Could improve on this later.
+                    vm.CurrentHeat.Results.Clear();
+                    for (int l=starLane; l<=endLane; l++)
+                    {
+                        vm.CurrentHeat.Results.Add(new LaneResult { HeatId = vm.CurrentHeat.Id, Lane = l, IsDirty=true });
+                    }
+                    ctx.Update(vm.CurrentHeat);
+                    ctx.SaveChanges();
+                }
+                athStitcherViewModel.SetShowSliders(false);
+            }
+        }
+
         private void New_Event_Menu_Click(object sender, RoutedEventArgs e)
         {
             if (this.DataContext is not AthStitcherGUI.ViewModels.AthStitcherModel vm)
@@ -3594,6 +3654,7 @@ namespace AthStitcherGUI
                 }
                 if (vm.CurrentHeat != null)
                 {
+                    var results = vm.CurrentHeat.Results;
                     UpdateCurrentHeatResults();
                 }
                 using var ctx = new AthStitcherDbContext();
