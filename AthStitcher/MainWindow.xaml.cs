@@ -1706,7 +1706,7 @@ namespace AthStitcherGUI
                         athStitcherViewModel.VideoInfo = videoInfo;
                         Select_EventandHeat_From_VideoInfo_Guid(videoInfo);
                     }
-                    //StitchVideo(videoFilePath);
+                    StitchVideo(videoFilePath);
                 }
             }
             finally
