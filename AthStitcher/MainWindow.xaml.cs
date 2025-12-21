@@ -2999,8 +2999,8 @@ namespace AthStitcherGUI
 
         private void QRCode_Click(object sender, RoutedEventArgs e)
         {
-            string url = "https://davidjones.sportronics.com.au/appdev/Photo_Finish-Video_Capture_and_Processing-appdev.html";
-            MessageBox.Show($"Documentation URL:\n{url}", "Photo Finish Documentation", MessageBoxButton.OK, MessageBoxImage.Information);
+            string url = "https://davidjones.sportronics.com.au/appdev/Photo_Finish-Video_Capture_and_Processing_UPDATE-appdev.html";
+            MessageBox.Show($"Go to QR code at URL:\n{url}", "Photo Finish Documentation", MessageBoxButton.OK, MessageBoxImage.Information);
 
             // Open the URL in the default browser
             try

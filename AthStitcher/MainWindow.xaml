@@ -124,7 +124,7 @@
                                 <MenuItem Header="Set Temp Gun Audio File" Click="OpenGunAudioTextFile_Click"/>
                                 <Separator/>
                                 <MenuItem Background="Beige" Header="Phone:" Foreground="Purple"/>
-                                <MenuItem Header="Install Phone App on Phone (QR Code) Needs an update." Click="QRCode_Click"/>
+                                <MenuItem Header="Install Phone App on Phone (QR Code) Latest Sideload." Click="QRCode_Click"/>
                                 <Separator/>
                                 <MenuItem Background="Beige" Header="DATABASE:" Foreground="Purple"/>
                                 <MenuItem  Header="Change Password" Click="ChangePassword_Menu_Click"/>

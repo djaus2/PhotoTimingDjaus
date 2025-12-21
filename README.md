@@ -18,6 +18,8 @@ A DBMS has been added using Entity Framework Core to record Meets, Events, Heats
 
 > **Latest Blog Post:** [AthStitcher -Functionality](https://davidjones.sportronics.com.au/appdev/AthStitcher-Functionality-appdev.html)
 
+> V7.8.0 Latest version of related phone app available for sideload via File menu.
+
 ## Note
 As things stand, athletes are manually entered into heat results before or after a heat has been run. 
 
