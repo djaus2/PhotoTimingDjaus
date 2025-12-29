@@ -25,6 +25,20 @@ As things stand, athletes are manually entered into heat results before or after
 
 ---
 
+## Build PS Packaging Commands
+
+Found can publish x86 from VS, right click on install project Publish, select Folder, set Target Runtime to win-x86, then Publish.  
+With x64 get error:
+```
+Error ... Assets file 'C:\Users\david\source\repos\PhotoTimingDjaus-16-10-2025\AthStitcher\obj\wappublish\win-x64\project.assets.json' not found. Run a NuGet package restore to generate this file.
+```
+Use the following commands from Developer Command Prompt for VS 2022 to build x64 _(and x86)_ version/s.
+
+```
+MSBuild.exe ".\AthStitcherInstall\AthStitcherInstall.wapproj" /t:Restore,Rebuild /p:Configuration=Release /p:Platform=x86 /v:m
+MSBuild.exe ".\AthStitcherInstall\AthStitcherInstall.wapproj" /t:Restore,Rebuild /p:Configuration=Release /p:Platform=x64 /v:m
+```
+
 ## Feedback
 
 > **What features would you like to see implemented?**
