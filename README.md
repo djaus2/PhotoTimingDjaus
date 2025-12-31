@@ -76,6 +76,7 @@ The software has undergone progress updates to enhance functionality and user ex
 - Some tidy up so only using existing Meet-Event-Heat-Results-Video
 
 ## Features to add
+- Restore Ability: Can send and process a video that doesn't have a Meet-Event-Heat associated with it. ***Done***
 - Send Meets and Events to AthsVideoRecording app over TCP each with a Guid.
   - So that when video is sent over TCP, the Meet and Event can be selected.
   - Sending Events and Heats at this end is ***Done***.

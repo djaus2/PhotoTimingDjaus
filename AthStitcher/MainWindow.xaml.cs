@@ -351,6 +351,23 @@ namespace AthStitcherGUI
 
             if (this.DataContext is AthStitcherGUI.ViewModels.AthStitcherModel vm)
             {
+                if (vm.CurrentEvent == null)
+                {
+                    if(vm.CurrentHeat != null)
+                    {
+                        if (vm.CurrentHeat.Results != null)
+                        {
+                            var lane = lr.Lane;
+                            if (vm.CurrentHeat.Results.Count() >= lane)
+                            {                              
+                                lr.ResultSeconds = newSeconds;
+                            }
+                        }
+                    }
+                    Clipboard.Clear();
+                    return;
+                }
+                    
                 using var ctx = new AthStitcherDbContext();
                 // If we previously pasted into a different lane within the same result cycle, clear it
                 if (_currentResultLaneIndex.HasValue && _currentResultLaneIndex.Value != lr.Lane)
@@ -370,7 +387,7 @@ namespace AthStitcherGUI
                 ctx.Update(lr);
                 ctx.SaveChanges();
                 _currentResultLaneIndex = lr.Lane;
-                
+                Clipboard.Clear();
                 // keep _hasNewResultAvailable = true to allow moving the result between lanes in this cycle
                 // let focus/edit continue
             }
@@ -3409,6 +3426,20 @@ namespace AthStitcherGUI
             if (true)
             {
                 Guid EventId = videoInfo.EventId;
+                if (EventId == Guid.Empty)
+                {
+                    vm.CurrentMeet = null;
+                    vm.CurrentEvent = null;
+                    vm.CurrentHeat = new AthStitcher.Data.Heat() {   };
+                    List<LaneResult> results = new List<LaneResult>();
+                    for (int i=0;i<8; i++)
+                    {
+                        results.Add(new LaneResult() { Lane = (i + 1) });
+                    }
+                    vm.CurrentHeat.Results = results; 
+                    athStitcherViewModel.SetShowSliders(false);
+                    return;
+                }
                 int Heat = videoInfo.EventHeatNumber;
                 using var ctx = new AthStitcherDbContext();
                 
@@ -3448,6 +3479,14 @@ namespace AthStitcherGUI
                     ctx.SaveChanges();
                 }
                 athStitcherViewModel.SetShowSliders(false);
+            }
+        }
+
+        private void TimeTextBlock_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is TextBlock tb && tb.DataContext is LaneResult lr)
+            {
+                // lr is the clicked item
             }
         }
 

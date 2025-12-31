@@ -664,6 +664,7 @@
                             <!--DataGridTextColumn Header="ResultSeconds" Binding="{Binding ResultStr, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="150"/-->
                             <DataGridTextColumn Header="Time(sec)"
                                 Binding="{Binding ResultStr, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                
                                 Width="100">
                                 <DataGridTextColumn.ElementStyle>
                                     <Style TargetType="TextBlock">

@@ -9,7 +9,7 @@
   <Identity
     Name="44a49bfe-66f7-4945-b15c-83d4615ff1e1"
     Publisher="CN=david"
-    Version="1.0.42.0" />
+    Version="1.1.1.0" />
 
   <Properties>
     <DisplayName>AthStitcherInstall</DisplayName>
