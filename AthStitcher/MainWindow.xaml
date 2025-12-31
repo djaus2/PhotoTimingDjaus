@@ -167,15 +167,16 @@
                                 <MenuItem  Header="Import Events" Click="ImportEventsfromTextFileTabbed"/>
                                 <Separator/>
                                 <MenuItem Background="Beige" Header="Settings:" Foreground="Purple"/>
-                                <MenuItem  Header="Set App Settings" Click="SetAppCutoffs_Menu_Click"/>
+                                <MenuItem Header="Send Program Settings" Click="SendProgramSettings_Click"/>
+                                <MenuItem  Header="Set other App Settings" Click="SetAppCutoffs_Menu_Click"/>
                             </MenuItem>
                         </Menu>
                         <Menu>
-                            <MenuItem Header="Settings"
+                            <MenuItem Header="Further Settings"
                                 FontWeight="Bold" 
                                 FontStyle="Italic"
                                 Foreground="Blue">
-                                <MenuItem Header="Send Program Settings" Click="SendProgramSettings_Click"/>
+                                
                                 <MenuItem Header="ExifTool"
                             FontWeight="Bold" 
                             FontStyle="Italic"

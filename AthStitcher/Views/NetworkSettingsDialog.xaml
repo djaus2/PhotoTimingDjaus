@@ -16,20 +16,22 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="120"/>
+            <ColumnDefinition Width="130"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Text="Host / IP:" Margin="0,6,6,6"/>
+        <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" TextAlignment="Right" Text="Host / IP (As on phone):" Margin="0,6,6,6"/>
         <TextBox Grid.Row="0" Grid.Column="1" Margin="0,6,0,6"
                  Text="{Binding TargetHostOrIp, UpdateSourceTrigger=PropertyChanged}" />
 
-        <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Text="Port:" Margin="0,6,6,6"/>
+        <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" TextAlignment="Right" Text="Port (As on phone):" Margin="0,6,6,6"/>
         <TextBox Grid.Row="1" Grid.Column="1" Margin="0,6,0,6"
                  Text="{Binding TargetPort, UpdateSourceTrigger=PropertyChanged}" />
+        <TextBlock Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" TextAlignment="Right" Text="Note: " Margin="0,6,6,6"/>
+        <TextBlock Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" Text="For Android Port must be >= 1024" FontStyle="Italic" Margin="0,6,6,6"/>
 
-        <TextBlock Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" Text="Connect timeout (ms):" Margin="0,6,6,6"/>
-        <TextBox Grid.Row="2" Grid.Column="1" Margin="0,6,0,6"
+        <TextBlock Grid.Row="3" Grid.Column="0" VerticalAlignment="Center" TextAlignment="Right" Text="Connect timeout (ms):" Margin="0,6,6,6"/>
+        <TextBox Grid.Row="3" Grid.Column="1" Margin="0,6,0,6"
                  Text="{Binding ConnectTimeoutMs, UpdateSourceTrigger=PropertyChanged}" />
         <StackPanel Grid.Row="4" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
             <Button Width="84" Margin="6,0,0,0" IsDefault="True" Click="Ok_Click">OK</Button>

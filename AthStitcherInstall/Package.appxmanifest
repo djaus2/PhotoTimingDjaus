@@ -9,11 +9,11 @@
   <Identity
     Name="44a49bfe-66f7-4945-b15c-83d4615ff1e1"
     Publisher="CN=david"
-    Version="1.0.40.0" />
+    Version="1.0.42.0" />
 
   <Properties>
     <DisplayName>AthStitcherInstall</DisplayName>
-    <PublisherDisplayName>DavidJones@Sportronics</PublisherDisplayName>
+    <PublisherDisplayName>djaus@sportronics</PublisherDisplayName>
     <Logo>Images\StoreLogo.png</Logo>
   </Properties>
 
@@ -31,8 +31,8 @@
       Executable="$targetnametoken$.exe"
       EntryPoint="$targetentrypoint$">
       <uap:VisualElements
-        DisplayName="AthStitcherInstall"
-        Description="AthStitcherInstall"
+        DisplayName="AthStitcher"
+        Description="Handle athletics and similar, photo finish."
         BackgroundColor="transparent"
         Square150x150Logo="Images\Square150x150Logo.png"
         Square44x44Logo="Images\Square44x44Logo.png">
